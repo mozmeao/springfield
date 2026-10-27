@@ -14,7 +14,7 @@ from bs4 import BeautifulSoup
 from wagtail.models import Locale, Page, PageViewRestriction, Site
 
 from springfield.cms.fixtures.base_fixtures import get_placeholder_images
-from springfield.cms.fixtures.conditional_display_fixtures import make_notification, make_show_to
+from springfield.cms.fixtures.block_factories import notification_block, show_to_value
 from springfield.cms.fixtures.thanks_page_fixtures import get_download_support
 from springfield.cms.middleware import CurrentRequestMiddleware
 from springfield.cms.models import (
@@ -750,7 +750,9 @@ def test_thanks_page_clean_ignores_notification_field(notification_count):
     """ThanksPage.clean() only enforces the notification field's max_num; it doesn't
     trip the `content` field's 'first block must be a Section' or platform-coverage
     rules based on the notification blocks present."""
-    notifications = [make_notification(f"clean{index:03d}", "Heads up.", make_show_to()) for index in range(notification_count)]
+    notifications = [
+        notification_block(block_id=f"clean{index:03d}", message="Heads up.", show_to=show_to_value()) for index in range(notification_count)
+    ]
     page = ThanksPage(
         title="Thanks",
         slug="thanks-notification-clean",
@@ -759,7 +761,7 @@ def test_thanks_page_clean_ignores_notification_field(notification_count):
             {
                 "type": "section",
                 "value": {
-                    "settings": {"show_to": make_show_to()},
+                    "settings": {"show_to": show_to_value()},
                     "heading": {"heading_text": "<p>Thanks!</p>"},
                     "content": [],
                     "cta": [],
@@ -775,7 +777,7 @@ def test_thanks_page_clean_rejects_more_than_two_notifications():
     """ThanksPage.clean() enforces the notification field's max_num=2 itself, so the
     cap holds even when a notification list is assigned outside the admin form (e.g.
     by a script or data migration)."""
-    notifications = [make_notification(f"toomany{index:03d}", "Heads up.", make_show_to()) for index in range(3)]
+    notifications = [notification_block(block_id=f"toomany{index:03d}", message="Heads up.", show_to=show_to_value()) for index in range(3)]
     page = ThanksPage(
         title="Thanks",
         slug="thanks-notification-clean-too-many",
@@ -784,7 +786,7 @@ def test_thanks_page_clean_rejects_more_than_two_notifications():
             {
                 "type": "section",
                 "value": {
-                    "settings": {"show_to": make_show_to()},
+                    "settings": {"show_to": show_to_value()},
                     "heading": {"heading_text": "<p>Thanks!</p>"},
                     "content": [],
                     "cta": [],
@@ -1375,6 +1377,40 @@ def test_flare_docs_index_page_serve_shows_sections_in_html(minimal_site, rf):
 
     # Leaf section (standalone) should appear in the other section
     assert "Standalone Page" in content.text
+
+
+def test_flare_docs_index_page_root_renders_changelog_dialog(minimal_site, rf):
+    """The root docs page should offer the changelog in a dialog opened from the intro."""
+    root_page = SimpleRichTextPage.objects.first()
+    index_page = FlareDocsIndexPageFactory(parent=root_page, slug="flare-docs", title="Flare Docs - Index")
+    index_page.save()
+
+    request = rf.get(index_page.relative_url(minimal_site))
+    response = index_page.specific.serve(request)
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    trigger = soup.select_one(".fl-intro .fl-dialog-trigger")
+    assert trigger is not None
+    dialog = soup.find("dialog", id=trigger["data-target-id"])
+    assert dialog is not None
+    assert dialog.find("h1").get_text(strip=True) == "CMS Changelog"
+    assert dialog.find("h2") is not None
+
+
+def test_flare_docs_index_page_child_has_no_changelog_dialog(minimal_site, rf):
+    """Only the root docs page should render the changelog."""
+    root_page = SimpleRichTextPage.objects.first()
+    index_page = FlareDocsIndexPageFactory(parent=root_page, slug="flare-docs", title="Flare Docs - Index")
+    index_page.save()
+    blocks_page = FlareDocsIndexPageFactory(parent=index_page, slug="blocks", title="Flare Docs - Blocks")
+    blocks_page.save()
+
+    request = rf.get(blocks_page.relative_url(minimal_site))
+    response = blocks_page.specific.serve(request)
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    assert soup.select_one(".fl-dialog-trigger") is None
+    assert soup.find("dialog", id="cms-changelog-dialog") is None
 
 
 def test_flare_docs_index_page_renders_child_docs_field(minimal_site, rf):

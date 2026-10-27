@@ -85,6 +85,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-section-v-padding: var(--token-layout-md-half);
     --fl-section-h-padding: var(--token-layout-3xs);
     --fl-section-heading-margin-bottom: var(--token-layout-sm);
+    --fl-section-hgroup-gap: var(--token-spacing-xl);
 
     /* Card */
     --card-bg-color: var(--token-color-white);
@@ -148,7 +149,6 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
         --fl-theme-font-size-body-md: 1.25rem; /* 20px */
         --fl-section-v-padding: calc(var(--token-layout-lg) / 2);
         --fl-section-hgroup-padding-bottom: var(--token-layout-sm);
-        --fl-section-hgroup-gap: var(--token-spacing-xl);
     }
 }
 
@@ -170,6 +170,7 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
         --gallery-card-radius: var(--token-border-radius-lg);
         --gallery-callout-card-padding: var(--token-layout-xs)
             var(--token-layout-2xs);
+        --fl-section-hgroup-gap: var(--token-layout-xs);
     }
 }
 

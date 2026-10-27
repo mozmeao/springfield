@@ -2,24 +2,16 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from django.conf import settings
-
-from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import (
+    get_flare_blocks_docs_page,
+    get_image_variants,
+    get_or_create_page,
+    get_placeholder_images,
+)
+from springfield.cms.fixtures.block_factories import section
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.fixtures.video_fixtures import get_video_variants
 from springfield.cms.models import FreeFormPage2026
-
-_SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": ""}
-
-_IMAGE_VARIANTS = {
-    "image": settings.PLACEHOLDER_IMAGE_ID,
-    "settings": {
-        "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
-        "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
-        "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
-    },
-}
-
 
 _TAGS = [
     {
@@ -70,27 +62,8 @@ _TAGS = [
 ]
 
 
-def _section(heading_text, content_blocks, section_id, subheading_text=""):
-    return {
-        "type": "section",
-        "value": {
-            "settings": {
-                "show_to": _SHOW_TO_ALL,
-                "anchor_id": "",
-            },
-            "heading": {
-                "superheading_text": "",
-                "heading_text": f'<p data-block-key="mc2026h">{heading_text}</p>',
-                "subheading_text": f'<p data-block-key="mc2026s">{subheading_text}</p>' if subheading_text else "",
-            },
-            "content": content_blocks,
-            "cta": [],
-        },
-        "id": section_id,
-    }
-
-
 def get_media_content_variants() -> list[dict]:
+    image_variants = get_image_variants()
     buttons = get_button_variants()
     videos = get_video_variants()
     return [
@@ -101,7 +74,7 @@ def get_media_content_variants() -> list[dict]:
                 "media": [
                     {
                         "type": "image",
-                        "value": _IMAGE_VARIANTS,
+                        "value": image_variants,
                         "id": "2026mc01-0000-0000-0000-000000000010",
                     }
                 ],
@@ -133,7 +106,7 @@ def get_media_content_variants() -> list[dict]:
                 "media": [
                     {
                         "type": "image",
-                        "value": _IMAGE_VARIANTS,
+                        "value": image_variants,
                         "id": "2026mc01-0000-0000-0000-000000000020",
                     }
                 ],
@@ -180,6 +153,7 @@ def get_media_content_variants() -> list[dict]:
 
 
 def get_media_content_narrow_variants() -> list[dict]:
+    image_variants = get_image_variants()
     buttons = get_button_variants()
     return [
         {
@@ -189,7 +163,7 @@ def get_media_content_narrow_variants() -> list[dict]:
                 "media": [
                     {
                         "type": "image",
-                        "value": _IMAGE_VARIANTS,
+                        "value": image_variants,
                         "id": "2026mcn1-0000-0000-0000-000000000010",
                     }
                 ],
@@ -217,7 +191,7 @@ def get_media_content_narrow_variants() -> list[dict]:
                 "media": [
                     {
                         "type": "image",
-                        "value": _IMAGE_VARIANTS,
+                        "value": image_variants,
                         "id": "2026mcn2-0000-0000-0000-000000000020",
                     }
                 ],
@@ -243,13 +217,13 @@ def get_media_content_narrow_variants() -> list[dict]:
 
 def get_media_content_sections() -> list[dict]:
     return [
-        _section(
+        section(
             heading_text="Media + Content 2026",
             subheading_text="Media content blocks in the 2026 design system.",
             content_blocks=get_media_content_variants(),
             section_id="2026mcs1-0000-0000-0000-000000000001",
         ),
-        _section(
+        section(
             heading_text="Media + Content 2026 — Narrow",
             subheading_text="Narrow layout narrows the media element relative to the content.",
             content_blocks=get_media_content_narrow_variants(),

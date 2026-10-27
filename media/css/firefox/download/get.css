@@ -1,0 +1,25 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+/* Outside the layer so the no-JS fallback shows in browsers without cascade layers. */
+.no-js .c-partner-download [data-state='unsupported_os'] {
+    display: block;
+}
+
+@layer page {
+    .c-partner-download .fl-notification-wrapper {
+        margin-block-end: var(--token-spacing-2xl);
+    }
+
+    .c-partner-download .fl-download-support {
+        gap: var(--token-spacing-2xl);
+    }
+
+    .c-partner-download .fl-heading {
+        margin-inline: auto;
+        max-inline-size: 30ch;
+    }
+}

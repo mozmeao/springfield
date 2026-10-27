@@ -14,6 +14,7 @@ from django.templatetags.static import static
 from django.urls import path, reverse
 from django.utils.html import escape, format_html
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext_lazy as _
 
 import wagtail.admin.rich_text.editors.draftail.features as draftail_features
 from draftjs_exporter.dom import DOM
@@ -25,6 +26,7 @@ from wagtail.admin.rich_text.converters.html_to_contentstate import (
     PageLinkElementHandler,
 )
 from wagtail.admin.ui.menus.pages import PageMenuItem
+from wagtail.admin.ui.tables import LiveStatusTagColumn, UpdatedAtColumn
 from wagtail.documents.rich_text import DocumentLinkHandler
 from wagtail.documents.rich_text.contentstate import DocumentLinkElementHandler
 from wagtail.fields import StreamField
@@ -39,16 +41,20 @@ from springfield.base.models import TranslatedPagePermission
 from springfield.base.templatetags.helpers import css_bundle
 from springfield.cms.admin_views import (
     ContentSearchView,
+    RegenerateDocsView,
     UpdateSlugConfirmView,
     UpdateSlugView,
+    WorkspaceView,
     create_translation_sharing_link,
 )
 from springfield.cms.blocks import regenerate_analytics_ids
+from springfield.cms.images.views import SpringfieldImageIndexView, inline_edit_image
 from springfield.cms.models import (
     AbstractSpringfieldCMSPage,
     BannerSnippet,
     FreeFormPage2026,
     NavigationSnippet,
+    PartnerRepack,
     PencilBannerSnippet,
     PreFooterCTAFormSnippet,
     PreFooterCTASnippet,
@@ -64,6 +70,7 @@ from springfield.cms.models import (
 from springfield.cms.routing.admin import build_signal_payload
 from springfield.cms.routing.admin_views import RoutingRulesIndexView, RoutingSignalsReferenceView
 from springfield.cms.utils import get_cms_environment
+from springfield.cms.workspaces import workspaces_menu
 
 
 @hooks.register("register_permissions")
@@ -83,6 +90,21 @@ def register_cms_admin_urls():
             create_translation_sharing_link,
             name="cms_translation_draftsharing_create",
         ),
+        path("regenerate-docs/", RegenerateDocsView.as_view(), name="cms_regenerate_docs"),
+    ]
+
+
+@hooks.register("register_admin_urls", order=-1)
+def register_image_listing_urls():
+    """URLs for the image listing's inline editing.
+
+    Registered ahead of Wagtail's own image URLs, so any path here that Wagtail also serves
+    resolves to the view registered here, while the wagtailimages URL names still reverse to it.
+    """
+    return [
+        path("images/", SpringfieldImageIndexView.as_view(), name="cms_image_index"),
+        path("images/results/", SpringfieldImageIndexView.as_view(results_only=True), name="cms_image_index_results"),
+        path("images/<int:image_id>/inline-edit/", inline_edit_image, name="cms_image_inline_edit"),
     ]
 
 
@@ -115,6 +137,16 @@ def register_content_search_link():
         icon_name="search",
         order=2,
     )
+
+
+class RegenerateDocsMenuItem(MenuItem):
+    def is_shown(self, request):
+        return not settings.PROD
+
+
+@hooks.register("register_settings_menu_item")
+def register_regenerate_docs_menu_item():
+    return RegenerateDocsMenuItem(_("Regenerate Docs"), reverse("cms_regenerate_docs"), icon_name="resubmit", order=10000)
 
 
 @hooks.register("register_admin_menu_item")
@@ -153,6 +185,12 @@ def environment_admin_css():
 @hooks.register("insert_global_admin_js")
 def relative_url_link_block_js():
     return format_html('<script src="{}"></script>', static("js/wagtailadmin-link-block.js"))
+
+
+@hooks.register("insert_global_admin_js")
+def image_inline_edit_js():
+    """Script that saves rows of the image listing edited in place."""
+    return format_html('<script src="{}"></script>', static("js/wagtailadmin-image-inline-edit.js"))
 
 
 @hooks.register("insert_global_admin_js")
@@ -224,6 +262,16 @@ def routing_condition_help_js():
     return mark_safe(
         f'<script>window.ROUTING_SIGNAL_PAYLOAD = {payload};</script><script src="{static("js/wagtailadmin-routing-help.js")}"></script>'
     )
+
+
+@hooks.register("insert_global_admin_js")
+def translation_except_aliases_js():
+    """Deliver the "Select all except aliases" script for locale checkboxes.
+
+    Global because wagtail-localize's "Translate" form doesn't render form media; the
+    script does nothing on pages without its checkboxes.
+    """
+    return format_html('<script src="{}"></script>', static("js/wagtailadmin-except-aliases-checkbox.js"))
 
 
 @hooks.register("insert_global_admin_js")
@@ -708,6 +756,22 @@ class PencilBannerSnippetViewSet(LocaleDefaultingSnippetViewSet):
     list_display = ["title_plain", "locale", "live"]
 
 
+class PartnerRepackViewSet(SnippetViewSet):
+    model = PartnerRepack
+    menu_label = "Partner downloads"
+    icon = "download"
+    list_display = ["name", "slug", "systems", LiveStatusTagColumn(), UpdatedAtColumn()]
+    search_fields = ["name", "slug"]
+
+
+@hooks.register("after_create_snippet")
+@hooks.register("after_edit_snippet")
+def tell_editors_when_partner_downloads_reach_visitors(request, instance):
+    """Add, under Wagtail's publish message, how long a published partner download takes to reach visitors."""
+    if isinstance(instance, PartnerRepack) and "action-publish" in request.POST:
+        messages.success(request, "Visitors see the change within about 20 minutes.")
+
+
 for _viewset in (
     PretranslatedPhraseViewSet,
     PreFooterCTASnippetViewSet,
@@ -720,6 +784,7 @@ for _viewset in (
     ScrollToSeeMoreSnippetViewSet,
     PencilBannerSnippetViewSet,
     NavigationSnippetViewSet,
+    PartnerRepackViewSet,
 ):
     register_snippet(_viewset)
 
@@ -835,3 +900,15 @@ def warn_about_leading_conditional_blocks(request, page):
         "Check that their display conditions cover every visitor exactly once — overlapping conditions show more than "
         "one h1, and gaps leave visitors with none.",
     )
+
+
+@hooks.register("register_admin_urls")
+def register_workspace_admin_urls():
+    return [
+        path("workspaces/<slug:slug>/", WorkspaceView.as_view(), name="cms_workspace"),
+    ]
+
+
+@hooks.register("register_admin_menu_item")
+def register_workspaces_menu():
+    return SubmenuMenuItem(_("Workspaces"), workspaces_menu, name="workspaces", icon_name="grid", order=150)

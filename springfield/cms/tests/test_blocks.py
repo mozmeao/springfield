@@ -3,6 +3,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import re
+from datetime import UTC, datetime
 from unittest import mock
 from urllib.parse import unquote, urlparse, urlunparse
 
@@ -12,8 +13,7 @@ from django.core.files.base import ContentFile
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.test import override_settings
-from django.utils import translation
-from django.utils.formats import date_format
+from django.utils import timezone, translation
 
 import pytest
 from bs4 import BeautifulSoup
@@ -24,6 +24,7 @@ from wagtail.images.jinja2tags import image, srcset_image
 from wagtail.models import Locale, Page, PageViewRestriction, Site
 
 from lib.l10n_utils import fluent_l10n, get_locale
+from springfield.base.templatetags.qrcode import qrcode_rounded
 from springfield.blog.fixtures.blog_fixtures import (
     FEATURED_DESCRIPTIONS,
     FEATURED_TITLES,
@@ -40,7 +41,10 @@ from springfield.cms.blocks import (
     ROADMAP_TAG_ICONS,
     ROADMAP_TAG_LABELS,
     UI_TOUR_CLASSES,
+    UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC_IMPORT_BROWSER_DATA,
     UITOUR_BUTTON_NEW_TAB,
+    UITOUR_BUTTON_SET_NEWTAB_WALLPAPER,
+    UITOUR_BUTTON_SET_TREATMENT_TAG,
     ArticleBlock,
     BaseArticleValue,
     BrowserComparisonTableBlock,
@@ -56,6 +60,7 @@ from springfield.cms.blocks import (
     IconListItemValue,
     ImpactDashBlock,
     QRCodeModalButtonBlock,
+    QuoteBlock,
     SectionBlock,
     SetAsDefaultButtonBlock,
     ShowcaseBlock,
@@ -67,7 +72,10 @@ from springfield.cms.blocks import (
     UITourButtonBlock,
     UntranslatableCharBlock,
     UUIDBlock,
+    VideoModalButtonBlock,
     icon_display_label,
+    validate_youtube_url,
+    youtube_video_id,
 )
 from springfield.cms.fixtures.article_page_fixtures import (
     get_article_pages,
@@ -82,14 +90,15 @@ from springfield.cms.fixtures.article_page_fixtures import (
     get_theme_page_pictogram_row_section,
 )
 from springfield.cms.fixtures.banner_fixtures import get_banner_test_page, get_banner_variants
-from springfield.cms.fixtures.base_fixtures import get_or_create_page, get_placeholder_images
-from springfield.cms.fixtures.browser_comparison_table_fixtures import (
-    cell as browser_comparison_cell,
-    get_browser_comparison_table_test_page,
-    get_browser_comparison_table_variants,
-    image_header_cell,
-    result_cell,
+from springfield.cms.fixtures.base_fixtures import SHOW_TO_ALL, get_or_create_page, get_placeholder_images
+from springfield.cms.fixtures.block_factories import (
+    browser_table_cell,
+    browser_table_image_header_cell,
+    browser_table_result_cell,
+    table_cell,
+    table_row,
 )
+from springfield.cms.fixtures.browser_comparison_table_fixtures import get_browser_comparison_table_test_page, get_browser_comparison_table_variants
 from springfield.cms.fixtures.button_fixtures import get_button_blocks, get_button_variants, get_buttons_test_page
 from springfield.cms.fixtures.card_fixtures import get_card_sections, get_card_test_page, get_card_variants
 from springfield.cms.fixtures.card_gallery_fixtures import get_card_gallery_test_page, get_card_gallery_variants
@@ -104,19 +113,13 @@ from springfield.cms.fixtures.cards_fixtures import (
     get_step_cards_test_page,
 )
 from springfield.cms.fixtures.carousel_fixtures import get_carousel_test_page, get_carousel_variants
-from springfield.cms.fixtures.comparison_table_fixtures import (
-    cell as comparison_cell,
-    get_comparison_table_test_page,
-    get_comparison_table_variants,
-    row as comparison_row,
-)
+from springfield.cms.fixtures.comparison_table_fixtures import get_comparison_table_test_page, get_comparison_table_variants
 from springfield.cms.fixtures.enterprise_download_fixtures import get_enterprise_download, get_enterprise_download_test_page
 from springfield.cms.fixtures.featured_image_section_fixtures import (
     get_featured_image_section_test_page,
     get_featured_image_section_variants,
 )
 from springfield.cms.fixtures.freeformpage import (
-    SHOW_TO_ALL,
     get_freeform_page_test_page,
     get_mobile_store_qr_code,
     get_mobile_store_qr_code_test_page,
@@ -160,6 +163,7 @@ from springfield.cms.fixtures.roadmap_list_fixtures import (
     get_roadmap_list_test_page,
     get_roadmap_page_intro,
 )
+from springfield.cms.fixtures.sharing_links_fixtures import SHARED_URL, get_sharing_links_test_page, get_sharing_links_variants
 from springfield.cms.fixtures.showcase_fixtures import get_showcase_test_page, get_showcase_variants
 from springfield.cms.fixtures.sliding_carousel_fixtures import (
     get_sliding_carousel_slides,
@@ -222,7 +226,15 @@ _BTN_LINK = {
 }
 
 # The non-download button blocks
-_BUTTON_BLOCK_TYPES_NOT_DOWNLOAD = ["button", "uitour_button", "fxa_button", "set_as_default_button", "focus_button", "qr_code_modal_button"]
+_BUTTON_BLOCK_TYPES_NOT_DOWNLOAD = [
+    "button",
+    "uitour_button",
+    "fxa_button",
+    "set_as_default_button",
+    "focus_button",
+    "qr_code_modal_button",
+    "video_modal_button",
+]
 
 
 def _button_block_and_value(btn_type, *, custom_label=None, pretranslated_label=None, snippet_pk=None):
@@ -252,6 +264,10 @@ def _button_block_and_value(btn_type, *, custom_label=None, pretranslated_label=
         value["url"] = "https://www.mozilla.org/firefox/mobile/"
         value["heading"] = "Get Firefox on your phone"
         value["content"] = "Take Firefox with you."
+    elif btn_type == "video_modal_button":
+        block = VideoModalButtonBlock()
+        value["video_url"] = "https://www.youtube.com/watch?v=aqz-KE-bpKQ"
+        value["video_title"] = "Firefox campaign video"
     else:  # pragma: no cover
         raise ValueError(btn_type)
     return block, value
@@ -425,12 +441,37 @@ def assert_download_button_attributes(
         assert button_element["data-cta-text"] == cta_text
 
     if settings.get("show_default_browser_checkbox"):
-        checkbox_label = button_element.find_next_sibling("label", class_="default-browser-label hidden")
+        # In a row of buttons the checkbox is placed after the buttons; on its own it follows the link directly.
+        checkbox_container = button_element.find_parent("div", class_="fl-buttons") or button_element.parent
+        checkbox_label = checkbox_container.find("label", class_="default-browser-label hidden")
         assert checkbox_label and "Set Firefox as your default browser." in checkbox_label.get_text()
         id_ = f"{settings['analytics_id']}-default-browser"
         assert checkbox_label["for"] == id_
         checkbox = checkbox_label.find("input", {"type": "checkbox", "class": "default-browser-checkbox"})
         assert checkbox and checkbox["id"] == id_
+
+
+def assert_video_modal_button_attributes(button_element: BeautifulSoup, button_data: dict, cta_position: str, cta_text: str):
+    value = button_data["value"]
+    settings = value["settings"]
+
+    assert value["custom_label"] in button_element.get_text()
+    assert "fl-video-modal-trigger" in button_element["class"]
+    assert f"button-{settings['theme']}" in button_element["class"]
+    assert button_element.find("span", class_=f"fl-icon-{settings['icon']}")
+    # A real link, so the video still opens on YouTube without JavaScript.
+    assert button_element["href"] == value["video_url"]
+    assert button_element["data-cta-position"] == cta_position
+    assert button_element["data-cta-text"] == cta_text
+    assert button_element["data-cta-uid"] == settings["analytics_id"]
+
+    # flare-video-modal.es6.js opens the dialog that follows each trigger.
+    dialog = button_element.find_next_sibling("div", class_="fl-video-modal-wrapper").find("dialog", class_="fl-video-dialog")
+    assert dialog["aria-label"] == value["video_title"]
+    assert dialog.find("button", class_="fl-dialog-close-button")
+    # The player is only added by JavaScript when the dialog opens.
+    assert dialog.find("div", class_="fl-video-dialog-frame")
+    assert dialog.find("iframe") is None
 
 
 def assert_tag_attributes(tag_element: BeautifulSoup, tag_data: dict):
@@ -1232,6 +1273,13 @@ def test_buttons(index_page, rf):
                         assert button_element["href"] == play_store_url(context, "focus", campaign)
                     else:
                         assert button_element["href"] == app_store_url(context, "focus", campaign)
+                elif button_data["type"] == "video_modal_button":
+                    assert_video_modal_button_attributes(
+                        button_element=button_element,
+                        button_data=button_data,
+                        cta_position=f"{block_prefix}block-{block_index + 1}-intro.button-{btn_index + 1}",
+                        cta_text=f"{heading_text.strip()} - {button_data['value']['custom_label'].strip()}",
+                    )
 
             # Store buttons render as fl-store-button, exclude those inside download wrappers
             store_els = [el for el in intro.find_all("a", class_="fl-store-button") if not el.find_parent(class_="c-button-download-thanks")]
@@ -1285,6 +1333,12 @@ def test_uitour_buttons_2026(index_page, rf):
         assert expected_class in button_el["class"], f"{analytics_id}: expected class '{expected_class}' on button, got {button_el['class']}"
 
         assert btn_value["custom_label"] in button_el.get_text(), f"{analytics_id}: expected label '{btn_value['custom_label']}' in button text"
+
+        expected_wallpaper = btn_value.get("wallpaper") or None
+        assert button_el.get("data-wallpaper") == expected_wallpaper, f"{analytics_id}: unexpected data-wallpaper on button"
+
+        expected_tag_name = btn_value.get("treatment_tag_name") or None
+        assert button_el.get("data-treatment-tag-name") == expected_tag_name, f"{analytics_id}: unexpected data-treatment-tag-name on button"
 
 
 def test_banner_block(index_page, placeholder_images, rf):
@@ -2088,7 +2142,9 @@ def test_enterprise_download_block(index_page, rf):
     for region in (upper, lower):
         download_section = region.find("section", id="download")
         assert download_section, "Enterprise download section should render"
-        assert "Enterprise downloads" in download_section.get_text()
+        section_heading = download_section.find("h2", class_="fl-heading")
+        assert section_heading, "The section heading renders above the download menus"
+        assert section_heading.get_text(strip=True) == "Enterprise downloads"
 
         download_lists = download_section.find("div", class_="fl-enterprise-download-lists")
         assert download_lists, "Download lists container should render"
@@ -3075,11 +3131,12 @@ def test_card_gallery_block(index_page, placeholder_images, rf):
                 cta_wrap = gallery.find("div", class_="fl-section-cta-wrap")
                 assert cta_wrap
                 gallery_heading_text = BeautifulSoup(variant["value"]["heading"]["heading_text"], "html.parser").get_text()
-                for button_data in variant["value"]["cta"]:
+                cta_elements = cta_wrap.find_all("a", class_="fl-button")
+                for cta_index, button_data in enumerate(variant["value"]["cta"]):
                     if button_data["type"] == "button":
-                        button_el = cta_wrap.find("a", class_="fl-button")
+                        button_el = cta_elements[cta_index]
                         cta_text = f"{gallery_heading_text.strip()} - {button_data['value']['custom_label'].strip()}"
-                        cta_position = f"{region_name}-block-{gallery_index + 1}-card_gallery.cta"
+                        cta_position = f"{region_name}-block-{gallery_index + 1}-card_gallery.cta-{cta_index + 1}"
                         assert_button_attributes(
                             button_element=button_el,
                             button_data=button_data,
@@ -3129,8 +3186,9 @@ def test_kit_intro_block(index_page, placeholder_images, rf):
 
     intro_divs = upper.find_all("div", class_="fl-home-intro")
     assert len(intro_divs) == len(variants)
+    kit_intro_block_numbers = [block_number for block_number, block in enumerate(page.upper_content, 1) if block.block_type == "kit_intro"]
 
-    for index, (intro_el, variant) in enumerate(zip(intro_divs, variants)):
+    for index, (intro_el, variant, block_number) in enumerate(zip(intro_divs, variants, kit_intro_block_numbers)):
         value = variant["value"]
         section = intro_el.find_parent("section")
 
@@ -3163,19 +3221,27 @@ def test_kit_intro_block(index_page, placeholder_images, rf):
             superheading = intro_el.find("p", class_="fl-superheading")
             assert superheading and superheading_text in superheading.get_text()
 
-        buttons = value["buttons"]
+        # The buttons below render as a second row after the first, with their own analytics positions.
+        expected_buttons = [(button, f"button-{button_index + 1}") for button_index, button in enumerate(value["buttons"])]
+        expected_buttons += [(button, f"button-below-{button_index + 1}") for button_index, button in enumerate(value.get("buttons_below", []))]
         button_elements = intro_el.find_all("a", class_="fl-button")
-        assert len(button_elements) == len(buttons)
-        for button_index, button in enumerate(buttons):
-            cta_position = f"upper-block-{index + 1}-kit_intro.button-{button_index + 1}"
+        assert len(button_elements) == len(expected_buttons)
+        for button_element, (button, position_label) in zip(button_elements, expected_buttons):
+            cta_position = f"upper-block-{block_number}-kit_intro.{position_label}"
             cta_text = f"{heading_text.strip()} - {button['value']['custom_label'].strip()}"
             assert_button_attributes(
-                button_element=button_elements[button_index],
+                button_element=button_element,
                 button_data=button,
                 context=context,
                 cta_position=cta_position,
                 cta_text=cta_text,
             )
+
+        buttons_below_row = intro_el.find("div", class_="fl-home-intro-buttons-below")
+        if value.get("buttons_below"):
+            assert len(buttons_below_row.find_all("a", class_="fl-button")) == len(value["buttons_below"])
+        else:
+            assert buttons_below_row is None
 
     # The Kit Intro block isn't allowed on the lower section
     assert not lower.find_all("div", class_="fl-home-intro")
@@ -4033,8 +4099,8 @@ def test_comparison_table_ignores_optional_content_left_in_stored_data():
     value = block.to_python(
         {
             "mobile_behavior": "scroll",
-            "header_row": [comparison_row(cells=[comparison_cell("PREMIUM", cell_id="h0")], row_id="hr")],
-            "content_rows": [comparison_row(cells=[stored_cell], row_id="r0")],
+            "header_row": [table_row(cells=[table_cell(content="PREMIUM", cell_id="h0")], row_id="hr")],
+            "content_rows": [table_row(cells=[stored_cell], row_id="r0")],
         }
     )
 
@@ -4071,7 +4137,7 @@ def _render_browser_comparison_table(header_cells, content_rows, mobile_behavior
         {
             "highlighted_column": highlighted_column,
             "mobile_behavior": mobile_behavior,
-            "header_row": [comparison_row(cells=header_cells, row_id="hr")],
+            "header_row": [table_row(cells=header_cells, row_id="hr")],
             "content_rows": content_rows,
         }
     )
@@ -4081,8 +4147,8 @@ def _render_browser_comparison_table(header_cells, content_rows, mobile_behavior
 def _render_comparison_result_row(cell_data):
     """One-row browser comparison table whose only value cell holds ``cell_data``."""
     return _render_browser_comparison_table(
-        header_cells=[browser_comparison_cell(""), browser_comparison_cell("Firefox")],
-        content_rows=[comparison_row(cells=[browser_comparison_cell("Blocks trackers"), cell_data], row_id="r0")],
+        header_cells=[browser_table_cell(content="", cell_id=""), browser_table_cell(content="Firefox", cell_id="")],
+        content_rows=[table_row(cells=[browser_table_cell(content="Blocks trackers", cell_id=""), cell_data], row_id="r0")],
     )
 
 
@@ -4096,7 +4162,7 @@ def _render_comparison_result_row(cell_data):
 )
 def test_comparison_result_renders_icon_and_result_name(result, icon_class, label):
     """Each result choice picks its own icon, labelled with the result's name."""
-    cell_data = result_cell(result, cell_id="c1")
+    cell_data = browser_table_result_cell(result=result, cell_id="c1")
     soup = _render_comparison_result_row(cell_data)
 
     result_el = soup.find("div", class_="fl-comparison-result")
@@ -4106,7 +4172,7 @@ def test_comparison_result_renders_icon_and_result_name(result, icon_class, labe
 
 def test_comparison_result_label_can_be_overridden():
     """An author-supplied label replaces the result's name, keeping its icon."""
-    cell_data = result_cell("limited", "Some features", cell_id="c1")
+    cell_data = browser_table_result_cell(result="limited", label="Some features", cell_id="c1")
     soup = _render_comparison_result_row(cell_data)
 
     result_el = soup.find("div", class_="fl-comparison-result")
@@ -4115,7 +4181,7 @@ def test_comparison_result_label_can_be_overridden():
 
 
 def test_comparison_cell_optional_content_replaces_plain_text():
-    cell_data = result_cell("yes", cell_id="c1")
+    cell_data = browser_table_result_cell(result="yes", cell_id="c1")
     cell_data["value"]["content"] = "Ignored text"
     soup = _render_comparison_result_row(cell_data)
 
@@ -4125,10 +4191,14 @@ def test_comparison_cell_optional_content_replaces_plain_text():
 
 
 def test_comparison_header_cell_with_image_header_is_a_column_header(placeholder_images):
-    header_cell = image_header_cell("Firefox", cell_id="h1")
+    header_cell = browser_table_image_header_cell(label="Firefox", cell_id="h1", image_id=placeholder_images.image.id)
     soup = _render_browser_comparison_table(
-        header_cells=[browser_comparison_cell(""), header_cell],
-        content_rows=[comparison_row(cells=[browser_comparison_cell("Blocks trackers"), result_cell("yes", cell_id="c1")], row_id="r0")],
+        header_cells=[browser_table_cell(content="", cell_id=""), header_cell],
+        content_rows=[
+            table_row(
+                cells=[browser_table_cell(content="Blocks trackers", cell_id=""), browser_table_result_cell(result="yes", cell_id="c1")], row_id="r0"
+            )
+        ],
     )
 
     header_cell_els = soup.find("thead").find_all(["th", "td"])
@@ -4141,11 +4211,15 @@ def test_comparison_header_cell_with_image_header_is_a_column_header(placeholder
 
 
 def test_comparison_image_header_renders_author_alt_text(placeholder_images):
-    header_cell = image_header_cell("Firefox", cell_id="h1")
+    header_cell = browser_table_image_header_cell(label="Firefox", cell_id="h1", image_id=placeholder_images.image.id)
     header_cell["value"]["optional_content"][0]["value"]["alt"] = "Firefox logo"
     soup = _render_browser_comparison_table(
-        header_cells=[browser_comparison_cell(""), header_cell],
-        content_rows=[comparison_row(cells=[browser_comparison_cell("Blocks trackers"), result_cell("yes", cell_id="c1")], row_id="r0")],
+        header_cells=[browser_table_cell(content="", cell_id=""), header_cell],
+        content_rows=[
+            table_row(
+                cells=[browser_table_cell(content="Blocks trackers", cell_id=""), browser_table_result_cell(result="yes", cell_id="c1")], row_id="r0"
+            )
+        ],
     )
 
     assert_comparison_image_header(soup.find("thead").find_all(["th", "td"])[1], header_cell["value"]["optional_content"][0]["value"])
@@ -4158,8 +4232,8 @@ def test_browser_comparison_table_renders_cells_saved_before_optional_content_ex
     value = block.to_python(
         {
             "mobile_behavior": "scroll",
-            "header_row": [comparison_row(cells=[{"type": "item", "value": {"content": "PREMIUM", "column_span": 1}, "id": "h0"}], row_id="hr")],
-            "content_rows": [comparison_row(cells=[legacy_cell], row_id="r0")],
+            "header_row": [table_row(cells=[{"type": "item", "value": {"content": "PREMIUM", "column_span": 1}, "id": "h0"}], row_id="hr")],
+            "content_rows": [table_row(cells=[legacy_cell], row_id="r0")],
         }
     )
 
@@ -4175,8 +4249,15 @@ def test_browser_comparison_table_renders_cells_saved_before_optional_content_ex
 def test_browser_comparison_table_keeps_its_own_classes(placeholder_images):
     """The block renders its own component, not the comparison table's."""
     soup = _render_browser_comparison_table(
-        header_cells=[browser_comparison_cell(""), image_header_cell("Firefox", cell_id="h1")],
-        content_rows=[comparison_row(cells=[browser_comparison_cell("Blocks trackers"), result_cell("yes", cell_id="c1")], row_id="r0")],
+        header_cells=[
+            browser_table_cell(content="", cell_id=""),
+            browser_table_image_header_cell(label="Firefox", cell_id="h1", image_id=placeholder_images.image.id),
+        ],
+        content_rows=[
+            table_row(
+                cells=[browser_table_cell(content="Blocks trackers", cell_id=""), browser_table_result_cell(result="yes", cell_id="c1")], row_id="r0"
+            )
+        ],
         mobile_behavior="stacked",
         highlighted_column=2,
     )
@@ -4192,8 +4273,13 @@ def test_browser_comparison_table_keeps_its_own_classes(placeholder_images):
 
 def test_browser_comparison_table_cell_spans_the_columns_it_is_given():
     soup = _render_browser_comparison_table(
-        header_cells=[browser_comparison_cell(""), browser_comparison_cell("Browsers", column_span=2)],
-        content_rows=[comparison_row(cells=[browser_comparison_cell("Blocks trackers"), browser_comparison_cell("Yes", column_span=2)], row_id="r0")],
+        header_cells=[browser_table_cell(content="", cell_id=""), browser_table_cell(content="Browsers", column_span=2, cell_id="")],
+        content_rows=[
+            table_row(
+                cells=[browser_table_cell(content="Blocks trackers", cell_id=""), browser_table_cell(content="Yes", column_span=2, cell_id="")],
+                row_id="r0",
+            )
+        ],
     )
 
     assert soup.find("thead").find_all(["th", "td"])[1].get("colspan") == "2"
@@ -4566,6 +4652,56 @@ def test_button_row_block_allow_uitour_exposes_uitour_type():
     assert "uitour_button" not in button_types_without
 
 
+def test_uitour_import_browser_data_class_yields_firefox_pane():
+    # ui-tour-buttons.js strips this prefix and passes the rest to openPreferences().
+    css_class = UI_TOUR_CLASSES[UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC_IMPORT_BROWSER_DATA]
+    assert css_class.removeprefix("ui-tour-open-about-preferences-") == "sync-importBrowserData"
+
+
+@pytest.mark.parametrize(
+    ("button_type", "wallpaper", "is_valid"),
+    [
+        (UITOUR_BUTTON_SET_NEWTAB_WALLPAPER, "Wrexham", True),
+        (UITOUR_BUTTON_SET_NEWTAB_WALLPAPER, "", False),
+        (UITOUR_BUTTON_NEW_TAB, "", True),
+    ],
+)
+def test_uitour_button_requires_wallpaper_only_for_set_wallpaper_type(button_type, wallpaper, is_valid):
+    value = {"button_type": button_type, "wallpaper": wallpaper, "pretranslated_label": None, "custom_label": "Go", "settings": {}}
+
+    if is_valid:
+        UITourButtonBlock().clean(value)
+    else:
+        with pytest.raises(StructBlockValidationError) as exc_info:
+            UITourButtonBlock().clean(value)
+        assert "wallpaper" in exc_info.value.block_errors
+
+
+@pytest.mark.parametrize(
+    ("button_type", "tag_name", "is_valid"),
+    [
+        (UITOUR_BUTTON_SET_TREATMENT_TAG, "wnp-show-callout", True),
+        (UITOUR_BUTTON_SET_TREATMENT_TAG, "", False),
+        (UITOUR_BUTTON_SET_TREATMENT_TAG, "browser.uitour.treatment.wnp-show-callout", False),
+        (UITOUR_BUTTON_SET_TREATMENT_TAG, "wnp show callout", False),
+        (UITOUR_BUTTON_NEW_TAB, "", True),
+    ],
+)
+def test_uitour_button_validates_treatment_tag_only_for_set_treatment_tag_type(button_type, tag_name, is_valid):
+    value = {"button_type": button_type, "treatment_tag_name": tag_name, "pretranslated_label": None, "custom_label": "Go", "settings": {}}
+
+    if is_valid:
+        UITourButtonBlock().clean(value)
+    else:
+        with pytest.raises(StructBlockValidationError) as exc_info:
+            UITourButtonBlock().clean(value)
+        assert "treatment_tag_name" in exc_info.value.block_errors
+
+
+def test_uitour_button_treatment_tag_name_is_not_translatable():
+    assert UITourButtonBlock().child_blocks["treatment_tag_name"].get_translatable_segments("wnp-show-callout") == []
+
+
 def _make_button_row_raw(count=1, spacing="", alignment="", help_text="", auto_width_buttons=False):
     variants = get_button_variants()
     buttons = [dict(variants["primary"], id=f"test-btnrow-{i}") for i in range(count)]
@@ -4668,6 +4804,7 @@ def test_base_article_value_get_link_url_returns_url_with_current_locale():
     assert url == "/pt-PT/article-url-locale-test/"
 
 
+@override_settings(TIME_ZONE="America/Los_Angeles")
 def test_roadmap_list_section_block(index_page, rf):
     intro_fixture = get_roadmap_page_intro()
     intro_value = intro_fixture[0]["value"]
@@ -4676,9 +4813,13 @@ def test_roadmap_list_section_block(index_page, rf):
 
     section_variants = get_roadmap_list_section_variants()
     page = get_roadmap_list_test_page()
+    # 21:01 Pacific on Oct 12 is 04:01 UTC on Oct 13.
+    page.last_published_at = datetime(2026, 10, 13, 4, 1, tzinfo=UTC)
 
     request = rf.get(page.get_full_url())
-    response = page.serve(request)
+    # The Wagtail admin renders previews in the editor's own time zone.
+    with timezone.override("Europe/Berlin"):
+        response = page.serve(request)
     assert response.status_code == 200
 
     context = page.get_context(request)
@@ -4717,7 +4858,7 @@ def test_roadmap_list_section_block(index_page, rf):
 
     last_updated_el = filter_el.find("p")
     assert last_updated_el
-    assert f"Last updated: {date_format(page.last_published_at, 'DATE_FORMAT')}" in last_updated_el.get_text()
+    assert "Last updated: Oct. 12, 2026" in last_updated_el.get_text()
 
     section_divs = soup.find_all("section", class_="fl-roadmap-list-section")
     assert len(section_divs) == len(section_variants)
@@ -5275,8 +5416,6 @@ def test_tab_block_rejects_firefox_as_a_detected_browser():
 
 
 def test_tab_block_renders_image_via_media_field(placeholder_images):
-    from django.conf import settings
-
     raw = {
         "tab_name": "Image tab",
         "media": [
@@ -5284,7 +5423,7 @@ def test_tab_block_renders_image_via_media_field(placeholder_images):
                 "type": "image",
                 "id": "aabbcc001122",
                 "value": {
-                    "image": settings.PLACEHOLDER_IMAGE_ID,
+                    "image": placeholder_images.image.id,
                     "settings": {"dark_mode_image": None, "mobile_image": None, "dark_mode_mobile_image": None},
                 },
             }
@@ -5298,8 +5437,6 @@ def test_tab_block_renders_image_via_media_field(placeholder_images):
 
 
 def test_tab_block_renders_animation_via_media_field(placeholder_images):
-    from django.conf import settings
-
     raw = {
         "tab_name": "Animation tab",
         "media": [
@@ -5309,7 +5446,7 @@ def test_tab_block_renders_animation_via_media_field(placeholder_images):
                 "value": {
                     "video_url": "https://assets.mozilla.net/video/red-pandas.webm",
                     "alt": "Red pandas playing",
-                    "poster": settings.PLACEHOLDER_IMAGE_ID,
+                    "poster": placeholder_images.image.id,
                     "playback": "autoplay_loop",
                 },
             }
@@ -6540,3 +6677,184 @@ def test_contact_form_block_renders_inside_a_media_content_block(contact_page_fo
 
     placeholder = media_content.find("div", class_="fl-contact-form-wrapper")
     assert placeholder["hx-get"] == f"{contact_page_for_block.url}?form_instance=1"
+
+
+def test_sharing_links_block(index_page, rf):
+    page = get_sharing_links_test_page()
+
+    request = rf.get(page.get_full_url())
+    response = page.serve(request)
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    upper = soup.find("div", class_="fl-split-page-upper")
+    lower = soup.find("div", class_="fl-split-page-lower")
+
+    # The first section with a heading on the page is the h1, so the upper area's first
+    # section nests its children at h2 and every later section nests them at h3.
+    for content_area, region_name, region, full_heading_tag in [(1, "upper", upper, "h2"), (2, "lower", lower, "h3")]:
+        variants = get_sharing_links_variants(content_area)
+        sharing_links = region.find_all("div", class_="fl-sharing-links")
+        assert len(sharing_links) == 3
+
+        for sharing_links_element, variant_name, section_heading, cta_position in zip(
+            sharing_links,
+            ["full", "required_only", "banner"],
+            ["All Fields", "Required Fields Only", "In a Banner"],
+            [f"{region_name}-block-1-section.item-1-sharing_links", f"{region_name}-block-2-media_content", f"{region_name}-block-3-banner"],
+            strict=True,
+        ):
+            block_data = variants[variant_name]["value"]
+            analytics_id = block_data["analytics_id"]
+            dialog_id = f"fl-sharing-links-{analytics_id}-qr-dialog"
+
+            url_link = sharing_links_element.find("p", class_="fl-sharing-links-url").find("a")
+            assert url_link["href"] == url_link.get_text(strip=True) == SHARED_URL
+            assert url_link.find_parent("p").find_next_sibling("div") is sharing_links_element.find("div", class_="fl-buttons")
+
+            button_row = sharing_links_element.find("div", class_="fl-buttons")
+            assert "is-horizontal" in button_row["class"]
+
+            copy_button = button_row.find("button", attrs={"data-js": "fl-copy-to-clipboard"})
+            assert "button-primary" in copy_button["class"]
+            assert copy_button["data-copy-value"] == block_data["url"] == SHARED_URL
+            assert copy_button["data-label-success"] == block_data["copy_success_label"]
+            assert copy_button.find("span", class_="fl-copy-to-clipboard-label").get_text(strip=True) == block_data["copy_label"]
+            assert copy_button.find("span", class_="fl-copy-to-clipboard-label-success").get_text(strip=True) == block_data["copy_success_label"]
+            assert copy_button["data-cta-position"] == f"{cta_position}.copy-link"
+            assert copy_button["data-cta-text"] == f"{section_heading} - {block_data['copy_label']}"
+            assert copy_button["data-cta-uid"] == f"{analytics_id}-copy-link"
+
+            email_link = button_row.find("a", class_="fl-sharing-links-email")
+            assert {"button-primary", "fl-button-icon-only"} <= set(email_link["class"])
+            assert email_link.find("span", class_="visually-hidden").get_text(strip=True) == block_data["email_label"]
+            assert "fl-icon-email" in email_link.find("span", class_="fl-icon")["class"]
+            assert email_link["data-cta-position"] == f"{cta_position}.email"
+            assert email_link["data-cta-text"] == f"{section_heading} - {block_data['email_label']}"
+            assert email_link["data-cta-uid"] == f"{analytics_id}-email"
+            # Percent-decode only, as a mail client does: parse_qs would also turn "+" into a space.
+            mailto_query = email_link["href"].removeprefix("mailto:?")
+            email_params = {key: unquote(raw) for key, raw in (param.split("=", 1) for param in mailto_query.split("&"))}
+            if block_data["email_subject"]:
+                assert email_params == {
+                    "subject": block_data["email_subject"],
+                    "body": f"{block_data['email_body']}\n\n{SHARED_URL}",
+                }
+            else:
+                assert email_params == {"body": SHARED_URL}, "Without a subject or body, the draft carries only the URL"
+
+            qr_button = button_row.find("button", class_="fl-sharing-links-qr")
+            assert {"button-primary", "fl-button-icon-only", "fl-dialog-trigger"} <= set(qr_button["class"])
+            assert qr_button.find("span", class_="visually-hidden").get_text(strip=True) == block_data["qr_label"]
+            assert "fl-icon-qr-code" in qr_button.find("span", class_="fl-icon")["class"]
+            assert qr_button["data-target-id"] == dialog_id
+            assert qr_button["data-cta-position"] == f"{cta_position}.qr-code"
+            assert qr_button["data-cta-text"] == f"{section_heading} - {block_data['qr_label']}"
+            assert qr_button["data-cta-uid"] == f"{analytics_id}-qr-code"
+
+            dialog = sharing_links_element.find("dialog", id=dialog_id)
+            assert "fl-qr-code-dialog" in dialog["class"]
+            assert dialog["aria-label"] == block_data["qr_label"]
+            assert dialog.find("button", class_="fl-dialog-close-button")["aria-label"] == "Close"
+            qr_code_image = dialog.find("div", class_="fl-qr-code-image").find("img")
+            expected_qr_code_image = BeautifulSoup(qrcode_rounded(SHARED_URL), "html.parser").find("img")
+            assert qr_code_image["src"] == expected_qr_code_image["src"], "The QR code encodes the shared URL"
+
+            if variant_name == "full":
+                heading = dialog.find(full_heading_tag, class_="fl-heading")
+                assert heading.get_text(" ", strip=True) == "Scan to open on your phone"
+                assert heading.find("b").get_text(strip=True) == "your phone"
+                qr_text = dialog.find("div", class_="fl-sharing-links-qr-text")
+                assert qr_text.find("p").get_text(strip=True) == "The QR code encodes the same URL the other buttons share."
+            elif variant_name == "banner":
+                # The Banner's content stream nests its children one level below the banner heading.
+                assert dialog.find("h3", class_="fl-heading").get_text(strip=True) == "Scan to open on your phone"
+                assert dialog.find("div", class_="fl-sharing-links-qr-text") is None
+            else:
+                assert dialog.find(class_="fl-heading") is None
+                assert dialog.find("div", class_="fl-sharing-links-qr-text") is None
+
+
+# Video Modal Button
+
+
+@pytest.mark.parametrize(
+    "url, expected",
+    [
+        ("https://www.youtube.com/watch?v=aqz-KE-bpKQ", "aqz-KE-bpKQ"),
+        ("https://youtu.be/aqz-KE-bpKQ?si=abc", "aqz-KE-bpKQ"),
+        ("https://www.youtube.com/shorts/aqz-KE-bpKQ", "aqz-KE-bpKQ"),
+        ("https://www.youtube.com/embed/aqz-KE-bpKQ", "aqz-KE-bpKQ"),
+        ("https://m.youtube.com/watch?v=aqz-KE-bpKQ", "aqz-KE-bpKQ"),
+        ("https://www.youtube.com/@firefox", None),
+        ("https://www.youtube.com/watch", None),
+        ("https://example.com/watch?v=aqz-KE-bpKQ", None),
+        ("", None),
+    ],
+)
+def test_youtube_video_id(url, expected):
+    assert youtube_video_id(url) == expected
+
+
+def test_validate_youtube_url_rejects_non_video_urls():
+    assert validate_youtube_url("https://youtu.be/aqz-KE-bpKQ") == "https://youtu.be/aqz-KE-bpKQ"
+    with pytest.raises(ValidationError):
+        validate_youtube_url("https://www.youtube.com/@firefox")
+
+
+def _render_quote(**value):
+    block = QuoteBlock()
+    raw = {"quote": '<p data-block-key="q1">The web is for everyone.</p>', **value}
+    return BeautifulSoup(block.render(block.to_python(raw)), "html.parser").find("figure")
+
+
+def test_quote_block_without_style_renders_standard():
+    # Quote blocks saved before the style field existed have no "style" key.
+    figure = _render_quote(author="Ada Lovelace")
+
+    assert figure["class"] == ["fl-quote"]
+    assert figure.find(class_="fl-quote-mark") is None
+    assert "The web is for everyone." in figure.find("blockquote").get_text()
+
+
+@pytest.mark.parametrize("style", ["pull", "passage"])
+def test_quote_block_style_sets_class(style):
+    figure = _render_quote(style=style)
+
+    assert figure["class"] == ["fl-quote", f"fl-quote-{style}"]
+
+
+def test_quote_block_pull_quote_mark_is_hidden_from_screen_readers():
+    figure = _render_quote(style="pull")
+
+    mark = figure.find(class_="fl-quote-mark")
+    assert mark["aria-hidden"] == "true"
+    assert mark.get_text() == ""
+
+
+def test_quote_block_passage_has_no_quote_mark():
+    assert _render_quote(style="passage").find(class_="fl-quote-mark") is None
+
+
+def test_quote_block_attribution_is_optional():
+    assert _render_quote().find("figcaption") is None
+
+
+def test_quote_block_renders_name_and_title():
+    caption = _render_quote(author="Karen Kim", authors_title="product manager for Firefox desktop").find("figcaption")
+
+    assert caption.find(class_="fl-quote-name").get_text() == "Karen Kim"
+    assert caption.find(class_="fl-quote-authors-title").get_text() == "product manager for Firefox desktop"
+    # A real comma and space, so Reader View and feeds don't run the two together.
+    assert caption.get_text() == "Karen Kim, product manager for Firefox desktop"
+
+
+def test_quote_block_renders_name_without_title():
+    assert _render_quote(author="Karen Kim").find("figcaption").get_text() == "Karen Kim"
+
+
+def test_quote_block_renders_title_without_name():
+    caption = _render_quote(authors_title="Firefox community").find("figcaption")
+
+    assert caption.find(class_="fl-quote-name") is None
+    assert caption.get_text() == "Firefox community"

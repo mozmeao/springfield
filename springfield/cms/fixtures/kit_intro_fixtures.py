@@ -2,24 +2,20 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from django.conf import settings
-
-from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import (
+    get_flare_blocks_docs_page,
+    get_image_variants,
+    get_or_create_page,
+    get_placeholder_images,
+    with_fresh_ids,
+)
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.fixtures.snippet_fixtures import get_scroll_to_see_more_snippet
 from springfield.cms.models import FreeFormPage2026
 
-IMAGE_VARIANTS = {
-    "image": settings.PLACEHOLDER_IMAGE_ID,
-    "settings": {
-        "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
-        "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
-        "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
-    },
-}
-
 
 def get_kit_intro_variants() -> list[dict]:
+    image_variants = get_image_variants()
     buttons = get_button_variants()
     scroll_to_see_more_snippet = get_scroll_to_see_more_snippet()
     return [
@@ -28,10 +24,11 @@ def get_kit_intro_variants() -> list[dict]:
             "value": {
                 "heading": {
                     "superheading_text": '<p data-block-key="ki26s3">New</p>',
-                    "heading_text": '<p data-block-key="ki26h3">Kit Intro with two buttons</p>',
+                    "heading_text": '<p data-block-key="ki26h3">Kit Intro with two buttons and a button below</p>',
                     "subheading_text": "",
                 },
                 "buttons": [buttons["secondary"], buttons["ghost"]],
+                "buttons_below": [buttons["link"]],
             },
             "id": "2026ki01-0000-0000-0000-000000000003",
         },
@@ -47,7 +44,7 @@ def get_kit_intro_variants() -> list[dict]:
                 "media": [
                     {
                         "type": "image",
-                        "value": IMAGE_VARIANTS,
+                        "value": image_variants,
                         "id": "2026ki02-0000-0000-0000-000000000010",
                     }
                 ],
@@ -67,7 +64,7 @@ def get_kit_intro_variants() -> list[dict]:
                 "media": [
                     {
                         "type": "image",
-                        "value": IMAGE_VARIANTS,
+                        "value": image_variants,
                         "id": "2026ki03-0000-0000-0000-000000000010",
                     }
                 ],
@@ -77,7 +74,7 @@ def get_kit_intro_variants() -> list[dict]:
     ]
 
 
-def get_bottom_section() -> list[dict]:
+def get_filler_section() -> dict:
     return {
         "type": "intro",
         "value": {
@@ -112,7 +109,13 @@ def get_kit_intro_test_page() -> FreeFormPage2026:
         },
     )
 
-    content = [*get_kit_intro_variants(), get_bottom_section()]
+    # A Kit Intro without media overflows into the block below it, so a filler section follows it.
+    content = []
+    for variant in get_kit_intro_variants():
+        content.append(variant)
+        if not variant["value"].get("media"):
+            content.append(get_filler_section())
+    content = with_fresh_ids(content)
     page.upper_content = content
     # Add the Kit Intro block data to the Content field despite the block not being allowed there
     # to test that it isn't rendered on the page

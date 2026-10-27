@@ -57,6 +57,13 @@
     },
     {
       "files": [
+        "css/cms/pages/flare-channels.css",
+        "css/firefox/download/get.css"
+      ],
+      "name": "firefox_download_get"
+    },
+    {
+      "files": [
         "css/firefox/download/desktop/thanks-ie.scss"
       ],
       "name": "firefox_desktop_download_thanks_ie"
@@ -244,7 +251,8 @@
     {
       "files": [
         "css/cms/wagtail-admin.css",
-        "css/cms/routing/admin.css"
+        "css/cms/routing/admin.css",
+        "css/cms/workspaces/admin.css"
       ],
       "name": "wagtail-admin"
     },
@@ -448,6 +456,12 @@
     },
     {
       "files": [
+        "css/cms/pages/flare-share-firefox.css"
+      ],
+      "name": "flare-share-firefox"
+    },
+    {
+      "files": [
         "css/cms/pages/flare-year-in-review.css"
       ],
       "name": "flare-year-in-review"
@@ -488,9 +502,9 @@
     },
     {
       "files": [
-        "css/cms/themes/enterprise-bgs-alt-1.css"
+        "css/cms/themes/enterprise-remove-bgs.css"
       ],
-      "name": "enterprise-bgs-alt-1"
+      "name": "enterprise-remove-bgs"
     },
     {
       "files": [
@@ -590,6 +604,12 @@
         "js/firefox/download/auto-download.es6.js"
       ],
       "name": "auto-download"
+    },
+    {
+      "files": [
+        "js/firefox/download/partner-download-init.es6.js"
+      ],
+      "name": "partner-download"
     },
     {
       "files": [
@@ -825,6 +845,14 @@
       "_comment": "This file is referenced in the CMS directly. Only remove if no pages have extra_js='flare26-kick-page' and you have an up-to-date database backup."
     },
     {
+      "files":[
+        "js/cms/pages/enterprise-home.es6.js"
+      ],
+      "name": "enterprise-home",
+      "_comment": "This file is referenced in the CMS directly. Only remove if no pages have extra_js='flare-enterprise-home' and you have an up-to-date database backup."
+    },
+
+    {
       "files": [
         "js/cms/pages/flare-referral-hub.es6.js"
       ],
@@ -880,6 +908,12 @@
     },
     {
       "files": [
+        "js/cms/wagtailadmin-except-aliases-checkbox.js"
+      ],
+      "name": "wagtailadmin-except-aliases-checkbox"
+    },
+    {
+      "files": [
         "js/cms/wagtailadmin-fxa.js"
       ],
       "name": "wagtailadmin-fxa"
@@ -889,6 +923,12 @@
         "js/cms/wagtailadmin-fx-logo.js"
       ],
       "name": "wagtailadmin-fx-logo"
+    },
+    {
+      "files": [
+        "js/cms/wagtailadmin-image-inline-edit.es6.js"
+      ],
+      "name": "wagtailadmin-image-inline-edit"
     },
     {
       "files": [

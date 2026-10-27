@@ -31,6 +31,7 @@ def test_content_search_finds_streamfield_body_content(free_form_page_with_body_
 
     assert response.status_code == 200
     assert b"Plain Boring Title" in response.content
+    assert reverse("wagtailadmin_pages:edit", args=[free_form_page_with_body_term.id]).encode() in response.content
 
 
 @pytest.mark.django_db

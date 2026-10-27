@@ -11,6 +11,7 @@ import json
 import re
 import time
 import uuid
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from django import forms
@@ -423,7 +424,7 @@ class QRCodeFloatingSnippetMixin(AbstractSpringfieldCMSPage):
             raise ValidationError("'QR Code Floating Button' fields can only be set if the 'Show Floating QR Code Snippet' is enabled.")
 
 
-class HomePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
+class HomePage(PromotedPageMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
     upper_content = StreamField(
         [
             ("intro", KitIntroBlock()),
@@ -447,6 +448,10 @@ class HomePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         FieldPanel("upper_content"),
         FieldPanel("lower_content"),
         InlinePanel("pencil_banner_placements", label="Pencil Banners"),
+    ]
+
+    promote_panels = UTMParamsMixin.promote_panels + [
+        *PromotedPageMixin.promoted_panels,
     ]
 
     settings_panels = AbstractSpringfieldCMSPage.settings_panels
@@ -1259,7 +1264,7 @@ class FreeFormPage2026(
     ]
 
     promote_panels = UTMParamsMixin.promote_panels + [
-        FieldPanel("enable_marketing_attribution"),
+        *PromotedPageMixin.promoted_panels,
     ]
 
     settings_panels = AbstractSpringfieldCMSPage.settings_panels + [
@@ -1305,10 +1310,6 @@ class FreeFormPage2026(
         return f"FreeFormPage2026: {self.title} - {self.locale}"
 
     @property
-    def noindex(self):
-        return self.enable_marketing_attribution
-
-    @property
     def pencil_banners(self):
         placements = self.pencil_banner_placements.select_related("snippet").order_by("sort_order")
         snippets = [placement.snippet.get_localized() for placement in placements]
@@ -1352,7 +1353,7 @@ class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
             queryset = queryset.filter(version__lte=latest_version)
         latest_whats_new = queryset.first()
         if latest_whats_new:
-            url = request.build_absolute_uri(latest_whats_new.get_url())
+            url = request.build_absolute_uri(latest_whats_new.get_url(request))
             if request.GET.get("from_main_nav"):
                 url += "?from_main_nav=true"
             return redirect(url)
@@ -1645,7 +1646,7 @@ class SmartWindowPage(PromotedPageMixin, UTMParamsMixin, AbstractSpringfieldCMSP
     ]
 
     promote_panels = UTMParamsMixin.promote_panels + [
-        FieldPanel("enable_marketing_attribution"),
+        *PromotedPageMixin.promoted_panels,
     ]
 
     settings_panels = AbstractSpringfieldCMSPage.settings_panels
@@ -1672,10 +1673,6 @@ class SmartWindowPage(PromotedPageMixin, UTMParamsMixin, AbstractSpringfieldCMSP
 
     def __str__(self):
         return f"SmartWindowPage: {self.title} - {self.locale}"
-
-    @property
-    def noindex(self):
-        return self.enable_marketing_attribution
 
     def clean(self):
         super().clean()
@@ -2307,6 +2304,11 @@ class FlareDocsIndexPage(AbstractSpringfieldCMSPage):
             return {"page": page, "children": children}
 
         context["sections"] = [build_node(child) for child in children]
+
+        if self.slug == "flare-docs":
+            changelog = Path(settings.ROOT) / "CMS_CHANGELOG.md"
+            if changelog.exists():
+                context["changelog"] = changelog.read_text(encoding="utf-8")
         return context
 
 
@@ -2602,5 +2604,72 @@ class ReferralGetFirefoxPage(AbstractSpringfieldCMSPage):
         except ValueError:
             mark_locale_fallback_exempt(request)
             raise Http404("Referral invitee page did not get a well-formed invitation code") from None
+
+        return super().serve(request, *args, **kwargs)
+
+
+class ShareFirefoxPage(AbstractSpringfieldCMSPage):
+    """
+    Only served in SHARE_FIREFOX_PAGE_LOCALES. The en-US page exists only as the
+    source for translation.
+    """
+
+    # if the en-US page is published, the page will 404
+    SHARE_FIREFOX_PAGE_LOCALES = ("fr", "de")
+
+    parent_page_types = ["cms.HomePage"]
+    template = "cms/share_firefox_page.html"
+
+    upper_content = StreamField(
+        [
+            ("intro", KitIntroBlock(allow_media_above_buttons=True)),
+            ("showcase", ShowcaseBlock(allow_tabs=True)),
+            ("cards_list", CardsListBlock(template="cms/blocks/sections/cards-list-section.html")),
+            ("carousel", CarouselBlock()),
+        ],
+        null=True,
+        blank=True,
+        use_json_field=True,
+    )
+
+    lower_content = StreamField(
+        [
+            ("showcase", ShowcaseBlock()),
+            ("card_gallery", CardGalleryBlock()),
+            ("kit_banner", HomeKitBannerBlock()),
+        ],
+        null=True,
+        blank=True,
+        use_json_field=True,
+    )
+
+    content_panels = AbstractSpringfieldCMSPage.content_panels + [
+        FieldPanel("upper_content"),
+        FieldPanel("lower_content"),
+    ]
+
+    settings_panels = AbstractSpringfieldCMSPage.settings_panels
+
+    search_fields = AbstractSpringfieldCMSPage.search_fields + [
+        index.SearchField("upper_content"),
+        index.SearchField("lower_content"),
+    ]
+
+    override_translatable_fields = [
+        *AbstractSpringfieldCMSPage.override_translatable_fields,
+    ]
+
+    class Meta:
+        verbose_name = "Share Firefox Page"
+
+    def get_sitemap_urls(self, request=None):
+        if self.locale.language_code not in self.SHARE_FIREFOX_PAGE_LOCALES:
+            return []
+        return super().get_sitemap_urls(request)
+
+    def serve(self, request, *args, **kwargs):
+        if self.locale.language_code not in self.SHARE_FIREFOX_PAGE_LOCALES:
+            mark_locale_fallback_exempt(request)
+            raise Http404("Share Firefox page is not served in this locale")
 
         return super().serve(request, *args, **kwargs)

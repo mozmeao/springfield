@@ -370,4 +370,22 @@ if (typeof window.Mozilla === 'undefined') {
     Mozilla.UITour.pinToTaskbar = function () {
         _sendEvent('pinToTaskbar');
     };
+
+    /**
+     * Set the New Tab Page wallpaper. Enables the wallpaper feature if it is
+     * currently off. The wallpaper is identified by its id (title) from the
+     * `newtab-wallpapers-v2` Remote Settings collection, e.g. 'lunar-eclipse', a
+     * 'solid-color-picker-#RRGGBB' value, or 'custom'. Passing an empty string
+     * clears the wallpaper.
+     *
+     * @param {string} wallpaper - Wallpaper id to set
+     * @since 157
+     * @example
+     * Mozilla.UITour.setNewtabWallpaper('lunar-eclipse');
+     */
+    Mozilla.UITour.setNewtabWallpaper = function (wallpaper) {
+        _sendEvent('setNewtabWallpaper', {
+            wallpaper: wallpaper
+        });
+    };
 })();

@@ -37,7 +37,14 @@ urlpatterns = (
     page("channel/android/", "firefox/channel/android.html", ftl_files=["firefox/channel"]),
     page("channel/ios/", "firefox/channel/ios.html", ftl_files=["firefox/channel"]),
     path("channel/ios/testflight/", views.ios_testflight, name="firefox.ios.testflight"),
-    page("browsers/enterprise/", "firefox/enterprise/index.html", ftl_files=["firefox/enterprise"]),
+    path(
+        "enterprise/",
+        prefer_cms(
+            L10nTemplateView.as_view(template_name="firefox/enterprise/index.html", ftl_files=["firefox/enterprise"]),
+            fallback_ftl_files=["firefox/enterprise"],
+        ),
+        name="firefox.enterprise.index",
+    ),  # formerly browsers/enterprise/
     path("features/", prefer_cms(views.FirefoxFeaturesIndex.as_view()), name="firefox.features.index"),
     path("features/customize/", prefer_cms(views.FirefoxFeaturesCustomize.as_view()), name="firefox.features.customize"),
     path("features/add-ons/", prefer_cms(views.FirefoxFeaturesAddons.as_view()), name="firefox.features.add-ons"),
@@ -68,6 +75,7 @@ urlpatterns = (
         "features/free-pdf-editor/", prefer_cms(views.FirefoxFeaturesFreePDFEditor.as_view(active_locales=["fr"])), name="firefox.features.pdf-free"
     ),
     path("thanks/", prefer_cms(views.DownloadThanksView.as_view()), name="firefox.download.thanks"),
+    path("get/", views.PartnerDownloadView.as_view(), name="firefox.partner-download"),
     path("download/installer-help/", views.InstallerHelpView.as_view(), name="firefox.installer-help"),
     # Release notes
     re_path(f"^firefox/(?:{platform_re}/)?(?:{channel_re}/)?notes/$", springfield.releasenotes.views.latest_notes, name="firefox.notes"),

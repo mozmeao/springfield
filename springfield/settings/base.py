@@ -4,6 +4,7 @@
 
 import json
 import platform
+import re
 import socket
 import struct
 import sys
@@ -528,6 +529,7 @@ NOINDEX_URLS = [
     r"^landing/",
     r"/system-requirements/$",
     r"^thanks/$",
+    r"^get/$",
     r"^analytics-tests/",
     r"^readiness/$",
     r"^healthz-cron/$",
@@ -722,10 +724,25 @@ def get_app_name(hostname):
     return "springfield"
 
 
+def get_deployment_environment(app_name):
+    """
+    Get the deployment environment from the app name, which our deployments set to
+    `springfield-{environment}` or `springfield-cms-{environment}`. Returns "local"
+    for any other app name.
+    """
+    match = re.fullmatch(r"springfield(?:-cms)?-(dev|stage|prod|test)", app_name)
+    return match.group(1) if match else "local"
+
+
 HOSTNAME = platform.node()
 # Prefer APP_NAME from env, but fall back to hostname parsing. TODO: remove get_app_name() usage once fully redundant
 APP_NAME = config("APP_NAME", default=get_app_name(HOSTNAME))
 CLUSTER_NAME = config("CLUSTER_NAME", default="")
+
+# Stamped on every line sent to the audit.wagtail logger, so lines from each deployment can be told apart
+AUDIT_LOG_TENANT = "springfield"
+AUDIT_LOG_ENVIRONMENT = config("AUDIT_LOG_ENVIRONMENT", default=get_deployment_environment(APP_NAME))
+
 ENABLE_HOSTNAME_MIDDLEWARE = config("ENABLE_HOSTNAME_MIDDLEWARE", default=str(bool(APP_NAME)), parser=bool)
 # set this to enable basic auth for the entire site
 # e.g. BASIC_AUTH_CREDS="thedude:thewalrus"
@@ -734,7 +751,7 @@ ENABLE_METRICS_VIEW_TIMING_MIDDLEWARE = config("ENABLE_METRICS_VIEW_TIMING_MIDDL
 
 # Optional token that arms SyntheticServerErrorMiddleware. When set (via a k8s
 # Secret in webservices-infra), requests carrying the same token in the
-# X-Springfield-Cascade-Test header receive HTTP 500. Used to force user-facing
+# X-Mozilla-Ops-Canary header receive HTTP 500. Used to force user-facing
 # 5xx for testing Fastly's failover cascade without breaking the /healthz/
 # probe. When unset (the default in every environment) the middleware is a
 # no-op and this setting has no effect.
@@ -794,7 +811,7 @@ INSTALLED_APPS = [
     "wagtail.documents",
     "wagtail.embeds",
     "wagtail.sites",
-    "wagtail.users",
+    "springfield.users.apps.UsersConfig",  # replaces "wagtail.users"
     "wagtail.snippets",
     "wagtail.images",
     "wagtail_localize_smartling",  # Has to come before wagtail_localize
@@ -1071,6 +1088,8 @@ LOGGING = {
     },
     "formatters": {
         "verbose": {"format": "%(levelname)s %(asctime)s %(module)s %(message)s"},
+        # Audit messages are already JSON; written bare, Cloud Logging parses each one into jsonPayload
+        "bare_message": {"format": "%(message)s"},
     },
     "handlers": {
         "null": {
@@ -1080,6 +1099,11 @@ LOGGING = {
             "class": "logging.StreamHandler",
             "stream": sys.stdout,
             "formatter": "verbose",
+        },
+        "audit_console": {
+            "class": "logging.StreamHandler",
+            "stream": sys.stdout,
+            "formatter": "bare_message",
         },
     },
     "loggers": {
@@ -1092,6 +1116,11 @@ LOGGING = {
             "handlers": ["console"],
             "level": "DEBUG",
         },
+        "audit.wagtail": {
+            "handlers": ["audit_console"],
+            "level": "INFO",
+            "propagate": False,
+        },
     },
 }
 
@@ -1099,6 +1128,9 @@ LOGGING = {
 # but we need not take any action because it's already HTTP 400-ed.
 # Note that we ignore at the Sentry client level
 ignore_logger("django.security.DisallowedHost")
+# Sentry records every log call as a breadcrumb regardless of `propagate`, and the
+# user-deletion audit line carries an email address
+ignore_logger("audit.wagtail")
 
 PASSWORD_HASHERS = ["django.contrib.auth.hashers.PBKDF2PasswordHasher"]
 ADMINS = MANAGERS = config("ADMINS", parser=json.loads, default="[]")
@@ -1124,9 +1156,6 @@ PLAUSIBLE_DOMAIN = config("PLAUSIBLE_DOMAIN", default="")
 # Served from our own subdomain so the script and its events endpoint are both
 # first-party. plausible.es6.js derives /api/event on this same origin.
 PLAUSIBLE_SCRIPT_URL = config("PLAUSIBLE_SCRIPT_URL", default="https://pa.firefox.com/js/script.js")
-
-# Transcend Consent Management - airgap.js script URL
-TRANSCEND_AIRGAP_URL = config("TRANSCEND_AIRGAP_URL", default="")
 
 STUB_ATTRIBUTION_HMAC_KEY = config("STUB_ATTRIBUTION_HMAC_KEY", default="")
 STUB_ATTRIBUTION_RATE = config("STUB_ATTRIBUTION_RATE", default=str(1 if DEV else 0), parser=float)
@@ -1165,8 +1194,11 @@ SENSITIVE_FIELDS_TO_MASK_ENTIRELY = [
     "email",
     # "token",  # token is on the default blocklist, which we also use via `with_default_keys`
     # X-Mozilla-Ops-Canary carries the SYNTHETIC_5XX_TOKEN value on cascade-test
-    # requests; keep it out of Sentry events so the token cannot leak via error reports.
-    "X-Mozilla-Ops-Canary",
+    # requests; keep it out of Sentry events so the token cannot leak via error
+    # reports. Must be lowercase: DesensitizationProcessor lowercases the event
+    # key before doing a substring match, but does NOT lowercase the configured
+    # blocklist entries, so a mixed-case entry here would never match.
+    "x-mozilla-ops-canary",
     # `ref_key` is a referral ID and `invitation` is its invite code, the plaintext
     # and ciphertext of the FF1 mapping. Both arrive as query params on public
     # pages, so the Django integration puts them in `request.query_string` on any
@@ -1563,7 +1595,7 @@ WAGTAIL_RICHTEXT_FEATURES_FULL = [
 
 WAGTAILIMAGES_IMAGE_MODEL = "cms.SpringfieldImage"
 
-WAGTAILIMAGES_IMAGE_FORM_BASE = "springfield.cms.image_forms.SpringfieldImageForm"
+WAGTAILIMAGES_IMAGE_FORM_BASE = "springfield.cms.images.forms.SpringfieldImageForm"
 
 WAGTAILIMAGES_EXTENSIONS = [
     "gif",
@@ -1629,6 +1661,7 @@ _allowed_page_models = [
     "cms.ContactPage",
     "cms.ReferralHubPage",
     "cms.ReferralGetFirefoxPage",
+    "cms.ShareFirefoxPage",
 ]
 
 if DEV is True:
@@ -1658,14 +1691,6 @@ if ENABLE_DJANGO_SILK := config("ENABLE_DJANGO_SILK", default="False", parser=bo
     MIDDLEWARE.insert(0, "silk.middleware.SilkyMiddleware")
     SUPPORTED_NONLOCALES.append("silk")
     SILKY_PYTHON_PROFILER = config("SILKY_PYTHON_PROFILER", default="False", parser=bool)
-
-# CMS page and block testing
-PLACEHOLDER_IMAGE_ID = config("PLACEHOLDER_IMAGE_ID", default="1000", parser=int)
-PLACEHOLDER_DARK_IMAGE_ID = config("PLACEHOLDER_DARK_IMAGE_ID", default="1001", parser=int)
-PLACEHOLDER_MOBILE_IMAGE_ID = config("PLACEHOLDER_IMAGE_ID", default="1002", parser=int)
-PLACEHOLDER_DARK_MOBILE_IMAGE_ID = config("PLACEHOLDER_DARK_IMAGE_ID", default="1003", parser=int)
-PLACEHOLDER_DOCUMENT_ID = config("PLACEHOLDER_DOCUMENT_ID", default="1000", parser=int)
-PLACEHOLDER_SNIPPET_ID = config("BANNER_SNIPPET_ID", default="1000", parser=int)
 
 # Contact Page
 # On PROD, only certain paths are allowed to send POST requests

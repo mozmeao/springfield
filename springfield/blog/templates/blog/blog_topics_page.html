@@ -8,6 +8,11 @@
 
 {% block page_css %}{{ css_bundle('flare-blog') }}{% endblock %}
 
+{% block extra_meta %}
+  {% set feed_index = page %}
+  {% include 'blog/includes/blog-feed-links.html' %}
+{% endblock %}
+
 {% block body_class %}fl-blog-body fl-blog-topics-body{% endblock %}
 
 {% block content %}
@@ -17,7 +22,7 @@
       <div class="fl-section-container">
         <a href="{{ page.url }}" class="fl-blog-back-link">
           <span class="fl-icon fl-icon-back" aria-hidden="true"></span>
-          {{ ftl('blog-all-articles') }}
+          {{ ftl('blog-home') }}
         </a>
 
         <include:heading

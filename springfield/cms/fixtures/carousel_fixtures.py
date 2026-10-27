@@ -2,27 +2,14 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from django.conf import settings
-
-from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import SHOW_TO_ALL, get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images
+from springfield.cms.fixtures.block_factories import image_value
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.models import FreeFormPage2026
 
-SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
-
-
-def _image(image_id, dark_mode_image_id=None):
-    return {
-        "image": image_id,
-        "settings": {
-            "dark_mode_image": dark_mode_image_id,
-            "mobile_image": None,
-            "dark_mode_mobile_image": None,
-        },
-    }
-
 
 def get_carousel_variants() -> list[dict]:
+    placeholder_images = get_placeholder_images()
     buttons = get_button_variants()
     return [
         # Minimal: no buttons, 2 slides
@@ -41,7 +28,7 @@ def get_carousel_variants() -> list[dict]:
                         "type": "item",
                         "value": {
                             "headline": '<p data-block-key="ca26sl1">First slide</p>',
-                            "image": _image(settings.PLACEHOLDER_IMAGE_ID, settings.PLACEHOLDER_DARK_IMAGE_ID),
+                            "image": image_value(image_id=placeholder_images.image.id, dark_mode_image_id=placeholder_images.dark_image.id),
                         },
                         "id": "2026ca01-0000-0000-0000-000000000011",
                     },
@@ -49,7 +36,7 @@ def get_carousel_variants() -> list[dict]:
                         "type": "item",
                         "value": {
                             "headline": '<p data-block-key="ca26sl2">Second slide</p>',
-                            "image": _image(settings.PLACEHOLDER_DARK_IMAGE_ID),
+                            "image": image_value(image_id=placeholder_images.dark_image.id),
                         },
                         "id": "2026ca01-0000-0000-0000-000000000012",
                     },
@@ -73,7 +60,7 @@ def get_carousel_variants() -> list[dict]:
                         "type": "item",
                         "value": {
                             "headline": '<p data-block-key="ca26sl3">Step one</p>',
-                            "image": _image(settings.PLACEHOLDER_IMAGE_ID, settings.PLACEHOLDER_DARK_IMAGE_ID),
+                            "image": image_value(image_id=placeholder_images.image.id, dark_mode_image_id=placeholder_images.dark_image.id),
                         },
                         "id": "2026ca01-0000-0000-0000-000000000021",
                     },
@@ -81,7 +68,7 @@ def get_carousel_variants() -> list[dict]:
                         "type": "item",
                         "value": {
                             "headline": '<p data-block-key="ca26sl4">Step two</p>',
-                            "image": _image(settings.PLACEHOLDER_MOBILE_IMAGE_ID),
+                            "image": image_value(image_id=placeholder_images.mobile_image.id),
                         },
                         "id": "2026ca01-0000-0000-0000-000000000022",
                     },
@@ -89,7 +76,7 @@ def get_carousel_variants() -> list[dict]:
                         "type": "item",
                         "value": {
                             "headline": '<p data-block-key="ca26sl5">Step three</p>',
-                            "image": _image(settings.PLACEHOLDER_DARK_IMAGE_ID),
+                            "image": image_value(image_id=placeholder_images.dark_image.id),
                         },
                         "id": "2026ca01-0000-0000-0000-000000000023",
                     },

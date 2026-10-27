@@ -372,3 +372,10 @@
         display: none;
     }
 }
+
+/* release notes images keep the size set by their width attribute */
+@layer base {
+    .fl-release-notes img[width] {
+        inline-size: revert-layer;
+    }
+}

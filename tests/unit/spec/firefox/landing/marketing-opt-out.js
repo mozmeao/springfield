@@ -36,6 +36,9 @@ describe('marketing-opt-out.es6.js', function () {
         </div>`;
 
         document.body.insertAdjacentHTML('beforeend', optOut);
+
+        // Mock initAnalytics to avoid real XHR request
+        spyOn(window.Mozilla.DownloadAttribution, 'initAnalytics');
     });
 
     afterEach(function () {
@@ -110,7 +113,6 @@ describe('marketing-opt-out.es6.js', function () {
                 'meetsFunctionalRequirements'
             ).and.returnValue(true);
             spyOn(MarketingOptOut, 'shouldShowCheckbox').and.returnValue(true);
-            spyOn(window.Mozilla.DownloadAttribution, 'initAnalytics');
             spyOn(window.Mozilla.Cookies, 'setItem');
 
             const result = MarketingOptOut.init();
@@ -234,7 +236,6 @@ describe('marketing-opt-out.es6.js', function () {
         });
 
         it('should not remove marketing_consent param when checked (opt-in path)', function () {
-            spyOn(window.Mozilla.DownloadAttribution, 'initAnalytics');
             MarketingOptOut.processAttributionRequest(true);
             const links = document.querySelectorAll('.download-link');
             links.forEach(function (link) {

@@ -1,5 +1,6 @@
 name: "Enterprise Download"
 context:
+  section_heading: "Enterprise downloads"
   heading: "Resources"
   rich_text: |
     <ul>

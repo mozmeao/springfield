@@ -24,10 +24,7 @@
       {{ card.content|richtext }}
       {% if card.buttons %}
         <content:buttons>
-          {% for button in card.buttons %}
-            {% set block_position = block_position ~ ".button-" ~ loop.index %}
-            {% include_block button %}
-          {% endfor %}
+          {% include_block card.buttons %}
         </content:buttons>
       {% endif %}
     </include:line-card>

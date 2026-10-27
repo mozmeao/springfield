@@ -2,11 +2,9 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from django.conf import settings
-
 from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page, get_or_create_page, get_placeholder_images, with_fresh_ids
+from springfield.cms.fixtures.block_factories import notification_block, show_to_value
 from springfield.cms.fixtures.button_fixtures import get_button_variants
-from springfield.cms.fixtures.conditional_display_fixtures import make_notification, make_show_to
 from springfield.cms.fixtures.snippet_fixtures import (
     get_banner_snippet,
     get_floating_qr_code_snippet,
@@ -16,13 +14,14 @@ from springfield.cms.models import ThanksPage
 
 
 def get_step_cards():
+    placeholder_images = get_placeholder_images()
     return [
         {
             "type": "item",
             "value": {
                 "settings": {"expand_link": False},
                 "image": {
-                    "image": settings.PLACEHOLDER_IMAGE_ID,
+                    "image": placeholder_images.image.id,
                     "settings": {
                         "dark_mode_image": None,
                         "mobile_image": None,
@@ -41,7 +40,7 @@ def get_step_cards():
             "value": {
                 "settings": {"expand_link": False},
                 "image": {
-                    "image": settings.PLACEHOLDER_IMAGE_ID,
+                    "image": placeholder_images.image.id,
                     "settings": {
                         "dark_mode_image": None,
                         "mobile_image": None,
@@ -60,7 +59,7 @@ def get_step_cards():
             "value": {
                 "settings": {"expand_link": False},
                 "image": {
-                    "image": settings.PLACEHOLDER_IMAGE_ID,
+                    "image": placeholder_images.image.id,
                     "settings": {
                         "dark_mode_image": None,
                         "mobile_image": None,
@@ -226,20 +225,11 @@ def get_download_support():
 
 
 def get_notification_with_headline():
-    return make_notification(
-        "thnksnt1",
-        "Firefox is free and always will be.",
-        make_show_to(),
-        headline="Good to know",
-    )
+    return notification_block(block_id="thnksnt1", message="Firefox is free and always will be.", show_to=show_to_value(), headline="Good to know")
 
 
 def get_notification_without_headline():
-    return make_notification(
-        "thnksnt2",
-        "This page is also available in other languages.",
-        make_show_to(),
-    )
+    return notification_block(block_id="thnksnt2", message="This page is also available in other languages.", show_to=show_to_value())
 
 
 def get_thanks_page() -> ThanksPage:

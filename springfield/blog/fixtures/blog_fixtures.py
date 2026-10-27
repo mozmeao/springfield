@@ -10,15 +10,13 @@ from wagtail.models import Locale
 
 from springfield.blog.models import BlogArticleAuthor, BlogArticlePage, BlogAuthor, BlogIndexPage, BlogTag, BlogTopic, BlogTopicPage
 from springfield.blog.models.pages import HeroStyle
-from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page, get_or_create_page, get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import SHOW_TO_ALL, get_flare_pages_docs_page, get_or_create_page, get_placeholder_images
 
 LOREM_IPSUM = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
 
 IMAGE_CAPTION = (
     '<p data-block-key="ccc33333">A caption below the image, using <b>bold</b>, <i>italic</i> and a <a href="https://www.mozilla.org/">link</a>.</p>'
 )
-
-SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": "", "default_browser": ""}
 
 BLOG_TOPIC_NAMES = ["Privacy", "Security", "Performance", "Tips", "Open Source"]
 
@@ -58,6 +56,7 @@ TEXT_ONLY_ARTICLE_SLUG = "test-hero-text-only-article"
 VIDEO_ARTICLE_SLUG = "test-hero-video-article"
 LISTING_IMAGE_ARTICLE_SLUG = "test-listing-image-article"
 BOTTOM_BANNER_ARTICLE_SLUG = "test-bottom-banner-article"
+QUOTES_ARTICLE_SLUG = "test-quotes-article"
 
 NUM_LIST_ARTICLES = 33
 NUM_FEATURED_INDEX_SHOWN = 4  # articles in index page featured_articles StreamField
@@ -526,6 +525,99 @@ def get_blog_pages() -> list[BlogArticlePage]:
     index_page.save_revision().publish()
 
     return articles
+
+
+def _text(block_id: str, html: str) -> dict:
+    return {"type": "text", "value": html, "id": block_id}
+
+
+def _quote(block_id: str, quote: str, style: str = "", author: str = "", authors_title: str = "") -> dict:
+    return {
+        "type": "quote",
+        "value": {"style": style, "quote": quote, "author": author, "authors_title": authors_title},
+        "id": block_id,
+    }
+
+
+def get_blog_quotes_content() -> list:
+    """Every quote style and attribution state, between body text, plus quotes typed into rich text."""
+    body = f'<p data-block-key="qbody">{LOREM_SENTENCES[0]} {LOREM_SENTENCES[1]} {LOREM_SENTENCES[2]}</p>'
+    return [
+        _text("quot0001-0000-0000-0000-000000000001", f'<h2 data-block-key="qh001">Standard</h2>{body}'),
+        _quote(
+            "quot0001-0000-0000-0000-000000000002",
+            '<p data-block-key="q0001">“We\'re seeing real conversations, not just complaints.”</p>',
+            author="Jon Siddoway",
+            authors_title="community manager for Mozilla Connect",
+        ),
+        _text("quot0001-0000-0000-0000-000000000003", body),
+        _quote(
+            "quot0001-0000-0000-0000-000000000004",
+            '<p data-block-key="q0002">“I loved the idea of incorporating open community feedback earlier into our process.”</p>',
+            author="Karen Kim",
+        ),
+        _text("quot0001-0000-0000-0000-000000000005", body),
+        _quote(
+            "quot0001-0000-0000-0000-000000000006",
+            '<p data-block-key="q0003">“On Mozilla Connect, people share constructive feedback. They explain their problem, suggest a solution.”</p>'
+            '<p data-block-key="q0004">“It helps me change my approach.”</p>',
+        ),
+        _text("quot0001-0000-0000-0000-000000000007", f'{body}<h2 data-block-key="qh002">Pull quote</h2>{body}'),
+        _quote(
+            "quot0001-0000-0000-0000-000000000008",
+            '<p data-block-key="q0005">We wanted a space where people could share ideas and actually get updates on what happened next.</p>',
+            style="pull",
+            author="Jon Siddoway",
+            authors_title="community manager for Mozilla Connect",
+        ),
+        _text("quot0001-0000-0000-0000-000000000009", body),
+        _quote(
+            "quot0001-0000-0000-0000-000000000010",
+            '<p data-block-key="q0006">The adoption of certain themes increased by more than 200%.</p>',
+            style="pull",
+        ),
+        _text("quot0001-0000-0000-0000-000000000011", f'{body}<h2 data-block-key="qh003">Passage</h2>{body}'),
+        _quote(
+            "quot0001-0000-0000-0000-000000000012",
+            '<p data-block-key="q0007">"Containers is the killer feature."<br/>— @Kaegun</p>'
+            '<p data-block-key="q0008">"PIP (picture-in-picture) in every video"<br/>— @JanakXD</p>'
+            '<p data-block-key="q0009">"I moved from Opera to Firefox because it was open-source and obeyed most of the standards. '
+            'It’s been my default since version 1.5. Why wouldn’t it be?"<br/>— @omarwilley</p>',
+            style="passage",
+        ),
+        _text("quot0001-0000-0000-0000-000000000013", body),
+        _quote(
+            "quot0001-0000-0000-0000-000000000014",
+            '<p data-block-key="q0010"><i>encrypt</i> (verb): to change information from one form to another, especially to hide its meaning</p>',
+            style="passage",
+            authors_title="Merriam-Webster",
+        ),
+        _text(
+            "quot0001-0000-0000-0000-000000000015",
+            f'{body}<h2 data-block-key="qh004">Quotes in rich text</h2>{body}'
+            '<blockquote data-block-key="q0011">A quote typed into a text block with the editor’s quote button.</blockquote>'
+            f"{body}"
+            # The shape imported WordPress posts store: paragraphs and a cite inside the blockquote.
+            '<blockquote class="wp-block-quote"><p>“It’s collaborative in the best way.”</p>'
+            "<cite>Jon Siddoway, community manager for Mozilla Connect</cite></blockquote>"
+            f"{body}",
+        ),
+    ]
+
+
+def get_blog_quotes_test_page() -> BlogArticlePage:
+    """A blog article showing every quote style, for checking quotes in light and dark."""
+    return create_blog_article(
+        index_page=get_blog_index_page(),
+        title="Quote styles",
+        slug=QUOTES_ARTICLE_SLUG,
+        topic=get_blog_topics()["tips"],
+        tags=[],
+        image=None,
+        description="Standard, pull quote and passage quotes, and quotes typed into rich text.",
+        content=get_blog_quotes_content(),
+        hero_style=HeroStyle.TEXT_ONLY,
+    )
 
 
 def get_blog_topic_page() -> BlogTopicPage:

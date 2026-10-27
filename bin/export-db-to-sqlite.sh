@@ -185,6 +185,7 @@ python manage.py dumpdata \
     cms.ContactPage \
     cms.ReferralHubPage \
     cms.ReferralGetFirefoxPage \
+    cms.ShareFirefoxPage \
     cms.BannerSnippet \
     cms.PreFooterCTAFormSnippet \
     cms.PreFooterCTASnippet \
@@ -196,6 +197,7 @@ python manage.py dumpdata \
     cms.QRCodeSnippet \
     cms.ScrollToSeeMoreSnippet \
     cms.NavigationSnippet \
+    cms.PartnerRepack \
     cms.PencilBannerPlacement \
     cms.HomePagePencilBannerPlacement \
     cms.ArticleThemePagePencilBannerPlacement \

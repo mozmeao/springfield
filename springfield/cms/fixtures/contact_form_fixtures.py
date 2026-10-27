@@ -2,15 +2,14 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from django.conf import settings
-
-from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page, with_fresh_ids
+from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images, with_fresh_ids
 from springfield.cms.fixtures.contact_page_fixtures import get_contact_test_page
 from springfield.cms.models import FreeFormPage2026
 
 
 def get_contact_form_variants() -> list[dict]:
     """An intro, then the block on its own and nested in a media + content block, its two placements."""
+    placeholder_images = get_placeholder_images()
     contact_page = get_contact_test_page()
     return [
         {
@@ -47,11 +46,11 @@ def get_contact_form_variants() -> list[dict]:
                     {
                         "type": "image",
                         "value": {
-                            "image": settings.PLACEHOLDER_IMAGE_ID,
+                            "image": placeholder_images.image.id,
                             "settings": {
-                                "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
-                                "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
-                                "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
+                                "dark_mode_image": placeholder_images.dark_image.id,
+                                "mobile_image": placeholder_images.mobile_image.id,
+                                "dark_mode_mobile_image": placeholder_images.dark_mobile_image.id,
                             },
                         },
                         "id": "cf000002-0000-0000-0000-000000000002",

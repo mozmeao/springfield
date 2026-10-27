@@ -2,23 +2,13 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from django.conf import settings
-
-from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_image_variants, get_or_create_page, get_placeholder_images
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.models import FreeFormPage2026
 
-_IMAGE_VARIANTS = {
-    "image": settings.PLACEHOLDER_IMAGE_ID,
-    "settings": {
-        "dark_mode_image": settings.PLACEHOLDER_DARK_IMAGE_ID,
-        "mobile_image": settings.PLACEHOLDER_MOBILE_IMAGE_ID,
-        "dark_mode_mobile_image": settings.PLACEHOLDER_DARK_MOBILE_IMAGE_ID,
-    },
-}
-
 
 def get_card_gallery_variants() -> list[dict]:
+    image_variants = get_image_variants()
     buttons = get_button_variants()
     return [
         {
@@ -37,7 +27,7 @@ def get_card_gallery_variants() -> list[dict]:
                     '<li data-block-key="2026cg1md2">Feature two in a list</li>'
                     '<li data-block-key="2026cg1md3">Feature three with more detail</li></ul>',
                     "buttons": [buttons["primary"]],
-                    "image": _IMAGE_VARIANTS,
+                    "image": image_variants,
                 },
                 "secondary_card": {
                     "icon": "shield",
@@ -45,7 +35,7 @@ def get_card_gallery_variants() -> list[dict]:
                     "headline": '<p data-block-key="2026cg1sh">Secondary Card Headline</p>',
                     "description": '<p data-block-key="2026cg1sd">Secondary card description with supporting text.</p>',
                     "buttons": [buttons["primary"]],
-                    "image": _IMAGE_VARIANTS,
+                    "image": image_variants,
                 },
                 "callout_card": {
                     "superheading": "",
@@ -70,7 +60,7 @@ def get_card_gallery_variants() -> list[dict]:
                     "headline": '<p data-block-key="2026cg2mh">Main Card with Superheading</p>',
                     "description": '<p data-block-key="2026cg2md">Main card with superheading and CTA button.</p>',
                     "buttons": [buttons["secondary"]],
-                    "image": _IMAGE_VARIANTS,
+                    "image": image_variants,
                 },
                 "secondary_card": {
                     "icon": "checkmark-circle-fill",
@@ -78,7 +68,7 @@ def get_card_gallery_variants() -> list[dict]:
                     "headline": '<p data-block-key="2026cg2sh">Secondary Card with Superheading</p>',
                     "description": '<p data-block-key="2026cg2sd">Secondary card with superheading and CTA button.</p>',
                     "buttons": [buttons["secondary"]],
-                    "image": _IMAGE_VARIANTS,
+                    "image": image_variants,
                 },
                 "callout_card": {
                     "superheading": '<p data-block-key="2026cg2cs">Your choice</p>',
@@ -103,7 +93,7 @@ def get_card_gallery_variants() -> list[dict]:
                     "headline": '<p data-block-key="2026cg3mh">Main Card - No Button</p>',
                     "description": '<p data-block-key="2026cg3md">Main card without a CTA button.</p>',
                     "buttons": [],
-                    "image": _IMAGE_VARIANTS,
+                    "image": image_variants,
                 },
                 "secondary_card": {
                     "icon": "bookmark",
@@ -111,7 +101,7 @@ def get_card_gallery_variants() -> list[dict]:
                     "headline": '<p data-block-key="2026cg3sh">Secondary Card - No Button</p>',
                     "description": '<p data-block-key="2026cg3sd">Secondary card without a CTA button.</p>',
                     "buttons": [],
-                    "image": _IMAGE_VARIANTS,
+                    "image": image_variants,
                 },
                 "callout_card": {
                     "superheading": "",

@@ -2,8 +2,10 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+import re
 from unittest.mock import patch
 
+from django.conf import settings
 from django.test import override_settings
 
 import pytest
@@ -354,3 +356,8 @@ def test_update_sitemaps(
     }
 
     mock_output_json.assert_called_once_with(expected)
+
+
+def test_partner_download_page_is_excluded_from_static_urls():
+    # `get_static_urls` matches these patterns against the path without its locale.
+    assert any(re.search(pattern, "get/") for pattern in settings.NOINDEX_URLS)

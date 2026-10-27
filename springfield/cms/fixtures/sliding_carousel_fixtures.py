@@ -2,99 +2,78 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from django.conf import settings
-
-from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import SHOW_TO_ALL, get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images
+from springfield.cms.fixtures.block_factories import heading_value, image_block
 from springfield.cms.models import FreeFormPage2026
-
-_SHOW_TO_ALL = {"platforms": [], "firefox": "", "auth_state": ""}
-
-
-def _image(image_id, dark_mode_image_id=None, block_id=None):
-    return {
-        "type": "image",
-        "value": {
-            "image": image_id,
-            "settings": {
-                "dark_mode_image": dark_mode_image_id,
-                "mobile_image": None,
-                "dark_mode_mobile_image": None,
-            },
-        },
-        # Stable id required for wagtail_localize (StreamBlock children must have one).
-        "id": block_id,
-    }
-
-
-def _heading(heading_text, superheading_text="", subheading_text=""):
-    return {
-        "superheading_text": f'<p data-block-key="slcah">{superheading_text}</p>',
-        "heading_text": f'<p data-block-key="slcahh">{heading_text}</p>',
-        "subheading_text": f'<p data-block-key="slcahs">{subheading_text}</p>',
-    }
 
 
 def get_sliding_carousel_slides() -> list[dict]:
-    img = settings.PLACEHOLDER_IMAGE_ID
-    dark = settings.PLACEHOLDER_DARK_IMAGE_ID
+    placeholder_images = get_placeholder_images()
+    img = placeholder_images.image.id
+    dark = placeholder_images.dark_image.id
     return [
         {
             "type": "item",
             "value": {
-                "heading": _heading(
-                    "Protect your privacy across the web",
+                "heading": heading_value(
+                    heading_text="Protect your privacy across the web",
                     superheading_text="Privacy",
                     subheading_text="Control who can see your browsing activity.",
+                    block_key="slca",
                 ),
-                "media": [_image(img, dark, block_id="2026sc01-0000-0000-0000-0000000000a1")],
+                "media": [image_block(image_id=img, dark_mode_image_id=dark, block_id="2026sc01-0000-0000-0000-0000000000a1")],
             },
             "id": "2026sc01-0000-0000-0000-000000000001",
         },
         {
             "type": "item",
             "value": {
-                "heading": _heading(
-                    "Block trackers and ads automatically",
+                "heading": heading_value(
+                    heading_text="Block trackers and ads automatically",
                     superheading_text="Security",
                     subheading_text="Enhanced Tracking Protection works out of the box.",
+                    block_key="slca",
                 ),
-                "media": [_image(dark, img, block_id="2026sc01-0000-0000-0000-0000000000a2")],
+                "media": [image_block(image_id=dark, dark_mode_image_id=img, block_id="2026sc01-0000-0000-0000-0000000000a2")],
             },
             "id": "2026sc01-0000-0000-0000-000000000002",
         },
         {
             "type": "item",
             "value": {
-                "heading": _heading(
-                    "Sync your data across all your devices",
+                "heading": heading_value(
+                    heading_text="Sync your data across all your devices",
                     superheading_text="Sync",
                     subheading_text="Bookmarks, passwords, and tabs — always with you.",
+                    block_key="slca",
                 ),
-                "media": [_image(img, block_id="2026sc01-0000-0000-0000-0000000000a3")],
+                "media": [image_block(image_id=img, block_id="2026sc01-0000-0000-0000-0000000000a3")],
             },
             "id": "2026sc01-0000-0000-0000-000000000003",
         },
         {
             "type": "item",
             "value": {
-                "heading": _heading(
-                    "Browse faster with fewer interruptions",
+                "heading": heading_value(
+                    heading_text="Browse faster with fewer interruptions",
                     superheading_text="Speed",
                     subheading_text="Firefox is built to be fast so you can get more done.",
+                    block_key="slca",
                 ),
-                "media": [_image(dark, img, block_id="2026sc01-0000-0000-0000-0000000000a4")],
+                "media": [image_block(image_id=dark, dark_mode_image_id=img, block_id="2026sc01-0000-0000-0000-0000000000a4")],
             },
             "id": "2026sc01-0000-0000-0000-000000000004",
         },
         {
             "type": "item",
             "value": {
-                "heading": _heading(
-                    "Make Firefox yours with themes and extensions",
+                "heading": heading_value(
+                    heading_text="Make Firefox yours with themes and extensions",
                     superheading_text="Customise",
                     subheading_text="Thousands of add-ons let you tailor your browser experience.",
+                    block_key="slca",
                 ),
-                "media": [_image(img, dark, block_id="2026sc01-0000-0000-0000-0000000000a5")],
+                "media": [image_block(image_id=img, dark_mode_image_id=dark, block_id="2026sc01-0000-0000-0000-0000000000a5")],
             },
             "id": "2026sc01-0000-0000-0000-000000000005",
         },
@@ -107,7 +86,7 @@ def get_sliding_carousel_variants() -> list[dict]:
         {
             "type": "sliding_carousel",
             "value": {
-                "settings": {"show_to": _SHOW_TO_ALL},
+                "settings": {"show_to": SHOW_TO_ALL},
                 "slides": slides,
             },
             "id": "2026sc01-0000-0000-0000-000000000010",

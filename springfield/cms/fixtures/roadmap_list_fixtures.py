@@ -3,6 +3,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 from springfield.cms.fixtures.base_fixtures import get_flare_pages_docs_page, get_or_create_page
+from springfield.cms.fixtures.block_factories import link_value
 from springfield.cms.fixtures.kit_banner_fixtures import get_kit_banner_variants
 from springfield.cms.fixtures.whats_new_page_fixtures import get_whatsnew_index_page
 from springfield.cms.models.pages import RoadmapPage
@@ -18,20 +19,6 @@ EMPTY_LINK = {
     "new_window": False,
     "relative_url": "",
 }
-
-
-def make_link(url):
-    return {
-        "link_to": "custom_url",
-        "page": None,
-        "file": None,
-        "custom_url": url,
-        "anchor": "",
-        "email": "",
-        "phone": "",
-        "new_window": False,
-        "relative_url": "",
-    }
 
 
 def get_roadmap_item_variants() -> list[dict]:
@@ -70,9 +57,9 @@ def get_roadmap_item_variants() -> list[dict]:
                 ),
                 "status": "exploring",
                 "tags": ["desktop"],
-                "learn_more_link": make_link("https://mozilla.org/privacy/"),
+                "learn_more_link": link_value(custom_url="https://mozilla.org/privacy/"),
                 "learn_more_analytics_id": "rm0001-0000-0000-0000-000000000012",
-                "secondary_button_link": make_link("https://mozilla.org/download/"),
+                "secondary_button_link": link_value(custom_url="https://mozilla.org/download/"),
                 "secondary_button_icon": "forward",
                 "secondary_button_icon_position": "right",
                 "secondary_button_label": "Secondary Button Label",
@@ -92,7 +79,7 @@ def get_roadmap_item_variants() -> list[dict]:
                 ),
                 "status": "in-progress",
                 "tags": ["desktop"],
-                "learn_more_link": make_link("https://mozilla.org/privacy/"),
+                "learn_more_link": link_value(custom_url="https://mozilla.org/privacy/"),
                 "learn_more_analytics_id": "rm0001-0000-0000-0000-000000000012",
                 "secondary_button_link": EMPTY_LINK,
                 "secondary_button_icon": "",
@@ -113,9 +100,9 @@ def get_roadmap_item_variants() -> list[dict]:
                 ),
                 "status": "testing",
                 "tags": ["desktop", "android"],
-                "learn_more_link": make_link("https://mozilla.org/features/ai/"),
+                "learn_more_link": link_value(custom_url="https://mozilla.org/features/ai/"),
                 "learn_more_analytics_id": "rm0001-0000-0000-0000-000000000013",
-                "secondary_button_link": make_link("https://mozilla.org/download/"),
+                "secondary_button_link": link_value(custom_url="https://mozilla.org/download/"),
                 "secondary_button_icon": "forward",
                 "secondary_button_icon_position": "right",
                 "secondary_button_label": "Secondary Button Label",
@@ -155,7 +142,7 @@ def get_roadmap_item_variants() -> list[dict]:
                 ),
                 "status": "recently-shipped",
                 "tags": [],
-                "learn_more_link": make_link("https://mozilla.org/security/passkeys/"),
+                "learn_more_link": link_value(custom_url="https://mozilla.org/security/passkeys/"),
                 "learn_more_analytics_id": "rm0001-0000-0000-0000-000000000015",
                 "secondary_button_link": EMPTY_LINK,
                 "secondary_button_icon": "",

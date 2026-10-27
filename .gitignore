@@ -7,6 +7,7 @@ __pycache__/
 .docker-build*
 .DS_Store
 .env
+.envrc
 .eslintcache
 .idea
 .jshintrc
@@ -56,9 +57,9 @@ tests/playwright/.auth/
 Thumbs.db
 tmp/*
 venv
+.venv
 /custom-media
 /local-credentials/*.json
-uv.lock // we don't share dependencies via uv lockfiles at the moment
 AGENTS.md
 CLAUDE.md
 .claude/*

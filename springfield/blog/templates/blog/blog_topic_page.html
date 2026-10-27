@@ -15,6 +15,12 @@
 
 {% block page_css %}{{ css_bundle('flare-blog') }}{% endblock %}
 
+{% block extra_meta %}
+  {% set feed_index = blog_index %}
+  {% set feed_topic = topic %}
+  {% include 'blog/includes/blog-feed-links.html' %}
+{% endblock %}
+
 {% block body_class %}fl-blog-body fl-blog-topic-body{% endblock %}
 
 {% block content %}
@@ -25,12 +31,22 @@
     <section class="fl-section">
       <div class="fl-section-container">
 
-        <a href="{{ blog_index.url }}" class="fl-blog-back-link">
-          <span class="fl-icon fl-icon-back" aria-hidden="true"></span>
-          {{ ftl('blog-all-articles') }}
-        </a>
+        {% if not (topic_page and topic_page.hide_breadcrumb) %}
+          <a href="{{ blog_index.url }}" class="fl-blog-back-link">
+            <span class="fl-icon fl-icon-back" aria-hidden="true"></span>
+            {{ ftl('blog-home') }}
+          </a>
+        {% endif %}
+
+        {% set show_topics = all_topics and not (topic_page and topic_page.hide_topics) %}
+        {% set has_featured_articles = topic_page and topic_page.featured_articles %}
+        {% set index_page = blog_index %}
 
         <div class="fl-blog-index-header">
+          {% if show_topics and not has_featured_articles %}
+            {% include "blog/includes/blog-all-topics.html" %}
+          {% endif %}
+
           {% if topic_page and topic_page.page_heading %}
             {% for block in topic_page.page_heading %}
               {% if block.block_type == "heading" %}
@@ -53,11 +69,17 @@
             />
           {% endif %}
 
-          {% if all_topics %}
-            {% set index_page = blog_index %}
+          {% if show_topics and has_featured_articles %}
             {% include "blog/includes/blog-all-topics.html" %}
           {% endif %}
         </div>
+
+        {# Like the index page, featured articles start a new container below the header. #}
+        {% if has_featured_articles %}
+      </div>
+
+      <div class="fl-section-container">
+        {% endif %}
 
         {% if topic_page %}
           {% set featured_articles = topic_page.featured_articles %}

@@ -19,14 +19,27 @@ class CmsConfig(AppConfig):
         # Replace Wagtail's formfield_for_dbfield with our SVG-sanitizing version
         self._patch_image_form_field()
 
-        # Sort hand-translated locales last on the "Translate" locale checkboxes
-        self._patch_submit_translation_locale_order()
+        # Sort hand-translated locales last on the "Translate" locale checkboxes and
+        # add alias badges
+        self._patch_submit_translation_form()
 
         # Extend group page permissions to the other locales at their "Translated pages" levels
         self._patch_page_permission_policy()
 
+        # Give every user full page permissions on the Flare Docs pages
+        self._patch_flare_docs_page_permissions()
+
         # Populate the User Routing signal registry with the v1 signals.
         self._register_routing_signals()
+
+        self._connect_audit_log_receivers()
+
+    @staticmethod
+    def _connect_audit_log_receivers():
+        """Send every new Wagtail audit log entry, and every user deletion, to the audit.wagtail logger."""
+        # Imported here because importing the module connects its receivers, and it imports
+        # Wagtail models, which cannot be imported while the app registry is still loading.
+        from springfield.cms import audit_log  # noqa: F401
 
     @staticmethod
     def _register_routing_signals():
@@ -57,27 +70,56 @@ class CmsConfig(AppConfig):
         Locale.get_active = classmethod(SpringfieldLocale.get_active.__func__)
 
     @staticmethod
-    def _patch_submit_translation_locale_order():
+    def _patch_submit_translation_form():
         """
         Sort hand-translated locales last on wagtail-localize's "Translate" form,
-        keeping Wagtail's ordering for everything else.
+        keeping Wagtail's ordering for everything else, and badge alias locales.
 
         Wagtail orders locales by `language_code`, which puts Welsh first even though
-        an editor rarely picks it. wagtail-localize offers no hook for this, so the
-        form is patched here alongside the other startup patches.
+        an editor rarely picks it. Alias locales get an "alias → X" badge, plus a
+        "Select all except aliases" option. wagtail-localize offers no hook for
+        either, so the form is patched here alongside the other startup patches.
         """
 
         # Imported inline because wagtail-localize's form module pulls in Wagtail
         # models, which cannot be imported while the app registry is still loading.
+        from django import forms
         from django.conf import settings
         from django.db.models import Case, IntegerField, Value, When
+        from django.utils.html import format_html
+        from django.utils.translation import gettext as _
 
         from wagtail_localize.views.submit_translations import SubmitTranslationForm
 
         original_init = SubmitTranslationForm.__init__
 
+        def is_alias(locale):
+            return locale.language_code in settings.FALLBACK_LOCALES
+
+        def label_locale(locale):
+            if not is_alias(locale):
+                return locale.get_display_name()
+            return format_html(
+                '{} <span class="w-status w-status--label locale-role-badge">alias → {}</span>',
+                locale.get_display_name(),
+                settings.FALLBACK_LOCALES[locale.language_code],
+            )
+
         def __init__(self, instance, *args, **kwargs):
             original_init(self, instance, *args, **kwargs)
+
+            locales = self.fields["locales"]
+            locales.label_from_instance = label_locale
+
+            # Offered alongside "Select all" only when there are both aliases to leave out
+            # and other locales to select. The script finds aliases by the badge in their label.
+            alias_flags = [is_alias(locale) for locale in locales.queryset]
+            if not isinstance(self.fields["select_all"].widget, forms.HiddenInput) and any(alias_flags) and not all(alias_flags):
+                self.fields = {
+                    "select_all": self.fields.pop("select_all"),
+                    "select_all_except_aliases": forms.BooleanField(label=_("Select all except aliases"), required=False),
+                    **self.fields,
+                }
 
             # Alias locales are excluded from Smartling because they serve another
             # locale's content rather than because anyone translates them by hand,
@@ -176,6 +218,42 @@ class CmsConfig(AppConfig):
                         )
 
             return stored_permissions + translation_permissions
+
+        PagePermissionPolicy.get_all_permissions_for_user = get_all_permissions_for_user
+
+    @staticmethod
+    def _patch_flare_docs_page_permissions():
+        """
+        Give every active user all page permissions on each ``FlareDocsIndexPage`` and
+        the pages below it.
+
+        Staging and dev environments have the same users and groups from production, with
+        permissions restricted to certain areas of the site tree. The documentation pages
+        should be available to all users for training purposes.
+        """
+
+        # Imported inline because Wagtail models can't be imported while the app registry is loading.
+        from django.contrib.auth.base_user import AbstractBaseUser
+        from django.contrib.auth.models import Permission
+
+        from wagtail.models import GroupPagePermission
+        from wagtail.models.pages import PAGE_PERMISSION_CODENAMES
+        from wagtail.permission_policies.pages import PagePermissionPolicy
+
+        from springfield.cms.models.pages import FlareDocsIndexPage
+
+        original_get_all_permissions_for_user = PagePermissionPolicy.get_all_permissions_for_user
+
+        def get_all_permissions_for_user(self: PagePermissionPolicy, user: AbstractBaseUser) -> list[GroupPagePermission]:
+            permissions = original_get_all_permissions_for_user(self, user)
+            if not user.is_active or user.is_anonymous or user.is_superuser:
+                return permissions
+
+            page_permissions = Permission.objects.filter(content_type__app_label="wagtailcore", codename__in=PAGE_PERMISSION_CODENAMES)
+            flare_docs_permissions = [
+                GroupPagePermission(page=page, permission=permission) for page in FlareDocsIndexPage.objects.all() for permission in page_permissions
+            ]
+            return [*permissions, *flare_docs_permissions]
 
         PagePermissionPolicy.get_all_permissions_for_user = get_all_permissions_for_user
 

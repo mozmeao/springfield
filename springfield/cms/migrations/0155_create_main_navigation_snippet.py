@@ -2,25 +2,12 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-import os
-import sys
-
-from django.core.management import call_command
 from django.db import migrations
-
-from springfield.base.config_manager import config
-
-
-def should_skip():
-    """Whether this environment builds its own content and should not run the command."""
-    is_ci = os.environ.get("CI", "").lower() in ("1", "true", "yes")
-    return "pytest" in sys.modules or is_ci or config("SQLITE_EXPORT_MODE", parser=bool, default="false")
 
 
 def create_main_navigation_snippet(apps, schema_editor):
-    if should_skip():
-        return
-    call_command("create_main_navigation_snippet", verbosity=1)
+    # Disabled: this already ran in production.
+    return
 
 
 class Migration(migrations.Migration):
@@ -35,9 +22,6 @@ class Migration(migrations.Migration):
         ("wagtailsearch", "0005_create_indexentry"),
     ]
 
-    # Forward-only, like the other content migrations: reversing leaves the snippet,
-    # its translations and the wagtail_localize records in place, so editor
-    # changes are never lost on rollback.
     operations = [
         migrations.RunPython(
             create_main_navigation_snippet,

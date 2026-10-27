@@ -3,6 +3,12 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import re
+from unittest.mock import patch
+
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Permission
+from django.test import override_settings
+from django.urls import reverse
 
 import pytest
 from bs4 import BeautifulSoup
@@ -26,6 +32,8 @@ from springfield.cms.wagtail_hooks import (
     uid_document_link_entity,
     uid_link_entity,
 )
+
+User = get_user_model()
 
 _UUID_RE = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$")
 
@@ -313,3 +321,55 @@ class TestUIDDocumentLinkEntity:
         element1 = uid_document_link_entity({"id": 7, "children": None})
         element2 = uid_document_link_entity({"id": 7, "children": None})
         assert element1.attr["uid"] != element2.attr["uid"]
+
+
+@pytest.fixture
+def staff_client(client):
+    with override_settings(
+        AUTHENTICATION_BACKENDS=("django.contrib.auth.backends.ModelBackend",),
+        USE_SSO_AUTH=False,
+    ):
+        staff_user = User.objects.create_user(username="staff", email="staff@example.com", password="pass", is_staff=True)
+        staff_user.user_permissions.add(Permission.objects.get(content_type__app_label="wagtailadmin", codename="access_admin"))
+        client.force_login(staff_user, backend="django.contrib.auth.backends.ModelBackend")
+        yield client
+
+
+@pytest.mark.django_db
+class TestRegenerateDocs:
+    """The "Regenerate Docs" settings action reloads the page fixtures, everywhere except PROD."""
+
+    def test_confirming_runs_load_page_fixtures(self, admin_client):
+        with patch("springfield.cms.admin_views.call_command") as call_command:
+            response = admin_client.post(reverse("cms_regenerate_docs"))
+
+        assert response.status_code == 302
+        call_command.assert_called_once_with("load_page_fixtures")
+
+    @override_settings(PROD=True)
+    def test_regenerate_docs_is_unavailable_on_prod(self, admin_client):
+        with patch("springfield.cms.admin_views.call_command") as call_command:
+            get_response = admin_client.get(reverse("cms_regenerate_docs"), follow=True)
+            post_response = admin_client.post(reverse("cms_regenerate_docs"), follow=True)
+
+        assert get_response.status_code == 404
+        assert post_response.status_code == 404
+        call_command.assert_not_called()
+
+    @override_settings(PROD=True)
+    def test_settings_menu_hides_regenerate_docs_on_prod(self, admin_client):
+        response = admin_client.get(reverse("wagtailadmin_home"))
+
+        assert b"Regenerate Docs" not in response.content
+
+    def test_staff_user_can_regenerate_docs(self, staff_client):
+        with patch("springfield.cms.admin_views.call_command") as call_command:
+            response = staff_client.post(reverse("cms_regenerate_docs"))
+
+        assert response.status_code == 302
+        call_command.assert_called_once_with("load_page_fixtures")
+
+    def test_settings_menu_offers_regenerate_docs_to_staff_users(self, staff_client):
+        response = staff_client.get(reverse("wagtailadmin_home"))
+
+        assert b"Regenerate Docs" in response.content

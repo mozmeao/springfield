@@ -364,6 +364,22 @@ def get_button_variants(full=False) -> dict[str, dict]:
             },
             "id": "qrmodal1-0000-0000-0000-000000000002",
         },
+        "video_modal": {
+            "type": "video_modal_button",
+            "value": {
+                "settings": {
+                    "theme": "link",
+                    "icon": "play-fill",
+                    "icon_position": "right",
+                    "analytics_id": "vidmodal-0000-0000-0000-000000000001",
+                },
+                "pretranslated_label": None,
+                "custom_label": "Watch our latest campaign",
+                "video_url": "https://www.youtube.com/watch?v=aqz-KE-bpKQ",
+                "video_title": "Firefox campaign video",
+            },
+            "id": "vidmodal-0000-0000-0000-000000000002",
+        },
     }
     if full:
         index_page = get_flare_blocks_docs_page()
@@ -718,6 +734,27 @@ def get_button_blocks() -> list[dict]:
                 "media": [],
                 "heading": {
                     "superheading_text": "",
+                    "heading_text": '<p data-block-key="vidmodal01h">Video Modal Button</p>',
+                    "subheading_text": '<p data-block-key="vidmodal01s">Opens a modal that autoplays a YouTube video. '
+                    "Without JavaScript, the button links to the video on YouTube.</p>",
+                },
+                "content": [
+                    {
+                        "type": "buttons",
+                        "id": "vidmodal01-0000-0000-0000-000000000002",
+                        "value": [buttons["video_modal"]],
+                    },
+                ],
+            },
+            "id": "vidmodal01-0000-0000-0000-000000000001",
+        },
+        {
+            "type": "intro",
+            "value": {
+                "settings": {"layout": "vertical", "slim": False, "anchor_id": ""},
+                "media": [],
+                "heading": {
+                    "superheading_text": "",
                     "heading_text": '<p data-block-key="uitour01h">UI Tour: Open New Tab</p>',
                     "subheading_text": "",
                 },
@@ -936,6 +973,59 @@ def get_button_blocks() -> list[dict]:
                                     "custom_label": "Preferences: More From Mozilla",
                                 },
                                 "id": "uitour02-0000-0000-0000-000000000018",
+                            },
+                        ],
+                    },
+                    {
+                        "type": "buttons",
+                        "id": "uitour02-0000-0000-0000-000000000005",
+                        "value": [
+                            {
+                                "type": "uitour_button",
+                                "value": {
+                                    "settings": {
+                                        "theme": "secondary",
+                                        "icon": "sync",
+                                        "icon_position": "left",
+                                        "analytics_id": "uitour02-0000-0000-0000-000000000019",
+                                    },
+                                    "button_type": "open_about_preferences_sync_import_browser_data",
+                                    "pretranslated_label": None,
+                                    "custom_label": "Preferences: Import Browser Data",
+                                },
+                                "id": "uitour02-0000-0000-0000-000000000019",
+                            },
+                            {
+                                "type": "uitour_button",
+                                "value": {
+                                    "settings": {
+                                        "theme": "secondary",
+                                        "icon": "sparkle-single",
+                                        "icon_position": "left",
+                                        "analytics_id": "uitour02-0000-0000-0000-000000000020",
+                                    },
+                                    "button_type": "set_newtab_wallpaper",
+                                    "wallpaper": "Wrexham",
+                                    "pretranslated_label": None,
+                                    "custom_label": "Set Wallpaper: Wrexham",
+                                },
+                                "id": "uitour02-0000-0000-0000-000000000020",
+                            },
+                            {
+                                "type": "uitour_button",
+                                "value": {
+                                    "settings": {
+                                        "theme": "secondary",
+                                        "icon": "",
+                                        "icon_position": "right",
+                                        "analytics_id": "uitour02-0000-0000-0000-000000000021",
+                                    },
+                                    "button_type": "set_treatment_tag",
+                                    "treatment_tag_name": "wnp-test-show-callout",
+                                    "pretranslated_label": None,
+                                    "custom_label": "Set Treatment Tag",
+                                },
+                                "id": "uitour02-0000-0000-0000-000000000021",
                             },
                         ],
                     },

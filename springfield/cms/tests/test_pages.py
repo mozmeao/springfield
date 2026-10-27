@@ -2,6 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+import json
 from unittest import mock
 
 from django.conf import settings
@@ -15,10 +16,12 @@ from django.urls import reverse
 import pytest
 from bs4 import BeautifulSoup
 from wagtail import hooks
+from wagtail.models import Site
 
 from springfield.cms.blocks import UI_TOUR_CLASSES, UITOUR_BUTTON_SMART_WINDOW
+from springfield.cms.fixtures.block_factories import notification_block, show_to_value
 from springfield.cms.fixtures.button_fixtures import get_buttons_test_page
-from springfield.cms.fixtures.conditional_display_fixtures import make_notification, make_show_to
+from springfield.cms.fixtures.homepage_fixtures import get_home_test_page
 from springfield.cms.fixtures.smart_window_page_fixtures import (
     get_smart_window_illustration_cards,
     get_smart_window_line_cards,
@@ -213,7 +216,7 @@ def test_experiment_sample_rate_html_attributes_and_bundle(free_form_page: FreeF
     """A page with a sample rate gets the data attributes on <html> and loads the
     sample-rate JS bundle in the head."""
     page = free_form_page
-    page.content = [make_notification("samp0001", "Sample rate test", make_show_to(sample_rate=10))]
+    page.content = [notification_block(block_id="samp0001", message="Sample rate test", show_to=show_to_value(sample_rate=10))]
 
     response = page.serve(rf.get(page.get_full_url()))
     assert response.status_code == 200
@@ -598,12 +601,14 @@ def test_thanks_page_renders_notification_field_above_content(minimal_site, rf):
     page = ThanksPage(
         slug="test-thanks-notification",
         title="Test Thanks Notification",
-        notification=[make_notification("thnot001", "Your download should begin shortly.", make_show_to(), headline="Thanks!")],
+        notification=[
+            notification_block(block_id="thnot001", message="Your download should begin shortly.", show_to=show_to_value(), headline="Thanks!")
+        ],
         content=[
             {
                 "type": "section",
                 "value": {
-                    "settings": {"show_to": make_show_to()},
+                    "settings": {"show_to": show_to_value()},
                     "heading": {"heading_text": "<p>Set up Firefox</p>"},
                     "content": [],
                     "cta": [],
@@ -642,7 +647,9 @@ def test_thanks_page_allows_at_most_two_notifications():
 
     def notifications(count):
         page = ThanksPage()
-        page.notification = [make_notification(f"cap{index:04d}", f"Notice {index}.", make_show_to()) for index in range(count)]
+        page.notification = [
+            notification_block(block_id=f"cap{index:04d}", message=f"Notice {index}.", show_to=show_to_value()) for index in range(count)
+        ]
         return page.notification
 
     notification_field.clean(notifications(0))
@@ -704,6 +711,123 @@ def test_free_form_page_marketing_attribution_renders_checkbox_in_download_butto
         assert label.find_parent("div", class_="fl-download-firefox-button")
         assert "hidden" in label.get("class", [])
         assert label.find("input", class_="marketing-opt-out-checkbox-input")
+
+
+# Home Page marketing attribution
+
+
+@pytest.mark.django_db
+def test_home_page_defaults_render_the_homepage_unchanged(site_homepage, rf):
+    """The site's homepage with no promote settings touched is indexable, unpromoted and
+    carries the full site identity graph, as it did before these settings existed."""
+    response = site_homepage.serve(rf.get(site_homepage.get_full_url()))
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    assert not soup.find("html").has_attr("data-promoted-page")
+    assert not soup.find("meta", {"name": "robots"})
+    assert not soup.find_all("label", class_="marketing-opt-out-checkbox-label")
+
+    json_ld_blocks = [json.loads(script.string) for script in soup.find_all("script", {"type": "application/ld+json"})]
+    assert len(json_ld_blocks) == 1
+    assert {entity["@type"] for entity in json_ld_blocks[0]["@graph"]} == {"Organization", "Brand", "WebSite", "WebPage", "SoftwareApplication"}
+
+
+@pytest.mark.django_db
+def test_site_homepage_rejects_marketing_attribution_on_save(site_homepage):
+    """Saving the site's homepage with marketing attribution on is refused; a copy of it
+    elsewhere in the tree, such as a landing page, accepts it."""
+    landing_copy = site_homepage.copy(to=site_homepage.get_parent(), update_attrs={"slug": "landing-copy", "title": "Landing copy"})
+
+    site_homepage.enable_marketing_attribution = True
+    with pytest.raises(ValidationError) as excinfo:
+        site_homepage.clean()
+    assert "enable_marketing_attribution" in excinfo.value.message_dict
+
+    landing_copy.enable_marketing_attribution = True
+    landing_copy.clean()
+    assert landing_copy.marketing_attribution_active is True
+    assert landing_copy.noindex is True
+
+
+@pytest.mark.django_db
+def test_site_homepage_renders_unpromoted_even_with_the_flag_set(site_homepage, rf):
+    """The flag can reach the homepage without an editor's save (a script, a data migration,
+    a promoted copy swapped in as the site root); the page still renders indexable and
+    unpromoted."""
+    site_homepage.enable_marketing_attribution = True
+    assert site_homepage.marketing_attribution_active is False
+    assert site_homepage.noindex is False
+
+    response = site_homepage.serve(rf.get(site_homepage.get_full_url()))
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    assert not soup.find("html").has_attr("data-promoted-page")
+    assert not soup.find("meta", {"name": "robots"})
+    assert not soup.find_all("label", class_="marketing-opt-out-checkbox-label")
+    assert not soup.find_all("div", class_="has-marketing-opt-out")
+    assert not [script for script in soup.find_all("script", src=True) if "marketing_opt_out" in script["src"]]
+
+
+@pytest.mark.django_db
+def test_promoted_landing_page_swapped_in_as_site_homepage_renders_unpromoted(rf, placeholder_images):
+    """The homepage guard covers every promoted page type, not just HomePage: a promoted
+    FreeFormPage2026 made the site root refuses the flag on save and renders indexable."""
+    page = get_buttons_test_page()
+    page.enable_marketing_attribution = True
+    site = Site.objects.get(is_default_site=True)
+    site.root_page = page
+    site.save()
+
+    with pytest.raises(ValidationError) as excinfo:
+        page.clean()
+    assert "enable_marketing_attribution" in excinfo.value.message_dict
+    assert page.noindex is False
+
+    response = page.serve(rf.get(page.get_full_url()))
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    assert not soup.find("html").has_attr("data-promoted-page")
+    assert not soup.find("meta", {"name": "robots"})
+    assert not soup.find_all("label", class_="marketing-opt-out-checkbox-label")
+    assert not [script for script in soup.find_all("script", src=True) if "marketing_opt_out" in script["src"]]
+
+
+@pytest.mark.django_db
+def test_home_page_marketing_attribution_renders_checkbox_after_download_button_row(rf):
+    page = get_home_test_page()
+    page.enable_marketing_attribution = True
+
+    response = page.serve(rf.get(page.get_full_url()))
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    assert soup.find("html")["data-promoted-page"].lower() == "true"
+    assert soup.find("meta", {"name": "robots"})["content"] == "noindex,follow"
+    assert [script for script in soup.find_all("script", src=True) if "marketing_opt_out" in script["src"]]
+
+    labels = soup.find_all("label", class_="marketing-opt-out-checkbox-label")
+    assert labels
+    for label in labels:
+        assert label.find_parent("div", class_="fl-download-firefox-button")
+        assert "hidden" in label.get("class", [])
+        assert label.find("input", class_="marketing-opt-out-checkbox-input")
+        assert label.find("a")["href"] == "https://support.mozilla.org/kb/marketing-data"
+
+    # The privacy notice and the checkbox are placed after the download button row
+    download_extras = soup.find("div", class_="fl-download-firefox-button-extras")
+    buttons_row = download_extras.parent
+    assert "fl-buttons" in buttons_row["class"]
+    assert buttons_row.find_all(recursive=False)[-1] is download_extras
+    privacy_notice, checkbox_label = download_extras.find_all(recursive=False)[:2]
+    assert privacy_notice.find("a")["href"].startswith("https://www.mozilla.org/en-US/privacy/firefox/")
+    assert "marketing-opt-out-checkbox-label" in checkbox_label["class"]
 
 
 # Leading conditional blocks warning
