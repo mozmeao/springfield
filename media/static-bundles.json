@@ -44,16 +44,17 @@
     },
     {
       "files": [
-        "css/firefox/browsers/desktop/chromebook.scss"
-      ],
-      "name": "chromebook"
-    },
-    {
-      "files": [
         "css/firefox/download/common/thanks-messaging.scss",
         "css/firefox/download/desktop/thanks.scss"
       ],
       "name": "firefox_desktop_download_thanks"
+    },
+    {
+      "files": [
+        "css/cms/pages/flare-channels.css",
+        "css/firefox/download/get.css"
+      ],
+      "name": "firefox_download_get"
     },
     {
       "files": [
@@ -244,7 +245,8 @@
     {
       "files": [
         "css/cms/wagtail-admin.css",
-        "css/cms/routing/admin.css"
+        "css/cms/routing/admin.css",
+        "css/cms/workspaces/admin.css"
       ],
       "name": "wagtail-admin"
     },
@@ -299,12 +301,6 @@
         "css/firefox/landing/get/marketing-opt-out.scss"
       ],
       "name": "firefox_marketing_opt_out"
-    },
-    {
-      "files": [
-        "css/firefox/landing/index.scss"
-      ],
-      "name": "firefox_landing"
     },
     {
       "files": [
@@ -580,12 +576,6 @@
     },
     {
       "files": [
-        "js/firefox/browsers/desktop/chromebook.js"
-      ],
-      "name": "chromebook"
-    },
-    {
-      "files": [
         "js/base/download-attribution/download-attribution-init-essential.es6.js"
       ],
       "name": "download-attribution-init-essential"
@@ -596,6 +586,12 @@
         "js/firefox/download/auto-download.es6.js"
       ],
       "name": "auto-download"
+    },
+    {
+      "files": [
+        "js/firefox/download/partner-download-init.es6.js"
+      ],
+      "name": "partner-download"
     },
     {
       "files": [
@@ -858,18 +854,6 @@
     },
     {
       "files": [
-        "js/firefox/landing/init.es6.js"
-      ],
-      "name": "firefox_landing"
-    },
-    {
-      "files": [
-        "js/firefox/landing/partner-build-download-init.es6.js"
-      ],
-      "name": "firefox_partner_build_download"
-    },
-    {
-      "files": [
         "js/firefox/whatsnew/nightly/uitour.js"
       ],
       "name": "whatsnew_nightly"
@@ -894,6 +878,12 @@
     },
     {
       "files": [
+        "js/cms/wagtailadmin-except-aliases-checkbox.js"
+      ],
+      "name": "wagtailadmin-except-aliases-checkbox"
+    },
+    {
+      "files": [
         "js/cms/wagtailadmin-fxa.js"
       ],
       "name": "wagtailadmin-fxa"
@@ -910,6 +900,12 @@
         "js/cms/wagtailadmin-image-alt-prefill-init.es6.js"
       ],
       "name": "wagtailadmin-image-alt-prefill"
+    },
+    {
+      "files": [
+        "js/cms/wagtailadmin-image-inline-edit.es6.js"
+      ],
+      "name": "wagtailadmin-image-inline-edit"
     },
     {
       "files": [

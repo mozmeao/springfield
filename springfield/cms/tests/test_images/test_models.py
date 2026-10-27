@@ -1,0 +1,291 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+from unittest.mock import Mock, patch
+
+from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
+from django.test import TestCase, override_settings
+from django.urls import reverse
+
+import pytest
+from bs4 import BeautifulSoup
+from markupsafe import escape
+from wagtail.images.forms import get_image_form
+from wagtail.images.jinja2tags import (
+    image as render_image,
+    srcset_image as render_srcset_image,
+)
+from wagtail.images.tests.utils import get_test_image_file
+from wagtail.images.widgets import AdminImageChooser
+
+from springfield.cms.fields import SanitizingWagtailImageField
+from springfield.cms.models.images import SpringfieldImage, _make_renditions
+
+pytestmark = [pytest.mark.django_db]
+
+
+class SpringfieldImageTestCase(TestCase):
+    @override_settings(TASK_QUEUE_AVAILABLE=False)
+    def test_pre_generate_expected_renditions__no_queue_available(self):
+        image = SpringfieldImage(width=1, height=1)
+        expected_filter_specs = [
+            "width-2400",
+            "width-2200",
+            "width-2000",
+            "width-1800",
+            "width-1600",
+            "width-1400",
+            "width-1200",
+            "width-1000",
+            "width-800",
+            "width-600",
+            "width-400",
+            "width-200",
+            "width-100",
+            "max-165x165",
+        ]
+
+        with patch("springfield.cms.models.images._make_renditions") as _make_renditions_mock:
+            image._pre_generate_expected_renditions()
+            _make_renditions_mock.assert_called_once_with(image_id=image.id, filter_specs=expected_filter_specs)
+
+    @override_settings(TASK_QUEUE_AVAILABLE=True)
+    def test_pre_generate_expected_renditions__queue_available(self):
+        image = SpringfieldImage(width=1, height=1)
+        expected_filter_specs = [
+            "width-2400",
+            "width-2200",
+            "width-2000",
+            "width-1800",
+            "width-1600",
+            "width-1400",
+            "width-1200",
+            "width-1000",
+            "width-800",
+            "width-600",
+            "width-400",
+            "width-200",
+            "width-100",
+            "max-165x165",
+        ]
+
+        with patch("springfield.base.tasks.django_rq") as mock_django_rq:
+            mock_queue = Mock(name="mocked_queue")
+            mock_django_rq.get_queue.return_value = mock_queue
+
+            image._pre_generate_expected_renditions()
+
+            mock_django_rq.get_queue.assert_called_once_with("image_renditions")
+            mock_queue.enqueue.assert_called_once_with(
+                _make_renditions,
+                image_id=image.id,
+                filter_specs=expected_filter_specs,
+            )
+
+    def test_pre_generate_expected_renditions_uses_defer_task(self):
+        image = SpringfieldImage(width=1, height=1)
+        expected_filter_specs = [
+            "width-2400",
+            "width-2200",
+            "width-2000",
+            "width-1800",
+            "width-1600",
+            "width-1400",
+            "width-1200",
+            "width-1000",
+            "width-800",
+            "width-600",
+            "width-400",
+            "width-200",
+            "width-100",
+            "max-165x165",
+        ]
+        with patch("springfield.cms.models.images.defer_task") as mock_defer_task:
+            image._pre_generate_expected_renditions()
+            mock_defer_task.assert_called_once_with(
+                _make_renditions,
+                queue_name="image_renditions",
+                func_kwargs={
+                    "image_id": image.id,
+                    "filter_specs": expected_filter_specs,
+                },
+            )
+
+    def test_pre_generate_expected_renditions_called_on_save(self):
+        image = SpringfieldImage(width=1, height=1)
+        with patch.object(image, "_pre_generate_expected_renditions") as pre_generate_mock:
+            image.save()
+            pre_generate_mock.assert_called_once_with()
+
+    def test_springfield_image_uses_sanitizing_field(self):
+        """Verify that SpringfieldImage forms use SanitizingWagtailImageField."""
+
+        ImageForm = get_image_form(SpringfieldImage)
+        form = ImageForm()
+
+        # Check that the 'file' field is our custom sanitizing field
+        self.assertIsInstance(
+            form.fields["file"],
+            SanitizingWagtailImageField,
+        )
+
+
+@override_settings(
+    AUTHENTICATION_BACKENDS=("django.contrib.auth.backends.ModelBackend",),
+    USE_SSO_AUTH=False,
+)
+class ImageChooserResponseTestCase(TestCase):
+    def setUp(self):
+        self.superuser = get_user_model().objects.create_superuser(
+            username="admin",
+            email="admin@example.com",
+            password="adminpass",
+        )
+
+    def test_chosen_response_offers_no_default_alt_text_for_a_decorative_image(self):
+        image = SpringfieldImage.objects.create(
+            title="Swirl-2400x1200.png",
+            description="",
+            is_decorative=True,
+            file=get_test_image_file(),
+        )
+        self.client.force_login(self.superuser, backend="django.contrib.auth.backends.ModelBackend")
+
+        response = self.client.get(reverse("wagtailimages_chooser:chosen", args=[image.pk]))
+
+        assert response.json()["result"]["default_alt_text"] == ""
+
+    def test_chosen_response_offers_the_description_for_a_described_image(self):
+        image = SpringfieldImage.objects.create(
+            title="A purple fox",
+            description="A purple fox on a laptop",
+            file=get_test_image_file(),
+        )
+        self.client.force_login(self.superuser, backend="django.contrib.auth.backends.ModelBackend")
+
+        response = self.client.get(reverse("wagtailimages_chooser:chosen", args=[image.pk]))
+
+        assert response.json()["result"]["default_alt_text"] == "A purple fox on a laptop"
+
+
+def test_image_chooser_widget_offers_no_default_alt_text_for_a_saved_decorative_image():
+    image = SpringfieldImage.objects.create(
+        title="Swirl-2400x1200.png",
+        description="",
+        is_decorative=True,
+        file=get_test_image_file(),
+    )
+
+    value_data = AdminImageChooser().get_value_data(image)
+
+    assert value_data["default_alt_text"] == ""
+
+
+def test_image_form_does_not_fill_the_title_from_the_file_name():
+    form = get_image_form(SpringfieldImage)()
+
+    file_attrs = form.fields["file"].widget.attrs
+
+    assert "data-controller" not in file_attrs
+    assert form.fields["title"].required
+    assert not form["title"].value()
+
+
+def find_img(rendered):
+    """The <img> element a tag's return value produces, rendered the way Jinja renders it."""
+    return BeautifulSoup(str(escape(rendered)), "html.parser").find("img")
+
+
+def test_decorative_image_renders_an_empty_alt_attribute(make_image):
+    """An empty alt is what drops an image out of the accessibility tree; an absent one
+    makes screen readers announce the file name instead.
+    """
+    decorative_image = make_image(is_decorative=True)
+
+    srcset_tag = find_img(render_srcset_image(decorative_image, "width-{200,400}"))
+    assert srcset_tag.has_attr("srcset")
+    assert srcset_tag["alt"] == ""
+
+    assert find_img(render_image(decorative_image, "width-400"))["alt"] == ""
+
+
+def test_image_renders_alt_from_its_description(make_image):
+    described_image = make_image()
+
+    assert find_img(render_srcset_image(described_image, "width-{200,400}"))["alt"] == "The Firefox logo"
+    assert find_img(render_image(described_image, "width-400"))["alt"] == "The Firefox logo"
+
+
+def test_alt_passed_by_a_template_wins_over_the_decorative_flag(make_image):
+    decorative_image = make_image(is_decorative=True)
+
+    rendered = render_image(decorative_image, "width-400", alt="Chosen for this one use")
+
+    assert find_img(rendered)["alt"] == "Chosen for this one use"
+
+
+@pytest.mark.parametrize(
+    "title",
+    [
+        "fx_blog_header_extensions_writing",
+        "Monitor-1000x542.jpg",
+        "Disconnect-Study-Blog-Post-Graph-01-1-300x150",
+        "hero.png",
+        "  hero.png  ",
+        "firefox-enterprise",
+    ],
+)
+def test_full_clean_rejects_titles_that_name_a_file(title):
+    unsaved_image = SpringfieldImage(title=title, description="The Firefox logo", width=1, height=1)
+
+    with pytest.raises(ValidationError) as raised:
+        unsaved_image.full_clean(exclude=["file"])
+
+    assert "title" in raised.value.error_dict
+
+
+@pytest.mark.parametrize(
+    "title",
+    [
+        "Firefox logo",
+        "A menu button in Firefox",
+        "Firefox",
+        "Monitor 1000x542",
+    ],
+)
+def test_full_clean_accepts_titles_that_describe_the_image(title):
+    unsaved_image = SpringfieldImage(title=title, description="The Firefox logo", width=1, height=1)
+
+    unsaved_image.full_clean(exclude=["file"])
+
+
+def test_decorative_image_needs_no_description():
+    unsaved_image = SpringfieldImage(title="A decorative image", is_decorative=True, width=1, height=1)
+
+    unsaved_image.full_clean(exclude=["file"])
+
+
+def test_non_decorative_image_requires_description():
+    unsaved_image = SpringfieldImage(title="Not a decorative image", width=1, height=1)
+    with pytest.raises(ValidationError) as raised:
+        unsaved_image.full_clean(exclude=["file"])
+
+    assert "description" in raised.value.error_dict
+
+
+@override_settings(TASK_QUEUE_AVAILABLE=False)
+class SpringfieldImageSearchFieldsTestCase(TestCase):
+    def test_search_results_can_be_sorted_by_file_size(self):
+        # The image listing offers "File size" as a sort option. Without file_size
+        # registered as a FilterField, ordering a search by it raises FilterFieldError.
+        # Saving an image pre-generates renditions, which would try to open these
+        # fake files from disk when no task queue is available.
+        with patch("springfield.cms.models.images._make_renditions"):
+            for name, size in (("small.png", 10), ("large.png", 20)):
+                SpringfieldImage.objects.create(title=name, width=1, height=1, file=name, file_size=size)
+
+        results = SpringfieldImage.objects.order_by("-file_size").search("png", order_by_relevance=False)
+
+        self.assertEqual([image.title for image in results], ["large.png", "small.png"])

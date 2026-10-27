@@ -1,0 +1,15 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{#
+  RSS autodiscovery links.
+  Requires: feed_index (the BlogIndexPage), feed_topic (optional).
+#}
+
+<link rel="alternate" type="application/rss+xml" title="{{ ftl('blog-feed-title').striptags() }}" href="{{ feed_index.url ~ feed_index.reverse_subpage('feed_route') }}">
+{% if feed_topic %}
+<link rel="alternate" type="application/rss+xml" title="{{ ftl('blog-feed-topic-title', topic=feed_topic.name).striptags() }}" href="{{ feed_index.url ~ feed_index.reverse_subpage('topic_feed_route', args=[feed_topic.slug]) }}">
+{% endif %}

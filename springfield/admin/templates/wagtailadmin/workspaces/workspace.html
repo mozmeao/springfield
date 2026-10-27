@@ -1,0 +1,87 @@
+{# This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0. If a copy of the MPL was not distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/. #}
+{% extends "wagtailadmin/generic/base.html" %}
+{% comment %} SKIP LICENSE INSERTION {% endcomment %}
+{% load i18n wagtailadmin_tags %}
+
+{% block main_content %}
+  <div class="workspace-actions">
+    {% if add_url %}
+      <a href="{{ add_url }}" class="button bicolor button--icon">{% icon name="plus" wrapped=1 %}{{ add_label }}</a>
+    {% endif %}
+    <a href="{{ browse_url }}" class="button button-secondary">{{ browse_label }}</a>
+    {% if root_edit_url %}
+      <a href="{{ root_edit_url }}" class="button button-secondary">{{ root_edit_label }}</a>
+    {% endif %}
+    {% if tree_url %}
+      <a href="{{ tree_url }}" class="button button-secondary">{% trans "Page tree" %}</a>
+    {% endif %}
+  </div>
+
+  <p class="workspace-meta">{% blocktrans trimmed count counter=total %}{{ counter }} page{% plural %}{{ counter }} pages{% endblocktrans %}</p>
+  <ul class="workspace-counts" role="list" aria-label="{% trans 'Status' %}">
+    {% for count in counts %}
+      <li class="workspace-count workspace-count-{{ count.status|slugify }}">
+        <span class="workspace-count-value">{{ count.value }}</span>
+        <span class="workspace-count-label">{{ count.label }}</span>
+        <span class="workspace-count-description">{{ count.description }}</span>
+      </li>
+    {% endfor %}
+  </ul>
+
+  <div class="workspace-columns">
+    <section class="workspace-section" aria-labelledby="workspace-recent">
+      <h2 id="workspace-recent">{% trans "Recently edited" %}</h2>
+      <table class="listing">
+        <thead>
+          <tr>
+            <th>{% trans "Title" %}</th>
+            <th>{% trans "Status" %}</th>
+            <th>{% trans "Language" %}</th>
+            <th>{% trans "Last edited" %}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in recent %}
+            <tr>
+              <td>
+                {% if row.edit_url %}
+                  <a href="{{ row.edit_url }}">{{ row.page.get_admin_display_title }}</a>
+                {% else %}
+                  {{ row.page.get_admin_display_title }}
+                {% endif %}
+              </td>
+              <td>{% include "wagtailadmin/shared/page_status_tag.html" with page=row.page %}</td>
+              <td>{{ row.page.locale.get_display_name }}</td>
+              <td>
+                <span title="{{ row.page.latest_revision_created_at }}">{% blocktrans trimmed with ago=row.page.latest_revision_created_at|timesince %}{{ ago }} ago{% endblocktrans %}</span>
+                {% if row.edited_by %}<div class="workspace-meta">{{ row.edited_by.get_full_name|default:row.edited_by.get_username }}</div>{% endif %}
+              </td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="4">{% trans "Nothing here yet." %}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+
+    <aside class="workspace-section">
+      {% if manage_links %}
+        <h2>{% trans "Manage" %}</h2>
+        <ul class="workspace-links" role="list">
+          {% for link in manage_links %}
+            <li><a href="{{ link.url }}">{% icon name=link.icon %}{{ link.label }}</a></li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+
+      {% if locales|length > 1 %}
+        <h2>{% trans "Languages" %}</h2>
+        <ul class="workspace-links" role="list">
+          {% for item in locales %}
+            <li><a href="{{ item.browse_url }}">{% icon name="globe" %}{{ item.locale.get_display_name }}</a></li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </aside>
+  </div>
+{% endblock %}

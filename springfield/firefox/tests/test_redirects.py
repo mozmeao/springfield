@@ -186,6 +186,39 @@ def test_school_redirect_preserves_query_string(client, source):
     assert resp.headers["Location"] == "/en-US/landing/school/?utm_source=test&utm_campaign=school"
 
 
+@pytest.mark.parametrize(
+    "source, dest",
+    (
+        # no locale; LangCodeFixupMiddleware later adds the visitor's best locale
+        ("/comeback/", "/landing/welcomeback/?redirect_source=comeback"),
+        ("/comeback", "/landing/welcomeback/?redirect_source=comeback"),
+        ("/welcomeback/", "/landing/welcomeback/?redirect_source=welcomeback"),
+        ("/WelcomeBack", "/landing/welcomeback/?redirect_source=welcomeback"),
+        ("/try/", "/landing/welcomeback/?redirect_source=try"),
+        ("/try", "/landing/welcomeback/?redirect_source=try"),
+        ("/en-US/comeback/", "/en-US/landing/welcomeback/?redirect_source=comeback"),
+        ("/fr/welcomeback/", "/fr/landing/welcomeback/?redirect_source=welcomeback"),
+        # UTM params from whoever shared the link pass through untouched
+        (
+            "/de/comeback/?utm_source=instagram&utm_campaign=brand",
+            "/de/landing/welcomeback/?redirect_source=comeback&utm_source=instagram&utm_campaign=brand",
+        ),
+    ),
+)
+def test_brand_vanity_redirects(client, source, dest):
+    resp = client.get(source, follow=False)
+    assert resp.status_code == 302
+    assert resp.headers["Location"] == dest
+
+
+@pytest.mark.parametrize("accept_language, locale", (("fr", "fr"), ("de", "de"), ("en-US", "en-US")))
+def test_brand_vanity_redirect_lands_in_visitor_locale(client, accept_language, locale):
+    first = client.get("/comeback/", headers={"accept-language": accept_language}, follow=False)
+    second = client.get(first.headers["Location"], headers={"accept-language": accept_language}, follow=False)
+    assert second.status_code == 302
+    assert second.headers["Location"] == f"/{locale}/landing/welcomeback/?redirect_source=comeback"
+
+
 # -- Offsite redirect / locale / query string isolation tests --
 
 EXPECTED_REDIRECT_QS = "?redirect_source=test"

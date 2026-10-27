@@ -54,10 +54,6 @@
     font-size: var(--fl-theme-label-xs);
 }
 
-.fl-article-main .fl-rich-text blockquote {
-    margin-block: var(--token-layout-md);
-}
-
 .fl-article-page .fl-privacy-link a {
     color: var(--token-color-white);
 }

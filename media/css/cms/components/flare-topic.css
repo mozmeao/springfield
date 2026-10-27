@@ -63,6 +63,10 @@
     grid-template-columns: 1fr;
 }
 
+.fl-topic-buttons .fl-buttons.is-stacked {
+    gap: var(--token-spacing-lg);
+}
+
 .fl-topic-buttons .fl-button {
     inline-size: fit-content;
 }

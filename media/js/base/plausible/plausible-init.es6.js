@@ -5,5 +5,7 @@
  */
 
 import Plausible from './plausible.es6';
+import TrackCTAClick from './plausible-cta.es6';
 
 Plausible.init();
+TrackCTAClick.init();

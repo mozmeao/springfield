@@ -17,6 +17,7 @@ from wagtail.models import Site
 
 from springfield.cms.blocks import TabBlock
 from springfield.cms.middleware import CMSLocaleFallbackMiddleware
+from springfield.cms.models import ReferralGetFirefoxPage
 from springfield.cms.tests.factories import ReferralGetFirefoxPageFactory, ReferralHubPageFactory
 from springfield.firefox.referral import crypto
 from springfield.firefox.referral.models import FirefoxReferralData
@@ -796,3 +797,10 @@ def test_get_firefox_page_clean_accepts_a_single_referral_download_block():
     ]
 
     page.clean()  # must not raise
+
+
+def test_get_firefox_page_intro_offers_the_referral_download_only_in_its_first_row():
+    """clean() counts the first row only, so the second row can't hold a duplicate."""
+    intro_block = ReferralGetFirefoxPage.upper_content.field.stream_block.child_blocks["intro"]
+    assert "referral_download" in intro_block.child_blocks["buttons"].child_blocks
+    assert "referral_download" not in intro_block.child_blocks["buttons_below"].child_blocks

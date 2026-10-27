@@ -7,6 +7,11 @@
 {% extends "cms/base-flare.html" %}
 
 {% block structured_data %}
+{# Only the real homepage describes the organization and website; copies of it, such as
+   landing pages, keep the breadcrumbs every other page gets. #}
+{%- if not page.is_site_homepage %}
+{{ super() }}
+{%- else %}
 {%- if page and page.og_image %}
 {%- set og_image_url = image(page.og_image, "width-1200").url|absolute_url %}
 {%- else %}
@@ -85,6 +90,7 @@
   ]
 }
 </script>
+{%- endif %}
 {% endblock %}
 
 {% block page_css %}{{ css_bundle('flare-homepage') }}{% endblock %}

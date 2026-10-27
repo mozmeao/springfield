@@ -45,6 +45,7 @@
 
 {% set channel_name = '' if release.channel == 'Release' else release.channel %}
 
+{# Set to an empty string to show the bottom download CTA without a heading. #}
 {% set download_title = download_title|default('Get the most recent version') %}
 
 {# The download CTAs are hidden from people already running Firefox. Products whose
@@ -92,7 +93,7 @@
 {% endblock %}
 
 {% set feedback_url='https://connect.mozilla.org/' %}
-{% set bugzilla_url='https://bugzilla.mozilla.org/enter_bug.cgi' %}
+{% set bugzilla_url = bugzilla_url|default('https://bugzilla.mozilla.org/enter_bug.cgi') %}
 
 {% block main_class %}{% endblock %}
 
@@ -154,7 +155,7 @@
                     {% set primary_heading = '{0} <br> Release Notes'|f(product_name)|safe %}
                   {% endif %}
                 {% endif %}
-                {% set call_out_desc = 'Release Notes tell you what\'s new in Firefox. As always, we welcome your <a href="%(feedback)s">feedback</a>. You can also <a href="%(bugzilla)s">file a bug in Bugzilla</a> or see the <a href="%(check)s">system requirements</a> of this release.'|format(feedback=feedback_url, bugzilla=bugzilla_url, check=check_url) %}
+                {% set call_out_desc = 'Release Notes tell you what\'s new in %(product)s. As always, we welcome your <a href="%(feedback)s">feedback</a>. You can also <a href="%(bugzilla)s">file a bug in Bugzilla</a> or see the <a href="%(check)s">system requirements</a> of this release.'|format(product=product_name, feedback=feedback_url, bugzilla=bugzilla_url, check=check_url) %}
                 <include:heading
                   level="h1"
                   heading_size="fl-heading-xl fl-heading-condensed"

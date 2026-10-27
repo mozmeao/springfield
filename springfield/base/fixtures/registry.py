@@ -9,7 +9,7 @@ pages) it creates. Used by the translate-all regression test and the
 ``load_page_fixtures`` command to avoid a duplicated call list.
 """
 
-from springfield.blog.fixtures.blog_fixtures import get_blog_index_page, get_blog_pages, get_blog_topic_page
+from springfield.blog.fixtures.blog_fixtures import get_blog_index_page, get_blog_pages, get_blog_quotes_test_page, get_blog_topic_page
 from springfield.cms.fixtures.article_page_fixtures import get_article_pages, get_article_theme_hub_page, get_article_theme_page
 from springfield.cms.fixtures.banner_fixtures import get_banner_test_page
 from springfield.cms.fixtures.base_fixtures import get_article_index_test_page
@@ -57,6 +57,7 @@ from springfield.cms.fixtures.media_content_fixtures import get_media_content_te
 from springfield.cms.fixtures.notification_fixtures import get_notification_test_page
 from springfield.cms.fixtures.resources_fixtures import get_resources_test_page
 from springfield.cms.fixtures.roadmap_list_fixtures import get_roadmap_list_test_page
+from springfield.cms.fixtures.sharing_links_fixtures import get_sharing_links_test_page
 from springfield.cms.fixtures.showcase_fixtures import get_showcase_test_page
 from springfield.cms.fixtures.sliding_carousel_fixtures import get_sliding_carousel_test_page
 from springfield.cms.fixtures.smart_window_explainer_page_fixtures import get_smart_window_explainer_test_page
@@ -103,6 +104,7 @@ PAGE_FIXTURES = [
     get_conditional_display_test_page,
     get_buttons_test_page,
     get_button_row_test_page,
+    get_sharing_links_test_page,
     get_comparison_table_test_page,
     get_browser_comparison_table_test_page,
     get_certification_list_test_page,
@@ -123,6 +125,7 @@ PAGE_FIXTURES = [
     get_article_theme_hub_page,
     get_blog_index_page,
     get_blog_pages,
+    get_blog_quotes_test_page,
     get_blog_topic_page,
     get_smart_window_explainer_test_page,
     get_smart_window_test_page,

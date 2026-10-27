@@ -44,6 +44,11 @@
     padding: var(--token-spacing-xl);
 }
 
+.fl-rich-text pre:focus-visible {
+    outline: 2px solid var(--button-color-focus-outline);
+    outline-offset: 2px;
+}
+
 .fl-rich-text pre code {
     background: none;
     border-radius: 0;
@@ -59,15 +64,6 @@
 
 .fl-rich-text li {
     margin-block-end: var(--token-spacing-sm);
-}
-
-.fl-rich-text blockquote {
-    border-inline-start: var(--token-spacing-xs) solid
-        var(--token-color-light-purple);
-    font-family: var(--fl-theme-font-family-headline);
-    font-size: var(--fl-theme-font-size-body-lg);
-    margin: var(--token-spacing-lg) 0;
-    padding-inline-start: var(--token-spacing-lg);
 }
 
 .fl-rich-text cite {

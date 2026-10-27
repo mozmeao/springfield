@@ -34,7 +34,6 @@ PLATFORM_PARAMS = pytest.mark.parametrize(
     [
         ("android", "/en-US/download/android/", "android"),
         ("ios", "/en-US/download/ios/", "ios"),
-        ("chromebook", "/en-US/download/chromebook/", "chromebook"),
         ("linux", "/en-US/download/linux/", "linux"),
         ("mac", "/en-US/download/mac/", "mac"),
         ("windows", "/en-US/download/windows/", "windows"),
