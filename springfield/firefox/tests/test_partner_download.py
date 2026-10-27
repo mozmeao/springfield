@@ -41,6 +41,15 @@ def partner_urls(soup):
     return {link["href"].split("os=")[1].split("&")[0]: link["href"] for link in soup.select(f'a[href*="{ACME_PRODUCT}"]')}
 
 
+@pytest.fixture(autouse=True)
+def english_strings_only(settings):
+    """Leave out the l10n team's translations, so asserted text stays English as new translations land."""
+    settings.FLUENT_PATHS = [settings.FLUENT_LOCAL_PATH]
+    caches["fluent"].clear()
+    yield
+    caches["fluent"].clear()
+
+
 @pytest.fixture
 def acme():
     return make_partner(windows64_url=partner_link("win64"), windows_languages="en-US")
