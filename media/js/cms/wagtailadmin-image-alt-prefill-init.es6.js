@@ -4,8 +4,6 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-(function () {
-    'use strict';
+import { initImageAltPrefill } from './wagtailadmin-image-alt-prefill.es6.js';
 
-    window.MzpDetails.init('.mzp-c-menu-list-title');
-})();
+initImageAltPrefill();

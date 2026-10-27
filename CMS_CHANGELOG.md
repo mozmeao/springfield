@@ -1,3 +1,7 @@
+## 2026-10-26
+
+- The Sharing Links block can be added to a Banner's content.
+
 ## 2026-10-21
 
 - Blog articles have an "Exclude from RSS" checkbox on the Settings tab. It keeps the article out of the blog's RSS feeds; the article still shows on the blog. Translations follow after Sync translated pages and publish.

@@ -170,6 +170,8 @@ UITOUR_BUTTON_PROTECTIONS_REPORT = "open_protections_report"
 UITOUR_BUTTON_SMART_WINDOW = "open_smart_window"
 UITOUR_BUTTON_PIN_TO_TASKBAR = "pin_to_taskbar"
 UITOUR_BUTTON_SET_NEWTAB_WALLPAPER = "set_newtab_wallpaper"
+UITOUR_BUTTON_SET_TREATMENT_TAG = "set_treatment_tag"
+UITOUR_TREATMENT_TAG_PREF_PREFIX = "browser.uitour.treatment."
 UITOUR_BUTTON_CHOICES = (
     (UITOUR_BUTTON_NEW_TAB, "Open New Tab"),
     (UITOUR_BUTTON_NEW_TAB_CUSTOMIZE, "Open New Tab - Customization Panel"),
@@ -190,6 +192,7 @@ UITOUR_BUTTON_CHOICES = (
     (UITOUR_BUTTON_SMART_WINDOW, "Open Smart Window"),
     (UITOUR_BUTTON_PIN_TO_TASKBAR, "Pin to Taskbar (Windows and Mac only)"),
     (UITOUR_BUTTON_SET_NEWTAB_WALLPAPER, "Set New Tab Wallpaper"),
+    (UITOUR_BUTTON_SET_TREATMENT_TAG, "Set Treatment Tag"),
 )
 
 UI_TOUR_CLASSES = {
@@ -209,6 +212,7 @@ UI_TOUR_CLASSES = {
     UITOUR_BUTTON_SMART_WINDOW: "ui-tour-open-smart-window",
     UITOUR_BUTTON_PIN_TO_TASKBAR: "ui-tour-pin-to-taskbar",
     UITOUR_BUTTON_SET_NEWTAB_WALLPAPER: "ui-tour-set-newtab-wallpaper",
+    UITOUR_BUTTON_SET_TREATMENT_TAG: "ui-tour-set-treatment-tag",
 }
 
 BUTTON_TYPE = "button"
@@ -382,6 +386,42 @@ class LabelSourceMixin(blocks.StructBlock):
         if value.get("custom_label"):
             items.append(value["custom_label"])
         return items
+
+
+class RequireAltTextMixin(blocks.StructBlock):
+    """Requires alt text for each image field listed in `alt_text_fields`.
+
+    Each entry is the name of an image chooser field; its alt text lives in a
+    sibling field of the same name with the `_alt` suffix. A decorative image
+    may be left without alt text.
+    """
+
+    alt_text_fields = ()
+
+    def clean(self, value):
+        try:
+            cleaned = super().clean(value)
+            errors = {}
+        except StructBlockValidationError as exc:
+            # Keep validating, so the editor sees every error at once.
+            cleaned = value
+            errors = dict(exc.block_errors)
+        for image_field_name in self.alt_text_fields:
+            image = cleaned.get(image_field_name)
+            alt_field_name = f"{image_field_name}_alt"
+            if image and not image.is_decorative and not (cleaned.get(alt_field_name) or "").strip():
+                errors.setdefault(
+                    alt_field_name,
+                    ValidationError(
+                        _(
+                            "Describe what this image shows, so it can be read out to someone who cannot see it. "
+                            "Tick 'Image is decorative' on the image itself if it shows nothing worth describing."
+                        )
+                    ),
+                )
+        if errors:
+            raise StructBlockValidationError(block_errors=errors)
+        return cleaned
 
 
 class IconChoiceBlock(ThumbnailChoiceBlock):
@@ -911,6 +951,14 @@ def UITourButtonBlock(themes=BUTTON_THEMES, **kwargs):
                 "newtab-wallpapers-v2 Remote Settings collection (case-sensitive), e.g. 'Wrexham'."
             ),
         )
+        treatment_tag_name = UntranslatableCharBlock(
+            required=False,
+            default="",
+            help_text=(
+                "Only used by the 'Set Treatment Tag' button type. Enter the name without the "
+                f"'{UITOUR_TREATMENT_TAG_PREF_PREFIX}' prefix that Firefox adds, e.g. 'wnp-160-show-callout'."
+            ),
+        )
 
         class Meta:
             template = "cms/blocks/uitour_button.html"
@@ -918,7 +966,7 @@ def UITourButtonBlock(themes=BUTTON_THEMES, **kwargs):
             label_format = "{custom_label} {pretranslated_label}"
             value_class = UITourButtonValue
             form_layout = blocks.BlockGroup(
-                children=["pretranslated_label", "custom_label", "button_type", "wallpaper"],
+                children=["pretranslated_label", "custom_label", "button_type", "wallpaper", "treatment_tag_name"],
                 settings=["settings"],
             )
 
@@ -926,6 +974,18 @@ def UITourButtonBlock(themes=BUTTON_THEMES, **kwargs):
             value = super().clean(value)
             if value.get("button_type") == UITOUR_BUTTON_SET_NEWTAB_WALLPAPER and not value.get("wallpaper"):
                 raise StructBlockValidationError(block_errors={"wallpaper": ValidationError("A wallpaper is required for this button type.")})
+            if value.get("button_type") == UITOUR_BUTTON_SET_TREATMENT_TAG:
+                tag_name = value.get("treatment_tag_name") or ""
+                if not tag_name:
+                    tag_name_error = "A treatment tag name is required for this button type."
+                elif tag_name.startswith(UITOUR_TREATMENT_TAG_PREF_PREFIX):
+                    tag_name_error = f"Leave out the '{UITOUR_TREATMENT_TAG_PREF_PREFIX}' prefix; Firefox adds it."
+                elif any(character.isspace() for character in tag_name):
+                    tag_name_error = "The name can't contain spaces."
+                else:
+                    tag_name_error = None
+                if tag_name_error:
+                    raise StructBlockValidationError(block_errors={"treatment_tag_name": ValidationError(tag_name_error)})
             return value
 
     return _UITourButtonBlock(**kwargs)
@@ -1453,9 +1513,10 @@ class ComparisonImageHeaderBlock(blocks.StructBlock):
 
     image = ImageChooserBlock(help_text="Image displayed above the label, such as a product logo.")
     dark_mode_image = ImageChooserBlock(required=False, help_text="Optional dark mode image variant.")
-    alt = blocks.CharBlock(
+    image_alt = blocks.CharBlock(
         label="Alt Text",
         required=False,
+        default="",
         help_text="Text for screen readers describing the image. Leave empty when the label below the image already describes it.",
     )
     label = blocks.CharBlock(help_text="Text displayed below the image.")
@@ -1584,8 +1645,16 @@ class ImageVariantsBlockSettings(blocks.StructBlock):
 
 
 def ImageVariantsBlock(required=True, *args, **kwargs):
-    class _ImageVariantsBlock(blocks.StructBlock):
+    class _ImageVariantsBlock(RequireAltTextMixin, blocks.StructBlock):
+        alt_text_fields = ("image",)
+
         image = ImageChooserBlock(required=required)
+        image_alt = blocks.CharBlock(
+            label="Alt Text",
+            required=False,
+            default="",
+            help_text="Text for screen readers describing the image.",
+        )
         settings = ImageVariantsBlockSettings()
 
         class Meta:
@@ -1632,7 +1701,7 @@ class VideoBlock(blocks.StructBlock):
         help_text="Link to a video from YouTube or assets.mozilla.net.",
         validators=[validate_video_url],
     )
-    alt = blocks.CharBlock(label="Alt Text", help_text="Text for screen readers describing the video.")
+    alt = blocks.CharBlock(label="Alt Text", default="", help_text="Text for screen readers describing the video.")
     poster = ImageChooserBlock(help_text="Poster image displayed before the video is played.")
     aspect_ratio = blocks.ChoiceBlock(
         choices=VIDEO_ASPECT_RATIO_CHOICES,
@@ -1658,6 +1727,7 @@ def AnimationBlock(required=True, *args, **kwargs):
         )
         alt = blocks.CharBlock(
             required=required,
+            default="",
             label="Alt Text",
             help_text="Text for screen readers describing the video.",
         )
@@ -2100,7 +2170,16 @@ class SmartWindowInstructionsBlock(blocks.StructBlock):
         template = "cms/blocks/smart-window-instructions.html"
 
 
-def BaseContentBlock(allow_uitour=False, **kwargs):
+def BaseContentBlock(allow_uitour=False, allow_sharing_links=False, **kwargs):
+    """Content stream for heading-led blocks.
+
+    Args:
+        allow_sharing_links: If True, adds the Sharing Links block. Only used in BannerBlock.
+    """
+    local_blocks = []
+    if allow_sharing_links:
+        local_blocks.append(("sharing_links", SharingLinksBlock()))
+
     class _BaseContentBlock(blocks.StreamBlock):
         tags = TagsBlock(min_num=0, max_num=3, default=[])
         rich_text = RichTextBlock(features=EXPANDED_TEXT_FEATURES, template="cms/blocks/rich_text_block_body.html")
@@ -2116,7 +2195,7 @@ def BaseContentBlock(allow_uitour=False, **kwargs):
             label_format = "Content"
             template = "cms/blocks/base_content.html"
 
-    return _BaseContentBlock(**kwargs)
+    return _BaseContentBlock(local_blocks or None, **kwargs)
 
 
 class MediaContentSettings(blocks.StructBlock):
@@ -2209,8 +2288,16 @@ class IconListItemBlock(blocks.StructBlock):
         value_class = IconListItemValue
 
 
-class IconListWithImageBlock(blocks.StructBlock):
+class IconListWithImageBlock(RequireAltTextMixin, blocks.StructBlock):
+    alt_text_fields = ("image",)
+
     image = ImageChooserBlock()
+    image_alt = blocks.CharBlock(
+        label="Alt Text",
+        required=False,
+        default="",
+        help_text="Text for screen readers describing the image.",
+    )
     list_items = blocks.ListBlock(IconListItemBlock())
 
     class Meta:
@@ -2573,10 +2660,18 @@ class ResourcesBlock(blocks.StructBlock):
 # Article Cards
 
 
-class BaseArticleOverridesBlock(blocks.StructBlock):
+class BaseArticleOverridesBlock(RequireAltTextMixin, blocks.StructBlock):
+    alt_text_fields = ("image",)
+
     image = ImageChooserBlock(
         required=False,
         help_text="Optional custom image to override the article's featured image.",
+    )
+    image_alt = blocks.CharBlock(
+        label="Alt Text",
+        required=False,
+        default="",
+        help_text="Text for screen readers describing the image. Used only when a custom image is chosen above.",
     )
     sticker = ImageChooserBlock(
         required=False,
@@ -2675,6 +2770,20 @@ class BaseArticleValue(blocks.StructValue):
             if hasattr(article_page, "featured_image"):
                 return article_page.featured_image
         return None
+
+    def get_featured_image_alt(self) -> str:
+        """Alt text for whichever image get_featured_image() returned.
+
+        The override's alt only applies when the override supplied the image;
+        otherwise the article's own alt describes the article's own picture.
+        """
+        overrides = self.get("overrides", {})
+        if overrides.get("image"):
+            return overrides.get("image_alt") or ""
+        article_page = self.get_article()
+        if article_page:
+            return getattr(article_page.specific, "featured_image_alt", "")
+        return ""
 
     def get_pictogram(self) -> SpringfieldImage | None:
         overrides = self.get("overrides", {})
@@ -3151,7 +3260,9 @@ def FeaturedImageSectionBlock(allow_uitour=False, *args, **kwargs):
 
 
 def TopicBlock(allow_uitour=False, *args, **kwargs):
-    class _TopicBlock(blocks.StructBlock):
+    class _TopicBlock(RequireAltTextMixin, blocks.StructBlock):
+        alt_text_fields = ("image",)
+
         short_title = blocks.CharBlock(
             label="Short Title",
             help_text="Text to be used on the sidebar link.",
@@ -3162,6 +3273,12 @@ def TopicBlock(allow_uitour=False, *args, **kwargs):
         image = ImageChooserBlock(
             label="Image",
             help_text="Image shown at the top of the topic heading.",
+        )
+        image_alt = blocks.CharBlock(
+            label="Alt Text",
+            required=False,
+            default="",
+            help_text="Text for screen readers describing the image.",
         )
         heading = HeadingBlock()
         content = RichTextBlock(features=HEADING_TEXT_FEATURES)
@@ -3247,7 +3364,7 @@ def BannerBlock(allow_uitour=False, *args, **kwargs):
         settings = BannerSettings()
         media = MediaBlock(max_num=1, min_num=0, required=False)
         heading = HeadingBlock()
-        content = BaseContentBlock(allow_uitour=allow_uitour, required=False)
+        content = BaseContentBlock(allow_uitour=allow_uitour, allow_sharing_links=True, required=False)
 
         class Meta:
             template = "cms/blocks/sections/banner.html"
@@ -3578,8 +3695,10 @@ def HomeKitBannerBlock(allow_uitour=False, *args, **kwargs):
 # Mobile
 
 
-class MobileStoreQRCodeBlock(blocks.StructBlock):
+class MobileStoreQRCodeBlock(RequireAltTextMixin, blocks.StructBlock):
     """Block for displaying mobile app store buttons with a QR code."""
+
+    alt_text_fields = ("mobile_image",)
 
     heading = HeadingBlock()
     qr_code_data = blocks.CharBlock(
@@ -3589,6 +3708,12 @@ class MobileStoreQRCodeBlock(blocks.StructBlock):
     mobile_image = ImageChooserBlock(
         label="Mobile Image",
         help_text="Image shown on mobile instead of the QR code.",
+    )
+    mobile_image_alt = blocks.CharBlock(
+        label="Alt Text",
+        required=False,
+        default="",
+        help_text="Text for screen readers describing the image.",
     )
 
     class Meta:

@@ -46,15 +46,15 @@
                     {% if article.sticker %}
                       {% set classes = image_variant_classes(article.sticker_dark_mode, article.sticker_mobile, article.sticker_dark_mode_mobile) %}
                       <div class="image-variants-display">
-                        {{ image(article.sticker, "width-400", class=classes.primary) }}
+                        {{ image(article.sticker, "width-400", alt="", class=classes.primary) }}
                         {% if article.sticker_mobile %}
-                          {{ image(article.sticker_mobile, "width-400", class=classes.mobile) }}
+                          {{ image(article.sticker_mobile, "width-400", alt="", class=classes.mobile) }}
                         {% endif %}
                         {% if article.sticker_dark_mode_mobile %}
-                          {{ image(article.sticker_dark_mode_mobile, "width-400", class=classes.dark_mode_mobile) }}
+                          {{ image(article.sticker_dark_mode_mobile, "width-400", alt="", class=classes.dark_mode_mobile) }}
                         {% endif %}
                         {% if article.sticker_dark_mode %}
-                          {{ image(article.sticker_dark_mode, "width-400", class=classes.dark_mode) }}
+                          {{ image(article.sticker_dark_mode, "width-400", alt="", class=classes.dark_mode) }}
                         {% endif %}
                       </div>
                     {% else %}
@@ -105,6 +105,7 @@
                     <content:media>
                       {% if article.featured_image %}
                         {% set classes = image_variant_classes(article.featured_image_dark_mode, article.featured_image_mobile, article.featured_image_dark_mode_mobile) %}
+                        {% set featured_image_alt = alt_text(article.featured_image_alt, article.featured_image) %}
                         <div class="image-variants-display">
                           {{ srcset_image(
                               article.featured_image,
@@ -112,6 +113,7 @@
                               sizes="(min-width: 1440px) 680px, (min-width: 768px) 50vw, 100vw",
                               width=article.featured_image.width,
                               loading="lazy",
+                              alt=featured_image_alt,
                               class=classes.primary,
                           ) }}
                           {% if article.featured_image_mobile %}
@@ -121,6 +123,7 @@
                                 sizes="(min-width: 1440px) 680px, (min-width: 768px) 50vw, 100vw",
                                 width=article.featured_image_mobile.width,
                                 loading="lazy",
+                                alt=featured_image_alt,
                                 class=classes.mobile,
                             ) }}
                           {% endif %}
@@ -131,6 +134,7 @@
                                 sizes="(min-width: 1440px) 680px, (min-width: 768px) 50vw, 100vw",
                                 width=article.featured_image_dark_mode_mobile.width,
                                 loading="lazy",
+                                alt=featured_image_alt,
                                 class=classes.dark_mode_mobile,
                             ) }}
                           {% endif %}
@@ -141,6 +145,7 @@
                                 sizes="(min-width: 1440px) 680px, (min-width: 768px) 50vw, 100vw",
                                 width=article.featured_image_dark_mode.width,
                                 loading="lazy",
+                                alt=featured_image_alt,
                                 class=classes.dark_mode,
                             ) }}
                           {% endif %}
@@ -168,15 +173,15 @@
                         <div class="fl-card-media fl-card-media-pictogram">
                           {% set classes = image_variant_classes(article.sticker_dark_mode, article.sticker_mobile, article.sticker_dark_mode_mobile) %}
                           <div class="image-variants-display">
-                            {{ image(article.sticker, "width-400", class=classes.primary) }}
+                            {{ image(article.sticker, "width-400", alt="", class=classes.primary) }}
                             {% if article.sticker_mobile %}
-                              {{ image(article.sticker_mobile, "width-400", class=classes.mobile) }}
+                              {{ image(article.sticker_mobile, "width-400", alt="", class=classes.mobile) }}
                             {% endif %}
                             {% if article.sticker_dark_mode_mobile %}
-                              {{ image(article.sticker_dark_mode_mobile, "width-400", class=classes.dark_mode_mobile) }}
+                              {{ image(article.sticker_dark_mode_mobile, "width-400", alt="", class=classes.dark_mode_mobile) }}
                             {% endif %}
                             {% if article.sticker_dark_mode %}
-                              {{ image(article.sticker_dark_mode, "width-400", class=classes.dark_mode) }}
+                              {{ image(article.sticker_dark_mode, "width-400", alt="", class=classes.dark_mode) }}
                             {% endif %}
                           </div>
                         </div>

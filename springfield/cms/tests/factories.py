@@ -123,6 +123,8 @@ class ArticleDetailPageFactory(wagtail_factories.PageFactory):
     slug = "article-detail-page"
     description = "Test Article Description for Index Page"
     icon = "globe"
+    image_alt = "A placeholder image used for testing purposes."
+    featured_image_alt = "A placeholder image used for testing purposes."
 
     class Meta:
         model = models.ArticleDetailPage
@@ -152,6 +154,7 @@ class DownloadPageFactory(wagtail_factories.PageFactory):
     slug = "download"
     platform = "windows"
     subheading = "<p>Test subheading</p>"
+    featured_image_alt = "A placeholder image used for testing purposes."
 
     class Meta:
         model = models.DownloadPage

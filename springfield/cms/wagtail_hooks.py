@@ -194,6 +194,12 @@ def relative_url_link_block_js():
 
 
 @hooks.register("insert_global_admin_js")
+def image_alt_prefill_js():
+    """Script that prefills an image's alt text field from its description."""
+    return format_html('<script src="{}"></script>', static("js/wagtailadmin-image-alt-prefill.js"))
+
+
+@hooks.register("insert_global_admin_js")
 def image_inline_edit_js():
     """Script that saves rows of the image and image tag listings edited in place."""
     return format_html('<script src="{}"></script>', static("js/wagtailadmin-image-inline-edit.js"))
@@ -268,6 +274,16 @@ def routing_condition_help_js():
     return mark_safe(
         f'<script>window.ROUTING_SIGNAL_PAYLOAD = {payload};</script><script src="{static("js/wagtailadmin-routing-help.js")}"></script>'
     )
+
+
+@hooks.register("insert_global_admin_js")
+def translation_except_aliases_js():
+    """Deliver the "Select all except aliases" script for locale checkboxes.
+
+    Global because wagtail-localize's "Translate" form doesn't render form media; the
+    script does nothing on pages without its checkboxes.
+    """
+    return format_html('<script src="{}"></script>', static("js/wagtailadmin-except-aliases-checkbox.js"))
 
 
 @hooks.register("insert_global_admin_js")

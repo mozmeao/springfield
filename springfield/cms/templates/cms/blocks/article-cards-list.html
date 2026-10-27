@@ -15,7 +15,7 @@
         {% set img = card.get_pictogram() %}
         <content:icon>
           {% if img %}
-            {{ image(img, "width-400") }}
+            {{ image(img, "width-400", alt="") }}
           {% else %}
             <img src="/media/img/logos/firefox/firefox-logo.svg" alt="" />
           {% endif %}
@@ -31,7 +31,7 @@
           <div class="fl-card-media fl-card-media-pictogram">
             {% set img = card.get_pictogram() %}
             {% if img %}
-              {{ image(img, "width-400") }}
+              {{ image(img, "width-400", alt="") }}
             {% else %}
               <img src="/media/img/logos/firefox/firefox-logo.svg" alt="" />
             {% endif %}
@@ -89,6 +89,7 @@
               width=img.width,
               height=img.height,
               loading="lazy",
+              alt=alt_text(card.get_featured_image_alt(), img),
             ) }}
           {% else %}
             <img src="/media/img/firefox/flare/card-placeholder.png" alt="" />
