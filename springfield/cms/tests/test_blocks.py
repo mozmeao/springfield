@@ -44,6 +44,7 @@ from springfield.cms.blocks import (
     UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC_IMPORT_BROWSER_DATA,
     UITOUR_BUTTON_NEW_TAB,
     UITOUR_BUTTON_SET_NEWTAB_WALLPAPER,
+    UITOUR_BUTTON_SET_TREATMENT_TAG,
     ArticleBlock,
     BaseArticleValue,
     BrowserComparisonTableBlock,
@@ -1461,6 +1462,9 @@ def test_uitour_buttons_2026(index_page, rf):
 
         expected_wallpaper = btn_value.get("wallpaper") or None
         assert button_el.get("data-wallpaper") == expected_wallpaper, f"{analytics_id}: unexpected data-wallpaper on button"
+
+        expected_tag_name = btn_value.get("treatment_tag_name") or None
+        assert button_el.get("data-treatment-tag-name") == expected_tag_name, f"{analytics_id}: unexpected data-treatment-tag-name on button"
 
 
 def test_banner_block(index_page, placeholder_images, rf):
@@ -4879,6 +4883,31 @@ def test_uitour_button_requires_wallpaper_only_for_set_wallpaper_type(button_typ
         assert "wallpaper" in exc_info.value.block_errors
 
 
+@pytest.mark.parametrize(
+    ("button_type", "tag_name", "is_valid"),
+    [
+        (UITOUR_BUTTON_SET_TREATMENT_TAG, "wnp-show-callout", True),
+        (UITOUR_BUTTON_SET_TREATMENT_TAG, "", False),
+        (UITOUR_BUTTON_SET_TREATMENT_TAG, "browser.uitour.treatment.wnp-show-callout", False),
+        (UITOUR_BUTTON_SET_TREATMENT_TAG, "wnp show callout", False),
+        (UITOUR_BUTTON_NEW_TAB, "", True),
+    ],
+)
+def test_uitour_button_validates_treatment_tag_only_for_set_treatment_tag_type(button_type, tag_name, is_valid):
+    value = {"button_type": button_type, "treatment_tag_name": tag_name, "pretranslated_label": None, "custom_label": "Go", "settings": {}}
+
+    if is_valid:
+        UITourButtonBlock().clean(value)
+    else:
+        with pytest.raises(StructBlockValidationError) as exc_info:
+            UITourButtonBlock().clean(value)
+        assert "treatment_tag_name" in exc_info.value.block_errors
+
+
+def test_uitour_button_treatment_tag_name_is_not_translatable():
+    assert UITourButtonBlock().child_blocks["treatment_tag_name"].get_translatable_segments("wnp-show-callout") == []
+
+
 def _make_button_row_raw(count=1, spacing="", alignment="", help_text="", auto_width_buttons=False):
     variants = get_button_variants()
     buttons = [dict(variants["primary"], id=f"test-btnrow-{i}") for i in range(count)]
@@ -6873,13 +6902,14 @@ def test_sharing_links_block(index_page, rf):
     for content_area, region_name, region, full_heading_tag in [(1, "upper", upper, "h2"), (2, "lower", lower, "h3")]:
         variants = get_sharing_links_variants(content_area)
         sharing_links = region.find_all("div", class_="fl-sharing-links")
-        assert len(sharing_links) == 2
+        assert len(sharing_links) == 3
 
         for sharing_links_element, variant_name, section_heading, cta_position in zip(
             sharing_links,
-            ["full", "required_only"],
-            ["All Fields", "Required Fields Only"],
-            [f"{region_name}-block-1-section.item-1-sharing_links", f"{region_name}-block-2-media_content"],
+            ["full", "required_only", "banner"],
+            ["All Fields", "Required Fields Only", "In a Banner"],
+            [f"{region_name}-block-1-section.item-1-sharing_links", f"{region_name}-block-2-media_content", f"{region_name}-block-3-banner"],
+            strict=True,
         ):
             block_data = variants[variant_name]["value"]
             analytics_id = block_data["analytics_id"]
@@ -6943,6 +6973,10 @@ def test_sharing_links_block(index_page, rf):
                 assert heading.find("b").get_text(strip=True) == "your phone"
                 qr_text = dialog.find("div", class_="fl-sharing-links-qr-text")
                 assert qr_text.find("p").get_text(strip=True) == "The QR code encodes the same URL the other buttons share."
+            elif variant_name == "banner":
+                # The Banner's content stream nests its children one level below the banner heading.
+                assert dialog.find("h3", class_="fl-heading").get_text(strip=True) == "Scan to open on your phone"
+                assert dialog.find("div", class_="fl-sharing-links-qr-text") is None
             else:
                 assert dialog.find(class_="fl-heading") is None
                 assert dialog.find("div", class_="fl-sharing-links-qr-text") is None

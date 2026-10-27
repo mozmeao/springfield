@@ -271,6 +271,16 @@ def routing_condition_help_js():
 
 
 @hooks.register("insert_global_admin_js")
+def translation_except_aliases_js():
+    """Deliver the "Select all except aliases" script for locale checkboxes.
+
+    Global because wagtail-localize's "Translate" form doesn't render form media; the
+    script does nothing on pages without its checkboxes.
+    """
+    return format_html('<script src="{}"></script>', static("js/wagtailadmin-except-aliases-checkbox.js"))
+
+
+@hooks.register("insert_global_admin_js")
 def translation_draftsharing_js():
     """Deliver the script that moves the draft sharing button into the translation editor.
 
