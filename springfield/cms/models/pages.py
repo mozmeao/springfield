@@ -498,7 +498,7 @@ class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         "firefox/download/download",
         "firefox/browsers/mobile/android",
         "firefox/browsers/mobile/ios",
-        "firefox/browsers/desktop/chromebook",
+        "firefox/download/desktop",
     ]
 
     PLATFORM_CHOICES = (
