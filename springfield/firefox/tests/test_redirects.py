@@ -332,3 +332,27 @@ def test_redirect_destinations(client, source, destination, permanent):
     resp = client.get(source, follow=False)
     assert resp.status_code == 302
     assert resp.headers["Location"] == destination
+
+
+ANDROID_UA = "Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Mobile Safari/537.36"
+IOS_UA = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1"
+
+
+def test_mobile_app_sends_android_visitors_in_china_to_the_android_download_page(client):
+    resp = client.get("/browsers/mobile/app/?product=firefox", HTTP_USER_AGENT=ANDROID_UA, HTTP_CF_IPCOUNTRY="CN")
+    assert resp.status_code == 302
+    assert resp.headers["Location"] == "/download/android/"
+
+
+@pytest.mark.parametrize(
+    "product, user_agent, country_code, destination_prefix",
+    (
+        ("firefox", ANDROID_UA, "US", "https://play.google.com/"),
+        ("firefox", IOS_UA, "CN", "https://apps.apple.com/"),
+        ("focus", ANDROID_UA, "CN", "https://play.google.com/"),
+    ),
+)
+def test_mobile_app_sends_other_visitors_to_the_app_store(client, product, user_agent, country_code, destination_prefix):
+    resp = client.get(f"/browsers/mobile/app/?product={product}", HTTP_USER_AGENT=user_agent, HTTP_CF_IPCOUNTRY=country_code)
+    assert resp.status_code == 302
+    assert resp.headers["Location"].startswith(destination_prefix)

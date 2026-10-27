@@ -39,6 +39,65 @@
 </a>
 {%- endmacro %}
 
+{% macro store_badge_button(href, logo, logo_width, label, cta_text, class_name='', id='') -%}
+<a class="fl-store-badge {{ class_name }}"
+    {% if id %} id="{{ id }}"{% endif %}
+    rel="external"
+    href="{{ href }}"
+    data-cta-text="{{ cta_text }}"
+    data-cta-type="firefox_mobile"
+    >
+  <img class="fl-store-badge-logo" src="{{ static(logo) }}" alt="" width="{{ logo_width }}" height="24">
+  <span class="fl-store-badge-label">{{ label }}</span>
+</a>
+{%- endmacro %}
+
+{% macro android_download_button(href, class_name='', id='', cta_position='') -%}
+{% if country_code == "CN" %}
+<div class="fl-china-download-options">
+  {{ store_badge_button(
+      href=href,
+      logo='img/firefox/android/logo-google-play.svg',
+      logo_width=21,
+      label=ftl('download-button-download-on-google-play'),
+      cta_text='Play Store',
+      class_name='ga-product-download fl-store-button-android',
+      id=id,
+  ) }}
+  {% if settings.MI_STORE_FIREFOX_LINK %}
+    {{ store_badge_button(
+        href=settings.MI_STORE_FIREFOX_LINK,
+        logo='img/firefox/android/logo-mi-store.svg',
+        logo_width=38,
+        label=ftl('download-button-download-on-mi-store'),
+        cta_text='Mi Store',
+    ) }}
+  {% endif %}
+  {% if settings.V_APPSTORE_FIREFOX_LINK %}
+    {{ store_badge_button(
+        href=settings.V_APPSTORE_FIREFOX_LINK,
+        logo='img/firefox/android/logo-v-appstore.svg',
+        logo_width=24,
+        label=ftl('download-button-download-on-v-appstore'),
+        cta_text='V-appstore',
+    ) }}
+  {% endif %}
+  {% if settings.FIREFOX_ANDROID_APK_LINK %}
+    <a
+      class="fl-android-apk-link"
+      href="{{ settings.FIREFOX_ANDROID_APK_LINK }}"
+      rel="external"
+      {% if cta_position %}data-cta-position="{{ cta_position }}"{% endif %}
+      data-cta-text="APK via GitHub"
+      data-cta-uid="android-apk"
+    >{{ ftl('download-button-apk-via-github') }}</a>
+  {% endif %}
+</div>
+{% else %}
+{{ google_play_button(href=href, class_name=class_name, id=id) }}
+{% endif %}
+{%- endmacro %}
+
 {% macro ms_store_button(class_name='', extra_data_attributes={}, extra_img_attributes={}, href=settings.MICROSOFT_WINDOWS_STORE_FIREFOX_LINK, id='', product='Firefox', campaign='', target='') -%}
 {% set optional_img_attributes = {'width': '152', 'height': '55'} %}
 <a class="download-ms-store-badge ga-product-download {{ class_name }}"{% if id %} id="{{ id }}"{% endif %}{% if target %} target="{{ target }}" rel="external noopener noreferrer"{% else %} rel="external"{% endif %} href="{{ href }}"{% for attr, val in extra_data_attributes.items() %} data-{{ attr }}="{{ val }}"{% endfor %}>

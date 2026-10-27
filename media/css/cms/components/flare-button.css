@@ -375,7 +375,8 @@ I propose we move to "Filled (Primary)", "Outline (Secondary)", and
     > *:not(
         .fl-set-as-default-dialog,
         .fl-qr-code-modal-wrapper,
-        .fl-video-modal-wrapper
+        .fl-video-modal-wrapper,
+        .fl-china-download-options
     ) {
     display: inline-flex;
 }

@@ -4,7 +4,7 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% from "macros.html" import google_play_button, apple_app_store_button with context %}
+{% from "macros.html" import google_play_button, apple_app_store_button, android_download_button with context %}
 
 {% set is_forced = specific_version and specific_version != "default" %}
 {% set resolved_os = specific_version if is_forced else "win" %}
@@ -118,7 +118,11 @@
     {% set ios_url = app_store_url('firefox', campaign) %}
     {% set android_url = play_store_url(android_product, campaign) %}
     {{ apple_app_store_button(href=ios_url, class_name="fl-store-button fl-store-button-ios") }}
-    {{ google_play_button(href=android_url, id='playStoreLink-primary', class_name="fl-store-button fl-store-button-android") }}
+    {% if android_product == "firefox" %}
+      {{ android_download_button(href=android_url, id='playStoreLink-primary', class_name="fl-store-button fl-store-button-android", cta_position=block_position) }}
+    {% else %}
+      {{ google_play_button(href=android_url, id='playStoreLink-primary', class_name="fl-store-button fl-store-button-android") }}
+    {% endif %}
   {% endif %}
 
   {% if not without_extras %}
