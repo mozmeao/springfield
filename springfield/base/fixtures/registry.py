@@ -9,7 +9,7 @@ pages) it creates. Used by the translate-all regression test and the
 ``load_page_fixtures`` command to avoid a duplicated call list.
 """
 
-from springfield.blog.fixtures.blog_fixtures import get_blog_index_page, get_blog_pages, get_blog_topic_page
+from springfield.blog.fixtures.blog_fixtures import get_blog_index_page, get_blog_pages, get_blog_quotes_test_page, get_blog_topic_page
 from springfield.cms.fixtures.article_page_fixtures import get_article_pages, get_article_theme_hub_page, get_article_theme_page
 from springfield.cms.fixtures.banner_fixtures import get_banner_test_page
 from springfield.cms.fixtures.base_fixtures import get_article_index_test_page
@@ -127,6 +127,7 @@ PAGE_FIXTURES = [
     get_article_theme_hub_page,
     get_blog_index_page,
     get_blog_pages,
+    get_blog_quotes_test_page,
     get_blog_topic_page,
     get_smart_window_explainer_test_page,
     get_smart_window_test_page,

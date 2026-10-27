@@ -3,6 +3,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import re
+from datetime import UTC, datetime
 from unittest import mock
 from urllib.parse import unquote, urlparse, urlunparse
 
@@ -12,8 +13,7 @@ from django.core.files.base import ContentFile
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.test import override_settings
-from django.utils import translation
-from django.utils.formats import date_format
+from django.utils import timezone, translation
 
 import pytest
 from bs4 import BeautifulSoup
@@ -44,6 +44,7 @@ from springfield.cms.blocks import (
     UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC_IMPORT_BROWSER_DATA,
     UITOUR_BUTTON_NEW_TAB,
     UITOUR_BUTTON_SET_NEWTAB_WALLPAPER,
+    UITOUR_BUTTON_SET_TREATMENT_TAG,
     ArticleBlock,
     BaseArticleValue,
     BrowserComparisonTableBlock,
@@ -59,6 +60,7 @@ from springfield.cms.blocks import (
     IconListItemValue,
     ImpactDashBlock,
     QRCodeModalButtonBlock,
+    QuoteBlock,
     SectionBlock,
     SetAsDefaultButtonBlock,
     ShowcaseBlock,
@@ -1456,6 +1458,9 @@ def test_uitour_buttons_2026(index_page, rf):
 
         expected_wallpaper = btn_value.get("wallpaper") or None
         assert button_el.get("data-wallpaper") == expected_wallpaper, f"{analytics_id}: unexpected data-wallpaper on button"
+
+        expected_tag_name = btn_value.get("treatment_tag_name") or None
+        assert button_el.get("data-treatment-tag-name") == expected_tag_name, f"{analytics_id}: unexpected data-treatment-tag-name on button"
 
 
 def test_banner_block(index_page, placeholder_images, rf):
@@ -4794,6 +4799,31 @@ def test_uitour_button_requires_wallpaper_only_for_set_wallpaper_type(button_typ
         assert "wallpaper" in exc_info.value.block_errors
 
 
+@pytest.mark.parametrize(
+    ("button_type", "tag_name", "is_valid"),
+    [
+        (UITOUR_BUTTON_SET_TREATMENT_TAG, "wnp-show-callout", True),
+        (UITOUR_BUTTON_SET_TREATMENT_TAG, "", False),
+        (UITOUR_BUTTON_SET_TREATMENT_TAG, "browser.uitour.treatment.wnp-show-callout", False),
+        (UITOUR_BUTTON_SET_TREATMENT_TAG, "wnp show callout", False),
+        (UITOUR_BUTTON_NEW_TAB, "", True),
+    ],
+)
+def test_uitour_button_validates_treatment_tag_only_for_set_treatment_tag_type(button_type, tag_name, is_valid):
+    value = {"button_type": button_type, "treatment_tag_name": tag_name, "pretranslated_label": None, "custom_label": "Go", "settings": {}}
+
+    if is_valid:
+        UITourButtonBlock().clean(value)
+    else:
+        with pytest.raises(StructBlockValidationError) as exc_info:
+            UITourButtonBlock().clean(value)
+        assert "treatment_tag_name" in exc_info.value.block_errors
+
+
+def test_uitour_button_treatment_tag_name_is_not_translatable():
+    assert UITourButtonBlock().child_blocks["treatment_tag_name"].get_translatable_segments("wnp-show-callout") == []
+
+
 def _make_button_row_raw(count=1, spacing="", alignment="", help_text="", auto_width_buttons=False):
     variants = get_button_variants()
     buttons = [dict(variants["primary"], id=f"test-btnrow-{i}") for i in range(count)]
@@ -4896,6 +4926,7 @@ def test_base_article_value_get_link_url_returns_url_with_current_locale():
     assert url == "/pt-PT/article-url-locale-test/"
 
 
+@override_settings(TIME_ZONE="America/Los_Angeles")
 def test_roadmap_list_section_block(index_page, rf):
     intro_fixture = get_roadmap_page_intro()
     intro_value = intro_fixture[0]["value"]
@@ -4904,9 +4935,13 @@ def test_roadmap_list_section_block(index_page, rf):
 
     section_variants = get_roadmap_list_section_variants()
     page = get_roadmap_list_test_page()
+    # 21:01 Pacific on Oct 12 is 04:01 UTC on Oct 13.
+    page.last_published_at = datetime(2026, 10, 13, 4, 1, tzinfo=UTC)
 
     request = rf.get(page.get_full_url())
-    response = page.serve(request)
+    # The Wagtail admin renders previews in the editor's own time zone.
+    with timezone.override("Europe/Berlin"):
+        response = page.serve(request)
     assert response.status_code == 200
 
     context = page.get_context(request)
@@ -4945,7 +4980,7 @@ def test_roadmap_list_section_block(index_page, rf):
 
     last_updated_el = filter_el.find("p")
     assert last_updated_el
-    assert f"Last updated: {date_format(page.last_published_at, 'DATE_FORMAT')}" in last_updated_el.get_text()
+    assert "Last updated: Oct. 12, 2026" in last_updated_el.get_text()
 
     section_divs = soup.find_all("section", class_="fl-roadmap-list-section")
     assert len(section_divs) == len(section_variants)
@@ -6871,8 +6906,8 @@ def test_sharing_links_block(index_page, rf):
     # section nests its children at h2 and every later section nests them at h3.
     for content_area, region_name, region, full_heading_tag in [(1, "upper", upper, "h2"), (2, "lower", lower, "h3")]:
         variants = get_sharing_links_variants(content_area)
-        full_element, required_only_element = region.find_all("div", class_="fl-sharing-links")
-        section_block, media_content_block = get_sharing_links_blocks(content_area)
+        full_element, required_only_element, banner_element = region.find_all("div", class_="fl-sharing-links")
+        section_block, media_content_block, banner_block = get_sharing_links_blocks(content_area)
 
         # All fields, in a section
         full_value = variants["full"]["value"]
@@ -6892,6 +6927,15 @@ def test_sharing_links_block(index_page, rf):
             sharing_links_value=variants["required_only"]["value"],
             cta_position=f"{region_name}-block-2-media_content",
             heading_text=BeautifulSoup(media_content_block["value"]["heading"]["heading_text"], "html.parser").get_text(),
+        )
+
+        # In a banner
+        assert_sharing_links(
+            sharing_links_element=banner_element,
+            sharing_links_value=variants["banner"]["value"],
+            cta_position=f"{region_name}-block-3-banner",
+            heading_text=BeautifulSoup(banner_block["value"]["heading"]["heading_text"], "html.parser").get_text(),
+            qr_heading_tag="h3",
         )
 
 
@@ -6920,3 +6964,61 @@ def test_validate_youtube_url_rejects_non_video_urls():
     assert validate_youtube_url("https://youtu.be/aqz-KE-bpKQ") == "https://youtu.be/aqz-KE-bpKQ"
     with pytest.raises(ValidationError):
         validate_youtube_url("https://www.youtube.com/@firefox")
+
+
+def _render_quote(**value):
+    block = QuoteBlock()
+    raw = {"quote": '<p data-block-key="q1">The web is for everyone.</p>', **value}
+    return BeautifulSoup(block.render(block.to_python(raw)), "html.parser").find("figure")
+
+
+def test_quote_block_without_style_renders_standard():
+    # Quote blocks saved before the style field existed have no "style" key.
+    figure = _render_quote(author="Ada Lovelace")
+
+    assert figure["class"] == ["fl-quote"]
+    assert figure.find(class_="fl-quote-mark") is None
+    assert "The web is for everyone." in figure.find("blockquote").get_text()
+
+
+@pytest.mark.parametrize("style", ["pull", "passage"])
+def test_quote_block_style_sets_class(style):
+    figure = _render_quote(style=style)
+
+    assert figure["class"] == ["fl-quote", f"fl-quote-{style}"]
+
+
+def test_quote_block_pull_quote_mark_is_hidden_from_screen_readers():
+    figure = _render_quote(style="pull")
+
+    mark = figure.find(class_="fl-quote-mark")
+    assert mark["aria-hidden"] == "true"
+    assert mark.get_text() == ""
+
+
+def test_quote_block_passage_has_no_quote_mark():
+    assert _render_quote(style="passage").find(class_="fl-quote-mark") is None
+
+
+def test_quote_block_attribution_is_optional():
+    assert _render_quote().find("figcaption") is None
+
+
+def test_quote_block_renders_name_and_title():
+    caption = _render_quote(author="Karen Kim", authors_title="product manager for Firefox desktop").find("figcaption")
+
+    assert caption.find(class_="fl-quote-name").get_text() == "Karen Kim"
+    assert caption.find(class_="fl-quote-authors-title").get_text() == "product manager for Firefox desktop"
+    # A real comma and space, so Reader View and feeds don't run the two together.
+    assert caption.get_text() == "Karen Kim, product manager for Firefox desktop"
+
+
+def test_quote_block_renders_name_without_title():
+    assert _render_quote(author="Karen Kim").find("figcaption").get_text() == "Karen Kim"
+
+
+def test_quote_block_renders_title_without_name():
+    caption = _render_quote(authors_title="Firefox community").find("figcaption")
+
+    assert caption.find(class_="fl-quote-name") is None
+    assert caption.get_text() == "Firefox community"

@@ -44,12 +44,6 @@
     },
     {
       "files": [
-        "css/firefox/browsers/desktop/chromebook.scss"
-      ],
-      "name": "chromebook"
-    },
-    {
-      "files": [
         "css/firefox/download/common/thanks-messaging.scss",
         "css/firefox/download/desktop/thanks.scss"
       ],
@@ -307,12 +301,6 @@
         "css/firefox/landing/get/marketing-opt-out.scss"
       ],
       "name": "firefox_marketing_opt_out"
-    },
-    {
-      "files": [
-        "css/firefox/landing/index.scss"
-      ],
-      "name": "firefox_landing"
     },
     {
       "files": [
@@ -585,12 +573,6 @@
         "js/firefox/download/desktop/download-as-default-init-v2.es6.js"
       ],
       "name": "download_as_default-v2"
-    },
-    {
-      "files": [
-        "js/firefox/browsers/desktop/chromebook.js"
-      ],
-      "name": "chromebook"
     },
     {
       "files": [
@@ -872,18 +854,6 @@
     },
     {
       "files": [
-        "js/firefox/landing/init.es6.js"
-      ],
-      "name": "firefox_landing"
-    },
-    {
-      "files": [
-        "js/firefox/landing/partner-build-download-init.es6.js"
-      ],
-      "name": "firefox_partner_build_download"
-    },
-    {
-      "files": [
         "js/firefox/whatsnew/nightly/uitour.js"
       ],
       "name": "whatsnew_nightly"
@@ -905,6 +875,12 @@
         "js/cms/ui-tour-buttons.js"
       ],
       "name": "ui-tour-buttons"
+    },
+    {
+      "files": [
+        "js/cms/wagtailadmin-except-aliases-checkbox.js"
+      ],
+      "name": "wagtailadmin-except-aliases-checkbox"
     },
     {
       "files": [

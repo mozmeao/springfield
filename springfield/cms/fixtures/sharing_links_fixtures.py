@@ -3,7 +3,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 from springfield.cms.fixtures.base_fixtures import get_flare_blocks_docs_page, get_image_media, get_or_create_page, with_fresh_ids
-from springfield.cms.fixtures.block_factories import media_content, section
+from springfield.cms.fixtures.block_factories import banner, media_content, section
 from springfield.cms.models import FreeFormPage2026
 
 SHARED_URL = "https://www.firefox.com/enterprise/"
@@ -48,6 +48,22 @@ def get_sharing_links_variants(content_area: int = 1) -> dict[str, dict]:
                 "analytics_id": f"shrlnk02-0000-0000-0000-00000000{content_area:02d}02",
             },
         },
+        "banner": {
+            "type": "sharing_links",
+            "id": "shrlnk03-0000-0000-0000-000000000001",
+            "value": {
+                "copy_label": "Copy link",
+                "copy_success_label": "Link copied!",
+                "url": SHARED_URL,
+                "email_label": "Share by email",
+                "email_subject": "Take a look at Firefox for Enterprise",
+                "email_body": "Firefox for Enterprise has the tools your team needs.",
+                "qr_label": "Show QR code",
+                "qr_heading": '<p data-block-key="shrlnk03">Scan to open on your phone</p>',
+                "qr_text": "",
+                "analytics_id": f"shrlnk03-0000-0000-0000-00000000{content_area:02d}02",
+            },
+        },
     }
 
 
@@ -66,6 +82,15 @@ def get_sharing_links_blocks(content_area: int = 1) -> list[dict]:
             subheading_text="A custom copy label and URL only: the email draft holds just the URL and the QR code modal shows just the code.",
             body_blocks=[variants["required_only"]],
             media=get_image_media("shrlnk02-0000-0000-0000-000000000003"),
+        ),
+        banner(
+            block_id="shrlnk03-0000-0000-0000-000000000000",
+            theme="dark-purple-gradient",
+            heading_text="In a Banner",
+            subheading_text="Sharing Links can also be added to a Banner's content.",
+            buttons=[],
+            content_blocks=[variants["banner"]],
+            media=get_image_media("shrlnk03-0000-0000-0000-000000000003"),
         ),
     ]
 
@@ -89,6 +114,7 @@ def get_sharing_links_test_page() -> FreeFormPage2026:
         "<b>Copy link</b> copies the URL to the clipboard, the <b>email</b> button opens a draft "
         "with the optional subject and body followed by the URL, and the <b>QR code</b> button opens "
         "a modal with a QR code for the URL plus the optional heading and text.</p>"
+        "<p>It can be added to Section, Featured Image Section, Media + Content, Two-Column Card and Banner blocks.</p>"
     )
     page.save_revision().publish()
     return page

@@ -3,7 +3,8 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import itertools
-from datetime import timedelta
+from datetime import UTC, datetime, timedelta
+from types import SimpleNamespace
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group, Permission
@@ -15,6 +16,7 @@ from django.utils import timezone
 import pytest
 from wagtail.models import GroupPagePermission, Locale, Site
 
+from springfield.blog.admin_views import post_date_display
 from springfield.blog.models import BlogArticlePage, BlogIndexPage
 from springfield.blog.models.pages import HeroStyle
 from springfield.blog.models.snippets import BlogTopic
@@ -271,3 +273,13 @@ def test_content_queryset_is_empty_without_roots(blog_index):
     workspace = get_workspace("blog")
     unsaved_root = BlogIndexPage(title="Unsaved", slug="unsaved")
     assert not workspace.content_queryset(unsaved_root).exists()
+
+
+@override_settings(TIME_ZONE="America/Los_Angeles")
+def test_post_date_display_uses_the_site_time_zone():
+    # 21:01 Pacific on Oct 12 is 04:01 UTC on Oct 13.
+    aware_page = SimpleNamespace(first_published_at=datetime(2026, 10, 13, 4, 1, tzinfo=UTC))
+    naive_page = SimpleNamespace(first_published_at=datetime(2026, 10, 12, 21, 1))
+
+    assert post_date_display(aware_page) == "Oct. 12, 2026"
+    assert post_date_display(naive_page) == "Oct. 12, 2026"
