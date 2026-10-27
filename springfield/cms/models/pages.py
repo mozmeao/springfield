@@ -1374,7 +1374,7 @@ class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
             .live()
             .public()
             .annotate(version=F("whatsnewpage2026__version"))
-            .exclude(version__icontains="general")
+            .filter(slug=F("version"), slug__regex=r"^\d+$")
             .order_by("-version")
             .specific()
         )
