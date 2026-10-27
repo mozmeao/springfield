@@ -68,7 +68,7 @@ URLS = flatten(
         url_test("/mobile/faq/?os=firefox-os", "https://support.mozilla.org/products/firefox-os"),
         url_test("/mobile/faq/", "https://support.mozilla.org/products/mobile"),
         # Retired UK influencer campaign landing pages
-        url_test("/landing/{tech,education,gaming}/", "/", status_code=302),
-        url_test("/en-GB/landing/{tech,education,gaming}/", "/en-GB/", status_code=302),
+        url_test("/landing/{tech,education,gaming}/", "/", status_code=301),
+        url_test("/en-GB/landing/{tech,education,gaming}/", "/en-GB/", status_code=301),
     )
 )
