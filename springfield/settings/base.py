@@ -1035,6 +1035,10 @@ from .appstores import (  # noqa: E402, F401
     MICROSOFT_WINDOWS_STORE_FIREFOX_WEB_LINK,
 )
 
+MI_STORE_FIREFOX_LINK = config("MI_STORE_FIREFOX_LINK", default="")
+V_APPSTORE_FIREFOX_LINK = config("V_APPSTORE_FIREFOX_LINK", default="")
+FIREFOX_ANDROID_APK_LINK = config("FIREFOX_ANDROID_APK_LINK", default="")
+
 # Locales that should display the 'Send to Device' widget
 SEND_TO_DEVICE_LOCALES = [
     "de",

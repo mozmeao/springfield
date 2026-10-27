@@ -18,10 +18,16 @@
           <div class=c-banner-copy>
             <h2 class="c-banner-title">{{ ftl('banner-firefox-app-store-title') }}</h2>
             <p>{{ ftl('banner-firefox-app-store-mozilla') }}</p>
-            <p class="show-android">{{ ftl('banner-firefox-app-store-free-google-play') }}</p>
+            {% if country_code != "CN" %}
+              <p class="show-android">{{ ftl('banner-firefox-app-store-free-google-play') }}</p>
+            {% endif %}
             <p class="show-ios">{{ ftl('banner-firefox-app-store-free-app-store') }}</p>
           </div>
-          <a class="c-banner-button show-android ga-product-download" href="{{ android_url }}" data-cta-text="View (Android)" data-cta-type="firefox_mobile" data-cta-position="banner">{{ ftl('ui-view') }}</a>
+          {% if country_code == "CN" %}
+            <a class="c-banner-button show-android" href="{{ url('firefox.browsers.mobile.android') }}" data-cta-text="View (Android)" data-cta-type="firefox_mobile" data-cta-position="banner">{{ ftl('ui-view') }}</a>
+          {% else %}
+            <a class="c-banner-button show-android ga-product-download" href="{{ android_url }}" data-cta-text="View (Android)" data-cta-type="firefox_mobile" data-cta-position="banner">{{ ftl('ui-view') }}</a>
+          {% endif %}
           <a class="c-banner-link show-ios ga-product-download" href="{{ ios_url }}" data-cta-text="View (iOS)" data-cta-type="firefox_mobile" data-cta-position="banner">{{ ftl('ui-view') }}</a>
       </div>
     </div>

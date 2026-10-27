@@ -44,6 +44,7 @@ describe('mobile-attribution.js', function () {
         html.removeAttribute('data-stub-attribution-campaign');
         html.removeAttribute('data-stub-attribution-campaign-override');
         html.removeAttribute('data-stub-attribution-campaign-force');
+        html.removeAttribute('data-android-download-options-url');
         document.body.removeChild(container);
     });
 
@@ -461,6 +462,38 @@ describe('mobile-attribution.js', function () {
                 Mozilla.MobileAttribution.rewriteLinks.calls.mostRecent().args;
             expect(callArgs[1].indexOf(IOS_STORE_PREFIX)).toBe(0);
             expect(callArgs[1]).toContain('ct=test-19');
+        });
+
+        it('rewrites with the Android download options URL on Android UA when it is set', function () {
+            html.setAttribute(
+                'data-android-download-options-url',
+                '/en-US/download/android/'
+            );
+            spyOnProperty(navigator, 'userAgent', 'get').and.returnValue(
+                ANDROID_UA
+            );
+
+            Mozilla.MobileAttribution.init();
+
+            const callArgs =
+                Mozilla.MobileAttribution.rewriteLinks.calls.mostRecent().args;
+            expect(callArgs[1]).toBe('/en-US/download/android/');
+        });
+
+        it('rewrites with the iOS URL on iOS UA when the Android download options URL is set', function () {
+            html.setAttribute(
+                'data-android-download-options-url',
+                '/en-US/download/android/'
+            );
+            spyOnProperty(navigator, 'userAgent', 'get').and.returnValue(
+                IOS_UA
+            );
+
+            Mozilla.MobileAttribution.init();
+
+            const callArgs =
+                Mozilla.MobileAttribution.rewriteLinks.calls.mostRecent().args;
+            expect(callArgs[1].indexOf(IOS_STORE_PREFIX)).toBe(0);
         });
     });
 });

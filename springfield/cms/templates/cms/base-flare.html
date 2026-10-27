@@ -10,6 +10,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
   lang="{{ LANG }}"
   dir="{{ DIR }}"
   data-country-code="{{ country_code }}"
+  {% if country_code == "CN" %}data-android-download-options-url="{{ url('firefox.browsers.mobile.android') }}"{% endif %}
   data-needs-consent="{{ needs_data_consent(country_code) }}"
   data-latest-firefox="{{ latest_firefox_version }}"
   data-esr-versions="{{ esr_firefox_versions|join(' ') }}"
