@@ -188,6 +188,12 @@ def relative_url_link_block_js():
 
 
 @hooks.register("insert_global_admin_js")
+def image_alt_prefill_js():
+    """Script that prefills an image's alt text field from its description."""
+    return format_html('<script src="{}"></script>', static("js/wagtailadmin-image-alt-prefill.js"))
+
+
+@hooks.register("insert_global_admin_js")
 def image_inline_edit_js():
     """Script that saves rows of the image listing edited in place."""
     return format_html('<script src="{}"></script>', static("js/wagtailadmin-image-inline-edit.js"))
