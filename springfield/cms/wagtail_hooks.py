@@ -863,7 +863,7 @@ def block_has_display_conditions(block):
     if not isinstance(block.value, dict):
         return False
     block_settings = block.value.get("settings")
-    show_to = block_settings.get("show_to") if block_settings else None
+    show_to = (block_settings and block_settings.get("show_to")) or block.value.get("show_to")
     return bool(show_to and show_to.has_conditions)
 
 
