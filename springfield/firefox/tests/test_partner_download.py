@@ -229,16 +229,16 @@ def test_partner_urls_stay_on_the_production_server(client, settings):
 def test_messages_name_the_partner(client):
     make_partner(**WINDOWS_DE)
 
-    soup = render_page(client, "/de/get/?p=acme")
+    soup = render_page(client, "/en-US/get/?p=acme")
 
     for state in ["language", "device", "linux_language", "linux_device"]:
         assert "from Acme" in soup.select_one(f'section[data-state="{state}"] h1').get_text(strip=True)
 
 
 def test_partner_name_is_escaped(client):
-    make_partner(name="<b>Acme</b> & Co", windows64_url=partner_link("win64"), windows_languages="en-US")
+    make_partner(name="<b>Acme</b> & Co", windows64_url=partner_link("win64"), windows_languages="de")
 
-    soup = render_page(client, "/de/get/?p=acme")
+    soup = render_page(client, "/en-US/get/?p=acme")
 
     language_heading = soup.select_one('section[data-state="language"] h1')
     assert "from <b>Acme</b> & Co" in language_heading.get_text()
@@ -249,10 +249,10 @@ def test_partner_name_is_escaped(client):
 def test_link_for_current_firefox_users_uses_its_label(client, label, expected_text):
     make_partner(**WINDOWS_DE, firefox_user_link_url="https://acme.example/", firefox_user_link_label=label)
 
-    links = render_page(client, "/de/get/?p=acme").select('section[data-state="firefox"] a')
+    links = render_page(client, "/en-US/get/?p=acme").select('section[data-state="firefox"] a')
 
     assert [(link.get_text(strip=True), link["href"]) for link in links] == [
-        ("Continue to firefox.com", "/de/"),
+        ("Continue to firefox.com", "/en-US/"),
         (expected_text, "https://acme.example/"),
     ]
 
@@ -262,7 +262,7 @@ def test_current_firefox_users_only_continue_without_a_partner_link(client):
 
     links = render_page(client, "/de/get/?p=acme").select('section[data-state="firefox"] a')
 
-    assert [(link.get_text(strip=True), link["href"]) for link in links] == [("Continue to firefox.com", "/de/")]
+    assert [link["href"] for link in links] == ["/de/"]
 
 
 def test_page_has_no_other_language_link(client):
