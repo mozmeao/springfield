@@ -4,7 +4,7 @@ License, v. 2.0. If a copy of the MPL was not distributed with this
 file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{# props label="", icon_name="", icon_position="", theme_class="", disabled=0, analytics_text="", analytics_position="", analytics_id="", next_url="", wallpaper="" #}
+{# props label="", icon_name="", icon_position="", theme_class="", disabled=0, analytics_text="", analytics_position="", analytics_id="", next_url="", wallpaper="", treatment_tag_name="" #}
 
 <div class="ui-tour is-hidden">
   <button
@@ -21,6 +21,9 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     {% endif %}
     {% if wallpaper %}
       data-wallpaper="{{ wallpaper|escape }}"
+    {% endif %}
+    {% if treatment_tag_name %}
+      data-treatment-tag-name="{{ treatment_tag_name|escape }}"
     {% endif %}
   >
     {% if icon_name and icon_position == "left" %}

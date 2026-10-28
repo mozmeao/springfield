@@ -11,8 +11,10 @@ from wagtail.templatetags.wagtailcore_tags import richtext as wagtail_richtext
 from wagtail_link_block.blocks import LinkBlock
 
 from springfield.cms.models import SimpleRichTextPage
+from springfield.cms.models.images import SpringfieldImage
 from springfield.cms.templatetags.cms_tags import (
     add_utm_parameters,
+    alt_text,
     get_whats_new_url,
     get_whats_next_url,
     remove_p_tag,
@@ -381,3 +383,31 @@ def test_browser_nav_hides_whats_new_link_when_page_missing(minimal_site, rf):
     soup = BeautifulSoup(response.content, "html.parser")
     assert soup.find("a", attrs={"data-cta-position": "topnav - whats-new"}) is None
     assert soup.find("a", attrs={"data-cta-position": "topnav - whats-next"}) is not None
+
+
+@pytest.mark.django_db
+def test_alt_text_returns_alt_argument_for_regular_image():
+    image = SpringfieldImage(title="Logo", description="A purple fox", is_decorative=False)
+    assert alt_text("Firefox on a laptop", image) == "Firefox on a laptop"
+
+
+@pytest.mark.django_db
+def test_alt_text_returns_alt_argument_for_decorative_image():
+    image = SpringfieldImage(title="Swirl", description="", is_decorative=True)
+    assert alt_text("A swirl marking the section break", image) == "A swirl marking the section break"
+
+
+@pytest.mark.django_db
+def test_alt_text_falls_back_to_the_image_description():
+    image = SpringfieldImage(title="Logo", description="A purple fox", is_decorative=False)
+    assert alt_text("", image) == "A purple fox"
+
+
+@pytest.mark.django_db
+def test_alt_text_returns_empty_for_decorative_image():
+    image = SpringfieldImage(title="Swirl", description="", is_decorative=True)
+    assert alt_text("", image) == ""
+
+
+def test_alt_text_is_empty_if_no_image():
+    assert alt_text("Some text", None) == ""

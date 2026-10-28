@@ -13,6 +13,11 @@
     margin-inline-start: 0.5rem;
 }
 
+/* Align locale badges to their checkboxes in the locale checkbox list. */
+#id_locales .locale-role-badge {
+    margin-bottom: 0;
+}
+
 /* IconChoiceBlock sets thumbnail_is_one_color, so ThumbnailChoiceBlock tints
    every picker thumbnail by masking the wrapper and painting it a single color.
    The browser logos in icons/mobile-24/browsers/ are full-color brand artwork,

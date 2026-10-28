@@ -22,6 +22,7 @@ def get_step_cards():
                 "settings": {"expand_link": False},
                 "image": {
                     "image": placeholder_images.image.id,
+                    "image_alt": "A numbered grid, standing in for a real image",
                     "settings": {
                         "dark_mode_image": None,
                         "mobile_image": None,
@@ -41,6 +42,7 @@ def get_step_cards():
                 "settings": {"expand_link": False},
                 "image": {
                     "image": placeholder_images.image.id,
+                    "image_alt": "A numbered grid, standing in for a real image",
                     "settings": {
                         "dark_mode_image": None,
                         "mobile_image": None,
@@ -60,6 +62,7 @@ def get_step_cards():
                 "settings": {"expand_link": False},
                 "image": {
                     "image": placeholder_images.image.id,
+                    "image_alt": "A numbered grid, standing in for a real image",
                     "settings": {
                         "dark_mode_image": None,
                         "mobile_image": None,
