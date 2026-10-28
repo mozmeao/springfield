@@ -71,14 +71,14 @@
     <include:button
       id="download-enterprise-primary"
       label="{{ ftl('firefox-enterprise-request-early-access') }}"
-      link="{{ url('firefox.enterprise.index') }}"
+      link="/{{ LANG }}/enterprise/"
     />
   {% endset %}
   {% set download_button_secondary %}
     <include:button
       id="download-enterprise-secondary"
       label="{{ ftl('firefox-enterprise-request-early-access') }}"
-      link="{{ url('firefox.enterprise.index') }}"
+      link="/{{ LANG }}/enterprise/"
     />
   {% endset %}
 {% endif %}
