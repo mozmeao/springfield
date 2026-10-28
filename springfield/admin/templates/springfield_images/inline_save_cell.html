@@ -11,12 +11,15 @@ token is sent as a header by the inline edit script.
 {% endcomment %}
 {% load i18n %}
 <td class="inline-edit-cell" data-inline-cell="save">
-    <form id="{{ form.form_id }}" data-inline-image-form method="post" action="{% url 'cms_image_inline_edit' instance.pk %}">
+    <form id="{{ form.form_id }}" data-inline-form method="post" action="{{ form.action_url }}">
         {% csrf_token %}
-        <button type="submit" class="button button-small">{% trans "Save" %}<span class="w-sr-only"> {{ instance.title }}</span></button>
+        <button type="submit" class="button button-small">{% trans "Save" %}<span class="w-sr-only"> {{ instance }}</span></button>
+        {% if form.delete_url %}
+            <a href="{{ form.delete_url }}" class="button button-small button-secondary no">{% trans "Delete" %}<span class="w-sr-only"> {{ instance }}</span></a>
+        {% endif %}
         {% for error in form.non_field_errors %}
             <p class="error-message">{{ error }}</p>
         {% endfor %}
-        <span class="inline-edit-status" role="status" data-inline-image-status>{{ status_message }}</span>
+        <span class="inline-edit-status" role="status" data-inline-status>{{ status_message }}</span>
     </form>
 </td>
