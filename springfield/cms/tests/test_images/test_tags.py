@@ -25,23 +25,23 @@ def image_editor_client(client):
     """Build a client logged in as a user who can change the images in one collection."""
 
     def build(collection):
-        with override_settings(
-            AUTHENTICATION_BACKENDS=("django.contrib.auth.backends.ModelBackend",),
-            USE_SSO_AUTH=False,
-        ):
-            image_editors = Group.objects.create(name="Image editors")
-            image_editors.permissions.add(Permission.objects.get(content_type__app_label="wagtailadmin", codename="access_admin"))
-            GroupCollectionPermission.objects.create(
-                group=image_editors,
-                collection=collection,
-                permission=Permission.objects.get(content_type__app_label="wagtailimages", codename="change_image"),
-            )
-            image_editor = get_user_model().objects.create_user(username="image-editor", password="editorpass")
-            image_editor.groups.add(image_editors)
-            client.force_login(image_editor, backend="django.contrib.auth.backends.ModelBackend")
+        image_editors = Group.objects.create(name="Image editors")
+        image_editors.permissions.add(Permission.objects.get(content_type__app_label="wagtailadmin", codename="access_admin"))
+        GroupCollectionPermission.objects.create(
+            group=image_editors,
+            collection=collection,
+            permission=Permission.objects.get(content_type__app_label="wagtailimages", codename="change_image"),
+        )
+        image_editor = get_user_model().objects.create_user(username="image-editor", password="editorpass")
+        image_editor.groups.add(image_editors)
+        client.force_login(image_editor, backend="django.contrib.auth.backends.ModelBackend")
         return client
 
-    return build
+    with override_settings(
+        AUTHENTICATION_BACKENDS=("django.contrib.auth.backends.ModelBackend",),
+        USE_SSO_AUTH=False,
+    ):
+        yield build
 
 
 @pytest.fixture
