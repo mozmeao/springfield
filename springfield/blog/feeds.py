@@ -17,7 +17,7 @@ from wagtail.rich_text import expand_db_html
 
 from lib.l10n_utils.fluent import ftl
 from lib.l10n_utils.templatetags.helpers import get_locale
-from springfield.cms.templatetags.cms_tags import remove_p_tag
+from springfield.cms.templatetags.cms_tags import alt_text, remove_p_tag
 
 FTL_FILES = ["blog/blog"]
 FEED_IMAGE_FILTER = "width-1200"
@@ -84,7 +84,7 @@ def media_html(stream):
     parts = []
     for child in stream:
         if child.block_type == "image" and child.value.get("image"):
-            parts.append(image_html(child.value["image"]))
+            parts.append(image_html(child.value["image"], alt=alt_text(child.value["image_alt"], child.value["image"])))
         elif child.block_type == "video":
             parts.append(video_html(child.value))
         elif child.block_type == "animation" and child.value.get("poster"):
@@ -148,7 +148,8 @@ def quote_html(value):
 def image_caption_html(value):
     caption = rich_text(value["caption"]) if value.get("caption") else ""
     link = value.get("link")
-    return image_html(value["image"]["image"], caption, link.get_url() if link else "")
+    image = value["image"]["image"]
+    return image_html(image, caption, link.get_url() if link else "", alt=alt_text(value["image"]["image_alt"], image))
 
 
 def code_html(value):
@@ -281,5 +282,5 @@ class BlogFeed(Feed):
         if item.hero_style == HeroStyle.VIDEO and item.hero_video:
             hero = video_html(item.hero_video[0].value)
         elif item.hero_style != HeroStyle.TEXT_ONLY and item.image and opening_image(item) != item.image:
-            hero = image_html(item.image)
+            hero = image_html(item.image, alt=alt_text(item.image_alt, item.image))
         return format_html("{}{}", hero, body_html(item))

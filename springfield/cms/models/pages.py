@@ -102,7 +102,7 @@ from springfield.firefox.referral import crypto
 from springfield.firefox.referral.models import FirefoxReferralData
 from springfield.firefox.referral.utils import REFERRAL_ID_LENGTH, validate_referral_id
 
-from .base import AbstractSpringfieldCMSPage, PromotedPageMixin, QROpenBehavior
+from .base import AbstractSpringfieldCMSPage, ImageAltTextMixin, PromotedPageMixin, QROpenBehavior
 
 if TYPE_CHECKING:
     from springfield.cms.models import Tag
@@ -491,8 +491,9 @@ class DownloadIndexPage(AbstractSpringfieldCMSPage):
         return redirect(reverse("firefox.all"))
 
 
-class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
+class DownloadPage(ImageAltTextMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
     parent_page_types = ["cms.DownloadIndexPage"]
+    image_alt_fields = ("featured_image",)
 
     ftl_files = [
         "cms/download",
@@ -525,6 +526,11 @@ class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         null=True,
         blank=True,
         related_name="download_page_featured_images",
+    )
+    featured_image_alt = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text="Text for screen readers describing the image.",
     )
     featured_image_dark_mode = models.ForeignKey(
         "cms.SpringfieldImage",
@@ -572,6 +578,7 @@ class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         FieldPanel("subheading"),
         FieldPanel("intro_footer_text"),
         FieldPanel("featured_image"),
+        FieldPanel("featured_image_alt"),
         MultiFieldPanel(
             [
                 FieldRowPanel(
@@ -605,6 +612,11 @@ class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
     def __str__(self):
         return f"DownloadPage: {self.title} - {self.locale}"
+
+    def clean(self):
+        super().clean()
+        if errors := self.clean_image_alt_text():
+            raise ValidationError(errors)
 
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)
@@ -798,8 +810,9 @@ class ArticleIndexPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         return context
 
 
-class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
+class ArticleDetailPage(ImageAltTextMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
     parent_page_types = ["cms.ArticleThemePage", "cms.ArticleIndexPage"]
+    image_alt_fields = ("featured_image", "image")
 
     featured = models.BooleanField(
         default=False,
@@ -812,6 +825,11 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         on_delete=models.SET_NULL,
         related_name="+",
         help_text="A portrait-oriented image used in featured article cards.",
+    )
+    featured_image_alt = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text="Text for screen readers describing the image.",
     )
     featured_image_dark_mode = models.ForeignKey(
         "cms.SpringfieldImage",
@@ -903,6 +921,11 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         null=True,
         blank=True,
     )
+    image_alt = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text="Text for screen readers describing the image.",
+    )
     image_dark_mode = models.ForeignKey(
         "cms.SpringfieldImage",
         on_delete=models.SET_NULL,
@@ -953,6 +976,7 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
                 FieldPanel("featured"),
                 FieldPanel("tag"),
                 FieldPanel("featured_image"),
+                FieldPanel("featured_image_alt"),
                 MultiFieldPanel(
                     [
                         FieldRowPanel(
@@ -995,6 +1019,7 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
             heading="Index Page Settings",
         ),
         FieldPanel("image"),
+        FieldPanel("image_alt"),
         MultiFieldPanel(
             [
                 FieldRowPanel(
@@ -1029,6 +1054,11 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
     def __str__(self):
         return f"ArticleDetailPage: {self.title} - {self.locale}"
+
+    def clean(self):
+        super().clean()
+        if errors := self.clean_image_alt_text():
+            raise ValidationError(errors)
 
     def get_tag(self) -> Tag | None:
         if self.tag:
@@ -1349,7 +1379,7 @@ class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
             .live()
             .public()
             .annotate(version=F("whatsnewpage2026__version"))
-            .exclude(version__icontains="general")
+            .filter(slug=F("version"), slug__regex=r"^\d+$")
             .order_by("-version")
             .specific()
         )
@@ -1468,12 +1498,13 @@ class WhatsNewPage2026(RoutingMixin, PageThemeMixin, PreFooterImageMixin, UTMPar
         return bool(parent and isinstance(parent.specific, WhatsNewIndexPage))
 
 
-class SmartWindowPage(PromotedPageMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
+class SmartWindowPage(ImageAltTextMixin, PromotedPageMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A page to promote Smart Window"""
 
     ALLOWED_TERRITORIES = {"US", "CA", "FR"}
     ALLOWED_TERRITORIES_OPTION = "allowed_territories"
     ALLOWED_TERRITORIES_LABEL = "US, Canada, and France only"
+    image_alt_fields = ("image",)
 
     analytics_id_fields = (
         "nav_button_uid",
@@ -1491,6 +1522,11 @@ class SmartWindowPage(PromotedPageMixin, UTMParamsMixin, AbstractSpringfieldCMSP
     animation_alt = models.CharField(max_length=255, blank=True, help_text="Text for screen readers describing the video.")
     image = models.ForeignKey(
         "cms.SpringfieldImage", on_delete=models.PROTECT, related_name="+", help_text="Used as fallback if an animation is provided."
+    )
+    image_alt = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text="Text for screen readers describing the image.",
     )
     image_dark_mode = models.ForeignKey(
         "cms.SpringfieldImage",
@@ -1600,6 +1636,7 @@ class SmartWindowPage(PromotedPageMixin, UTMParamsMixin, AbstractSpringfieldCMSP
                 FieldPanel("animation"),
                 FieldPanel("animation_alt"),
                 FieldPanel("image"),
+                FieldPanel("image_alt"),
                 FieldRowPanel(
                     [
                         FieldPanel("image_dark_mode"),
@@ -1681,8 +1718,11 @@ class SmartWindowPage(PromotedPageMixin, UTMParamsMixin, AbstractSpringfieldCMSP
 
     def clean(self):
         super().clean()
+        errors = self.clean_image_alt_text()
         if self.animation and not self.animation_alt:
-            raise ValidationError("An alt text description is required when an animation URL is provided.")
+            errors["animation_alt"] = "An alt text description is required when an animation URL is provided."
+        if errors:
+            raise ValidationError(errors)
 
     def serve(self, request, *args, **kwargs):
         if request.GET.get("v") == "product":
