@@ -68,12 +68,12 @@
         margin-inline: auto;
     }
 
-    /* Hero: an Intro as the first upper block (on its own, inside a
-       conditional, or as the second of two consecutive conditional Intros,
-       matching flare-intro.css) sits on its own panel with a purple glow
-       rising from the bottom edge and rounded bottom corners. The panel
-       lightens towards its bottom edge across its full width, so the corners
-       show against the dark band around it.
+    /* Hero: the side-by-side Intro (on its own or inside a "Show To"
+       conditional) sits on its own panel with a purple glow rising from the
+       bottom edge and rounded bottom corners. The Kit Intro is wrapped in a
+       section, so it isn't matched. The panel lightens towards its bottom
+       edge across its full width, so the corners show against the dark band
+       around it.
 
        The Intro spans the band, so the panel matches the band's width
        exactly, and padding keeps the content at the usual wide-banner width. */
@@ -83,14 +83,8 @@
 
     .fl-share-firefox-page
         :where(
-            .fl-split-page-upper > .fl-intro:first-child,
-            .fl-split-page-upper
-                > .conditional-display:first-child
-                > .fl-intro:first-child,
-            .fl-split-page-upper
-                > .conditional-display:first-child:has(> .fl-intro)
-                + .conditional-display
-                > .fl-intro:first-child
+            .fl-split-page-upper > .fl-intro,
+            .fl-split-page-upper > .conditional-display > .fl-intro
         ) {
         margin-block-end: var(--token-spacing-lg);
         max-inline-size: none;
