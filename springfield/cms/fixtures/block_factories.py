@@ -198,7 +198,8 @@ def hero(block_id, heading_text, subheading_text, buttons, media, superheading_t
     }
 
 
-def banner(block_id, theme, heading_text, subheading_text, buttons, slim=False):
+def banner(block_id, theme, heading_text, subheading_text, buttons, slim=False, content_blocks=None, media=None):
+    """``content_blocks``, when given, replaces the buttons as the banner's content."""
     return {
         "type": "banner",
         "value": {
@@ -211,9 +212,9 @@ def banner(block_id, theme, heading_text, subheading_text, buttons, slim=False):
                 "remove_border_radius": False,
                 "centralize_content": False,
             },
-            "media": [],
+            "media": media or [],
             "heading": heading_value(block_id, heading_text, subheading_text=subheading_text),
-            "content": [buttons_block(f"{block_id}-btns", buttons)],
+            "content": content_blocks if content_blocks is not None else [buttons_block(f"{block_id}-btns", buttons)],
         },
         "id": block_id,
     }
@@ -291,6 +292,7 @@ def image_value(image_id, dark_mode_image_id=None):
     """An image-with-variants value carrying only the main and dark mode images."""
     return {
         "image": image_id,
+        "image_alt": "A numbered grid, standing in for a real image",
         "settings": {
             "dark_mode_image": dark_mode_image_id,
             "mobile_image": None,
@@ -553,7 +555,12 @@ def browser_table_image_header_cell(cell_id, label, image_id, dark_mode_image_id
         optional_content=[
             {
                 "type": "image_header",
-                "value": {"image": image_id, "dark_mode_image": dark_mode_image_id, "alt": "", "label": label},
+                "value": {
+                    "image": image_id,
+                    "dark_mode_image": dark_mode_image_id,
+                    "image_alt": "A numbered grid, standing in for a real image",
+                    "label": label,
+                },
                 "id": f"{cell_id}-oc",
             }
         ],

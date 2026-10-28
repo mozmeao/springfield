@@ -3,6 +3,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import re
+from datetime import UTC, datetime
 from unittest import mock
 from urllib.parse import unquote, urlparse, urlunparse
 
@@ -12,8 +13,7 @@ from django.core.files.base import ContentFile
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.test import override_settings
-from django.utils import translation
-from django.utils.formats import date_format
+from django.utils import timezone, translation
 
 import pytest
 from bs4 import BeautifulSoup
@@ -24,6 +24,7 @@ from wagtail.images.jinja2tags import image, srcset_image
 from wagtail.models import Locale, Page, PageViewRestriction, Site
 
 from lib.l10n_utils import fluent_l10n, get_locale
+from springfield.base.templatetags.qrcode import qrcode_rounded
 from springfield.blog.fixtures.blog_fixtures import (
     FEATURED_DESCRIPTIONS,
     FEATURED_TITLES,
@@ -43,6 +44,7 @@ from springfield.cms.blocks import (
     UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC_IMPORT_BROWSER_DATA,
     UITOUR_BUTTON_NEW_TAB,
     UITOUR_BUTTON_SET_NEWTAB_WALLPAPER,
+    UITOUR_BUTTON_SET_TREATMENT_TAG,
     ArticleBlock,
     BaseArticleValue,
     BrowserComparisonTableBlock,
@@ -50,14 +52,20 @@ from springfield.cms.blocks import (
     ButtonRowBlock,
     CardsListBlock,
     CertificationListBlock,
+    ComparisonImageHeaderBlock,
     ComparisonTableBlock,
     ContactFormBlock,
     FirefoxFocusButtonBlock,
     FXAccountButtonBlock,
     IconChoiceBlock,
     IconListItemValue,
+    IconListWithImageBlock,
+    ImageVariantsBlock,
     ImpactDashBlock,
+    MobileStoreQRCodeBlock,
     QRCodeModalButtonBlock,
+    QuoteBlock,
+    RelatedArticleBlock,
     SectionBlock,
     SetAsDefaultButtonBlock,
     ShowcaseBlock,
@@ -65,11 +73,15 @@ from springfield.cms.blocks import (
     TabBlock,
     TabsBlock,
     TextFieldBlock,
+    TopicBlock,
     TwoColumnCardBlock,
     UITourButtonBlock,
     UntranslatableCharBlock,
     UUIDBlock,
+    VideoModalButtonBlock,
     icon_display_label,
+    validate_youtube_url,
+    youtube_video_id,
 )
 from springfield.cms.fixtures.article_page_fixtures import (
     get_article_pages,
@@ -157,6 +169,7 @@ from springfield.cms.fixtures.roadmap_list_fixtures import (
     get_roadmap_list_test_page,
     get_roadmap_page_intro,
 )
+from springfield.cms.fixtures.sharing_links_fixtures import SHARED_URL, get_sharing_links_test_page, get_sharing_links_variants
 from springfield.cms.fixtures.showcase_fixtures import get_showcase_test_page, get_showcase_variants
 from springfield.cms.fixtures.sliding_carousel_fixtures import (
     get_sliding_carousel_slides,
@@ -188,7 +201,7 @@ from springfield.cms.models import (
     WhatsNewPage2026,
 )
 from springfield.cms.models.locale import SpringfieldLocale
-from springfield.cms.templatetags.cms_tags import add_utm_parameters
+from springfield.cms.templatetags.cms_tags import add_utm_parameters, alt_text
 from springfield.cms.tests.factories import ArticleDetailPageFactory, LocaleFactory
 from springfield.firefox.firefox_details import firefox_desktop
 from springfield.firefox.templatetags.misc import app_store_url, fxa_button, play_store_url
@@ -219,7 +232,15 @@ _BTN_LINK = {
 }
 
 # The non-download button blocks
-_BUTTON_BLOCK_TYPES_NOT_DOWNLOAD = ["button", "uitour_button", "fxa_button", "set_as_default_button", "focus_button", "qr_code_modal_button"]
+_BUTTON_BLOCK_TYPES_NOT_DOWNLOAD = [
+    "button",
+    "uitour_button",
+    "fxa_button",
+    "set_as_default_button",
+    "focus_button",
+    "qr_code_modal_button",
+    "video_modal_button",
+]
 
 
 def _button_block_and_value(btn_type, *, custom_label=None, pretranslated_label=None, snippet_pk=None):
@@ -249,6 +270,10 @@ def _button_block_and_value(btn_type, *, custom_label=None, pretranslated_label=
         value["url"] = "https://www.mozilla.org/firefox/mobile/"
         value["heading"] = "Get Firefox on your phone"
         value["content"] = "Take Firefox with you."
+    elif btn_type == "video_modal_button":
+        block = VideoModalButtonBlock()
+        value["video_url"] = "https://www.youtube.com/watch?v=aqz-KE-bpKQ"
+        value["video_title"] = "Firefox campaign video"
     else:  # pragma: no cover
         raise ValueError(btn_type)
     return block, value
@@ -422,12 +447,37 @@ def assert_download_button_attributes(
         assert button_element["data-cta-text"] == cta_text
 
     if settings.get("show_default_browser_checkbox"):
-        checkbox_label = button_element.find_next_sibling("label", class_="default-browser-label hidden")
+        # In a row of buttons the checkbox is placed after the buttons; on its own it follows the link directly.
+        checkbox_container = button_element.find_parent("div", class_="fl-buttons") or button_element.parent
+        checkbox_label = checkbox_container.find("label", class_="default-browser-label hidden")
         assert checkbox_label and "Set Firefox as your default browser." in checkbox_label.get_text()
         id_ = f"{settings['analytics_id']}-default-browser"
         assert checkbox_label["for"] == id_
         checkbox = checkbox_label.find("input", {"type": "checkbox", "class": "default-browser-checkbox"})
         assert checkbox and checkbox["id"] == id_
+
+
+def assert_video_modal_button_attributes(button_element: BeautifulSoup, button_data: dict, cta_position: str, cta_text: str):
+    value = button_data["value"]
+    settings = value["settings"]
+
+    assert value["custom_label"] in button_element.get_text()
+    assert "fl-video-modal-trigger" in button_element["class"]
+    assert f"button-{settings['theme']}" in button_element["class"]
+    assert button_element.find("span", class_=f"fl-icon-{settings['icon']}")
+    # A real link, so the video still opens on YouTube without JavaScript.
+    assert button_element["href"] == value["video_url"]
+    assert button_element["data-cta-position"] == cta_position
+    assert button_element["data-cta-text"] == cta_text
+    assert button_element["data-cta-uid"] == settings["analytics_id"]
+
+    # flare-video-modal.es6.js opens the dialog that follows each trigger.
+    dialog = button_element.find_next_sibling("div", class_="fl-video-modal-wrapper").find("dialog", class_="fl-video-dialog")
+    assert dialog["aria-label"] == value["video_title"]
+    assert dialog.find("button", class_="fl-dialog-close-button")
+    # The player is only added by JavaScript when the dialog opens.
+    assert dialog.find("div", class_="fl-video-dialog-frame")
+    assert dialog.find("iframe") is None
 
 
 def assert_tag_attributes(tag_element: BeautifulSoup, tag_data: dict):
@@ -489,6 +539,7 @@ def assert_image_variants_attributes(
     assert images_element
 
     settings = images_value.get("settings", {})
+    expected_alt = alt_text(images_value.get("image_alt", ""), image)
 
     default_display_classes = "display-light" if settings.get("dark_mode_image") else ""
     if settings.get("mobile_image") or settings.get("dark_mode_mobile_image"):
@@ -505,6 +556,7 @@ def assert_image_variants_attributes(
                 "width": img.width,
                 "height": img.height,
                 "loading": "lazy",
+                "alt": expected_alt,
                 "class": classes,
             },
         )
@@ -780,6 +832,124 @@ def assert_media_block(element: BeautifulSoup, block_data: dict):
     elif first_item["type"] == "video":
         video_el = element.find("div", class_="fl-video")
         assert_video_attributes(video_element=video_el, video_data=first_item)
+
+
+def test_image_variants_block_renders_one_alt_on_every_variant(placeholder_images):
+    block = ImageVariantsBlock()
+    value = block.to_python(
+        {
+            "image": placeholder_images.image.id,
+            "image_alt": "Firefox running on a laptop",
+            "settings": {
+                "dark_mode_image": placeholder_images.dark_image.id,
+                "mobile_image": placeholder_images.mobile_image.id,
+                "dark_mode_mobile_image": placeholder_images.dark_mobile_image.id,
+            },
+        }
+    )
+    soup = BeautifulSoup(block.render(value), "html.parser")
+
+    rendered_images = soup.find_all("img")
+    assert len(rendered_images) == 4
+    for rendered_image in rendered_images:
+        assert rendered_image["alt"] == "Firefox running on a laptop"
+
+
+def test_image_variants_block_rejects_a_blank_alt_for_a_non_decorative_image(placeholder_images):
+    block = ImageVariantsBlock()
+    with pytest.raises(StructBlockValidationError) as excinfo:
+        block.clean(block.to_python({"image": placeholder_images.image.id, "image_alt": "", "settings": {}}))
+    assert "image_alt" in excinfo.value.block_errors
+
+
+def test_image_variants_block_accepts_a_blank_alt_for_a_decorative_image(placeholder_images):
+    decorative_image = placeholder_images.image
+    decorative_image.is_decorative = True
+    decorative_image.save()
+
+    block = ImageVariantsBlock()
+    cleaned = block.clean(block.to_python({"image": decorative_image.pk, "image_alt": "", "settings": {}}))
+    assert cleaned["image_alt"] == ""
+
+
+def test_image_variants_block_decodes_legacy_content_without_an_alt_key(placeholder_images):
+    # Existing content predates this field, so its stored JSON has no key for it.
+    block = ImageVariantsBlock()
+    value = block.to_python({"image": placeholder_images.image.id, "settings": {}})
+    assert value["image_alt"] == ""
+
+
+def test_icon_list_with_image_block_renders_its_alt(placeholder_images):
+    block = IconListWithImageBlock()
+    value = block.to_python(
+        {
+            "image": placeholder_images.image.id,
+            "image_alt": "A checklist beside the Firefox logo",
+            "list_items": [],
+        }
+    )
+    soup = BeautifulSoup(block.render(value), "html.parser")
+    assert soup.find("img")["alt"] == "A checklist beside the Firefox logo"
+
+
+def test_icon_list_with_image_block_rejects_a_blank_alt_for_a_non_decorative_image(placeholder_images):
+    block = IconListWithImageBlock()
+    value = block.to_python({"image": placeholder_images.image.id, "image_alt": "", "list_items": []})
+    with pytest.raises(StructBlockValidationError) as excinfo:
+        block.clean(value)
+    assert "image_alt" in excinfo.value.block_errors
+
+
+def test_mobile_store_qr_code_block_renders_its_alt(placeholder_images, rf):
+    block = MobileStoreQRCodeBlock()
+    value = block.to_python(
+        {
+            "heading": {"heading_text": '<p data-block-key="h">Get the app</p>'},
+            "qr_code_data": "https://example.com/",
+            "mobile_image": placeholder_images.image.id,
+            "mobile_image_alt": "Firefox in the app store",
+        }
+    )
+    # The store buttons need request and fluent_l10n in context, normally
+    # injected by the page they render on; _render_context supplies both.
+    rendered = block.render(value, context=_render_context(rf.get("/")))
+    soup = BeautifulSoup(rendered, "html.parser")
+    # The store buttons render their own icons first, so scope the search to
+    # the mobile image container rather than matching the first img on the page.
+    mobile_image_div = soup.find("div", class_="fl-mobile-store-mobile-image")
+    assert mobile_image_div.find("img")["alt"] == "Firefox in the app store"
+
+
+def test_mobile_store_qr_code_block_reports_a_blank_alt_alongside_other_field_errors(placeholder_images):
+    block = MobileStoreQRCodeBlock()
+    value = block.to_python(
+        {
+            "heading": {"heading_text": '<p data-block-key="h">Get the app</p>'},
+            "qr_code_data": "",
+            "mobile_image": placeholder_images.image.id,
+            "mobile_image_alt": "",
+        }
+    )
+    with pytest.raises(StructBlockValidationError) as excinfo:
+        block.clean(value)
+    assert set(excinfo.value.block_errors) == {"qr_code_data", "mobile_image_alt"}
+
+
+def test_topic_block_renders_its_alt(placeholder_images):
+    block = TopicBlock()
+    value = block.to_python(
+        {
+            "short_title": "Privacy",
+            "anchor_id": "privacy-online",
+            "image": placeholder_images.image.id,
+            "image_alt": "A padlock over a browser window",
+            "heading": {"heading_text": '<p data-block-key="h">Privacy online</p>'},
+            "content": '<p data-block-key="c">How Firefox protects you.</p>',
+            "buttons": [],
+        }
+    )
+    soup = BeautifulSoup(block.render(value), "html.parser")
+    assert soup.find("img")["alt"] == "A padlock over a browser window"
 
 
 class TestDownloadFirefoxButtonBlock:
@@ -1229,6 +1399,13 @@ def test_buttons(index_page, rf):
                         assert button_element["href"] == play_store_url(context, "focus", campaign)
                     else:
                         assert button_element["href"] == app_store_url(context, "focus", campaign)
+                elif button_data["type"] == "video_modal_button":
+                    assert_video_modal_button_attributes(
+                        button_element=button_element,
+                        button_data=button_data,
+                        cta_position=f"{block_prefix}block-{block_index + 1}-intro.button-{btn_index + 1}",
+                        cta_text=f"{heading_text.strip()} - {button_data['value']['custom_label'].strip()}",
+                    )
 
             # Store buttons render as fl-store-button, exclude those inside download wrappers
             store_els = [el for el in intro.find_all("a", class_="fl-store-button") if not el.find_parent(class_="c-button-download-thanks")]
@@ -1285,6 +1462,9 @@ def test_uitour_buttons_2026(index_page, rf):
 
         expected_wallpaper = btn_value.get("wallpaper") or None
         assert button_el.get("data-wallpaper") == expected_wallpaper, f"{analytics_id}: unexpected data-wallpaper on button"
+
+        expected_tag_name = btn_value.get("treatment_tag_name") or None
+        assert button_el.get("data-treatment-tag-name") == expected_tag_name, f"{analytics_id}: unexpected data-treatment-tag-name on button"
 
 
 def test_banner_block(index_page, placeholder_images, rf):
@@ -1711,6 +1891,7 @@ def test_theme_page_blocks(index_page, rf):
 
         image_id = overrides.get("image") or article.featured_image.id
         img = image_ids[image_id]
+        expected_alt = overrides.get("image_alt") if overrides.get("image") else article.featured_image_alt
         rendered_image = srcset_image(
             img,
             "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
@@ -1719,6 +1900,7 @@ def test_theme_page_blocks(index_page, rf):
                 "width": img.width,
                 "height": img.height,
                 "loading": "lazy",
+                "alt": alt_text(expected_alt, img),
             },
         )
         img_tag = card_element.find("img")
@@ -1790,9 +1972,9 @@ def test_theme_page_blocks(index_page, rf):
             card_list_type="sticker_row",
         )
 
-        image_id = overrides.get("image") or article.sticker.id
+        image_id = overrides.get("sticker") or article.sticker.id
         img = image_ids[image_id]
-        rendered_icon = image(img, "width-400").img_tag()
+        rendered_icon = image(img, "width-400").img_tag(extra_attributes={"alt": ""})
         pictogram_element = card_element.find("img")
         assert pictogram_element.prettify() == BeautifulSoup(rendered_icon, "html.parser").find("img").prettify()
 
@@ -1858,6 +2040,7 @@ def test_theme_hub_page_blocks(index_page, rf):
 
         image_id = overrides.get("image") or article.featured_image.id
         img = image_ids[image_id]
+        expected_alt = overrides.get("image_alt") if overrides.get("image") else article.featured_image_alt
         rendered_image = srcset_image(
             img,
             "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
@@ -1866,6 +2049,7 @@ def test_theme_hub_page_blocks(index_page, rf):
                 "width": img.width,
                 "height": img.height,
                 "loading": "lazy",
+                "alt": alt_text(expected_alt, img),
             },
         )
         img_tag = card_element.find("img")
@@ -1906,7 +2090,7 @@ def test_theme_hub_page_blocks(index_page, rf):
 
         image_id = overrides.get("sticker") or article.sticker.id
         img = image_ids[image_id]
-        rendered_pictogram = image(img, "width-400").img_tag()
+        rendered_pictogram = image(img, "width-400").img_tag(extra_attributes={"alt": ""})
         pictogram_element = card_element.find("img")
         assert pictogram_element.prettify() == BeautifulSoup(rendered_pictogram, "html.parser").find("img").prettify()
 
@@ -1948,6 +2132,7 @@ def test_illustration_card_renders_featured_image_without_override(index_page, r
             "width": expected_img.width,
             "height": expected_img.height,
             "loading": "lazy",
+            "alt": alt_text(article.featured_image_alt, expected_img),
         },
     )
     image_soup = BeautifulSoup(str(rendered_image), "html.parser").find("img")
@@ -1988,9 +2173,10 @@ def test_pictogram_row_renders_pictogram_without_override(index_page, rf):
     # Should NOT be the Firefox logo placeholder
     assert pictogram_element["src"] != "/media/img/logos/firefox/firefox-logo.svg"
 
-    # Should match the article's pictogram rendered with image()
+    # Should match the article's pictogram rendered with image(); pictograms
+    # are decorative by their role on a card, so their alt is always empty.
     expected_img = image_ids[article.sticker.id]
-    rendered_icon = image(expected_img, "width-400").img_tag()
+    rendered_icon = image(expected_img, "width-400").img_tag(extra_attributes={"alt": ""})
     expected_soup = BeautifulSoup(rendered_icon, "html.parser").find("img")
     assert pictogram_element.prettify() == expected_soup.prettify()
 
@@ -3077,11 +3263,12 @@ def test_card_gallery_block(index_page, placeholder_images, rf):
                 cta_wrap = gallery.find("div", class_="fl-section-cta-wrap")
                 assert cta_wrap
                 gallery_heading_text = BeautifulSoup(variant["value"]["heading"]["heading_text"], "html.parser").get_text()
-                for button_data in variant["value"]["cta"]:
+                cta_elements = cta_wrap.find_all("a", class_="fl-button")
+                for cta_index, button_data in enumerate(variant["value"]["cta"]):
                     if button_data["type"] == "button":
-                        button_el = cta_wrap.find("a", class_="fl-button")
+                        button_el = cta_elements[cta_index]
                         cta_text = f"{gallery_heading_text.strip()} - {button_data['value']['custom_label'].strip()}"
-                        cta_position = f"{region_name}-block-{gallery_index + 1}-card_gallery.cta"
+                        cta_position = f"{region_name}-block-{gallery_index + 1}-card_gallery.cta-{cta_index + 1}"
                         assert_button_attributes(
                             button_element=button_el,
                             button_data=button_data,
@@ -3131,8 +3318,9 @@ def test_kit_intro_block(index_page, placeholder_images, rf):
 
     intro_divs = upper.find_all("div", class_="fl-home-intro")
     assert len(intro_divs) == len(variants)
+    kit_intro_block_numbers = [block_number for block_number, block in enumerate(page.upper_content, 1) if block.block_type == "kit_intro"]
 
-    for index, (intro_el, variant) in enumerate(zip(intro_divs, variants)):
+    for index, (intro_el, variant, block_number) in enumerate(zip(intro_divs, variants, kit_intro_block_numbers)):
         value = variant["value"]
         section = intro_el.find_parent("section")
 
@@ -3165,19 +3353,27 @@ def test_kit_intro_block(index_page, placeholder_images, rf):
             superheading = intro_el.find("p", class_="fl-superheading")
             assert superheading and superheading_text in superheading.get_text()
 
-        buttons = value["buttons"]
+        # The buttons below render as a second row after the first, with their own analytics positions.
+        expected_buttons = [(button, f"button-{button_index + 1}") for button_index, button in enumerate(value["buttons"])]
+        expected_buttons += [(button, f"button-below-{button_index + 1}") for button_index, button in enumerate(value.get("buttons_below", []))]
         button_elements = intro_el.find_all("a", class_="fl-button")
-        assert len(button_elements) == len(buttons)
-        for button_index, button in enumerate(buttons):
-            cta_position = f"upper-block-{index + 1}-kit_intro.button-{button_index + 1}"
+        assert len(button_elements) == len(expected_buttons)
+        for button_element, (button, position_label) in zip(button_elements, expected_buttons):
+            cta_position = f"upper-block-{block_number}-kit_intro.{position_label}"
             cta_text = f"{heading_text.strip()} - {button['value']['custom_label'].strip()}"
             assert_button_attributes(
-                button_element=button_elements[button_index],
+                button_element=button_element,
                 button_data=button,
                 context=context,
                 cta_position=cta_position,
                 cta_text=cta_text,
             )
+
+        buttons_below_row = intro_el.find("div", class_="fl-home-intro-buttons-below")
+        if value.get("buttons_below"):
+            assert len(buttons_below_row.find_all("a", class_="fl-button")) == len(value["buttons_below"])
+        else:
+            assert buttons_below_row is None
 
     # The Kit Intro block isn't allowed on the lower section
     assert not lower.find_all("div", class_="fl-home-intro")
@@ -3905,7 +4101,7 @@ def assert_comparison_image_header(cell_el: BeautifulSoup, image_header_data: di
     has_dark_mode = bool(image_header_data.get("dark_mode_image"))
     assert len(img_els) == (2 if has_dark_mode else 1)
     for img_el in img_els:
-        assert img_el.get("alt") == image_header_data["alt"]
+        assert img_el.get("alt") == image_header_data["image_alt"]
         assert img_el.get("loading") == "lazy"
         assert img_el.get("srcset")
     if has_dark_mode:
@@ -4148,7 +4344,7 @@ def test_comparison_header_cell_with_image_header_is_a_column_header(placeholder
 
 def test_comparison_image_header_renders_author_alt_text(placeholder_images):
     header_cell = browser_table_image_header_cell(label="Firefox", cell_id="h1", image_id=placeholder_images.image.id)
-    header_cell["value"]["optional_content"][0]["value"]["alt"] = "Firefox logo"
+    header_cell["value"]["optional_content"][0]["value"]["image_alt"] = "Firefox logo"
     soup = _render_browser_comparison_table(
         header_cells=[browser_table_cell(content="", cell_id=""), header_cell],
         content_rows=[
@@ -4159,6 +4355,30 @@ def test_comparison_image_header_renders_author_alt_text(placeholder_images):
     )
 
     assert_comparison_image_header(soup.find("thead").find_all(["th", "td"])[1], header_cell["value"]["optional_content"][0]["value"])
+
+
+def test_comparison_image_header_blocks_image_alt_field_takes_precedence_even_if_blank(placeholder_images):
+    """Even if the image has a description, an explicitly blank image_alt takes precedence."""
+    block = ComparisonImageHeaderBlock()
+    value = block.clean(block.to_python({"image": placeholder_images.image.id, "image_alt": "", "label": "Firefox"}))
+
+    soup = BeautifulSoup(block.render(value), "html.parser")
+
+    assert placeholder_images.image.description
+    assert soup.find("img")["alt"] == ""
+    assert soup.find("span", class_="fl-comparison-image-header-text").get_text(strip=True) == "Firefox"
+
+
+def test_comparison_image_header_blocks_alt_text_takes_precedence_for_decorative_image(placeholder_images):
+    decorative_image = placeholder_images.image
+    decorative_image.is_decorative = True
+    decorative_image.save()
+    block = ComparisonImageHeaderBlock()
+    value = block.to_python({"image": decorative_image.pk, "image_alt": "Firefox logo", "label": "Firefox"})
+
+    soup = BeautifulSoup(block.render(value), "html.parser")
+
+    assert soup.find("img")["alt"] == "Firefox logo"
 
 
 def test_browser_comparison_table_renders_cells_saved_before_optional_content_existed():
@@ -4395,6 +4615,56 @@ def test_base_article_value_get_article_returns_fallback_translation_via_multi_t
     assert result.locale == pt_br_locale
 
 
+@pytest.fixture
+def article_detail_page():
+    """A minimal published ArticleDetailPage with a featured image and a sticker."""
+    image, dark_image, _mobile_image, _dark_mobile_image = get_placeholder_images()
+    root_page = Site.objects.get(is_default_site=True).root_page
+    return ArticleDetailPageFactory(
+        parent=root_page,
+        featured_image=image,
+        sticker=dark_image,
+    )
+
+
+def test_article_card_uses_the_override_alt_when_the_override_supplies_the_image(article_detail_page, placeholder_images):
+    article_detail_page.featured_image_alt = "The article's own hero"
+    article_detail_page.save()
+
+    block = ArticleBlock()
+    value = block.to_python(
+        {
+            "article": article_detail_page.pk,
+            "overrides": {"image": placeholder_images.dark_image.id, "image_alt": "A custom card image"},
+        }
+    )
+    assert value.get_featured_image_alt() == "A custom card image"
+
+
+def test_article_card_uses_the_article_alt_when_the_override_has_no_image(article_detail_page):
+    article_detail_page.featured_image_alt = "The article's own hero"
+    article_detail_page.save()
+
+    block = ArticleBlock()
+    value = block.to_python(
+        {
+            "article": article_detail_page.pk,
+            "overrides": {"image": None, "image_alt": "", "title": "A custom title"},
+        }
+    )
+    assert value.get_featured_image_alt() == "The article's own hero"
+
+
+def test_article_card_pictogram_renders_an_empty_alt(article_detail_page, placeholder_images):
+    block = RelatedArticleBlock()
+    value = block.to_python({"article": article_detail_page.pk, "overrides": {"sticker": placeholder_images.dark_image.id}})
+    soup = BeautifulSoup(block.render(value), "html.parser")
+
+    pictogram = soup.select_one(".fl-card-media-pictogram img")
+    assert pictogram is not None
+    assert pictogram["alt"] == ""
+
+
 def _make_button_row_value(count, allow_uitour=False):
     block = ButtonRowBlock(allow_uitour=allow_uitour)
     variants = get_button_variants()
@@ -4613,6 +4883,31 @@ def test_uitour_button_requires_wallpaper_only_for_set_wallpaper_type(button_typ
         assert "wallpaper" in exc_info.value.block_errors
 
 
+@pytest.mark.parametrize(
+    ("button_type", "tag_name", "is_valid"),
+    [
+        (UITOUR_BUTTON_SET_TREATMENT_TAG, "wnp-show-callout", True),
+        (UITOUR_BUTTON_SET_TREATMENT_TAG, "", False),
+        (UITOUR_BUTTON_SET_TREATMENT_TAG, "browser.uitour.treatment.wnp-show-callout", False),
+        (UITOUR_BUTTON_SET_TREATMENT_TAG, "wnp show callout", False),
+        (UITOUR_BUTTON_NEW_TAB, "", True),
+    ],
+)
+def test_uitour_button_validates_treatment_tag_only_for_set_treatment_tag_type(button_type, tag_name, is_valid):
+    value = {"button_type": button_type, "treatment_tag_name": tag_name, "pretranslated_label": None, "custom_label": "Go", "settings": {}}
+
+    if is_valid:
+        UITourButtonBlock().clean(value)
+    else:
+        with pytest.raises(StructBlockValidationError) as exc_info:
+            UITourButtonBlock().clean(value)
+        assert "treatment_tag_name" in exc_info.value.block_errors
+
+
+def test_uitour_button_treatment_tag_name_is_not_translatable():
+    assert UITourButtonBlock().child_blocks["treatment_tag_name"].get_translatable_segments("wnp-show-callout") == []
+
+
 def _make_button_row_raw(count=1, spacing="", alignment="", help_text="", auto_width_buttons=False):
     variants = get_button_variants()
     buttons = [dict(variants["primary"], id=f"test-btnrow-{i}") for i in range(count)]
@@ -4715,6 +5010,7 @@ def test_base_article_value_get_link_url_returns_url_with_current_locale():
     assert url == "/pt-PT/article-url-locale-test/"
 
 
+@override_settings(TIME_ZONE="America/Los_Angeles")
 def test_roadmap_list_section_block(index_page, rf):
     intro_fixture = get_roadmap_page_intro()
     intro_value = intro_fixture[0]["value"]
@@ -4723,9 +5019,13 @@ def test_roadmap_list_section_block(index_page, rf):
 
     section_variants = get_roadmap_list_section_variants()
     page = get_roadmap_list_test_page()
+    # 21:01 Pacific on Oct 12 is 04:01 UTC on Oct 13.
+    page.last_published_at = datetime(2026, 10, 13, 4, 1, tzinfo=UTC)
 
     request = rf.get(page.get_full_url())
-    response = page.serve(request)
+    # The Wagtail admin renders previews in the editor's own time zone.
+    with timezone.override("Europe/Berlin"):
+        response = page.serve(request)
     assert response.status_code == 200
 
     context = page.get_context(request)
@@ -4764,7 +5064,7 @@ def test_roadmap_list_section_block(index_page, rf):
 
     last_updated_el = filter_el.find("p")
     assert last_updated_el
-    assert f"Last updated: {date_format(page.last_published_at, 'DATE_FORMAT')}" in last_updated_el.get_text()
+    assert "Last updated: Oct. 12, 2026" in last_updated_el.get_text()
 
     section_divs = soup.find_all("section", class_="fl-roadmap-list-section")
     assert len(section_divs) == len(section_variants)
@@ -5033,6 +5333,7 @@ def test_image_caption_block(minimal_site, placeholder_images, rf):
             "value": {
                 "image": {
                     "image": image.id,
+                    "image_alt": "An image with dark mode and mobile variants",
                     "settings": {
                         "dark_mode_image": dark_image.id,
                         "mobile_image": mobile_image.id,
@@ -6583,3 +6884,184 @@ def test_contact_form_block_renders_inside_a_media_content_block(contact_page_fo
 
     placeholder = media_content.find("div", class_="fl-contact-form-wrapper")
     assert placeholder["hx-get"] == f"{contact_page_for_block.url}?form_instance=1"
+
+
+def test_sharing_links_block(index_page, rf):
+    page = get_sharing_links_test_page()
+
+    request = rf.get(page.get_full_url())
+    response = page.serve(request)
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    upper = soup.find("div", class_="fl-split-page-upper")
+    lower = soup.find("div", class_="fl-split-page-lower")
+
+    # The first section with a heading on the page is the h1, so the upper area's first
+    # section nests its children at h2 and every later section nests them at h3.
+    for content_area, region_name, region, full_heading_tag in [(1, "upper", upper, "h2"), (2, "lower", lower, "h3")]:
+        variants = get_sharing_links_variants(content_area)
+        sharing_links = region.find_all("div", class_="fl-sharing-links")
+        assert len(sharing_links) == 3
+
+        for sharing_links_element, variant_name, section_heading, cta_position in zip(
+            sharing_links,
+            ["full", "required_only", "banner"],
+            ["All Fields", "Required Fields Only", "In a Banner"],
+            [f"{region_name}-block-1-section.item-1-sharing_links", f"{region_name}-block-2-media_content", f"{region_name}-block-3-banner"],
+            strict=True,
+        ):
+            block_data = variants[variant_name]["value"]
+            analytics_id = block_data["analytics_id"]
+            dialog_id = f"fl-sharing-links-{analytics_id}-qr-dialog"
+
+            url_link = sharing_links_element.find("p", class_="fl-sharing-links-url").find("a")
+            assert url_link["href"] == url_link.get_text(strip=True) == SHARED_URL
+            assert url_link.find_parent("p").find_next_sibling("div") is sharing_links_element.find("div", class_="fl-buttons")
+
+            button_row = sharing_links_element.find("div", class_="fl-buttons")
+            assert "is-horizontal" in button_row["class"]
+
+            copy_button = button_row.find("button", attrs={"data-js": "fl-copy-to-clipboard"})
+            assert "button-primary" in copy_button["class"]
+            assert copy_button["data-copy-value"] == block_data["url"] == SHARED_URL
+            assert copy_button["data-label-success"] == block_data["copy_success_label"]
+            assert copy_button.find("span", class_="fl-copy-to-clipboard-label").get_text(strip=True) == block_data["copy_label"]
+            assert copy_button.find("span", class_="fl-copy-to-clipboard-label-success").get_text(strip=True) == block_data["copy_success_label"]
+            assert copy_button["data-cta-position"] == f"{cta_position}.copy-link"
+            assert copy_button["data-cta-text"] == f"{section_heading} - {block_data['copy_label']}"
+            assert copy_button["data-cta-uid"] == f"{analytics_id}-copy-link"
+
+            email_link = button_row.find("a", class_="fl-sharing-links-email")
+            assert {"button-primary", "fl-button-icon-only"} <= set(email_link["class"])
+            assert email_link.find("span", class_="visually-hidden").get_text(strip=True) == block_data["email_label"]
+            assert "fl-icon-email" in email_link.find("span", class_="fl-icon")["class"]
+            assert email_link["data-cta-position"] == f"{cta_position}.email"
+            assert email_link["data-cta-text"] == f"{section_heading} - {block_data['email_label']}"
+            assert email_link["data-cta-uid"] == f"{analytics_id}-email"
+            # Percent-decode only, as a mail client does: parse_qs would also turn "+" into a space.
+            mailto_query = email_link["href"].removeprefix("mailto:?")
+            email_params = {key: unquote(raw) for key, raw in (param.split("=", 1) for param in mailto_query.split("&"))}
+            if block_data["email_subject"]:
+                assert email_params == {
+                    "subject": block_data["email_subject"],
+                    "body": f"{block_data['email_body']}\n\n{SHARED_URL}",
+                }
+            else:
+                assert email_params == {"body": SHARED_URL}, "Without a subject or body, the draft carries only the URL"
+
+            qr_button = button_row.find("button", class_="fl-sharing-links-qr")
+            assert {"button-primary", "fl-button-icon-only", "fl-dialog-trigger"} <= set(qr_button["class"])
+            assert qr_button.find("span", class_="visually-hidden").get_text(strip=True) == block_data["qr_label"]
+            assert "fl-icon-qr-code" in qr_button.find("span", class_="fl-icon")["class"]
+            assert qr_button["data-target-id"] == dialog_id
+            assert qr_button["data-cta-position"] == f"{cta_position}.qr-code"
+            assert qr_button["data-cta-text"] == f"{section_heading} - {block_data['qr_label']}"
+            assert qr_button["data-cta-uid"] == f"{analytics_id}-qr-code"
+
+            dialog = sharing_links_element.find("dialog", id=dialog_id)
+            assert "fl-qr-code-dialog" in dialog["class"]
+            assert dialog["aria-label"] == block_data["qr_label"]
+            assert dialog.find("button", class_="fl-dialog-close-button")["aria-label"] == "Close"
+            qr_code_image = dialog.find("div", class_="fl-qr-code-image").find("img")
+            expected_qr_code_image = BeautifulSoup(qrcode_rounded(SHARED_URL), "html.parser").find("img")
+            assert qr_code_image["src"] == expected_qr_code_image["src"], "The QR code encodes the shared URL"
+
+            if variant_name == "full":
+                heading = dialog.find(full_heading_tag, class_="fl-heading")
+                assert heading.get_text(" ", strip=True) == "Scan to open on your phone"
+                assert heading.find("b").get_text(strip=True) == "your phone"
+                qr_text = dialog.find("div", class_="fl-sharing-links-qr-text")
+                assert qr_text.find("p").get_text(strip=True) == "The QR code encodes the same URL the other buttons share."
+            elif variant_name == "banner":
+                # The Banner's content stream nests its children one level below the banner heading.
+                assert dialog.find("h3", class_="fl-heading").get_text(strip=True) == "Scan to open on your phone"
+                assert dialog.find("div", class_="fl-sharing-links-qr-text") is None
+            else:
+                assert dialog.find(class_="fl-heading") is None
+                assert dialog.find("div", class_="fl-sharing-links-qr-text") is None
+
+
+# Video Modal Button
+
+
+@pytest.mark.parametrize(
+    "url, expected",
+    [
+        ("https://www.youtube.com/watch?v=aqz-KE-bpKQ", "aqz-KE-bpKQ"),
+        ("https://youtu.be/aqz-KE-bpKQ?si=abc", "aqz-KE-bpKQ"),
+        ("https://www.youtube.com/shorts/aqz-KE-bpKQ", "aqz-KE-bpKQ"),
+        ("https://www.youtube.com/embed/aqz-KE-bpKQ", "aqz-KE-bpKQ"),
+        ("https://m.youtube.com/watch?v=aqz-KE-bpKQ", "aqz-KE-bpKQ"),
+        ("https://www.youtube.com/@firefox", None),
+        ("https://www.youtube.com/watch", None),
+        ("https://example.com/watch?v=aqz-KE-bpKQ", None),
+        ("", None),
+    ],
+)
+def test_youtube_video_id(url, expected):
+    assert youtube_video_id(url) == expected
+
+
+def test_validate_youtube_url_rejects_non_video_urls():
+    assert validate_youtube_url("https://youtu.be/aqz-KE-bpKQ") == "https://youtu.be/aqz-KE-bpKQ"
+    with pytest.raises(ValidationError):
+        validate_youtube_url("https://www.youtube.com/@firefox")
+
+
+def _render_quote(**value):
+    block = QuoteBlock()
+    raw = {"quote": '<p data-block-key="q1">The web is for everyone.</p>', **value}
+    return BeautifulSoup(block.render(block.to_python(raw)), "html.parser").find("figure")
+
+
+def test_quote_block_without_style_renders_standard():
+    # Quote blocks saved before the style field existed have no "style" key.
+    figure = _render_quote(author="Ada Lovelace")
+
+    assert figure["class"] == ["fl-quote"]
+    assert figure.find(class_="fl-quote-mark") is None
+    assert "The web is for everyone." in figure.find("blockquote").get_text()
+
+
+@pytest.mark.parametrize("style", ["pull", "passage"])
+def test_quote_block_style_sets_class(style):
+    figure = _render_quote(style=style)
+
+    assert figure["class"] == ["fl-quote", f"fl-quote-{style}"]
+
+
+def test_quote_block_pull_quote_mark_is_hidden_from_screen_readers():
+    figure = _render_quote(style="pull")
+
+    mark = figure.find(class_="fl-quote-mark")
+    assert mark["aria-hidden"] == "true"
+    assert mark.get_text() == ""
+
+
+def test_quote_block_passage_has_no_quote_mark():
+    assert _render_quote(style="passage").find(class_="fl-quote-mark") is None
+
+
+def test_quote_block_attribution_is_optional():
+    assert _render_quote().find("figcaption") is None
+
+
+def test_quote_block_renders_name_and_title():
+    caption = _render_quote(author="Karen Kim", authors_title="product manager for Firefox desktop").find("figcaption")
+
+    assert caption.find(class_="fl-quote-name").get_text() == "Karen Kim"
+    assert caption.find(class_="fl-quote-authors-title").get_text() == "product manager for Firefox desktop"
+    # A real comma and space, so Reader View and feeds don't run the two together.
+    assert caption.get_text() == "Karen Kim, product manager for Firefox desktop"
+
+
+def test_quote_block_renders_name_without_title():
+    assert _render_quote(author="Karen Kim").find("figcaption").get_text() == "Karen Kim"
+
+
+def test_quote_block_renders_title_without_name():
+    caption = _render_quote(authors_title="Firefox community").find("figcaption")
+
+    assert caption.find(class_="fl-quote-name") is None
+    assert caption.get_text() == "Firefox community"

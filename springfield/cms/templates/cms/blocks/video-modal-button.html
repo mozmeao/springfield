@@ -1,0 +1,30 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% set cta_text = (block_text ~ " - " if block_text else "") ~ (button_label or "") %}
+
+{# A real link, so the video still opens on YouTube without JS. The JS opens the dialog that follows it. #}
+<include:button
+  link="https://www.youtube.com/watch?v={{ value.video_id() }}"
+  extra_classes="fl-video-modal-trigger"
+  theme_class="{{ value.theme_class() }}"
+  label="{{ button_label or '' }}"
+  size_class="{{ value.size_class() }}"
+  icon_name="{{ value.settings.icon }}"
+  icon_position="{{ value.settings.icon_position }}"
+  analytics_text="{{ cta_text }}"
+  analytics_position="{{ block_position }}"
+  analytics_id="{{ value.settings.analytics_id }}"
+/>
+
+<div class="fl-video-modal-wrapper">
+<dialog class="fl-dialog fl-video-dialog" closedby="any" aria-label="{{ value.video_title }}">
+  <button type="button" class="fl-dialog-close-button" aria-label="{{ ftl('ui-close') }}">
+    <include:icon icon_name="close" />
+  </button>
+  <div class="fl-video-dialog-frame"></div>
+</dialog>
+</div>

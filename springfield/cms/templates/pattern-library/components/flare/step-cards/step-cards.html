@@ -34,14 +34,16 @@
         {% endif %}
         {% if card.buttons %}
           <content:buttons>
-            {% for button in card.buttons %}
-              <include:button
-                label="{{ button.label }}"
-                link="{{ button.link }}"
-                icon_name="{{ button.icon_name }}"
-                icon_position="{{ button.icon_position }}"
-              />
-            {% endfor %}
+            <div class="fl-buttons">
+              {% for button in card.buttons %}
+                <include:button
+                  label="{{ button.label }}"
+                  link="{{ button.link }}"
+                  icon_name="{{ button.icon_name }}"
+                  icon_position="{{ button.icon_position }}"
+                />
+              {% endfor %}
+            </div>
           </content:buttons>
         {% endif %}
       </include:step-card>

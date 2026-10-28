@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+from urllib.parse import parse_qs, urlencode, urlsplit
 from uuid import uuid4
 
 if TYPE_CHECKING:
@@ -13,11 +14,12 @@ if TYPE_CHECKING:
     from springfield.cms.models.pages import QRCodeFloatingSnippetMixin
 
 from django.conf import settings
-from django.core.exceptions import ValidationError
+from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
 from django.db import models
+from django.utils import translation
 from django.utils.functional import cached_property
 
-from wagtail.admin.panels import FieldPanel, MultiFieldPanel, TitleFieldPanel
+from wagtail.admin.panels import FieldPanel, HelpPanel, MultiFieldPanel, TitleFieldPanel
 from wagtail.models import DraftStateMixin, PreviewableMixin, RevisionMixin, TranslatableMixin
 from wagtail.templatetags.wagtailcore_tags import richtext
 from wagtail_localize.fields import SynchronizedField
@@ -546,6 +548,11 @@ class NavigationSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixi
         related_name="+",
         help_text="Override the header logo. Falls back to the default Firefox logo if unset.",
     )
+    logo_alt = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text="Text for screen readers describing the logo link, such as the product name. Required if a logo is set.",
+    )
     logo_dark = models.ForeignKey(
         "cms.SpringfieldImage",
         null=True,
@@ -575,6 +582,7 @@ class NavigationSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixi
         MultiFieldPanel(
             [
                 FieldPanel("logo"),
+                FieldPanel("logo_alt"),
                 FieldPanel("logo_dark"),
                 FieldPanel("logo_link"),
             ],
@@ -590,6 +598,13 @@ class NavigationSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixi
 
     def __str__(self):
         return f"{self.name} – {self.locale}"
+
+    def clean(self):
+        """Requires alt text for any logo, decorative or not, because it is the logo link's only name."""
+        super().clean()
+        if self.logo_id and not self.logo_alt.strip():
+            message = translation.gettext("Name what the logo links to, so it can be read out to someone who cannot see it.")
+            raise ValidationError({"logo_alt": message})
 
     @classmethod
     def get_default(cls):
@@ -614,3 +629,227 @@ class PretranslatedPhrase(BaseDraftTranslatableSnippetMixin, models.Model):
 
     def __str__(self):
         return f"{self.label} – {self.locale}"
+
+
+# Partner builds only exist on production, so their links ignore `settings.BOUNCER_URL`.
+PARTNER_DOWNLOAD_HOST = "download.mozilla.org"
+
+PARTNER_REPACK_LINKS = {
+    "windows64_url": ("windows", "win64", "Windows 64-bit"),
+    "windows32_url": ("windows", "win", "Windows 32-bit"),
+    "mac_url": ("mac", "osx", "Mac"),
+    "linux_url": ("linux", "linux64", "Linux"),
+}
+
+PARTNER_REPACK_PLATFORMS = ("windows", "mac", "linux")
+
+
+class PartnerRepackLinkLabel(models.TextChoices):
+    VISIT = "visit", "Visit <display name>"
+    LEARN_MORE = "learn_more", "Learn more"
+
+
+class PartnerRepack(DraftStateMixin, RevisionMixin, models.Model):
+    """A partner's Firefox builds, offered to visitors who follow the partner's download link."""
+
+    name = models.CharField(
+        "Display name",
+        max_length=60,
+        help_text='The company name visitors see in messages, e.g. "Acme".',
+    )
+    slug = models.SlugField(
+        "Link name",
+        max_length=60,
+        unique=True,
+        help_text="Used in the link firefox.com/get/?p=<link name>. Changing it breaks links already shared.",
+    )
+    windows64_url = models.URLField(
+        "Windows 64-bit link",
+        max_length=500,
+        blank=True,
+        help_text=(
+            "Paste the link exactly as the product team supplied it, "
+            "e.g. https://download.mozilla.org/?product=partner-firefox-release-acme-acme-001-latest&os=win64. "
+            "Leave it blank if there's no 64-bit build."
+        ),
+    )
+    windows32_url = models.URLField(
+        "Windows 32-bit link",
+        max_length=500,
+        blank=True,
+        help_text="Paste the link exactly as the product team supplied it, ending &os=win. Leave it blank if there's no 32-bit build.",
+    )
+    windows_languages = models.TextField(
+        "Windows languages",
+        blank=True,
+        help_text=(
+            "Language codes the Windows builds were made for, separated by commas or spaces, e.g. en-US, de, fr. "
+            "Covers both Windows links. Usually the same for every system."
+        ),
+    )
+    mac_url = models.URLField(
+        "Mac link",
+        max_length=500,
+        blank=True,
+        help_text="Paste the link exactly as the product team supplied it, ending &os=osx. Leave it blank if there's no Mac build.",
+    )
+    mac_languages = models.TextField(
+        "Mac languages",
+        blank=True,
+        help_text="Language codes the Mac build was made for, separated by commas or spaces, e.g. en-US, de, fr. Usually the same for every system.",
+    )
+    linux_url = models.URLField(
+        "Linux link",
+        max_length=500,
+        blank=True,
+        help_text="Paste the link exactly as the product team supplied it, ending &os=linux64. Leave it blank if there's no Linux build.",
+    )
+    linux_languages = models.TextField(
+        "Linux languages",
+        blank=True,
+        help_text=(
+            "Language codes the Linux build was made for, separated by commas or spaces, e.g. en-US, de, fr. Usually the same for every system."
+        ),
+    )
+    firefox_user_link_url = models.URLField(
+        "Link for current Firefox users",
+        blank=True,
+        help_text=(
+            "Visitors already using desktop Firefox can't get this download, so they see a message instead. "
+            "Add a link here to give them a second button, e.g. to the company's own page. Nobody else sees it."
+        ),
+    )
+    firefox_user_link_label = models.CharField(
+        "Button label",
+        max_length=20,
+        choices=PartnerRepackLinkLabel,
+        default=PartnerRepackLinkLabel.VISIT,
+        help_text="The button text for the link above.",
+    )
+
+    objects = BaseDraftQueryset.as_manager()
+
+    panels = [
+        FieldPanel("name"),
+        FieldPanel("slug"),
+        MultiFieldPanel([FieldPanel("windows64_url"), FieldPanel("windows32_url"), FieldPanel("windows_languages")], heading="Windows"),
+        MultiFieldPanel([FieldPanel("mac_url"), FieldPanel("mac_languages")], heading="Mac"),
+        MultiFieldPanel([FieldPanel("linux_url"), FieldPanel("linux_languages")], heading="Linux"),
+        MultiFieldPanel([FieldPanel("firefox_user_link_url"), FieldPanel("firefox_user_link_label")], heading="Current Firefox users"),
+        HelpPanel(heading="Test links", template="wagtailadmin/panels/partner_repack_test_links.html"),
+    ]
+
+    class Meta:
+        verbose_name = "Partner download"
+        verbose_name_plural = "Partner downloads"
+
+    def __str__(self):
+        return self.name
+
+    def systems(self) -> str:
+        """Name the systems this partner has a download link for, e.g. "Windows, Mac"."""
+        return ", ".join(platform.capitalize() for platform in PARTNER_REPACK_PLATFORMS if self.has_link(platform))
+
+    systems.short_description = "Systems"
+
+    def has_link(self, platform: str) -> bool:
+        """Return whether any download link is set for `platform` ("windows", "mac" or "linux")."""
+        return any(getattr(self, link_field) for link_field, (link_platform, _, _) in PARTNER_REPACK_LINKS.items() if link_platform == platform)
+
+    def languages_for(self, platform: str) -> list[str]:
+        """Return the language codes listed for `platform`, which editors separate with commas or spaces."""
+        return getattr(self, f"{platform}_languages").replace(",", " ").split()
+
+    def download_url(self, link_field: str, lang: str) -> str | None:
+        """Return the download URL for `link_field` in `lang`, or None if there's no such build."""
+        platform = PARTNER_REPACK_LINKS[link_field][0]
+        if not getattr(self, link_field) or lang not in self.languages_for(platform):
+            return None
+        try:
+            params = parse_qs(urlsplit(getattr(self, link_field)).query)
+        except ValueError:
+            return None
+        product, link_os = params.get("product", [""])[0], params.get("os", [""])[0]
+        # The download server's Mac Japanese build uses its own code.
+        download_lang = "ja-JP-mac" if platform == "mac" and lang == "ja" else lang
+        return f"https://{PARTNER_DOWNLOAD_HOST}/?{urlencode({'product': product, 'os': link_os, 'lang': download_lang})}"
+
+    def download_options(self, lang: str) -> dict[str, dict]:
+        """Return each platform's state ("available", "language" or "device") and its URLs for `lang`."""
+        options = {}
+        for platform in PARTNER_REPACK_PLATFORMS:
+            urls = {}
+            for link_field, (link_platform, link_os, _) in PARTNER_REPACK_LINKS.items():
+                if link_platform == platform and (url := self.download_url(link_field, lang)):
+                    urls[link_os] = url
+            if urls:
+                state = "available"
+            elif self.has_link(platform):
+                state = "language"
+            else:
+                state = "device"
+            options[platform] = {"state": state, "urls": urls}
+        return options
+
+    def test_links(self) -> list[tuple[str, str, str]]:
+        """Return (system, language, URL) for every link and listed language."""
+        return [
+            (system, lang, url)
+            for link_field, (platform, _, system) in PARTNER_REPACK_LINKS.items()
+            for lang in self.languages_for(platform)
+            if (url := self.download_url(link_field, lang))
+        ]
+
+    def clean(self):
+        super().clean()
+        # The view lowercases `p`, so lowercase slugs also stay unique ignoring case.
+        self.slug = self.slug.lower()
+        errors = {}
+
+        for link_field in PARTNER_REPACK_LINKS:
+            if getattr(self, link_field) and (error := self.link_error(link_field)):
+                errors[link_field] = error
+
+        if not any(self.has_link(platform) for platform in PARTNER_REPACK_PLATFORMS):
+            errors[NON_FIELD_ERRORS] = "Add a download link for at least one system."
+
+        for platform in PARTNER_REPACK_PLATFORMS:
+            if error := self.normalize_languages(platform):
+                errors[f"{platform}_languages"] = error
+
+        if errors:
+            raise ValidationError(errors)
+
+    def link_error(self, link_field: str) -> str | None:
+        """Return the problem with the link in `link_field`, or None if it's usable."""
+        _, expected_os, system = PARTNER_REPACK_LINKS[link_field]
+        try:
+            link = urlsplit(getattr(self, link_field))
+            hostname = link.hostname
+        except ValueError:
+            hostname = None
+        if hostname != PARTNER_DOWNLOAD_HOST:
+            return f"Use the {PARTNER_DOWNLOAD_HOST} link supplied by the product team."
+        params = parse_qs(link.query)
+        link_os = params.get("os", [""])[0]
+        if not params.get("product"):
+            return "This link has no product. Paste the full link supplied by the product team."
+        if link_os == expected_os:
+            return None
+        if other_system := next((label for _, system_os, label in PARTNER_REPACK_LINKS.values() if system_os == link_os), None):
+            return f"This link is for {other_system} (os={link_os}). Paste it in that field."
+        return f"This link isn't for {system}."
+
+    def normalize_languages(self, platform: str) -> str | None:
+        """Store `platform`'s languages in canonical case without duplicates, or return the problem."""
+        entered = self.languages_for(platform)
+        if self.has_link(platform) and not entered:
+            return "Add the languages this build was made for."
+        if entered and not self.has_link(platform):
+            return "Add a download link, or clear these languages."
+
+        canonical_codes = {code.lower(): code for code in settings.PROD_LANGUAGES} | {"ja-jp-mac": "ja"}
+        if unknown := [code for code in entered if code.lower() not in canonical_codes]:
+            return f"Not a Firefox download language: {', '.join(dict.fromkeys(unknown))}."
+        setattr(self, f"{platform}_languages", ", ".join(dict.fromkeys(canonical_codes[code.lower()] for code in entered)))
+        return None

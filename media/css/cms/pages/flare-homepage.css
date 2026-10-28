@@ -37,6 +37,24 @@
         padding-block-end: 0;
     }
 
+    /* A Secondary button in the hero's second row gets a translucent Dark
+       Purple fill instead of an outline. */
+    .fl-home-body
+        .fl-home-intro
+        .fl-home-intro-buttons-below
+        .fl-button.button-secondary {
+        --button-bg-color: color-mix(
+            in sRGB,
+            var(--token-color-dark-purple) 45%,
+            transparent
+        );
+        --button-border-color: transparent;
+        --button-text-color: var(--token-color-white);
+        --button-bg-color-hover: var(--token-color-dark-purple);
+        --button-text-color-hover: var(--token-color-white);
+        --button-bg-color-active: var(--token-color-dark-purple);
+    }
+
     .fl-home-body .fl-banner-container {
         margin-block-start: calc(-1 * var(--fl-section-v-padding));
         max-inline-size: none;
@@ -150,7 +168,10 @@
             margin-block-end: 0;
         }
 
-        .fl-home-body .has-home-intro-media .fl-home-intro .fl-buttons {
+        .fl-home-body
+            .has-home-intro-media
+            .fl-home-intro
+            .fl-buttons:not(.fl-home-intro-buttons-below) {
             margin-block-start: var(--token-spacing-2xl);
         }
 

@@ -547,3 +547,88 @@ describe('TrackProductDownload.sendEventFromURL', function () {
         expect(Plausible.trackEvent).not.toHaveBeenCalled();
     });
 });
+
+describe('TrackProductDownload partner fields', function () {
+    const partnerURL =
+        'https://download.mozilla.org/?product=partner-firefox-release-acme-acme-001-latest&os=win64&lang=de';
+    const regularURL =
+        'https://download.mozilla.org/?product=firefox-latest-ssl&os=win64&lang=de';
+    const playStoreURL =
+        'https://play.google.com/store/apps/details?id=org.mozilla.firefox';
+
+    function pushedEvents() {
+        return window.dataLayer.push.getCalls().map((call) => call.args[0]);
+    }
+
+    beforeEach(function () {
+        window.dataLayer = sinon.stub();
+        window.dataLayer.push = sinon.stub();
+        spyOn(Plausible, 'trackEvent');
+    });
+
+    afterEach(function () {
+        document.documentElement.removeAttribute('data-download-partner');
+    });
+
+    it('should leave the partner build event unchanged by itself', function () {
+        expect(TrackProductDownload.getEventFromUrl(partnerURL)).toEqual({
+            event: 'firefox_download',
+            product: 'firefox',
+            platform: 'win64',
+            method: 'site',
+            release_channel: 'release',
+            download_language: 'de'
+        });
+    });
+
+    it('should add no partner fields on pages without a partner', function () {
+        TrackProductDownload.sendEventFromURL(partnerURL);
+
+        for (const event of pushedEvents()) {
+            expect(event.partner).toBeUndefined();
+            expect(event.partner_download).toBeUndefined();
+        }
+        const props = Plausible.trackEvent.calls.mostRecent().args[1];
+        expect(props.partner).toBeUndefined();
+        expect(props.partner_download).toBeUndefined();
+    });
+
+    it('should mark a partner build download as a repack', function () {
+        document.documentElement.setAttribute('data-download-partner', 'acme');
+
+        TrackProductDownload.sendEventFromURL(partnerURL);
+
+        expect(pushedEvents()[0]).toEqual(
+            jasmine.objectContaining({
+                event: 'firefox_download',
+                product: 'firefox',
+                release_channel: 'release',
+                partner: 'acme',
+                partner_download: 'repack'
+            })
+        );
+        expect(Plausible.trackEvent).toHaveBeenCalledWith(
+            'product_download',
+            jasmine.objectContaining({
+                partner: 'acme',
+                partner_download: 'repack'
+            })
+        );
+    });
+
+    it('should mark regular Firefox and store downloads as a fallback', function () {
+        document.documentElement.setAttribute('data-download-partner', 'acme');
+
+        TrackProductDownload.sendEventFromURL(regularURL);
+        TrackProductDownload.sendEventFromURL(playStoreURL);
+
+        const events = pushedEvents().filter(
+            (event) => event.event !== 'product_download'
+        );
+        expect(events.map((event) => event.partner_download)).toEqual([
+            'fallback',
+            'fallback'
+        ]);
+        expect(events.map((event) => event.partner)).toEqual(['acme', 'acme']);
+    });
+});

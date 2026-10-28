@@ -37,7 +37,6 @@
 -brand-name-beta = Beta
 -brand-name-developer-edition = Developer Edition
 -brand-name-enterprise = Enterprise
--brand-name-enterprise-v2 = Firefox Enterprise
 -brand-name-esr = ESR
 -brand-name-focus = Focus
 -brand-name-nightly = Nightly

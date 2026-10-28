@@ -27,14 +27,9 @@
       {{ value.main_card.description|richtext }}
     </div>
     {% if value.main_card.buttons %}
-      <div class="fl-buttons">
-        {% for button in value.main_card.buttons %}
-          {% set block_position = block_position ~ ".main-card.button-" ~ loop.index %}
-          {% set size_class = "fl-button-small" %}
-          {% set block_text = value.main_card.headline|richtext|remove_tags %}
-          {% include_block button %}
-        {% endfor %}
-      </div>
+      {% with block_position = block_position ~ ".main-card", size_class = "fl-button-small", block_text = value.main_card.headline|richtext|remove_tags %}
+        {% include_block value.main_card.buttons %}
+      {% endwith %}
     {% endif %}
   </content:main_card>
 
@@ -56,14 +51,9 @@
       {{ value.secondary_card.description|richtext }}
     </div>
     {% if value.secondary_card.buttons %}
-      <div class="fl-buttons">
-        {% for button in value.secondary_card.buttons %}
-          {% set block_position = block_position ~ ".secondary-card.button-" ~ loop.index %}
-          {% set size_class = "fl-button-small" %}
-          {% set block_text = value.secondary_card.headline|richtext|remove_tags %}
-          {% include_block button %}
-        {% endfor %}
-      </div>
+      {% with block_position = block_position ~ ".secondary-card", size_class = "fl-button-small", block_text = value.secondary_card.headline|richtext|remove_tags %}
+        {% include_block value.secondary_card.buttons %}
+      {% endwith %}
     {% endif %}
   </content:secondary_card>
 
@@ -87,11 +77,9 @@
 
   {% if value.cta %}
     <content:cta>
-      {% for cta in value.cta %}
-        {% set block_position = block_position ~ ".cta" %}
-        {% set size_class = "fl-button-small" %}
-        {% include_block cta %}
-      {% endfor %}
+      {% with buttons_class = "is-horizontal is-center", button_position_label = "cta", size_class = "fl-button-small" %}
+        {% include_block value.cta %}
+      {% endwith %}
     </content:cta>
   {% endif %}
 </include:card-gallery>

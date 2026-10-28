@@ -67,6 +67,13 @@ class SpringfieldImage(AbstractImage):
 
     admin_form_fields = Image.admin_form_fields + ("is_decorative",)
 
+    @property
+    def default_alt_text(self):
+        """The alt text Wagtail's chooser prefills, empty for a decorative image."""
+        if self.is_decorative:
+            return ""
+        return super().default_alt_text
+
     def clean(self):
         super().clean()
         errors = {}
@@ -131,17 +138,6 @@ class SpringfieldRendition(AbstractRendition):
         on_delete=models.CASCADE,
         related_name="renditions",
     )
-
-    @property
-    def alt(self):
-        """The alt text for the rendered <img>, empty for a decorative image.
-
-        An empty alt attribute is what drops an image out of the accessibility tree. Leaving
-        the attribute off instead makes screen readers fall back to announcing the file name.
-        """
-        if self.image.is_decorative:
-            return ""
-        return super().alt
 
     class Meta:
         unique_together = (("image", "filter_spec", "focal_point_key"),)

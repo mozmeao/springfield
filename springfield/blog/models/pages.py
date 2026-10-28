@@ -2,6 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+import json
 from types import SimpleNamespace
 from typing import NamedTuple
 
@@ -15,11 +16,12 @@ from django.http import Http404
 from modelcluster.fields import ParentalKey
 from wagtail.admin.panels import FieldPanel, FieldRowPanel, InlinePanel, MultiFieldPanel, ObjectList, TabbedInterface
 from wagtail.contrib.routable_page.models import RoutablePageMixin, path
-from wagtail.models import Orderable
+from wagtail.models import Orderable, Page as WagtailBasePage
 from wagtail.search import index
 
 from lib import l10n_utils
 from springfield.blog.blocks import BlogArticleBlock, BlogArticleSectionsBlock, BlogRelatedArticleBlock
+from springfield.blog.feeds import BlogFeed
 from springfield.blog.fields import LocalizedClusterTaggableManager
 from springfield.blog.models.snippets import BlogTag, BlogTopic
 from springfield.cms.blocks import (
@@ -35,12 +37,16 @@ from springfield.cms.blocks import (
     VideoBlock,
 )
 from springfield.cms.fields import StreamField
-from springfield.cms.models.base import AbstractSpringfieldCMSPage
+from springfield.cms.models.base import AbstractSpringfieldCMSPage, ImageAltTextMixin
 from springfield.cms.models.locale import SpringfieldLocale
 from springfield.cms.models.pages import UTMParamsMixin
 from springfield.cms.rich_text import RichTextBlock, RichTextField
 
 ARTICLES_PER_PAGE = 10
+FEED_ITEMS = 20
+
+# Paths that BlogIndexPage routes claim before its child pages.
+RESERVED_ARTICLE_SLUGS = ("all", "topics", "feed")
 
 
 def cache_localized_tags(articles, hidden_translation_keys=()):
@@ -149,6 +155,7 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
     featured_articles = StreamField(
         [("article", BlogArticleBlock())],
         max_num=4,
+        collapsed=True,
         use_json_field=True,
         null=True,
         blank=True,
@@ -171,20 +178,21 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
         null=True,
         blank=True,
         help_text=(
-            "Articles with these topics or tags are left out of the full article list and the "
-            "latest-articles section, and these tags are hidden on article cards. Topic pages "
-            "and ?tag= links are unaffected."
+            "Articles with these topics or tags are left out of the full article list, the "
+            "latest-articles section and the RSS feeds, and these tags are hidden on article cards. "
+            "Topic pages, their feeds and ?tag= links still show their own topic or tag."
         ),
     )
     article_sections = StreamField(
         BlogArticleSectionsBlock(),
+        collapsed=True,
         use_json_field=True,
         null=True,
         blank=True,
     )
 
-    content_panels = AbstractSpringfieldCMSPage.content_panels + [
-        FieldPanel("page_heading"),
+    content_panels = [
+        *WagtailBasePage.content_panels,
         FieldPanel("featured_articles"),
         MultiFieldPanel(
             [
@@ -194,7 +202,11 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
         ),
     ]
 
-    settings_panels = AbstractSpringfieldCMSPage.settings_panels
+    settings_panels = [
+        FieldPanel("internal_title"),
+        FieldPanel("page_heading"),
+        *AbstractSpringfieldCMSPage.settings_panels,
+    ]
 
     blog_options_panels = [
         FieldPanel("featured_topics"),
@@ -325,6 +337,19 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
         if tag_keys:
             queryset = queryset.exclude(tags__translation_key__in=tag_keys)
         return queryset
+
+    def get_feed_articles(self, topic=None):
+        """The newest articles for this page's RSS feeds, with their bodies: live and public,
+        not marked "Exclude from RSS", and filtered by feed_exclusions like the all/ list. A topic
+        feed keeps its own topic even when it's excluded, matching the topic page."""
+        articles = BlogArticlePage.objects.child_of(self).live().public().filter(exclude_from_rss=False)
+        if topic:
+            articles = articles.filter(topic=topic)
+        articles = self.exclude_from_feed(article_list_queryset(articles).defer(None), exempt_topic_keys={topic.translation_key} if topic else ())
+        articles = list(articles.order_by("-first_published_at")[:FEED_ITEMS])
+        cache_localized_tags(articles)
+        cache_localized_topics(articles)
+        return articles
 
     def get_tag_filter(self, request):
         """The ?tag= snippet in this page's locale, or None if the parameter is absent
@@ -483,6 +508,17 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
     def all_route(self, request):
         return self._render_route(request, "blog/blog_all_page.html", self.get_all_context(request))
 
+    @path("feed/")
+    def feed_route(self, request):
+        return BlogFeed(self)(request)
+
+    @path("topics/<slug:topic_slug>/feed/")
+    def topic_feed_route(self, request, topic_slug):
+        topic = BlogTopic.objects.filter(slug=topic_slug, locale=self.locale).live().first()
+        if topic is None:
+            raise Http404
+        return BlogFeed(self, topic)(request)
+
     def get_sitemap_urls(self, request=None):
         """Add the URLs this page serves through its routes, which have no Page of their own
         for the sitemap to find.
@@ -521,6 +557,7 @@ class BlogTopicPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     featured_articles = StreamField(
         [("article", BlogArticleBlock())],
         max_num=4,
+        collapsed=True,
         use_json_field=True,
         blank=True,
         help_text="Up to 4 featured articles shown at the top. These are left out of the list below.",
@@ -612,11 +649,12 @@ class HeroStyle(models.TextChoices):
 MAX_RELATED_ARTICLES = 4
 
 
-class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
+class BlogArticlePage(ImageAltTextMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A page that displays a single blog article."""
 
     parent_page_types = ["blog.BlogIndexPage"]
     ftl_files = ["blog/blog"]
+    image_alt_fields = ("image", "listing_image")
 
     description = RichTextField(
         blank=True,
@@ -663,6 +701,11 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         null=True,
         blank=True,
     )
+    image_alt = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text="Text for screen readers describing the image.",
+    )
     image_dark_mode = models.ForeignKey(
         "cms.SpringfieldImage",
         on_delete=models.SET_NULL,
@@ -694,6 +737,11 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         blank=True,
         related_name="+",
         help_text="Optional image for article cards and lists. Falls back to the featured image.",
+    )
+    listing_image_alt = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text="Text for screen readers describing the image.",
     )
     content = StreamField(
         [
@@ -735,49 +783,59 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         default=False,
         help_text="Hide the Related Articles section on this article.",
     )
+    exclude_from_rss = models.BooleanField(
+        default=False,
+        verbose_name="Exclude from RSS",
+        help_text=(
+            "Leave this article out of the blog's RSS feeds. It still shows on the blog. Translations follow after Sync translated pages and publish."
+        ),
+    )
 
-    content_panels = AbstractSpringfieldCMSPage.content_panels + [
-        FieldPanel("description"),
+    content_panels = [
+        *WagtailBasePage.content_panels,
         MultiFieldPanel(
             [
+                FieldPanel("description"),
                 FieldPanel("topic"),
                 FieldPanel("tags"),
-            ],
-            heading="Topic & Tags",
-        ),
-        InlinePanel("article_authors", label="Authors"),
-        MultiFieldPanel(
-            [
+                InlinePanel("article_authors", label="Authors"),
                 FieldPanel("first_published_at"),
                 FieldPanel("updated_date"),
                 FieldPanel("hide_dates"),
             ],
-            heading="Dates",
+            heading="Post details",
+            classname="collapsed",
         ),
         MultiFieldPanel(
             [
                 FieldPanel("image"),
+                FieldPanel("image_alt"),
+                FieldPanel("listing_image"),
+                FieldPanel("listing_image_alt"),
                 FieldRowPanel(
                     [
                         FieldPanel("image_dark_mode"),
                         FieldPanel("image_mobile"),
                         FieldPanel("image_dark_mode_mobile"),
-                    ]
+                    ],
+                    heading="Dark mode & mobile versions",
                 ),
-                FieldPanel("listing_image"),
-            ],
-            heading="Featured Image",
-        ),
-        MultiFieldPanel(
-            [
                 FieldPanel("hero_style"),
-                FieldPanel("hero_video"),
+                FieldPanel(
+                    "hero_video",
+                    attrs={"data-w-rules-target": "show", "data-w-rules": json.dumps({"hero_style": [HeroStyle.VIDEO]})},
+                ),
             ],
-            heading="Hero Options",
+            heading="Featured image & hero",
             classname="collapsed",
+            attrs={"data-controller": "w-rules", "data-action": "change->w-rules#resolve"},
         ),
         FieldPanel("content"),
-        FieldPanel("bottom_banner"),
+        MultiFieldPanel(
+            [FieldPanel("bottom_banner")],
+            heading="Bottom banner",
+            classname="collapsed",
+        ),
     ]
 
     related_articles_panels = [
@@ -785,7 +843,11 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         FieldPanel("related_articles"),
     ]
 
-    settings_panels = AbstractSpringfieldCMSPage.settings_panels
+    settings_panels = [
+        FieldPanel("internal_title"),
+        *AbstractSpringfieldCMSPage.settings_panels,
+        FieldPanel("exclude_from_rss"),
+    ]
 
     # Drops show_in_menus, unused by the CMS
     promote_panels = [
@@ -826,13 +888,17 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         return f"BlogArticlePage: {self.title} - {self.locale}"
 
     def clean(self):
-        """Reject a hero style whose asset is missing, keyed to the field the editor
-        has to fill in."""
+        """Reject a reserved slug, or a hero style whose asset is missing, keyed to the
+        field the editor has to fill in, and require alt text for any non-decorative image."""
         super().clean()
+        if self.slug in RESERVED_ARTICLE_SLUGS:
+            raise ValidationError({"slug": f'"{self.slug}" is used by the blog itself. Choose another slug.'})
         if self.hero_style in (HeroStyle.STANDARD_IMAGE, HeroStyle.LARGE_IMAGE) and not self.image_id:
             raise ValidationError({"image": "This hero style needs a featured image."})
         if self.hero_style == HeroStyle.VIDEO and not self.hero_video:
             raise ValidationError({"hero_video": "This hero style needs a video."})
+        if errors := self.clean_image_alt_text():
+            raise ValidationError(errors)
 
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)
@@ -871,6 +937,10 @@ class BlogArticlePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     def get_listing_image(self):
         """The image for cards and list items. Fall back to the featured image."""
         return self.listing_image or self.image
+
+    def get_listing_image_alt(self):
+        """Alt text for whichever image get_listing_image() returned."""
+        return self.listing_image_alt if self.listing_image_id else self.image_alt
 
     def get_listing_image_variants(self):
         """Dark and mobile variants for the listing image. Only available for the featured image."""

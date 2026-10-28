@@ -16,6 +16,7 @@
 @import 'components/flare-nav-icons.css';
 @import 'components/flare-button.css';
 @import 'components/flare-typography.css';
+@import 'components/flare-quote.css';
 @import 'components/flare-card.css';
 @import 'components/flare-section.css';
 @import 'components/flare-intro.css';
@@ -45,6 +46,7 @@
 @import 'components/flare-scroll-to-see-more.css';
 @import 'components/flare-set-as-default.css';
 @import 'components/flare-floating-qr-overlay.css';
+@import 'components/flare-sharing-links.css';
 @import 'components/flare-typewriter.css';
 @import 'components/flare-smart-window-instructions.css';
 @import 'components/flare-pricing-heading.css';

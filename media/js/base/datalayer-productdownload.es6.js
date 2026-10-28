@@ -203,6 +203,26 @@ TrackProductDownload.getEventFromUrl = (downloadURL) => {
 };
 
 /**
+ * Partner fields when `<html>` has `data-download-partner`, otherwise empty.
+ * @param {String} downloadURL
+ * @returns {Object}
+ */
+TrackProductDownload.getPartnerFields = (downloadURL) => {
+    const partner = document.documentElement.getAttribute(
+        'data-download-partner'
+    );
+    if (!partner) {
+        return {};
+    }
+    // A partner's own build has a `partner-` product; anything else is regular Firefox.
+    const isRepack = /[?&]product=partner-/.test(downloadURL);
+    return {
+        partner: partner,
+        partner_download: isRepack ? 'repack' : 'fallback'
+    };
+};
+
+/**
  * Callback for a click event attached to a link to download.mozilla.org
  * - extracts the href of the link from an event
  * - sends it along for tracking
@@ -232,6 +252,10 @@ TrackProductDownload.sendEventFromURL = (downloadURL) => {
     const eventObject = TrackProductDownload.getEventFromUrl(downloadURL);
 
     if (eventObject) {
+        Object.assign(
+            eventObject,
+            TrackProductDownload.getPartnerFields(downloadURL)
+        );
         // only send event for tracking if eventObject is valid (issue 14177)
         // GA4
         TrackProductDownload.sendEvent(eventObject);

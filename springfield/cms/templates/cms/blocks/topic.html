@@ -10,7 +10,7 @@
   anchor_id="{{ value.anchor_id }}"
 >
   <content:image>
-    {{ image(value.image, "width-400") }}
+    {{ image(value.image, "width-400", alt=alt_text(value.image_alt, value.image)) }}
   </content:image>
   <content:heading>
     <include:heading
@@ -25,10 +25,8 @@
     {{ value.content|richtext }}
   </content:content>
   <content:buttons>
-    {% for button in value.buttons %}
-      {% set block_position = block_position ~ ".button-" ~ loop.index %}
-      {% set block_text = value.heading.heading_text|richtext|remove_tags %}
-      {% include_block button %}
-    {% endfor %}
+    {% with buttons_class = "is-stacked auto-width-buttons", block_text = value.heading.heading_text|richtext|remove_tags %}
+      {% include_block value.buttons %}
+    {% endwith %}
   </content:buttons>
 </include:topic>

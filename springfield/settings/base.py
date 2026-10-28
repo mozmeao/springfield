@@ -534,6 +534,7 @@ NOINDEX_URLS = [
     r"^landing/",
     r"/system-requirements/$",
     r"^thanks/$",
+    r"^get/$",
     r"^analytics-tests/",
     r"^readiness/$",
     r"^healthz-cron/$",
@@ -1602,7 +1603,7 @@ WAGTAIL_RICHTEXT_FEATURES_FULL = [
 
 WAGTAILIMAGES_IMAGE_MODEL = "cms.SpringfieldImage"
 
-WAGTAILIMAGES_IMAGE_FORM_BASE = "springfield.cms.image_forms.SpringfieldImageForm"
+WAGTAILIMAGES_IMAGE_FORM_BASE = "springfield.cms.images.forms.SpringfieldImageForm"
 
 WAGTAILIMAGES_EXTENSIONS = [
     "gif",
