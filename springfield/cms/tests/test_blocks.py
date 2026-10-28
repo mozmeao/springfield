@@ -7098,6 +7098,27 @@ def test_form_content_block(index_page, rf):
         assert form_wrapper["hx-get"] == f"{contact_page.url}?form_instance={first_form_number + 2}"
 
 
+def test_form_content_block_hides_when_its_contact_page_is_unpublished(contact_page_for_block, index_page, rf):
+    """The block is built around its form, so it renders nothing, top level or nested, once the form can't be shown."""
+    form_content_block = {"type": "form_content", "value": {"form": {"contact_page": contact_page_for_block.pk}}}
+    page = publish_freeform_content_page(
+        FreeFormPage2026,
+        slug="form-content-block-unpublished",
+        parent=index_page,
+        content=[
+            form_content_block,
+            {"type": "section", "value": {"content": [form_content_block]}},
+        ],
+    )
+    contact_page_for_block.unpublish()
+
+    main = render_main_element(page, rf)
+
+    assert main.find("div", class_="fl-formcontent") is None
+    (section,) = main.find_all("section", class_="fl-section")
+    assert section.find("div", class_="fl-formcontent") is None
+
+
 def test_sharing_links_block(index_page, rf):
     page = get_sharing_links_test_page()
 

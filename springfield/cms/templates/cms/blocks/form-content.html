@@ -8,6 +8,7 @@
 {% set block_text = value.heading.heading_text|richtext|remove_tags %}
 {% set show_to = none if conditional_display_handled else value.show_to %}
 
+{% if form_is_shown %}
 <include:conditional-display condition_settings={{ show_to }}>
 
   <include:form-content form_before="{{ value.form_before }}">
@@ -31,3 +32,4 @@
   </include:form-content>
 
 </include:conditional-display>
+{% endif %}

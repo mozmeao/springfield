@@ -4243,6 +4243,15 @@ class ContactFormBlock(blocks.StructBlock):
             return "The selected contact page has no public URL."
         return None
 
+    def get_shown_contact_page(self, value):
+        """The chosen contact page in the active locale, or None when its form may not be shown."""
+        contact_page = value.get("contact_page")
+        if contact_page:
+            contact_page = contact_page.localized
+            if not self.contact_page_is_invalid(contact_page):
+                return contact_page
+        return None
+
     def clean(self, value):
         cleaned = super().clean(value)
         contact_page = cleaned["contact_page"]
@@ -4256,12 +4265,8 @@ class ContactFormBlock(blocks.StructBlock):
         # Set on every render so a `form_url` from the parent context never leaks in.
         context["form_url"] = None
         request = context.get("request")
-        contact_page = value.get("contact_page")
+        contact_page = self.get_shown_contact_page(value)
         if not (request and contact_page):
-            return context
-
-        contact_page = contact_page.localized
-        if self.contact_page_is_invalid(contact_page):
             return context
 
         request.needs_htmx = True
@@ -4321,6 +4326,12 @@ class FormContentBlock(blocks.StructBlock):
             children=["form", "heading", "content"],
             settings=["form_before", "show_to"],
         )
+
+    def get_context(self, value, parent_context=None):
+        context = super().get_context(value, parent_context=parent_context)
+        # The block is built around its form, so it is hidden entirely when the form can't be shown.
+        context["form_is_shown"] = self.child_blocks["form"].get_shown_contact_page(value["form"]) is not None
+        return context
 
 
 # Navigation

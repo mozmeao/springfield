@@ -6,6 +6,7 @@
 
 {# Wrap the form + content block in a section container to use it without the section heading and CTA #}
 
+{% if form_is_shown %}
 <include:conditional-display
   condition_settings="{{ value.show_to }}">
 
@@ -17,3 +18,4 @@
   </section>
 
 </include:conditional-display>
+{% endif %}
