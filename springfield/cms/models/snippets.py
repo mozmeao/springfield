@@ -425,9 +425,17 @@ class QRCodeFloatingSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippet
         return page_behavior or self.open_behavior
 
     def resolve_qr_source(self, page: QRCodeFloatingSnippetMixin | None = None, request: HttpRequest | None = None) -> dict | None:
-        """Resolve the QR code source from page overrides or snippet fields."""
-        resolved_image = getattr(page, "floating_qr_image", None) or self.image
-        resolved_url = getattr(page, "floating_qr_url", None) or self.url
+        """Resolve the QR code source from page overrides or snippet fields.
+
+        A page override (image or URL) replaces the snippet's source entirely, so
+        a page URL override wins over a snippet image.
+        """
+        page_image = getattr(page, "floating_qr_image", None)
+        page_url = getattr(page, "floating_qr_url", None)
+        if page_image or page_url:
+            resolved_image, resolved_url = page_image, page_url
+        else:
+            resolved_image, resolved_url = self.image, self.url
 
         behavior = self.resolve_open_behavior(page)
 
