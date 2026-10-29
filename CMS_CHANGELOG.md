@@ -1,6 +1,6 @@
 ## 2026-10-29
-
-- Share Firefox pages have "Show Navigation CTA" and "Show Pre-Footer" checkboxes on the Settings tab. Both are off by default. Translations follow after Sync translated pages and publish.
+- Share Firefox pages have "Show Navigation CTA" and "Show Pre-Footer" checkboxes on the Settings tab. Both are off by default.
+- The Sharing Links block has a "Show URL" checkbox in its settings. It's on by default, so existing blocks keep showing the URL above the buttons; turn it off to show only the buttons.
 
 ## 2026-10-26
 

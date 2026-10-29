@@ -1249,7 +1249,7 @@ def assert_sharing_links(
     heading_text: str,
     qr_heading_tag: str | None = None,
 ):
-    """Checks the URL, the copy, email and QR code buttons, and the QR code dialog.
+    """Checks the URL line, the copy, email and QR code buttons, and the QR code dialog.
 
     ``qr_heading_tag`` is the tag the dialog heading must use, needed only when the block sets a QR heading.
     """
@@ -1257,9 +1257,13 @@ def assert_sharing_links(
     analytics_id = sharing_links_value["analytics_id"]
     dialog_id = f"fl-sharing-links-{analytics_id}-qr-dialog"
 
-    url_link = sharing_links_element.find("p", class_="fl-sharing-links-url").find("a")
-    assert url_link["href"] == url_link.get_text(strip=True) == url
-    assert url_link.find_parent("p").find_next_sibling("div") is sharing_links_element.find("div", class_="fl-buttons")
+    # A block with no stored Show URL value shows the URL.
+    if sharing_links_value.get("show_url", True):
+        url_link = sharing_links_element.find("p", class_="fl-sharing-links-url").find("a")
+        assert url_link["href"] == url_link.get_text(strip=True) == url
+        assert url_link.find_parent("p").find_next_sibling("div") is sharing_links_element.find("div", class_="fl-buttons")
+    else:
+        assert sharing_links_element.find("p", class_="fl-sharing-links-url") is None
 
     button_row = sharing_links_element.find("div", class_="fl-buttons")
     assert "is-horizontal" in button_row["class"]
