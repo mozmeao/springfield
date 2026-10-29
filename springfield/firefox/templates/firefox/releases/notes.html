@@ -33,8 +33,15 @@
   {% endif %}
 {% endif %}
 
-{% block page_title %}{{ release.product }} {{ channel_name }} {{ release.version }}, See All New Features, Updates and Fixes{% endblock %}
+{% set channel_name = '' if release.channel == 'Release' else release.channel %}
+
+{% block page_title %}{{ [release.product, channel_name, release.version]|select|join(' ') }}, See All New Features, Updates and Fixes{% endblock %}
 {% block page_title_suffix %}{% endblock %}
+{% block page_og_title %}{{ [release.product, channel_name, release.version]|select|join(' ') }} Release Notes{% endblock %}
+
+{% block page_desc %}{{ page_description|default('') }}{% endblock %}
+{% block page_og_desc %}{{ page_description|default('') }}{% endblock %}
+{% block page_image %}{{ og_image_url|default(super()) }}{% endblock %}
 
 {% block body_id %}notes{% endblock %}
 {% block body_class %}mzp-t-firefox {{ theme_class }} fl-release-notes{% endblock %}
@@ -42,8 +49,6 @@
 {% block page_css %}
   {{ css_bundle('flare-release-notes') }}
 {% endblock %}
-
-{% set channel_name = '' if release.channel == 'Release' else release.channel %}
 
 {# Set to an empty string to show the bottom download CTA without a heading. #}
 {% set download_title = download_title|default('Get the most recent version') %}
@@ -567,27 +572,50 @@
     <div class="c-release-footer fl-c-release-notes-pre-footer">
       <div class="mzp-l-content fl-c-release-notes-pre-footer-content fl-force-dark-theme">
         <div class="fl-l-release-notes-wrapper fl-l-release-notes-pre-footer-columns">
-          <div class="c-release-footer-col">
-            <h2 class="fl-heading fl-heading-xs">Need help or want to leave feedback?</h2>
-            <a rel="external" href="{{ bugzilla_url }}">File a bug</a>
-            <a rel="external" href="{{ feedback_url }}">Leave feedback</a>
-          </div>
-          <div class="c-release-footer-col">
-            <h2 class="fl-heading fl-heading-xs">Get Involved</h2>
-            <p>Did you know that most of the content in Firefox Support was written by volunteers?</p>
-            <a rel="external" href="https://support.mozilla.org/get-involved">Find out more</a>
-          </div>
-          <div class="c-release-footer-col">
-            <h2 class="fl-heading fl-heading-xs">Other Resources</h2>
-            {% block flare_extra_resources %}{% endblock %}
-            <a rel="external" href="https://developer.mozilla.org/docs/Mozilla/Firefox/Releases/{{ release.major_version }}">Developer Information</a>
-            <a rel="external"  href="{{ release.get_bug_search_url() }}">Complete list of changes for this release</a>
-            <a rel="external" href="https://blog.mozilla.org/press/kits/">Press Kit</a>
-            <a rel="external" href="https://blog.mozilla.org">Mozilla and Firefox News</a>
-            <a href="{{ url('firefox.enterprise.index') }}">Firefox Extended Support Release</a>
-            <a href="{{ url('firefox.releases.index') }}">All Firefox for Desktop Releases</a>
-            <a href="/{{ LANG }}/more/">Learn more about Firefox</a>
-          </div>
+          {% if release.product == 'Firefox Enterprise' %}
+            {% set enterprise_url = url('firefox.enterprise.index') %}
+            <div class="c-release-footer-col">
+              <h2 class="fl-heading fl-heading-xs">Need help or want to leave feedback?</h2>
+              <a href="{{ enterprise_url }}firefox-professional-support/">Firefox Professional Support</a>
+              <a rel="external" href="{{ feedback_url }}">Leave feedback</a>
+              <a rel="external" href="{{ bugzilla_url }}">File a bug</a>
+            </div>
+            <div class="c-release-footer-col">
+              <h2 class="fl-heading fl-heading-xs">Documentation</h2>
+              <a rel="external" href="https://firefox-admin-docs.mozilla.org/reference/policies/">Enterprise policy reference</a>
+              <a rel="external" href="https://support.mozilla.org/products/firefox-enterprise">Firefox Enterprise support articles</a>
+              <a rel="external" href="https://developer.mozilla.org/docs/Mozilla/Firefox/Releases/{{ release.major_version }}">Firefox release notes for developers</a>
+            </div>
+            <div class="c-release-footer-col">
+              <h2 class="fl-heading fl-heading-xs">Explore Firefox Enterprise</h2>
+              <a href="{{ enterprise_url }}contact/">Request a demo</a>
+              <a href="{{ enterprise_url }}trust-center/">Firefox Enterprise Trust Center</a>
+              <a href="{{ enterprise_url }}download-firefox/">Download</a>
+            </div>
+          {% else %}
+            <div class="c-release-footer-col">
+              <h2 class="fl-heading fl-heading-xs">Need help or want to leave feedback?</h2>
+              <a rel="external" href="{{ bugzilla_url }}">File a bug</a>
+              <a rel="external" href="{{ feedback_url }}">Leave feedback</a>
+            </div>
+            <div class="c-release-footer-col">
+              <h2 class="fl-heading fl-heading-xs">Get Involved</h2>
+              <p>Did you know that most of the content in Firefox Support was written by volunteers?</p>
+              <a rel="external" href="https://support.mozilla.org/get-involved">Find out more</a>
+            </div>
+            <div class="c-release-footer-col">
+              <h2 class="fl-heading fl-heading-xs">Other Resources</h2>
+              {% block flare_extra_resources %}{% endblock %}
+              <a rel="external" href="https://developer.mozilla.org/docs/Mozilla/Firefox/Releases/{{ release.major_version }}">Developer Information</a>
+              <a rel="external"  href="{{ release.get_bug_search_url() }}">Complete list of changes for this release</a>
+              <a rel="external" href="https://blog.mozilla.org/press/kits/">Press Kit</a>
+              <a rel="external" href="https://blog.mozilla.org">Mozilla and Firefox News</a>
+              <a href="{{ firefox_url('desktop', 'all', 'esr') }}">Firefox ESR</a>
+              <a href="{{ url('firefox.enterprise.index') }}">Firefox Enterprise</a>
+              <a href="{{ url('firefox.releases.index') }}">All Firefox for Desktop Releases</a>
+              <a href="/{{ LANG }}/more/">Learn more about Firefox</a>
+            </div>
+          {% endif %}
         </div>
       </div>
     </div>
