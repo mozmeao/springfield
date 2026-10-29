@@ -137,12 +137,6 @@
     },
     {
       "files": [
-        "css/firefox/enterprise/landing.scss"
-      ],
-      "name": "firefox-enterprise"
-    },
-    {
-      "files": [
         "css/firefox/channel.scss"
       ],
       "name": "firefox_channel"
@@ -368,12 +362,6 @@
         "css/cms/pages/flare-download_all.css"
       ],
       "name": "flare-download-all"
-    },
-    {
-      "files": [
-        "css/cms/pages/flare-enterprise.css"
-      ],
-      "name": "flare-enterprise"
     },
     {
       "files": [
