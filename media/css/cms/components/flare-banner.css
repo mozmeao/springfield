@@ -232,12 +232,8 @@
     flex-direction: column;
     inline-size: 100%;
     justify-content: center;
-    min-inline-size: 0;
-}
-
-.fl-banner-content-inner .fl-buttons,
-.fl-banner-content-inner .fl-sharing-links {
     margin-block: var(--token-spacing-xl) var(--token-spacing-lg);
+    min-inline-size: 0;
 }
 
 .fl-banner-layout {
