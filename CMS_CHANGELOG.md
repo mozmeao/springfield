@@ -1,3 +1,7 @@
+## 2026-10-29
+
+- Share Firefox pages have "Show Navigation CTA" and "Show Pre-Footer" checkboxes on the Settings tab. Both are off by default. Translations follow after Sync translated pages and publish.
+
 ## 2026-10-26
 
 - The Sharing Links block can be added to a Banner's content.

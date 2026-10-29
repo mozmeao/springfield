@@ -2685,12 +2685,26 @@ class ShareFirefoxPage(AbstractSpringfieldCMSPage):
         use_json_field=True,
     )
 
+    show_pre_footer = models.BooleanField(
+        default=False,
+        verbose_name="Show Pre-Footer",
+        help_text="If true, the page will display the default pre-footer section.",
+    )
+    show_nav_cta = models.BooleanField(
+        default=False,
+        verbose_name="Show Navigation CTA",
+        help_text="If true, the download button will appear in the navigation bar for this page.",
+    )
+
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("upper_content"),
         FieldPanel("lower_content"),
     ]
 
-    settings_panels = AbstractSpringfieldCMSPage.settings_panels
+    settings_panels = AbstractSpringfieldCMSPage.settings_panels + [
+        FieldPanel("show_nav_cta"),
+        FieldPanel("show_pre_footer"),
+    ]
 
     search_fields = AbstractSpringfieldCMSPage.search_fields + [
         index.SearchField("upper_content"),
