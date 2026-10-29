@@ -73,5 +73,8 @@ URLS = flatten(
         # Retired Windows 10 end-of-service landing page
         url_test("/landing/win-new-features/", "/features/", status_code=301),
         url_test("/{en-US,en-GB,en-CA,fr,de}/landing/win-new-features/", "/{en-US,en-GB,en-CA,fr,de}/features/", status_code=301),
+        # Retired Windows campaign landing page
+        url_test("/landing/windows/", "/", status_code=301),
+        url_test("/{en-US,de}/landing/windows/", "/{en-US,de}/", status_code=301),
     )
 )

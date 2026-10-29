@@ -144,13 +144,6 @@ urlpatterns = (
         prefer_cms(views.landing_get_page, fallback_ftl_files=["firefox/download/desktop", "firefox/download/home"]),
         name="landing.get",
     ),
-    # Issue 606 - NA + DE Windows Defense/Josef Landing Page
-    page(
-        "landing/windows/",
-        "firefox/landing/windows.html",
-        active_locales=["en-US", "de"],
-        ftl_files=["firefox/download/desktop", "firefox/download/home"],
-    ),
     # Issue 684 - Kit Landing page
     page(
         "kit/",
