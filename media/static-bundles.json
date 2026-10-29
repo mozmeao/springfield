@@ -486,7 +486,8 @@
       "files": [
         "css/cms/themes/enterprise-home.css"
       ],
-      "name": "enterprise-home"
+      "name": "enterprise-home",
+      "_comment": "This file is referenced in the CMS directly. Only remove if no pages have body_class='enterprise-home' and you have an up-to-date database backup."
     },
     {
       "files": [
@@ -819,7 +820,7 @@
         "js/cms/pages/enterprise-home.es6.js"
       ],
       "name": "enterprise-home",
-      "_comment": "This file is referenced in the CMS directly. Only remove if no pages have extra_js='flare-enterprise-home' and you have an up-to-date database backup."
+      "_comment": "This file is referenced in the CMS directly. Only remove if no pages have extra_js='enterprise-home' and you have an up-to-date database backup."
     },
 
     {
