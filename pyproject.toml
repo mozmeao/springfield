@@ -84,6 +84,7 @@ dev = [
     "pytest-parallel==0.1.1",
     "pytest-rerunfailures==16.7",
     "pytest-selenium==4.1.0",
+    "pytest-xdist==3.8.0",
     "responses==0.26.3",
     "ruff==0.16.8",
     "selenium==4.49.0",
