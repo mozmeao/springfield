@@ -13,6 +13,7 @@ python manage.py version
 python manage.py migrate --noinput
 python manage.py makemigrations --check
 pytest lib springfield \
+    -n auto \
     --cov-config=.coveragerc \
     --cov-report=html \
     --cov-report=term-missing \

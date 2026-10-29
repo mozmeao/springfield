@@ -117,9 +117,14 @@ def test_untriggered_traffic_pays_only_the_pause_check(client, wnp):
     # for organic traffic should cost exactly one query more than fully dark (the pause
     # check, which untriggered traffic does still reach): not the is_canonical query too.
     url = wnp.canonical.get_url()
+    # A request after the cache is cleared, or after override_switch flushes the switch's
+    # cache entry, pays extra queries to refill the cache. Warm it before each measured
+    # request so the two counts differ only by what the routing code itself does.
+    client.get(url)
     with CaptureQueriesContext(connection) as dark:
         client.get(url)
     with override_switch("user_routing", active=True):
+        client.get(url)
         with CaptureQueriesContext(connection) as untriggered:
             client.get(url)
     assert len(untriggered.captured_queries) == len(dark.captured_queries) + 1
@@ -129,9 +134,12 @@ def test_loop_broken_traffic_costs_no_more_than_fully_dark(client, wnp):
     # The loop-breaker is checked before the pause, so a fallen-through visitor doesn't
     # even pay for that — let alone is_canonical or the rule scan.
     url = wnp.canonical.get_url()
+    # Warm the cache before each measured request, for the same reason as in the previous test.
+    client.get(url)
     with CaptureQueriesContext(connection) as dark:
         client.get(url)
     with override_switch("user_routing", active=True):
+        client.get(url + "?utm_source=update&routed=1")
         with CaptureQueriesContext(connection) as loop_broken:
             client.get(url + "?utm_source=update&routed=1")
     assert len(loop_broken.captured_queries) == len(dark.captured_queries)
