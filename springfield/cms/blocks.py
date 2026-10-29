@@ -3188,6 +3188,7 @@ def SectionBlock(allow_uitour=False, require_heading=True, *args, **kwargs):
                     "media_content",
                     MediaContentBlock(allow_uitour=allow_uitour),
                 ),
+                ("form_content", FormContentBlock()),
                 ("cards_list", CardsListBlock(allow_uitour=allow_uitour)),
                 ("step_cards", StepCardListBlock(allow_uitour=allow_uitour)),
                 ("article_cards_list", ArticleCardsListBlock()),
@@ -4242,6 +4243,15 @@ class ContactFormBlock(blocks.StructBlock):
             return "The selected contact page has no public URL."
         return None
 
+    def get_shown_contact_page(self, value):
+        """The chosen contact page in the active locale, or None when its form may not be shown."""
+        contact_page = value.get("contact_page")
+        if contact_page:
+            contact_page = contact_page.localized
+            if not self.contact_page_is_invalid(contact_page):
+                return contact_page
+        return None
+
     def clean(self, value):
         cleaned = super().clean(value)
         contact_page = cleaned["contact_page"]
@@ -4255,12 +4265,8 @@ class ContactFormBlock(blocks.StructBlock):
         # Set on every render so a `form_url` from the parent context never leaks in.
         context["form_url"] = None
         request = context.get("request")
-        contact_page = value.get("contact_page")
+        contact_page = self.get_shown_contact_page(value)
         if not (request and contact_page):
-            return context
-
-        contact_page = contact_page.localized
-        if self.contact_page_is_invalid(contact_page):
             return context
 
         request.needs_htmx = True
@@ -4276,6 +4282,55 @@ class ContactFormBlock(blocks.StructBlock):
         else:
             params.pop("two_column", None)
         context["form_url"] = f"{contact_page.url}?{params.urlencode()}"
+        return context
+
+
+class FormContentBlock(blocks.StructBlock):
+    """A contact page's form beside a heading and content. On mobile the form always follows the content."""
+
+    form_before = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        label="Form Before",
+        help_text="Place the form before the text content on desktop. On mobile the form always comes after the content.",
+    )
+    show_to = ConditionalDisplayBlock(
+        label="Show To",
+        help_text="Control which users can see this content block",
+    )
+    form = ContactFormBlock()
+    heading = HeadingBlock(required=False)
+    content = blocks.StreamBlock(
+        [
+            ("tags", TagsBlock(min_num=0, max_num=3, default=[])),
+            ("rich_text", RichTextBlock(features=EXPANDED_TEXT_FEATURES, template="cms/blocks/rich_text_block_body.html")),
+            (
+                "buttons",
+                MixedButtonsBlock(
+                    button_types=get_button_types(allow_uitour=True),
+                    min_num=0,
+                    max_num=2,
+                    required=False,
+                ),
+            ),
+            ("sharing_links", SharingLinksBlock()),
+        ]
+    )
+
+    class Meta:
+        icon = "form"
+        label = "Form + Content"
+        label_format = "{heading}"
+        template = "cms/blocks/form-content.html"
+        form_layout = blocks.BlockGroup(
+            children=["form", "heading", "content"],
+            settings=["form_before", "show_to"],
+        )
+
+    def get_context(self, value, parent_context=None):
+        context = super().get_context(value, parent_context=parent_context)
+        # The block is built around its form, so it is hidden entirely when the form can't be shown.
+        context["form_is_shown"] = self.child_blocks["form"].get_shown_contact_page(value["form"]) is not None
         return context
 
 

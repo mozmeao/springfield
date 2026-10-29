@@ -65,6 +65,7 @@ from springfield.cms.blocks import (
     EnterpriseDownloadBlock,
     FeaturedImageSectionBlock,
     FieldsetAndLegendBlock,
+    FormContentBlock,
     HiddenFieldBlock,
     HomeKitBannerBlock,
     IconChoiceBlock,
@@ -1141,6 +1142,10 @@ def _get_freeform_page_blocks(allow_uitour=True, allow_kit_intro=False):
         ("sliding_carousel", SlidingCarouselBlock(group="Media")),
         ("card_gallery", CardGalleryBlock(group="Media")),
         ("media_content", MediaContentBlock(group="Media", template="cms/blocks/sections/media-content-section.html")),
+        (
+            "form_content",
+            FormContentBlock(group="Main", template="cms/blocks/sections/form-content-section.html"),
+        ),
         ("cards_list", CardsListBlock(template="cms/blocks/sections/cards-list-section.html", allow_uitour=allow_uitour, group="Main")),
         ("featured_image_section", FeaturedImageSectionBlock(allow_uitour=allow_uitour, group="Media")),
         ("mobile_store_qr_code", MobileStoreQRCodeBlock(group="Media")),

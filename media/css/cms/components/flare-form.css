@@ -119,6 +119,15 @@ fieldset.fl-field-wrap {
     padding-block-end: var(--token-spacing-md);
 }
 
+.fl-form
+    > .fl-fieldset:nth-child(
+        1 of :not([type='hidden'], .fl-notification-wrapper)
+    )
+    > .fl-legend {
+    border-block-start: 0 none;
+    margin-block-start: 0;
+}
+
 .fl-fieldset:has(.fl-fieldset-help) > .fl-legend {
     border-block-end: 0 none;
     padding-block-end: 0;
@@ -155,13 +164,20 @@ fieldset.fl-field-wrap {
     margin-block-end: 0;
 }
 
-.fl-mediacontent:has(.fl-contact-form-wrapper) {
+.fl-mediacontent:has(.fl-contact-form-wrapper),
+.fl-formcontent {
     align-items: start;
 }
 
 .fl-intro + .fl-section:has(.fl-contact-form-wrapper) {
     margin-block-start: calc(var(--token-layout-sm) * -1);
     padding-block-start: 0;
+}
+
+@media (--viewport-md-up) {
+    .fl-formcontent-form-before .fl-formcontent-form {
+        order: -1;
+    }
 }
 
 @media (--viewport-lg-up) {
@@ -172,6 +188,7 @@ fieldset.fl-field-wrap {
     .fl-form.fl-form-two-column .fl-buttons,
     .fl-form.fl-form-two-column .fl-fieldset-help,
     .fl-form.fl-form-two-column .fl-fieldset-orphan,
+    .fl-form.fl-form-two-column .fl-field-wrap:has(textarea),
     .fl-form.fl-form-two-column .fl-notification-wrapper {
         grid-column: span 2;
     }
