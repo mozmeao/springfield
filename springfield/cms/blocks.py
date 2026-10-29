@@ -1828,6 +1828,7 @@ class SharingLinksBlock(blocks.StructBlock):
     copy_label = blocks.CharBlock(default="Copy link", label="Share this button label", help_text="Label for the button that copies the link.")
     copy_success_label = blocks.CharBlock(default="Link copied!", help_text="Label shown briefly after the link is copied.")
     url = blocks.URLBlock(label="Share this URL", help_text="The link that is copied, emailed and encoded in the QR code.")
+    show_url = blocks.BooleanBlock(required=False, default=True, label="Show URL", help_text="Show the URL as a link above the buttons.")
     email_label = blocks.CharBlock(
         default="Share by email",
         help_text="Read by screen readers for the email button, which only shows an icon.",
@@ -1858,7 +1859,7 @@ class SharingLinksBlock(blocks.StructBlock):
         template = "cms/blocks/sharing-links.html"
         form_layout = blocks.BlockGroup(
             children=["copy_label", "url", "email_subject", "email_body", "qr_heading", "qr_text"],
-            settings=["copy_success_label", "email_label", "qr_label", "analytics_id"],
+            settings=["show_url", "copy_success_label", "email_label", "qr_label", "analytics_id"],
         )
 
 

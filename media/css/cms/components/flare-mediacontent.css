@@ -44,7 +44,8 @@
     aspect-ratio: 17/20;
 }
 
-.fl-mediacontent-content .fl-buttons {
+.fl-mediacontent-content .fl-buttons,
+.fl-mediacontent-content .fl-sharing-links {
     margin-block: var(--token-spacing-lg) var(--token-spacing-md);
 }
 
@@ -83,7 +84,8 @@
         padding-block-start: var(--token-spacing-lg);
     }
 
-    .fl-mediacontent-content .fl-buttons {
+    .fl-mediacontent-content .fl-buttons,
+    .fl-mediacontent-content .fl-sharing-links {
         margin-block: var(--token-spacing-xl) var(--token-spacing-lg);
     }
 
