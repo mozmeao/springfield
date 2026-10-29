@@ -2043,7 +2043,7 @@ requires-dist = [
     { name = "wagtail", specifier = "==7.4.3" },
     { name = "wagtail-link-block", specifier = "==1.2" },
     { name = "wagtail-localize", specifier = "==1.14.5" },
-    { name = "wagtail-localize-dashboard", specifier = "==0.5.0" },
+    { name = "wagtail-localize-dashboard", specifier = "==0.6.0" },
     { name = "wagtail-localize-intentional-blanks", specifier = "==0.3.0" },
     { name = "wagtail-localize-smartling", specifier = "==0.13.0" },
     { name = "wagtail-thumbnail-choice-block", specifier = "==0.3.0" },
@@ -2337,16 +2337,16 @@ wheels = [
 
 [[package]]
 name = "wagtail-localize-dashboard"
-version = "0.5.0"
+version = "0.6.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "django" },
     { name = "wagtail" },
     { name = "wagtail-localize" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/e6/db/87eebff68d3e7396c45ff10ed70e63e11e3c07c31adee2911c4ddd6595ed/wagtail_localize_dashboard-0.5.0.tar.gz", hash = "sha256:d4a2711c5317968c7eb6804cf08d5a1b8b9db7d6724dc7f41d96599d53652468", size = 57871, upload-time = "2026-04-17T20:34:29.765Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/cd/38/0042b1bab831105d4d99ea1f86325c9566554b522adbd32ae9893f129445/wagtail_localize_dashboard-0.6.0.tar.gz", hash = "sha256:febc10f3d8585189123d872564be4dac6b21e60cc0959f4ae3feeb8994d96def", size = 89263, upload-time = "2026-10-29T14:45:18.213Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/40/6c/34e648d6b9adf927ea847eebf10ed55fc22ff9990b9e1686a15701c0e52b/wagtail_localize_dashboard-0.5.0-py3-none-any.whl", hash = "sha256:de8ba823e6c5455cf804d0414751d442c4befa22a9e2bb6742d597bf91b8db9d", size = 39956, upload-time = "2026-04-17T20:34:28.044Z" },
+    { url = "https://files.pythonhosted.org/packages/bd/25/0ab319ee9183f1586e86a89c156a6bccf63e4e5606b48c46230109e2a131/wagtail_localize_dashboard-0.6.0-py3-none-any.whl", hash = "sha256:5758f7178d544fdc9c0346cdead2bb31719bd4845f977f0dac7ffd4d1de74162", size = 54618, upload-time = "2026-10-29T14:45:16.568Z" },
 ]
 
 [[package]]
