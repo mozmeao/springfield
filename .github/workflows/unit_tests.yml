@@ -60,15 +60,18 @@ jobs:
           fail_ci_if_error: false  # optional (default = false)
           verbose: true  # optional (default = false)
 
-  test-python-more:  # This is a preview `test-ci` to replace the previous `test-image` over time
-    name: Python tests (release build)
+  build-release-image:
+    # `test-python` above already runs the full suite against the devapp image. This job only
+    # proves the `release` Dockerfile target still builds (run-sync-all, then collectstatic under
+    # the prod env), so it stops short of running the tests a second time.
+    name: Release image builds
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'pull_request' || github.event_name == 'merge_group' }}  # Only run the extra release checks on PRs and Merge Queue prep for now
+    if: ${{ github.event_name == 'pull_request' || github.event_name == 'merge_group' }}  # Only on PRs and Merge Queue prep
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: "Run Python tests (on Docker) with extra release service build"
+      - name: "Build the release image (on Docker)"
         run: |
-            make clean test-ci
-        timeout-minutes: 60
+            make clean build-ci
+        timeout-minutes: 30
