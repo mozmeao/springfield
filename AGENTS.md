@@ -24,7 +24,12 @@ JavaScript follows the ESLint + Prettier ruleset with `const`/`let`; run `npm ru
 
 Sass in `media/css/` keeps the existing block–element naming pattern.
 
-If you add an inline import (i.e. an import anywhere inside a function or class) to Python code, it MUST be accompanied by a comment explaining why it is an inline import.
+Python imports live at module level. An inline import (anywhere inside a function or class) is only acceptable to break a circular import, and it MUST be accompanied by a comment saying so.
+
+### CSS
+
+* Don't comment CSS. Selectors and class names are enough for a developer to find the elements and observe the resulting behavior; comment only a rule whose effect would genuinely surprise a reader (a browser quirk, an override that looks removable).
+
 
 ## Writing Code for the Next Reader
 
@@ -38,9 +43,29 @@ Code here is read far more often than it is written. Optimise every change for t
 
 **Comments and docstrings must stand on their own.** Never reference anything outside the code: spec or plan documents, requirement labels (`R5`), ticket IDs, "the design says…". Those go stale the moment the document moves and mean nothing to someone reading only this file.
 
+**Don't fragment linear logic into many small helpers.** A reader should be able to follow the logic from the code entity that orchestrates it. Functions should have simple and explicit contracts, perform specialized actions and return meaningful objects. By following the main entry point, the reader should be able to glace the key actions involved in the logic by reading the fuctions that get called and the objects exchanged by them.
+
 **Never describe code that no longer exists.** After a refactor, re-read the docstrings and comments you touched and strip references to the previous shape of the code. Prefer deleting an obsolete comment, branch or test over leaving it beside its replacement.
 
 **The MPL license header stands alone.** Close the license comment, leave a blank line, then open a second comment block for the file's own documentation. Applies to every file type carrying the header — Jinja `{# #}`, Python `#`, CSS/JS `/* */`. Tooling matches the header verbatim, so it must be identical across files.
+
+## Templates
+
+Templates are Jinja2 with the `includecontents` component syntax (`<include:component-name>`).
+
+* Pass conditional values to `<include:component>` attributes as a pure expression, never `{% if %}` inside the attribute string. The latter is wrapped in `_EscapableValue`, which is always truthy even when it renders empty, so `{% if attr %}` in the component silently breaks.
+
+  ```jinja
+  {# Wrong #}
+  prev_url="{% if has_previous() %}?page={{ previous_page_number() }}{% endif %}"
+  {# Correct #}
+  prev_url="{{ '?page=' ~ previous_page_number() if has_previous() else '' }}"
+  ```
+
+* A component without a `{# props #}` block inherits the full parent context; declaring props isolates it.
+* When a template iterates over child blocks, render each through the block's own template rather than re-implementing its markup.
+* A new block gets its own component template, even when it shares classes with an existing one.
+* Don't hardcode user-facing text (brand names, `aria-label` values) in templates; take it from the content.
 
 ## Testing Guidelines
 
@@ -49,15 +74,34 @@ Use markers such as `cdn`, `smoke`, or `skip_if_firefox` to scope runs (e.g., `p
 
 Pass `--reuse-db` on every local `pytest` run — creating the test DB replays slow Wagtail page-revision data migrations and costs ~20-25s per run.
 
+**Write the failing test first** for every feature and bug fix, then the code that makes it pass.
+
 **Tests describe the code as it is now.** Assert what the code does; never assert that removed behaviour is absent ("the count badge is no longer rendered", "field X is gone"). A negative assertion about history passes forever while documenting nothing, and the next reader has no context for what was removed. When a change makes a test describe behaviour that no longer exists, rewrite it to the new behaviour or delete it.
 
 **Each test builds only the data it needs.** Write a small pytest fixture with the minimal objects under test. The shared page fixtures in `springfield/cms/fixtures/` are reserved for tests that render a full page and assert on the resulting HTML — a test of a model helper, a validation rule or a block value should not pull in topics, tags, images and every block type.
 
 **Keep assertions where they are rendered.** All content checks for one rendered element (href, text, classes, data attributes, children) belong inside the single test that renders it, not behind `_get_element(soup)` helpers. Separate test functions are for orthogonal concerns. Where the same component is asserted across many tests, use and extend the shared module-level `assert_*` helpers (see `springfield/cms/tests/test_blocks.py`) rather than adding private per-file ones.
 
+**Assertions are explicit.** Expected values come from the fixture data, never hardcoded content text (headings, labels, URLs); only strings the code itself generates (CSS classes, analytics-ID suffixes) are written literally. Don't rebuild expected values with the same logic as the code under test. Call `assert_*` helpers with keyword arguments.
+
+**Extend before adding.** Prefer adding a case to an existing fixture and updating its tests over creating new fixtures and test functions for the same component.
+
+### Page fixtures
+
+CMS page fixtures in `springfield/cms/fixtures/` must stay translatable:
+
+* Fetch or create pages with `get_or_create_page()` from `base_fixtures.py`.
+* Wrap block data reused within a page in `with_fresh_ids()`. Duplicate block IDs collapse wagtail-localize segment paths and break translation.
+* Keep fixture dicts schema-complete: use `""` for optional fields rather than omitting them or using `None`, which wagtail-localize can't extract.
+* Add every new page fixture to `PAGE_FIXTURES` in `springfield/base/fixtures/registry.py` so `test_fixture_page_translation.py` covers it.
+
 ## Workflow guidelines
 
-When working on a feature or fix, work on a dedicated branch whose name is prefixed with the relevant issue number (or nothing) and then is a kebab-cased short term for the branch. Ask for the issue ID and a short summary, turning "12345" and "Amend CSS shadows for nav" to "12345--amend-css-shadows-for-nav". Use the Issue ID to generate a URL for it (<https://github.com/mozmeao/springfield/issues/ISSUE_ID>) and see if the descroption helps you work on the task. Always offer to run the tests after the work appears to be complete.
+When working on a feature or fix, work on a dedicated branch whose name is prefixed with the relevant issue number (or nothing) and then is a kebab-cased short term for the branch. Ask for the issue ID and a short summary, turning "12345" and "Amend CSS shadows for nav" to "12345--amend-css-shadows-for-nav". Use the Issue ID to generate a URL for it (<https://github.com/mozmeao/springfield/issues/ISSUE_ID>) and see if the description helps you work on the task.
+
+When the work comes from a Jira ticket instead, prefix the branch with the ticket ID, turning "WT-1891" and "Image tags" into "WT-1891-image-tags", and read the ticket at <https://mozilla-hub.atlassian.net/browse/TICKET_ID>.
+
+Always offer to run the tests after the work appears to be complete.
 
 ## Commit & Pull Request Guidelines
 
@@ -203,3 +247,4 @@ checks an editor could follow without reading the diff.
 ## LLM assistance
 
 * When committing code, do not list the LLM as a co-author - it is a tool, not a developer. All code committed is the responsibility of the human developer using the LLM. This is in line with <https://firefox-source-docs.mozilla.org/contributing/ai-coding.html>
+* When an agent posts replies to PR review comments on GitHub, prefix each reply with `Claude: `.
