@@ -21,6 +21,7 @@ from wagtail_localize.operations import translate_object
 
 from springfield.blog.blocks import BlogArticleBlock
 from springfield.blog.fixtures.blog_fixtures import (
+    ARTICLE_BODY,
     FEATURED_DESCRIPTIONS,
     FEATURED_TITLES,
     NUM_LIST_ARTICLES,
@@ -1540,7 +1541,7 @@ def test_blog_article_renders_text_block(single_article, rf):
 
     rich_text_section = soup.find("section", class_="fl-rich-text")
     assert rich_text_section
-    assert "Lorem ipsum" in rich_text_section.get_text()
+    assert ARTICLE_BODY in rich_text_section.get_text()
 
 
 def test_blog_article_renders_media_block(single_article, rf):

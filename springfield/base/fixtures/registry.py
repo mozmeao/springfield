@@ -9,7 +9,7 @@ pages) it creates. Used by the translate-all regression test and the
 ``load_page_fixtures`` command to avoid a duplicated call list.
 """
 
-from springfield.blog.fixtures.blog_fixtures import get_blog_index_page, get_blog_pages, get_blog_quotes_test_page, get_blog_topic_page
+from springfield.blog.fixtures.blog_fixtures import get_blog_index_page, get_blog_pages, get_blog_quotes_test_page, get_blog_topic_pages
 from springfield.cms.fixtures.article_page_fixtures import get_article_pages, get_article_theme_hub_page, get_article_theme_page
 from springfield.cms.fixtures.banner_fixtures import get_banner_test_page
 from springfield.cms.fixtures.base_fixtures import get_article_index_test_page
@@ -50,6 +50,7 @@ from springfield.cms.fixtures.freeformpage import (
 from springfield.cms.fixtures.homepage_fixtures import get_home_test_page
 from springfield.cms.fixtures.icon_cards_fixtures import get_icon_cards_test_page
 from springfield.cms.fixtures.icon_list_with_image_fixtures import get_icon_list_with_image_test_page
+from springfield.cms.fixtures.image_caption_fixtures import get_image_caption_test_page
 from springfield.cms.fixtures.intro_fixtures import get_intro_test_page
 from springfield.cms.fixtures.kit_banner_fixtures import get_kit_banner_test_page
 from springfield.cms.fixtures.kit_intro_fixtures import get_kit_intro_test_page
@@ -57,7 +58,9 @@ from springfield.cms.fixtures.line_cards_fixtures import get_line_cards_test_pag
 from springfield.cms.fixtures.media_content_fixtures import get_media_content_test_page
 from springfield.cms.fixtures.notification_fixtures import get_notification_test_page
 from springfield.cms.fixtures.resources_fixtures import get_resources_test_page
+from springfield.cms.fixtures.rich_text_fixtures import get_rich_text_test_page
 from springfield.cms.fixtures.roadmap_list_fixtures import get_roadmap_list_test_page
+from springfield.cms.fixtures.section_fixtures import get_section_test_page
 from springfield.cms.fixtures.sharing_links_fixtures import get_sharing_links_test_page
 from springfield.cms.fixtures.showcase_fixtures import get_showcase_test_page
 from springfield.cms.fixtures.sliding_carousel_fixtures import get_sliding_carousel_test_page
@@ -68,6 +71,7 @@ from springfield.cms.fixtures.thanks_page_fixtures import get_thanks_page
 from springfield.cms.fixtures.topic_list_fixtures import get_topic_list_test_page
 from springfield.cms.fixtures.two_column_cards_fixtures import get_two_column_cards_test_page
 from springfield.cms.fixtures.whats_new_page_fixtures import (
+    get_whats_new_full_test_page,
     get_whats_new_page_with_floating_qr_snippet,
     get_whats_new_page_with_qr_snippet,
     get_whatsnew_index_page,
@@ -82,9 +86,13 @@ PAGE_FIXTURES = [
     get_freeform_page_with_set_as_default_button,
     get_whats_new_page_with_floating_qr_snippet,
     get_whats_new_page_with_qr_snippet,
+    get_whats_new_full_test_page,
     get_whatsnew_index_page,
     get_intro_test_page,
     get_kit_intro_test_page,
+    get_section_test_page,
+    get_rich_text_test_page,
+    get_image_caption_test_page,
     get_card_test_page,
     get_pictogram_cards_test_page,
     get_illustration_cards_test_page,
@@ -128,7 +136,7 @@ PAGE_FIXTURES = [
     get_blog_index_page,
     get_blog_pages,
     get_blog_quotes_test_page,
-    get_blog_topic_page,
+    get_blog_topic_pages,
     get_smart_window_explainer_test_page,
     get_smart_window_test_page,
     get_banner_snippet_test_page,
