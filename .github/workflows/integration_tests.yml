@@ -130,6 +130,15 @@ jobs:
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
         with:
           node-version: 24
+          cache: npm
+          cache-dependency-path: tests/playwright/package-lock.json
+      # The browser binaries are ~500 MB per run. `playwright install --with-deps` below skips the
+      # download on a cache hit and still installs the system packages the browsers need.
+      - name: Cache Playwright browsers
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-browsers-${{ runner.os }}-${{ hashFiles('tests/playwright/package-lock.json') }}
       - name: Install dependencies
         run: cd tests/playwright && npm ci && npm run install-deps
       - name: Run Playwright tests
