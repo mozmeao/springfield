@@ -8,12 +8,13 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 {% endcomment %}
 
 {% comment %}
-Adds the draft sharing button to the translation editor.
+Adds the previous-translations bar and the draft sharing button to the translation editor.
 {% endcomment %}
 
-{% load cms_draftsharing_tags %}
+{% load cms_draftsharing_tags cms_previous_translations_tags %}
 
 {% block content %}
+    {% previous_translations_bar translation %}
     {{ block.super }}
     {% translation_draftsharing_button translation instance %}
 {% endblock %}
