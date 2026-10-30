@@ -1,7 +1,7 @@
 name: Build and push a Docker image
 
-# Queue rather than cancel: downstream jobs and the l10n workflow_run pull images
-# by SHA, and a cancelled build would leave a SHA with no image.
+# Queue rather than cancel: the l10n workflow_run pulls images by SHA, and a
+# cancelled build would leave a SHA with no image.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false
@@ -39,15 +39,16 @@ permissions:
   contents: read
 
 jobs:
-  build_and_publish_public_images:
-    name: Build and push public images
+  build_and_publish:
+    name: Build and publish images
     runs-on: ubuntu-latest
+    # Holds the GCP workload identity binding used by the asset upload and the GAR push.
+    environment: build
     if: github.repository == 'mozmeao/springfield'
-    outputs:
-      long_sha: ${{ env.LONG_SHA }}
-      deployment_env: ${{ env.DEPLOYMENT_ENV }}
-      deployment_realm: ${{ env.DEPLOYMENT_REALM }}
-      image_tag: ${{ env.TAG }}
+    permissions:
+      contents: read
+      id-token: write # GCP workload identity federation for the gsutil upload and the GAR push
+    timeout-minutes: 150
 
     steps:
       - name: Reclaim disk space
@@ -110,30 +111,34 @@ jobs:
            username: ${{ secrets.DOCKERHUB_USERNAME }}
            password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
-      - name: Build and push public images to Docker Hub
+      - name: Build public images
         run: |
-            ./bin/build-release-image.sh --push
+            ./bin/build-release-image.sh
         timeout-minutes: 90
         env:
             GIT_COMMIT: ${{ env.LONG_SHA }}
-            # A SHA checkout is detached, so tell the push script the branch name
-            # explicitly; it only pushes the :latest tag for main. Both variables are
+            # A SHA checkout is detached, so tell the build and push scripts the branch name
+            # explicitly; they only push the :latest tag for main. Both variables are
             # needed: set_git_env_vars.sh derives BRANCH_NAME only when GIT_BRANCH is unset.
             GIT_BRANCH: ${{ github.event_name == 'push' && github.ref_type == 'branch' && github.ref_name || '' }}
             BRANCH_NAME: ${{ github.event_name == 'push' && github.ref_type == 'branch' && github.ref_name || '' }}
 
+      # Push order is deliberate. The integration tests pull `springfield_test` from Docker Hub, so
+      # it goes up first. The deploy reads `springfield` from GAR, not Docker Hub, so its Docker Hub
+      # push can wait: it goes up last of all, because bin/build-release-image.sh treats
+      # `mozmeao/springfield:<sha>` existing on Docker Hub as "every image for this SHA was built"
+      # and skips the build on a re-run. Pushing it before the other images would leave a SHA that
+      # can never be re-pushed if anything later in this job failed.
+      - name: Push the test image to Docker Hub
+        run: |
+            docker/bin/push2dockerhub.sh mozmeao/springfield_test
+        env:
+            GIT_COMMIT: ${{ env.LONG_SHA }}
+            GIT_BRANCH: ${{ github.event_name == 'push' && github.ref_type == 'branch' && github.ref_name || '' }}
+            BRANCH_NAME: ${{ github.event_name == 'push' && github.ref_type == 'branch' && github.ref_name || '' }}
 
-  upload_static_assets:
-    name: Upload static assets to GCS
-    runs-on: ubuntu-latest
-    environment: build
-    needs: build_and_publish_public_images
-    permissions:
-      contents: read
-      id-token: write # GCP workload identity federation for the gsutil upload
-
-    steps:
-      - uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
+      - id: gcp_auth
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
         with:
           token_format: access_token
           service_account: artifact-writer@${{ env.GCP_PROJECT_ID }}.iam.gserviceaccount.com
@@ -143,11 +148,9 @@ jobs:
         with:
           version: 413.0.0
 
-      - name: Generate hashes and rsync to gs://
-        env:
-          LONG_SHA: ${{ needs.build_and_publish_public_images.outputs.long_sha }}
-          DEPLOYMENT_REALM: ${{ needs.build_and_publish_public_images.outputs.deployment_realm }}
-          DEPLOYMENT_ENV: ${{ needs.build_and_publish_public_images.outputs.deployment_env }}
+      - id: sync-static-assets
+        name: Generate hashes and rsync to gs://
+        timeout-minutes: 30
         run: |-
             TMP_DIR=static-upload
             TMP_DIR_HASHED=static-upload-hashed
@@ -173,23 +176,6 @@ jobs:
             docker kill assets-tmp
             docker rm assets-tmp
 
-
-  push_image_to_gar:
-    name: Push springfield image to GAR
-    needs: [build_and_publish_public_images, upload_static_assets]
-    environment: build
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write # GCP workload identity federation for the GAR push
-
-    steps:
-      - id: gcp_auth
-        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
-        with:
-            token_format: access_token
-            service_account: artifact-writer@${{ env.GCP_PROJECT_ID }}.iam.gserviceaccount.com
-            workload_identity_provider: ${{ vars.GCPV2_GITHUB_WORKLOAD_IDENTITY_PROVIDER }}
-
       - uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
         name: Docker login to GAR
         with:
@@ -197,11 +183,28 @@ jobs:
            username: oauth2accesstoken
            password: ${{ steps.gcp_auth.outputs.access_token }}
 
+      # The hashed assets must be in the bucket before the image that references them reaches GAR,
+      # because the GAR push is what triggers the deploy. A deploy that gets ahead of the sync
+      # serves 404s for its assets, and the CDN caches those 404s for a very long time. A failed
+      # step already stops the job; the `if` states the dependency so a later reordering cannot
+      # silently break it.
       - name: Add deployment tag to existing image and push to GAR
+        if: steps.sync-static-assets.outcome == 'success'
+        timeout-minutes: 15
         env:
-          LONG_SHA: ${{ needs.build_and_publish_public_images.outputs.long_sha }}
-          IMAGE_TAG: ${{ needs.build_and_publish_public_images.outputs.image_tag }}
+          IMAGE_TAG: ${{ env.TAG }}
         run: |-
-             docker pull $ORG/$IMAGE:$LONG_SHA
              docker tag $ORG/$IMAGE:$LONG_SHA $GAR_LOCATION-docker.pkg.dev/$GCP_PROJECT_ID/$GAR_REPOSITORY/$IMAGE:$IMAGE_TAG
              docker push $GAR_LOCATION-docker.pkg.dev/$GCP_PROJECT_ID/$GAR_REPOSITORY/$IMAGE:$IMAGE_TAG
+
+      # `springfield` last: see the note above the test image push.
+      - name: Push the remaining images to Docker Hub
+        run: |
+            docker/bin/push2dockerhub.sh mozmeao/springfield_assets
+            docker/bin/push2dockerhub.sh mozmeao/springfield_code
+            docker/bin/push2dockerhub.sh mozmeao/springfield_build
+            docker/bin/push2dockerhub.sh mozmeao/springfield
+        env:
+            GIT_COMMIT: ${{ env.LONG_SHA }}
+            GIT_BRANCH: ${{ github.event_name == 'push' && github.ref_type == 'branch' && github.ref_name || '' }}
+            BRANCH_NAME: ${{ github.event_name == 'push' && github.ref_type == 'branch' && github.ref_name || '' }}
