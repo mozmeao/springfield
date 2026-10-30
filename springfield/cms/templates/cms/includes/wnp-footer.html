@@ -63,17 +63,19 @@
                         </li>
                         <li>
                             <a
-                                class="fl-wnp-footer-link"
+                                class="fl-wnp-footer-link fl-wnp-footer-link-has-icon"
                                 href="https://www.mozilla.org/privacy/websites/"
-                                >{{ ftl('footer-privacy-notice') }}</a
-                            >
+                                >{{ ftl('footer-privacy-notice') }}
+                                {{ external_link_icon() }}
+                            </a>
                         </li>
                         <li>
                             <a
-                                class="fl-wnp-footer-link"
+                                class="fl-wnp-footer-link fl-wnp-footer-link-has-icon"
                                 href="https://www.mozilla.org/about/legal/terms/firefox/"
-                                >{{ ftl('footer-terms-of-use') }}</a
-                            >
+                                >{{ ftl('footer-terms-of-use') }}
+                                {{ external_link_icon() }}
+                            </a>
                         </li>
                         <li>
                             <a
@@ -150,7 +152,14 @@
         <div class="fl-wnp-footer-bottom">
             <div class="fl-wnp-footer-mozilla">
                 <h2 class="fl-wnp-footer-title fl-heading-md">
-                    <a href="https://www.mozilla.org/{{ params }}" data-link-position="footer" data-link-text="Powered by Mozilla">{{ ftl('footer-powdered-by') }}</a>
+                    <a
+                        class="fl-wnp-footer-link-has-icon"
+                        href="https://www.mozilla.org/{{ params }}"
+                        data-link-position="footer"
+                        data-link-text="Powered by Mozilla"
+                        >{{ ftl('footer-powdered-by') }}
+                        {{ external_link_icon() }}
+                    </a>
                 </h2>
                 <p class="fl-wnp-footer-subtitle">
                     {{ ftl('footer-putting-people') }}
