@@ -196,9 +196,10 @@ def backfill_cms_alt_text(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0164_navigationsnippet_logo_alt"),
+        ("cms", "0166_navigationsnippet_logo_alt"),
     ]
 
     operations = [
-        migrations.RunPython(backfill_cms_alt_text, migrations.RunPython.noop),
+        # Disabled: this has already run against every database with content to fill.
+        # migrations.RunPython(backfill_cms_alt_text, migrations.RunPython.noop),
     ]
