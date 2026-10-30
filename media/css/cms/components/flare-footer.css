@@ -452,11 +452,6 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     margin-block-end: 0;
 }
 
-/* inline so the link stays centered with the rest of the text on small screens */
-.fl-wnp-footer-title .fl-wnp-footer-link-has-icon {
-    display: inline-flex;
-}
-
 .fl-wnp-footer-subtitle {
     font-size: var(--fl-theme-font-size-body-xs);
     margin-block-end: 0;
