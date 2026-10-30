@@ -34,7 +34,7 @@ def _get_floating_qr_aside(soup):
     return soup.find("aside", class_="fl-qr-code-floating-snippet")
 
 
-def assert_floating_qr_snippet_rendered(soup, open=True, svg=True):
+def assert_floating_qr_snippet_rendered(soup, open=True, generated=True):
     aside = _get_floating_qr_aside(soup)
     assert aside, "Floating QR code snippet <aside> should be rendered"
     assert "js-qr-code-floating-snippet" in aside.get("class", []), "Floating QR code snippet JS class should be applied"
@@ -59,12 +59,13 @@ def assert_floating_qr_snippet_rendered(soup, open=True, svg=True):
         assert icon, "Add icon should show when snippet is closed"
         assert not button.find("span", class_="fl-icon-subtract"), "Subtract icon should not show when snippet is closed"
     assert icon.get("aria-hidden") == "true", "Decorative toggle icon should be aria-hidden"
-    if svg:
-        assert aside.find("svg"), "SVG should render when source is a URL"
-        assert not aside.find("img"), "img tag should not render when source is a URL"
+    img = aside.find("img")
+    assert img, "QR code img should render"
+    is_data_uri = img["src"].startswith("data:image/png;base64,")
+    if generated:
+        assert is_data_uri, "A URL source should render a generated PNG data URI"
     else:
-        assert aside.find("img"), "img tag should render when source is an image"
-        assert not aside.find("svg"), "SVG should not render when source is an image"
+        assert not is_data_uri, "An image source should render the uploaded image file"
 
 
 def _serve_page(page, rf):
@@ -148,14 +149,15 @@ def test_resolve_qr_source_floating_qr_image_takes_precedence_over_snippet_image
     assert result["value"] == "https://cdn.example.com/override.png"
 
 
-def test_resolve_qr_source_snippet_image_beats_page_floating_qr_url(minimal_site):
-    """Image always wins over URL regardless of source — snippet image beats page floating_qr_url."""
+def test_resolve_qr_source_page_floating_qr_url_beats_snippet_image(minimal_site):
+    """A page URL override replaces the snippet's source, even when the snippet has an image."""
     image, _, _, _ = get_placeholder_images()
     snippet = QRCodeFloatingSnippet(url="")
     snippet.image = image
     page = _make_page(floating_qr_url="https://override.example.com")
     result = snippet.resolve_qr_source(page)
-    assert result["type"] == "image"
+    assert result["type"] == "qr"
+    assert result["value"] == "https://override.example.com"
 
 
 def test_resolve_qr_source_page_floating_qr_image_beats_snippet_url():
@@ -398,25 +400,25 @@ def test_floating_qr_snippet_does_not_render_when_flag_off(get_page_fn, minimal_
 
 
 @pytest.mark.parametrize("get_page_fn", PAGES_WITH_FLOATING_QR)
-def test_floating_snippet_renders_svg_for_url_source(get_page_fn, minimal_site, rf):
-    """Default fixture snippet has a URL, so an SVG QR code should be rendered."""
+def test_floating_snippet_renders_generated_qr_for_url_source(get_page_fn, minimal_site, rf):
+    """Default fixture snippet has a URL, so a generated PNG QR code should be rendered."""
     page = get_page_fn()
     page.show_floating_qr_code_snippet = True
 
     soup = BeautifulSoup(_serve_page(page, rf).content, "html.parser")
-    assert_floating_qr_snippet_rendered(soup, svg=True)
+    assert_floating_qr_snippet_rendered(soup, generated=True)
 
 
 @pytest.mark.parametrize("get_page_fn", PAGES_WITH_FLOATING_QR)
 def test_floating_snippet_renders_img_for_image_override(get_page_fn, minimal_site, rf):
-    """Setting page.floating_qr_image causes an <img> to render instead of an SVG."""
+    """Setting page.floating_qr_image renders the uploaded image instead of a generated QR code."""
     image, _, _, _ = get_placeholder_images()
     page = get_page_fn()
     page.show_floating_qr_code_snippet = True
     page.floating_qr_image = image
 
     soup = BeautifulSoup(_serve_page(page, rf).content, "html.parser")
-    assert_floating_qr_snippet_rendered(soup, svg=False)
+    assert_floating_qr_snippet_rendered(soup, generated=False)
 
 
 @pytest.mark.parametrize("get_page_fn", PAGES_WITH_FLOATING_QR)
