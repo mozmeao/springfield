@@ -32,6 +32,10 @@
         --two-column-light-light-first-card-bg: var(--token-color-grey-2);
         --two-column-light-light-second-card-bg: var(--token-color-grey-1);
 
+        /* form field overrides */
+        --theme-form-field-background: var(--token-color-white);
+        --theme-form-field-border-color: var(--token-color-grey-4);
+
         /* font sizes – no overrides on mobile yet.  */
     }
 
@@ -315,6 +319,21 @@
 
     .fl-intro-content .fl-buttons {
         margin: 0;
+    }
+
+    /* Restore section padding that flare-section.css removes
+       from the first section in the upper split page. */
+    .fl-freeform-page
+        .fl-split-page-upper
+        > .fl-section:first-child:has(.fl-formcontent),
+    .fl-freeform-page
+        .fl-split-page-upper
+        > :where(
+            .conditional-display:first-child,
+            .conditional-display:first-child ~ .conditional-display
+        )
+        .fl-section:first-child:has(.fl-formcontent) {
+        padding-block-start: var(--fl-section-v-padding);
     }
 
     /* this removes some black edges on the provided videos. */
