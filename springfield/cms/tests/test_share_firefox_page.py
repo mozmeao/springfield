@@ -9,6 +9,7 @@ from wagtail.models import Site
 from springfield.cms.blocks import KitIntroBlock
 from springfield.cms.fixtures.base_fixtures import get_image_media
 from springfield.cms.fixtures.button_fixtures import get_button_variants
+from springfield.cms.fixtures.snippet_fixtures import get_pre_footer_cta_snippet
 from springfield.cms.tests.factories import ShareFirefoxPageFactory
 
 pytestmark = [pytest.mark.django_db]
@@ -72,6 +73,33 @@ def test_share_firefox_page_renders_media_between_heading_and_buttons(client, sh
 
     script_sources = [script["src"] for script in soup.find_all("script", src=True)]
     assert not any("referral-attribution" in source for source in script_sources)
+
+
+@pytest.mark.parametrize("show_pre_footer", [True, False])
+def test_share_firefox_page_pre_footer_toggle(client, share_page, show_pre_footer):
+    get_pre_footer_cta_snippet()
+    share_page.show_pre_footer = show_pre_footer
+    share_page.save_revision().publish()
+
+    response = client.get("/en-US/share/")
+
+    assert response.status_code == 200
+    soup = BeautifulSoup(response.content, "html.parser")
+    assert (soup.select_one(".fl-pre-footer-cta") is not None) is show_pre_footer
+
+
+@pytest.mark.parametrize("show_nav_cta", [True, False])
+def test_share_firefox_page_nav_download_button_toggle(client, share_page, show_nav_cta):
+    share_page.show_nav_cta = show_nav_cta
+    share_page.save_revision().publish()
+
+    response = client.get("/en-US/share/")
+
+    assert response.status_code == 200
+    soup = BeautifulSoup(response.content, "html.parser")
+    nav_cta = soup.select_one(".fl-header .nav-cta-wrap")
+    assert nav_cta.find(class_="download-link") is not None
+    assert ("hide-nav-download-on-desktop" in nav_cta["class"]) is not show_nav_cta
 
 
 @pytest.mark.parametrize(("allow_media_above_buttons", "has_field"), [(True, True), (False, False)])
