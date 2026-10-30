@@ -151,10 +151,10 @@ def test_one_card_per_entry(admin_client, drifted_page):
     get_orphan_stringtranslation(drifted_page, SOURCE_THEN, "La barre latérale")
     title_context = StringSegment.objects.get(source=drifted_page.translation.source, context__path="title").context
     StringTranslation.objects.create(
-        translation_of=String.from_value(drifted_page.translation.source.locale, StringValue("Switch to Chrome")),
+        translation_of=String.from_value(drifted_page.translation.source.locale, StringValue("Try Firefox")),
         locale=drifted_page.locale,
         context=title_context,
-        data="Passer à Chrome",
+        data="Essayez Firefox",
         translation_type=StringTranslation.TRANSLATION_TYPE_MANUAL,
     )
 
@@ -162,15 +162,17 @@ def test_one_card_per_entry(admin_client, drifted_page):
 
     assert html.count('<details class="previous-translations-entry">') == 2
     assert '<span class="previous-translations-value">La barre latérale</span>' in html
-    assert '<span class="previous-translations-value">Passer à Chrome</span>' in html
+    assert '<span class="previous-translations-value">Essayez Firefox</span>' in html
 
 
-def test_markup_in_a_translation_is_escaped(admin_client, drifted_page):
-    get_orphan_stringtranslation(drifted_page, SOURCE_THEN, 'Barre <a href="/x/">latérale</a>')
+def test_stored_html_renders_as_plain_text(admin_client, drifted_page):
+    """wagtail-localize stores strings as HTML fragments; the bar shows their text, escaped once."""
+    get_orphan_stringtranslation(drifted_page, "Get Firefox &lt;3", 'Barre <a id="a1">latérale</a> &lt;3')
 
     html = editor_html(admin_client, drifted_page)
 
-    assert "&lt;a href=&quot;/x/&quot;&gt;" in html
+    assertInHTML('<span class="previous-translations-value">Barre latérale &lt;3</span>', html)
+    assertInHTML("<dd>Get Firefox &lt;3</dd>", html)
 
 
 def test_setting_disables_the_bar(admin_client, drifted_page, settings):
@@ -213,10 +215,10 @@ def test_heading_counts_the_segments_in_the_plural(admin_client, drifted_page):
     get_orphan_stringtranslation(drifted_page, SOURCE_THEN, "La barre latérale")
     title_context = StringSegment.objects.get(source=drifted_page.translation.source, context__path="title").context
     StringTranslation.objects.create(
-        translation_of=String.from_value(drifted_page.translation.source.locale, StringValue("Switch to Chrome")),
+        translation_of=String.from_value(drifted_page.translation.source.locale, StringValue("Try Firefox")),
         locale=drifted_page.locale,
         context=title_context,
-        data="Passer à Chrome",
+        data="Essayez Firefox",
         translation_type=StringTranslation.TRANSLATION_TYPE_MANUAL,
     )
 

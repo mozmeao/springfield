@@ -3,97 +3,86 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 from collections import defaultdict
+from collections.abc import Sequence
 from dataclasses import dataclass
+from operator import attrgetter
+from typing import Self
 
-from django.core.exceptions import FieldDoesNotExist, ObjectDoesNotExist
-
-from wagtail_localize.models import StringSegment, StringTranslation
+from wagtail_localize.models import StringSegment, StringTranslation, Translation
+from wagtail_localize.strings import StringValue
 
 # The package owns both stored forms of its marker and the settings that override them,
-# so we use its helper methods to find segments that have been marjed by it.
+# so we use its helper to recognise segments marked "do not translate".
 from wagtail_localize_intentional_blanks.utils import is_do_not_translate
 
 
 @dataclass(frozen=True)
 class PreviousTranslation:
-    field_path: str
+    source_then: str
     source_now: str
-    source: str
-    value: str
+    translation: str
     comment: str
     translated_by: str
 
+    @classmethod
+    def from_pair(cls, untranslated: Sequence[StringSegment], stale: StringTranslation) -> Self:
+        """
+        Build an entry, turning the HTML fragments wagtail-localize stores into plain text.
 
-def get_previous_translations(translation):
-    """
-    Return every untranslated segment of `translation` that has exactly one
-    recoverable translation at its context, in segment order.
+        Splitting a paragraph in the editor can leave one holding only a zero-width
+        joiner, so segments with no visible text are left out of `source_now`.
+        """
+        user = stale.last_translated_by
+        untranslated_texts = [StringValue(segment.string.data).render_text() for segment in untranslated]
+        return cls(
+            source_then=StringValue(stale.translation_of.data).render_text(),
+            source_now=" ".join(text for text in untranslated_texts if text.replace("‍", "").strip()),
+            translation=StringValue(stale.data).render_text(),
+            comment=stale.get_comment(),
+            translated_by=(user.get_full_name() or user.get_username()) if user else "",
+        )
 
-    A context can hold many segments (for example, each paragraph of a rich
-    text field shares one).
-    A result here is offered only where the pairing is unambiguous: one
-    untranslated segment and one translation.
-    """
-    segments = defaultdict(list)
-    for segment in StringSegment.objects.filter(source_id=translation.source_id).select_related("context", "string").order_by("order"):
-        segments[segment.context_id].append(segment)
 
-    if not segments:
-        return []
+def get_previous_translations(translation: Translation) -> list[PreviousTranslation]:
+    """Previous translations for fields whose source text changed since they were translated, in page order."""
+    segments_by_context: defaultdict[int, list[StringSegment]] = defaultdict(list)
+    for segment in StringSegment.objects.filter(source_id=translation.source_id).select_related("string").order_by("order"):
+        segments_by_context[segment.context_id].append(segment)
 
-    rows = StringTranslation.objects.filter(locale_id=translation.target_locale_id, context_id__in=list(segments)).select_related(
-        "translation_of", "last_translated_by"
-    )
+    translations_by_context: defaultdict[int, list[StringTranslation]] = defaultdict(list)
+    for string_translation in StringTranslation.objects.filter(
+        locale_id=translation.target_locale_id, context_id__in=segments_by_context
+    ).select_related("translation_of", "last_translated_by"):
+        translations_by_context[string_translation.context_id].append(string_translation)
 
-    live = defaultdict(set)
-    orphans = defaultdict(list)
-    for row in rows:
-        strings_here = {segment.string_id for segment in segments[row.context_id]}
-        if row.translation_of_id in strings_here:
-            # An errored row still counts as the segment's current translation.
-            live[row.context_id].add(row.translation_of_id)
-        elif row.data and not is_do_not_translate(row):
-            # A blank the editor chose on purpose, not a translation. We make
-            # sure to avoid showing the marker itself to the user.
-            orphans[row.context_id].append(row)
-
-    if not orphans:
-        return []
-
-    source_instance = translation.source.get_source_instance()
     entries = []
-    # segments was filled in `order`, so iterating it keeps the bar in page order.
-    for context_id, context_segments in segments.items():
-        candidates = orphans.get(context_id, [])
-        if len(candidates) != 1:
-            continue
-        untranslated = [segment for segment in context_segments if segment.string_id not in live[context_id]]
-        if len(untranslated) != 1:
-            continue
-        entries.append(_entry(untranslated[0], candidates[0], source_instance))
-
+    for context_id, segments in segments_by_context.items():
+        pair = find_stale_pair(segments, translations_by_context[context_id])
+        if pair:
+            entries.append(PreviousTranslation.from_pair(*pair))
     return entries
 
 
-def _entry(segment, previous, source_instance):
-    return PreviousTranslation(
-        field_path=_get_field_path(segment.context, source_instance),
-        source_now=segment.string.data,
-        source=previous.translation_of.data,
-        value=previous.data,
-        comment=previous.get_comment(),
-        translated_by=_get_display_name(previous.last_translated_by),
-    )
+def find_stale_pair(
+    segments: Sequence[StringSegment], string_translations: Sequence[StringTranslation]
+) -> tuple[list[StringSegment], StringTranslation] | None:
+    """
+    Pair the untranslated segments of a context with the translation left over
+    from text the source no longer has.
 
+    Rich text paragraphs share a context, and an edited paragraph cannot be told
+    apart from one added beside it, so every untranslated segment goes in the pair.
+    wagtail-localize keeps every earlier translation, so a field edited twice holds
+    two leftovers and the latest is the one to offer. In rich text several leftovers
+    cannot be told apart, so nothing is offered.
+    """
+    current_string_ids = {segment.string_id for segment in segments}
+    translated_string_ids = {row.translation_of_id for row in string_translations if row.translation_of_id in current_string_ids}
+    untranslated = [segment for segment in segments if segment.string_id not in translated_string_ids]
+    stale = [row for row in string_translations if row.translation_of_id not in current_string_ids and row.data and not is_do_not_translate(row)]
 
-def _get_display_name(user):
-    if user is None:
-        return ""
-    return user.get_full_name() or user.get_username()
-
-
-def _get_field_path(context, source_instance):
-    try:
-        return context.get_field_path(source_instance)
-    except (FieldDoesNotExist, ObjectDoesNotExist, KeyError, IndexError, TypeError):
-        return context.path
+    if not untranslated or not stale:
+        return None
+    if len(segments) > 1 and len(stale) > 1:
+        return None
+    return untranslated, max(stale, key=attrgetter("updated_at"))

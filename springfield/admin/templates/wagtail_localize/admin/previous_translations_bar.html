@@ -28,15 +28,15 @@ source_locale and target_locale.
                         <summary class="previous-translations-row">
                             <span class="previous-translations-source">{{ entry.source_now }}</span>
                             <span class="previous-translations-arrow" aria-hidden="true">&rarr;</span>
-                            <span class="previous-translations-value">{{ entry.value }}</span>
+                            <span class="previous-translations-value">{{ entry.translation }}</span>
                         </summary>
                         <dl class="previous-translations-detail">
                             <dt>{% blocktranslate with locale=source_locale %}Source then ({{ locale }}){% endblocktranslate %}</dt>
-                            <dd>{{ entry.source }}</dd>
+                            <dd>{{ entry.source_then }}</dd>
                             <dt>{% blocktranslate with locale=source_locale %}Source now ({{ locale }}){% endblocktranslate %}</dt>
                             <dd>{{ entry.source_now }}</dd>
                             <dt>{% blocktranslate with locale=target_locale %}Previous translation ({{ locale }}){% endblocktranslate %}</dt>
-                            <dd class="previous-translations-previous">{{ entry.value }}</dd>
+                            <dd class="previous-translations-previous">{{ entry.translation }}</dd>
                         </dl>
                         <p class="previous-translations-meta">
                             {{ entry.comment|default:"" }}{% if entry.translated_by %} &middot; {{ entry.translated_by }}{% endif %}

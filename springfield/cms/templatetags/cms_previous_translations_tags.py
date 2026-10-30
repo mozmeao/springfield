@@ -5,13 +5,15 @@
 from django import template
 from django.conf import settings
 
+from wagtail_localize.models import Translation
+
 from springfield.cms.previous_translations import get_previous_translations
 
 register = template.Library()
 
 
 @register.inclusion_tag("wagtail_localize/admin/previous_translations_bar.html")
-def previous_translations_bar(translation):
+def previous_translations_bar(translation: Translation) -> dict:
     """The bar of recoverable translations shown above the translation editor."""
     if not settings.CMS_PREVIOUS_TRANSLATIONS_ENABLED:
         return {"entries": []}

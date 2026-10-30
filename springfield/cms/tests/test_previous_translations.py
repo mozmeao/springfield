@@ -2,6 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from datetime import timedelta
+
 from django.db import connection
 from django.test.utils import CaptureQueriesContext
 
@@ -74,15 +76,14 @@ def three_paragraph_page(translated_page):
 
 def test_drifted_segment_offers_its_previous_translation(translated_page):
     context = context_of_only_title(translated_page)
-    orphan_stringtranslation(translated_page, context, "Switch to Chrome", "Passer à Chrome")
+    orphan_stringtranslation(translated_page, context, "Try Firefox", "Essayez Firefox")
 
     entries = get_previous_translations(translated_page.translation)
 
     assert len(entries) == 1
-    assert entries[0].source == "Switch to Chrome"
+    assert entries[0].source_then == "Try Firefox"
     assert entries[0].source_now == "Switch to Firefox"
-    assert entries[0].value == "Passer à Chrome"
-    assert entries[0].field_path == "title"
+    assert entries[0].translation == "Essayez Firefox"
 
 
 def test_untouched_translation_offers_nothing(translated_page):
@@ -94,23 +95,40 @@ def test_current_translation_suppresses_an_orphan_stringtranslation_at_its_conte
     context = context_of_only_title(translated_page)
     segment = StringSegment.objects.get(source=translated_page.translation.source, context=context)
     translate_segment(translated_page, segment, "Passer à Firefox")
-    orphan_stringtranslation(translated_page, context, "Switch to Chrome", "Passer à Chrome")
+    orphan_stringtranslation(translated_page, context, "Try Firefox", "Essayez Firefox")
 
     assert get_previous_translations(translated_page.translation) == []
 
 
-def test_two_orphan_stringtranslations_at_one_context_offer_nothing(translated_page):
-    """When there are multiple orphan translations, we can't choose one, so none are returned."""
+def test_field_edited_twice_offers_its_latest_translation(translated_page):
+    """A field edited twice keeps a translation of each earlier version; the latest one is offered."""
     context = context_of_only_title(translated_page)
-    orphan_stringtranslation(translated_page, context, "Switch to Chrome", "Passer à Chrome")
-    orphan_stringtranslation(translated_page, context, "Switch to Safari", "Passer à Safari")
+    older = orphan_stringtranslation(translated_page, context, "Try Firefox", "Essayez Firefox")
+    latest = orphan_stringtranslation(translated_page, context, "Download Firefox", "Téléchargez Firefox")
+    StringTranslation.objects.filter(pk=older.pk).update(updated_at=latest.updated_at - timedelta(days=1))
 
-    assert get_previous_translations(translated_page.translation) == []
+    entries = get_previous_translations(translated_page.translation)
+
+    assert len(entries) == 1
+    assert entries[0].source_then == latest.translation_of.data
+    assert entries[0].translation == latest.data
+
+
+def test_two_orphan_stringtranslations_at_a_rich_text_context_offer_nothing(three_paragraph_page):
+    """Rich text paragraphs share one context, so with two orphans there is no telling which paragraph each belonged to."""
+    context = content_context(three_paragraph_page)
+    segments = list(StringSegment.objects.filter(source=three_paragraph_page.translation.source, context=context).order_by("order"))
+    translate_segment(three_paragraph_page, segments[0], "Alpha FR")
+    translate_segment(three_paragraph_page, segments[2], "Gamma FR")
+    orphan_stringtranslation(three_paragraph_page, context, "Beta old", "Beta FR")
+    orphan_stringtranslation(three_paragraph_page, context, "Beta older", "Beta FR ancien")
+
+    assert get_previous_translations(three_paragraph_page.translation) == []
 
 
 def test_orphan_stringtranslation_with_empty_data_offers_nothing(translated_page):
     context = context_of_only_title(translated_page)
-    orphan_stringtranslation(translated_page, context, "Switch to Chrome", "")
+    orphan_stringtranslation(translated_page, context, "Try Firefox", "")
 
     assert get_previous_translations(translated_page.translation) == []
 
@@ -123,13 +141,13 @@ def test_orphan_stringtranslation_with_empty_data_offers_nothing(translated_page
         # "tidy" this into importing DO_NOT_TRANSLATE_MARKER — that would make the test agree
         # with the code by construction and test nothing.
         "__DO_NOT_TRANSLATE__",
-        "__DO_NOT_TRANSLATE__|backup|Switch to Chrome",
+        "__DO_NOT_TRANSLATE__|backup|Try Firefox",
     ],
     ids=["bare", "with-backup"],
 )
 def test_intentional_blank_marker_is_never_offered(translated_page, marker):
     context = context_of_only_title(translated_page)
-    orphan_stringtranslation(translated_page, context, "Switch to Chrome", marker)
+    orphan_stringtranslation(translated_page, context, "Try Firefox", marker)
 
     assert get_previous_translations(translated_page.translation) == []
 
@@ -147,12 +165,12 @@ def test_orphan_stringtranslation_in_another_locale_is_not_offered(translated_pa
 
     # Add an orphaned translation in German.
     context = context_of_only_title(translated_page)
-    string = String.from_value(translated_page.translation.source.locale, StringValue("Switch to Chrome"))
+    string = String.from_value(translated_page.translation.source.locale, StringValue("Try Firefox"))
     StringTranslation.objects.create(
         translation_of=string,
         locale=Locale.objects.create(language_code="de"),
         context=context,
-        data="Zu Chrome wechseln",
+        data="Firefox ausprobieren",
         translation_type=StringTranslation.TRANSLATION_TYPE_MANUAL,
     )
 
@@ -163,12 +181,12 @@ def test_errored_orphan_stringtranslation_is_still_offered(translated_page):
     """An errored translation is not usable as-is, but it is still the text a
     translator would otherwise retype from nothing."""
     context = context_of_only_title(translated_page)
-    orphan_stringtranslation(translated_page, context, "Switch to Chrome", 'Passer à <a href="/x/">Chrome</a>', has_error=True)
+    orphan_stringtranslation(translated_page, context, "Try Firefox", 'Essayez <a href="/x/">Firefox</a>', has_error=True)
 
     entries = get_previous_translations(translated_page.translation)
 
     assert len(entries) == 1
-    assert entries[0].value == 'Passer à <a href="/x/">Chrome</a>'
+    assert entries[0].translation == "Essayez Firefox"
 
 
 def test_errored_current_translation_suppresses_the_entry(translated_page):
@@ -185,7 +203,7 @@ def test_errored_current_translation_suppresses_the_entry(translated_page):
             "has_error": True,
         },
     )
-    orphan_stringtranslation(translated_page, context, "Switch to Chrome", "Passer à Chrome")
+    orphan_stringtranslation(translated_page, context, "Try Firefox", "Essayez Firefox")
 
     assert get_previous_translations(translated_page.translation) == []
 
@@ -203,22 +221,37 @@ def test_one_untranslated_paragraph_among_three_yields_that_paragraph(three_para
     translate_segment(three_paragraph_page, segments[2], "Gamma FR")
     orphan_stringtranslation(three_paragraph_page, context, "Beta old", "Beta FR")
 
-    entries = [entry for entry in get_previous_translations(three_paragraph_page.translation) if entry.field_path == "content"]
+    entries = get_previous_translations(three_paragraph_page.translation)
 
     assert len(entries) == 1
     assert entries[0].source_now == "Beta"
-    assert entries[0].value == "Beta FR"
+    assert entries[0].translation == "Beta FR"
 
 
-def test_two_untranslated_paragraphs_at_one_context_yield_nothing(three_paragraph_page):
+def test_untranslated_paragraphs_at_one_context_share_one_entry(three_paragraph_page):
+    """An edited paragraph next to an added one cannot be told apart, so the entry shows both."""
     context = content_context(three_paragraph_page)
     segments = list(StringSegment.objects.filter(source=three_paragraph_page.translation.source, context=context).order_by("order"))
     translate_segment(three_paragraph_page, segments[0], "Alpha FR")
     orphan_stringtranslation(three_paragraph_page, context, "Beta old", "Beta FR")
 
-    entries = [entry for entry in get_previous_translations(three_paragraph_page.translation) if entry.field_path == "content"]
+    entries = get_previous_translations(three_paragraph_page.translation)
 
-    assert entries == []
+    assert len(entries) == 1
+    assert entries[0].source_now == "Beta Gamma"
+    assert entries[0].source_then == "Beta old"
+    assert entries[0].translation == "Beta FR"
+
+
+def test_zero_width_joiner_paragraph_is_left_out_of_the_entry(translated_page):
+    """Splitting a paragraph in the editor can leave one holding only a zero-width joiner."""
+    set_rich_text(translated_page, "<p>Alpha</p><p>‍</p><p>Gamma</p>")
+    orphan_stringtranslation(translated_page, content_context(translated_page), "Alpha Gamma old", "Alpha Gamma FR")
+
+    entries = get_previous_translations(translated_page.translation)
+
+    assert len(entries) == 1
+    assert entries[0].source_now == "Alpha Gamma"
 
 
 def test_deleted_paragraph_is_paired_with_an_unrelated_new_one(three_paragraph_page):
@@ -235,26 +268,12 @@ def test_deleted_paragraph_is_paired_with_an_unrelated_new_one(three_paragraph_p
 
     set_rich_text(three_paragraph_page, "<p>Alpha</p><p>Gamma</p><p>Delta</p>")
 
-    entries = [entry for entry in get_previous_translations(three_paragraph_page.translation) if entry.field_path == "content"]
+    entries = get_previous_translations(three_paragraph_page.translation)
 
     assert len(entries) == 1
     assert entries[0].source_now == "Delta"  # the paragraph that was appended
-    assert entries[0].source == "Beta"  # the paragraph that was deleted
-    assert entries[0].value == "Beta FR"
-
-
-def test_unresolvable_field_path_falls_back_to_the_raw_path(translated_page):
-    context = context_of_only_title(translated_page)
-    orphan_stringtranslation(translated_page, context, "Switch to Chrome", "Passer à Chrome")
-    # field_path is a stored column that get_field_path only computes when empty.
-    context.field_path = ""
-    context.path = "no_such_field"
-    context.save(update_fields=["field_path", "path"])
-
-    entries = get_previous_translations(translated_page.translation)
-
-    assert len(entries) == 1
-    assert entries[0].field_path == "no_such_field"
+    assert entries[0].source_then == "Beta"  # the paragraph that was deleted
+    assert entries[0].translation == "Beta FR"
 
 
 def count_queries(translated_page):
@@ -264,7 +283,7 @@ def count_queries(translated_page):
 
 
 def test_query_count_does_not_grow_with_the_number_of_segments(three_paragraph_page):
-    orphan_stringtranslation(three_paragraph_page, context_of_only_title(three_paragraph_page), "Switch to Chrome", "Passer à Chrome")
+    orphan_stringtranslation(three_paragraph_page, context_of_only_title(three_paragraph_page), "Try Firefox", "Essayez Firefox")
     count_for_a_few_strings = count_queries(three_paragraph_page)
 
     set_rich_text(three_paragraph_page, "".join(f"<p>Para {n}</p>" for n in range(30)))
@@ -285,7 +304,7 @@ def test_query_count_does_not_grow_with_the_number_of_contexts_and_candidates(tr
     contexts = [segment.context for segment in StringSegment.objects.filter(source=source).select_related("context")]
     assert len(contexts) > 1, "this test is vacuous with a single context"
 
-    orphan_stringtranslation(translated_page, contexts[0], "Switch to Chrome", "Passer à Chrome")
+    orphan_stringtranslation(translated_page, contexts[0], "Try Firefox", "Essayez Firefox")
     one = count_queries(translated_page)
 
     for index, context in enumerate(contexts[1:], start=1):

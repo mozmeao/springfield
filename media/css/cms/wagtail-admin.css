@@ -120,7 +120,7 @@
     padding: 0;
 }
 
-/* The previous translates bar is rendered at the top of the content block,
+/* The previous translations bar is rendered at the top of the content block,
    above the editor's own header and the locale line. */
 .content:has(> .previous-translations) {
     display: flex;
