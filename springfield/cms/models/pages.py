@@ -65,6 +65,7 @@ from springfield.cms.blocks import (
     EnterpriseDownloadBlock,
     FeaturedImageSectionBlock,
     FieldsetAndLegendBlock,
+    FormContentBlock,
     HiddenFieldBlock,
     HomeKitBannerBlock,
     IconChoiceBlock,
@@ -1141,6 +1142,10 @@ def _get_freeform_page_blocks(allow_uitour=True, allow_kit_intro=False):
         ("sliding_carousel", SlidingCarouselBlock(group="Media")),
         ("card_gallery", CardGalleryBlock(group="Media")),
         ("media_content", MediaContentBlock(group="Media", template="cms/blocks/sections/media-content-section.html")),
+        (
+            "form_content",
+            FormContentBlock(group="Main", template="cms/blocks/sections/form-content-section.html"),
+        ),
         ("cards_list", CardsListBlock(template="cms/blocks/sections/cards-list-section.html", allow_uitour=allow_uitour, group="Main")),
         ("featured_image_section", FeaturedImageSectionBlock(allow_uitour=allow_uitour, group="Media")),
         ("mobile_store_qr_code", MobileStoreQRCodeBlock(group="Media")),
@@ -2649,20 +2654,17 @@ class ReferralGetFirefoxPage(AbstractSpringfieldCMSPage):
 
 
 class ShareFirefoxPage(AbstractSpringfieldCMSPage):
-    """
-    Only served in SHARE_FIREFOX_PAGE_LOCALES. The en-US page exists only as the
-    source for translation.
-    """
+    """Landing page for sharing Firefox, without referral attribution."""
 
-    # if the en-US page is published, the page will 404
-    SHARE_FIREFOX_PAGE_LOCALES = ("fr", "de")
-
-    parent_page_types = ["cms.HomePage"]
+    # StructuralPage so it can live under a folder such as /landing/.
+    parent_page_types = ["cms.HomePage", "cms.StructuralPage"]
     template = "cms/share_firefox_page.html"
 
     upper_content = StreamField(
         [
             ("intro", KitIntroBlock(allow_media_above_buttons=True)),
+            # Not "intro": that name already holds the Kit Intro in existing pages.
+            ("side_intro", IntroBlock()),
             ("showcase", ShowcaseBlock(allow_tabs=True)),
             ("cards_list", CardsListBlock(template="cms/blocks/sections/cards-list-section.html")),
             ("carousel", CarouselBlock()),
@@ -2701,15 +2703,3 @@ class ShareFirefoxPage(AbstractSpringfieldCMSPage):
 
     class Meta:
         verbose_name = "Share Firefox Page"
-
-    def get_sitemap_urls(self, request=None):
-        if self.locale.language_code not in self.SHARE_FIREFOX_PAGE_LOCALES:
-            return []
-        return super().get_sitemap_urls(request)
-
-    def serve(self, request, *args, **kwargs):
-        if self.locale.language_code not in self.SHARE_FIREFOX_PAGE_LOCALES:
-            mark_locale_fallback_exempt(request)
-            raise Http404("Share Firefox page is not served in this locale")
-
-        return super().serve(request, *args, **kwargs)

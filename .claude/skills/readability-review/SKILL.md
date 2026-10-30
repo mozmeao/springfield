@@ -70,8 +70,10 @@ in one line, and the replacement.
 
 ### 3. Python
 
-- [ ] Every import at module level. An import inside a function or class needs a comment
-      saying why it has to be inline.
+- [ ] Every import at module level. An import inside a function or class is only for
+      breaking a circular import, with a comment saying so.
+- [ ] Linear logic isn't fragmented into many small helpers. A helper earns extraction by
+      having a real name and more than one caller.
 - [ ] Nothing left behind: an obsolete branch, flag or helper that the change superseded
       is deleted, not parked next to its replacement.
 
@@ -94,7 +96,13 @@ in one line, and the replacement.
       prev_url="{{ '?page=' ~ previous_page_number() if has_previous() else '' }}"
       ```
 
-### 5. Tests
+
+### 5. CSS
+
+- [ ] No comments, unless the rule's effect would genuinely surprise a reader (a browser
+      quirk, an override that looks removable). The MPL header stays.
+
+### 6. Tests
 
 - [ ] Every assertion describes current behaviour. No assertion that removed behaviour is
       absent ("the badge is no longer rendered", "field X is gone") — it passes forever
@@ -106,6 +114,7 @@ in one line, and the replacement.
       element live inside the single test that renders it; separate test functions are for
       orthogonal concerns. Shared component assertions use and extend the module-level
       `assert_*` helpers (`springfield/cms/tests/test_blocks.py`).
+- [ ] Prefer keyword arguments over positional when calling methods with multiple arguments.
 
 ## Reporting
 

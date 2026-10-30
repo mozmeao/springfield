@@ -68,6 +68,58 @@
         margin-inline: auto;
     }
 
+    /* Hero: the side-by-side Intro (on its own or inside a "Show To"
+       conditional) sits on its own panel with a purple glow rising from the
+       bottom edge and rounded bottom corners. The Kit Intro is wrapped in a
+       section, so it isn't matched. The panel lightens towards its bottom
+       edge across its full width, so the corners show against the dark band
+       around it.
+
+       The Intro spans the band, so the panel matches the band's width
+       exactly, and padding keeps the content at the usual wide-banner width. */
+    .fl-share-firefox-page {
+        --share-hero-padding-block: var(--token-layout-md);
+    }
+
+    .fl-share-firefox-page
+        :where(
+            .fl-split-page-upper > .fl-intro,
+            .fl-split-page-upper > .conditional-display > .fl-intro
+        ) {
+        margin-block-end: var(--token-spacing-lg);
+        max-inline-size: none;
+        padding-block: var(--share-hero-padding-block);
+        padding-inline: max(
+            var(--fl-section-h-padding),
+            calc((100% - var(--token-width-desktop-wide-banner)) / 2)
+        );
+
+        &.is-slim {
+            --share-hero-padding-block: var(--token-layout-sm);
+        }
+
+        &::before {
+            background:
+                radial-gradient(
+                        50% 75% at 50% 115%,
+                        var(--token-color-link-purple) 0%,
+                        transparent 100%
+                    )
+                    bottom center / min(1600px, 100%) 100% no-repeat,
+                linear-gradient(
+                    180deg,
+                    var(--token-color-dark-purple) 30%,
+                    var(--token-color-purple) 100%
+                );
+            border-end-end-radius: var(--fl-theme-main-border-radius);
+            border-end-start-radius: var(--fl-theme-main-border-radius);
+            content: '';
+            inset: 0;
+            position: absolute;
+            z-index: -1;
+        }
+    }
+
     /* Lower band */
     .fl-share-firefox-page .fl-split-page-lower .fl-section:first-of-type {
         padding-block-start: 0;
@@ -130,6 +182,10 @@
     }
 
     @media (--viewport-lg-up) {
+        .fl-share-firefox-page {
+            --share-hero-padding-block: var(--token-layout-lg);
+        }
+
         .fl-share-firefox-page .fl-split-page-upper .fl-showcase {
             max-inline-size: 1106px;
         }

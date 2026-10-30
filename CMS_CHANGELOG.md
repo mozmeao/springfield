@@ -1,3 +1,7 @@
+## 2026-10-29
+
+- The Sharing Links block has a "Show URL" checkbox in its settings. It's on by default, so existing blocks keep showing the URL above the buttons; turn it off to show only the buttons.
+
 ## 2026-10-26
 
 - The Sharing Links block can be added to a Banner's content.

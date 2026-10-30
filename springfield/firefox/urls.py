@@ -136,12 +136,6 @@ urlpatterns = (
         prefer_cms(views.landing_get_page, fallback_ftl_files=["firefox/download/desktop", "firefox/download/home"]),
         name="landing.get",
     ),
-    # Issue 487 - Win10 End of Service
-    page(
-        "landing/win-new-features/",
-        "firefox/landing/win10-eos.html",
-        active_locales=["en-US", "en-GB", "en-CA", "fr", "de"],
-    ),
     # Issue 606 - NA + DE Windows Defense/Josef Landing Page
     page(
         "landing/windows/",

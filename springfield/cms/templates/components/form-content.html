@@ -1,0 +1,26 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{# The form follows the content in the markup, so it always comes after it on mobile. `form_before` moves it first on desktop. #}
+
+{# props form_before="" #}
+
+<div
+  class="
+    fl-mediacontent
+    fl-mediacontent-feature
+    fl-formcontent
+    {% if form_before %}fl-formcontent-form-before{% endif %}
+  "
+>
+  <div class="fl-mediacontent-content">
+    {{ contents.heading }}
+    {{ contents.content }}
+  </div>
+  <div class="fl-formcontent-form">
+    {{ contents.form }}
+  </div>
+</div>
