@@ -763,7 +763,8 @@ def get_button_blocks() -> list[dict]:
                         "type": "rich_text",
                         "id": "uitour01-0000-0000-0000-000000000001",
                         "value": '<p data-block-key="uitour01t">Calls <code>Mozilla.UITour.showNewTab()</code> to open a new browser tab in Firefox, '
-                        "or <code>Mozilla.UITour.showHome('customize')</code> to open a new tab with the customization panel. "
+                        "<code>Mozilla.UITour.showHome('customize')</code> to open a new tab with the customization panel, "
+                        "or <code>Mozilla.UITour.showNewTab('customize-widgets')</code> to open a new tab with the widgets panel. "
                         "Only works in Firefox Desktop — the buttons are hidden on other browsers.</p>",
                     },
                     {
@@ -799,6 +800,21 @@ def get_button_blocks() -> list[dict]:
                                     "custom_label": "Open New Tab (Customize Panel)",
                                 },
                                 "id": "uitour01-0000-0000-0000-000000000011",
+                            },
+                            {
+                                "type": "uitour_button",
+                                "value": {
+                                    "settings": {
+                                        "theme": "secondary",
+                                        "icon": "open-tabs",
+                                        "icon_position": "right",
+                                        "analytics_id": "uitour01-0000-0000-0000-000000000012",
+                                    },
+                                    "button_type": "open_new_tab_customize_widgets",
+                                    "pretranslated_label": None,
+                                    "custom_label": "Open New Tab (Widgets Panel)",
+                                },
+                                "id": "uitour01-0000-0000-0000-000000000012",
                             },
                         ],
                     },

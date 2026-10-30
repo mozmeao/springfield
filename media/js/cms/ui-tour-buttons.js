@@ -118,6 +118,41 @@ function init() {
             }
         });
 
+        // Find any buttons that should open about:newtab with the widgets
+        // customization panel (about:newtab#customize-widgets).
+        const openNewTabWidgetsButtons = document.querySelectorAll(
+            '.ui-tour-open-new-tab-customize-widgets'
+        );
+
+        if (openNewTabWidgetsButtons.length) {
+            Mozilla.UITour.getConfiguration('appinfo', (data) => {
+                // The widgets panel (about:newtab#customize-widgets) ships in Firefox 160.
+                if (data && data.version && parseFloat(data.version) < 160) {
+                    openNewTabWidgetsButtons.forEach((button) => {
+                        const wrapper = button.closest('.ui-tour');
+                        if (wrapper) {
+                            wrapper.classList.add('is-hidden');
+                        }
+                    });
+                    return;
+                }
+
+                openNewTabWidgetsButtons.forEach((button) => {
+                    const clickTarget =
+                        button.closest('.fl-card-expand-link') || button;
+                    clickTarget.addEventListener(
+                        'click',
+                        (e) => {
+                            e.preventDefault();
+
+                            Mozilla.UITour.showNewTab('customize-widgets');
+                        },
+                        false
+                    );
+                });
+            });
+        }
+
         // Find any buttons that should open about:preferences to any of the panes.
         const openPreferencesButtons = document.querySelectorAll(
             '[class*="ui-tour-open-about-preferences"]'
