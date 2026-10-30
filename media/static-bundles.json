@@ -137,12 +137,6 @@
     },
     {
       "files": [
-        "css/firefox/enterprise/landing.scss"
-      ],
-      "name": "firefox-enterprise"
-    },
-    {
-      "files": [
         "css/firefox/channel.scss"
       ],
       "name": "firefox_channel"
@@ -365,12 +359,6 @@
     },
     {
       "files": [
-        "css/cms/pages/flare-enterprise.css"
-      ],
-      "name": "flare-enterprise"
-    },
-    {
-      "files": [
         "css/cms/pages/flare-homepage.css"
       ],
       "name": "flare-homepage"
@@ -492,7 +480,8 @@
       "files": [
         "css/cms/themes/enterprise-home.css"
       ],
-      "name": "enterprise-home"
+      "name": "enterprise-home",
+      "_comment": "This file is referenced in the CMS directly. Only remove if no pages have body_class='enterprise-home' and you have an up-to-date database backup."
     },
     {
       "files": [
@@ -825,7 +814,7 @@
         "js/cms/pages/enterprise-home.es6.js"
       ],
       "name": "enterprise-home",
-      "_comment": "This file is referenced in the CMS directly. Only remove if no pages have extra_js='flare-enterprise-home' and you have an up-to-date database backup."
+      "_comment": "This file is referenced in the CMS directly. Only remove if no pages have extra_js='enterprise-home' and you have an up-to-date database backup."
     },
 
     {
