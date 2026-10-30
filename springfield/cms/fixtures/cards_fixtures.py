@@ -36,7 +36,7 @@ def get_pictogram_card_variants() -> list[dict]:
                     "type": "heading",
                     "value": {
                         "superheading_text": "",
-                        "heading_text": '<p data-block-key="2026sc1h">Pictogram Card 2026</p>',
+                        "heading_text": '<p data-block-key="2026sc1h">Pictogram Card</p>',
                         "subheading_text": "",
                     },
                     "id": "2026sc01-0001-0000-0000-000000000001",
@@ -48,7 +48,7 @@ def get_pictogram_card_variants() -> list[dict]:
                 },
                 {
                     "type": "content",
-                    "value": '<p data-block-key="2026sc1c">Without superheading, primary button.'
+                    "value": '<p data-block-key="2026sc1c">Filled variant, centered, with a pictogram and a primary button.'
                     " Switch to Dark Mode to see the alternative image.</p>",
                     "id": "2026sc01-0001-0000-0000-000000000003",
                 },
@@ -253,14 +253,15 @@ def get_illustration_card_variants() -> list[dict]:
                     "type": "heading",
                     "value": {
                         "superheading_text": "",
-                        "heading_text": '<p data-block-key="2026ic1h">Illustration Card 2026</p>',
+                        "heading_text": '<p data-block-key="2026ic1h">Illustration Card</p>',
                         "subheading_text": "",
                     },
                     "id": "2026ic01-0001-0000-0000-000000000003",
                 },
                 {
                     "type": "content",
-                    "value": '<p data-block-key="2026ic1c">Without eyebrow, link button. Switch to Dark Mode to see the alternative image.</p>',
+                    "value": '<p data-block-key="2026ic1c">Default variant with the image on top, a headline, and a link button.'
+                    " Switch to Dark Mode to see the alternative image.</p>",
                     "id": "2026ic01-0001-0000-0000-000000000004",
                 },
                 {
@@ -457,8 +458,9 @@ def get_step_card_variants() -> list[dict]:
                 "settings": {"expand_link": False},
                 "image": image_variants,
                 "eyebrow": "",
-                "headline": '<p data-block-key="2026st1h">Step Card 2026</p>',
-                "content": '<p data-block-key="2026st1c">Without eyebrow, primary button. Switch to Dark Mode to see the alternative image.</p>',
+                "headline": '<p data-block-key="2026st1h">Step Card</p>',
+                "content": '<p data-block-key="2026st1c">Steps are auto-numbered. Shows an image, a headline, and a link button.'
+                " Switch to Dark Mode to see the alternative image.</p>",
                 "buttons": [buttons["link"]],
             },
             "id": "2026st01-0000-0000-0000-000000000001",
@@ -470,7 +472,7 @@ def get_step_card_variants() -> list[dict]:
                 "image": image_variants,
                 "eyebrow": '<p data-block-key="2026st2e">Download</p>',
                 "headline": '<p data-block-key="2026st2h">Step Card with Eyebrow</p>',
-                "content": '<p data-block-key="2026st2c">With eyebrow and secondary button.</p>',
+                "content": '<p data-block-key="2026st2c">With an eyebrow above the headline and a link button.</p>',
                 "buttons": [buttons["link"]],
             },
             "id": "2026st01-0000-0000-0000-000000000002",
@@ -576,14 +578,14 @@ def get_outlined_card_variants() -> list[dict]:
                     "type": "heading",
                     "value": {
                         "superheading_text": "",
-                        "heading_text": '<p data-block-key="2026oc1h">Outlined Card 2026</p>',
+                        "heading_text": '<p data-block-key="2026oc1h">Outlined Card</p>',
                         "subheading_text": "",
                     },
                     "id": "2026oc01-0001-0000-0000-000000000001",
                 },
                 {
                     "type": "content",
-                    "value": '<p data-block-key="2026oc1c">Without pictogram, primary button.</p>',
+                    "value": '<p data-block-key="2026oc1c">Outline variant with a headline and a primary button, no pictogram.</p>',
                     "id": "2026oc01-0001-0000-0000-000000000002",
                 },
                 {

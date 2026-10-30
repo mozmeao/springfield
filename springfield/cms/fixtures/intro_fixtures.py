@@ -26,7 +26,7 @@ def get_intro_variants() -> list[dict]:
                 },
                 "media": [],
                 "heading": {
-                    "superheading_text": '<p data-block-key="i26s1">Firefox 2026</p>',
+                    "superheading_text": '<p data-block-key="i26s1">Vertical Layout</p>',
                     "heading_text": '<p data-block-key="i26h1">Intro without media</p>',
                     "subheading_text": "",
                 },
@@ -35,7 +35,7 @@ def get_intro_variants() -> list[dict]:
                     {
                         "type": "rich_text",
                         "id": "cc260001-0000-0000-0000-000000000002",
-                        "value": '<p data-block-key="i26b1">Media isn\'t required on the intro block.</p>',
+                        "value": '<p data-block-key="i26b1">Vertical is the default layout: content is centered and media is optional.</p>',
                     },
                     {"type": "buttons", "id": "cc260001-0000-0000-0000-000000000003", "value": [buttons["primary"]]},
                 ],
@@ -67,7 +67,7 @@ def get_intro_variants() -> list[dict]:
                     }
                 ],
                 "heading": {
-                    "superheading_text": "",
+                    "superheading_text": '<p data-block-key="i26s2">Media Right Layout</p>',
                     "heading_text": '<p data-block-key="i26h2">Intro with image (right)</p>',
                     "subheading_text": "",
                 },
@@ -76,7 +76,7 @@ def get_intro_variants() -> list[dict]:
                     {
                         "type": "rich_text",
                         "id": "cc260002-0000-0000-0000-000000000002",
-                        "value": '<p data-block-key="i26b2">Switch to Dark Mode to see the alternative image.</p>',
+                        "value": '<p data-block-key="i26b2">Media Right places the image beside the text; dark mode swaps in the alternative.</p>',
                     },
                     {
                         "type": "buttons",
@@ -112,7 +112,7 @@ def get_intro_variants() -> list[dict]:
                     }
                 ],
                 "heading": {
-                    "superheading_text": "",
+                    "superheading_text": '<p data-block-key="i26s3">Media Left + Slim</p>',
                     "heading_text": '<p data-block-key="i26h3">Intro with image (left, slim)</p>',
                     "subheading_text": "",
                 },
@@ -120,7 +120,7 @@ def get_intro_variants() -> list[dict]:
                     {
                         "type": "rich_text",
                         "id": "cc260003-0000-0000-0000-000000000001",
-                        "value": '<p data-block-key="i26b3">Media is positioned to the left in slim layout.</p>',
+                        "value": '<p data-block-key="i26b3">Media Left puts the image before the text; Slim reduces spacing for a compact intro.</p>',
                     },
                     {"type": "buttons", "id": "cc260003-0000-0000-0000-000000000002", "value": [buttons["primary"]]},
                 ],
@@ -138,7 +138,7 @@ def get_intro_variants() -> list[dict]:
                 },
                 "media": [videos["youtube"]],
                 "heading": {
-                    "superheading_text": "",
+                    "superheading_text": '<p data-block-key="i26s4">Vertical + Video</p>',
                     "heading_text": '<p data-block-key="i26h4">Intro with YouTube video</p>',
                     "subheading_text": "",
                 },
@@ -146,7 +146,7 @@ def get_intro_variants() -> list[dict]:
                     {
                         "type": "rich_text",
                         "id": "cc260004-0000-0000-0000-000000000001",
-                        "value": '<p data-block-key="i26b4">Add a YouTube video by pasting the URL in the media block.</p>',
+                        "value": '<p data-block-key="i26b4">Drop a YouTube video into the media slot by pasting its URL.</p>',
                     },
                     {"type": "buttons", "id": "cc260004-0000-0000-0000-000000000002", "value": [buttons["primary"]]},
                 ],
@@ -164,7 +164,7 @@ def get_intro_variants() -> list[dict]:
                 },
                 "media": [videos["animation"]],
                 "heading": {
-                    "superheading_text": "",
+                    "superheading_text": '<p data-block-key="i26s5">Media Right + Animation</p>',
                     "heading_text": '<p data-block-key="i26h5">Intro with animation</p>',
                     "subheading_text": "",
                 },
@@ -172,7 +172,7 @@ def get_intro_variants() -> list[dict]:
                     {
                         "type": "rich_text",
                         "id": "cc260005-0000-0000-0000-000000000001",
-                        "value": '<p data-block-key="i26b5">Use an animation instead of a static image.</p>',
+                        "value": '<p data-block-key="i26b5">Use a looping animation in the media slot instead of a static image.</p>',
                     },
                     {"type": "buttons", "id": "cc260005-0000-0000-0000-000000000002", "value": [buttons["primary"]]},
                 ],
@@ -196,7 +196,7 @@ def get_intro_variants() -> list[dict]:
                     }
                 ],
                 "heading": {
-                    "superheading_text": "",
+                    "superheading_text": '<p data-block-key="i26s6">Media Left + QR Code</p>',
                     "heading_text": '<p data-block-key="i26h6">Intro with QR code</p>',
                     "subheading_text": "",
                 },
@@ -209,7 +209,7 @@ def get_intro_variants() -> list[dict]:
                     {
                         "type": "rich_text",
                         "id": "cc260006-0000-0000-0000-000000000002",
-                        "value": '<p data-block-key="i26b6">Scan the QR code to get started.</p>',
+                        "value": '<p data-block-key="i26b6">QR code media sits to the left; add the data and a background image.</p>',
                     },
                     {"type": "buttons", "id": "cc260006-0000-0000-0000-000000000003", "value": [buttons["secondary"]]},
                 ],

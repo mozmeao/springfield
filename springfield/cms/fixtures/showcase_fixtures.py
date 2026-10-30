@@ -20,9 +20,10 @@ def get_showcase_variants() -> list[dict]:
             "value": {
                 "settings": {"layout": "default"},
                 "headline": '<p data-block-key="2026sh1h">Showcase - Default Layout</p>',
-                "description": '<p data-block-key="2026sh1x">A short description below the headline.</p>',
+                "description": '<p data-block-key="2026sh1x">The description sits under the headline. The default layout '
+                "shows the image and caption side by side.</p>",
                 "media": image_media,
-                "caption_title": '<p data-block-key="2026sh1t">With caption title.</p>',
+                "caption_title": '<p data-block-key="2026sh1t">A caption can include a bold title</p>',
                 "caption_description": '<p data-block-key="2026sh1d">The default layout places the image on one side '
                 "with caption text beside it.</p>",
             },
@@ -46,9 +47,9 @@ def get_showcase_variants() -> list[dict]:
             "value": {
                 "settings": {"layout": "full"},
                 "headline": '<p data-block-key="2026sh3h">Showcase - Full Width Layout</p>',
-                "description": '<p data-block-key="2026sh3x">A rich text description spanning the full width.</p>',
+                "description": '<p data-block-key="2026sh3x">The full-width layout lets the description and image span the whole container.</p>',
                 "media": image_media,
-                "caption_title": '<p data-block-key="2026sh3t">Full width caption title.</p>',
+                "caption_title": '<p data-block-key="2026sh3t">The caption title spans the full width too</p>',
                 "caption_description": '<p data-block-key="2026sh3d">The full layout spans the entire width of the container.</p>',
             },
             "id": "2026sh01-0000-0000-0000-000000000003",

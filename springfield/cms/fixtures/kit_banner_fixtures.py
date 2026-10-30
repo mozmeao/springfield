@@ -21,7 +21,7 @@ def get_kit_banner_variants():
                     "anchor_id": "filled-banner-without-kit-image",
                 },
                 "heading": {
-                    "superheading_text": '<p data-block-key="zg8yr">Kit Banner</p>',
+                    "superheading_text": '<p data-block-key="zg8yr">No Kit Image theme</p>',
                     "heading_text": '<p data-block-key="xgfrq">Filled Banner without Kit Image</p>',
                     "subheading_text": "",
                 },
@@ -30,7 +30,7 @@ def get_kit_banner_variants():
                     {
                         "type": "rich_text",
                         "id": "cb260001-0000-0000-0000-000000000002",
-                        "value": '<p data-block-key="84om5">The banner uses a centered layout.</p>',
+                        "value": '<p data-block-key="84om5">With no Kit image, the banner uses a centered layout.</p>',
                     },
                     {
                         "type": "buttons",
@@ -51,7 +51,7 @@ def get_kit_banner_variants():
                     "anchor_id": "dark-purple-gradient-filled-banner-without-kit-image",
                 },
                 "heading": {
-                    "superheading_text": '<p data-block-key="zg8yr">Kit Banner</p>',
+                    "superheading_text": '<p data-block-key="zg8yr">Dark Purple Gradient background</p>',
                     "heading_text": '<p data-block-key="xgfrq">Dark Purple Gradient - Filled Banner without Kit Image</p>',
                     "subheading_text": "",
                 },
@@ -59,7 +59,8 @@ def get_kit_banner_variants():
                     {
                         "type": "rich_text",
                         "id": "cb260002-0000-0000-0000-000000000001",
-                        "value": '<p data-block-key="84om5">The banner uses a centered layout.</p>',
+                        "value": '<p data-block-key="84om5">Set background_theme to switch the gradient; '
+                        "with no Kit image the layout stays centered.</p>",
                     },
                     {
                         "type": "buttons",
@@ -79,7 +80,7 @@ def get_kit_banner_variants():
                     "anchor_id": "filled-banner-small-curious-kit",
                 },
                 "heading": {
-                    "superheading_text": '<p data-block-key="zg8yr">Kit Banner</p>',
+                    "superheading_text": '<p data-block-key="zg8yr">Small Curious Kit</p>',
                     "heading_text": '<p data-block-key="xgfrq">Filled Banner with Small Curious Kit</p>',
                     "subheading_text": "",
                 },
@@ -108,7 +109,7 @@ def get_kit_banner_variants():
                     "anchor_id": "filled-banner-large-curious-kit",
                 },
                 "heading": {
-                    "superheading_text": '<p data-block-key="zg8yr">Kit Banner</p>',
+                    "superheading_text": '<p data-block-key="zg8yr">Large Curious Kit</p>',
                     "heading_text": '<p data-block-key="xgfrq">Filled Banner with Large Curious Kit</p>',
                     "subheading_text": "",
                 },
@@ -142,7 +143,7 @@ def get_kit_banner_variants():
                     "anchor_id": "filled-banner-sitting-kit",
                 },
                 "heading": {
-                    "superheading_text": '<p data-block-key="zg8yr">Kit Banner</p>',
+                    "superheading_text": '<p data-block-key="zg8yr">Sitting Kit</p>',
                     "heading_text": '<p data-block-key="xgfrq">Filled Banner with Sitting Kit</p>',
                     "subheading_text": "",
                 },
@@ -176,7 +177,7 @@ def get_kit_banner_variants():
                     "anchor_id": "filled-banner-kit-tail",
                 },
                 "heading": {
-                    "superheading_text": '<p data-block-key="zg8yr">Kit Banner</p>',
+                    "superheading_text": '<p data-block-key="zg8yr">Kit Tail</p>',
                     "heading_text": '<p data-block-key="xgfrq">Filled Banner with Kit Tail</p>',
                     "subheading_text": "",
                 },
@@ -206,7 +207,7 @@ def get_kit_banner_variants():
                     "anchor_id": "filled-banner-curious-animation",
                 },
                 "heading": {
-                    "superheading_text": '<p data-block-key="zg8yr">Kit Banner</p>',
+                    "superheading_text": '<p data-block-key="zg8yr">Curious Kit Animation</p>',
                     "heading_text": '<p data-block-key="xgfrq">Filled Banner with Curious Kit Animation</p>',
                     "subheading_text": "",
                 },

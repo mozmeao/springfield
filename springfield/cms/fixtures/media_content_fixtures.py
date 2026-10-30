@@ -79,8 +79,8 @@ def get_media_content_variants() -> list[dict]:
                     }
                 ],
                 "heading": {
-                    "superheading_text": '<p data-block-key="2026mc1e">Eyebrow</p>',
-                    "heading_text": '<p data-block-key="2026mc1h">Media Content 2026 — Content Before</p>',
+                    "superheading_text": '<p data-block-key="2026mc1e">Default Layout</p>',
+                    "heading_text": '<p data-block-key="2026mc1h">Media + Content: Media Left</p>',
                     "subheading_text": "",
                 },
                 "content": [
@@ -89,7 +89,8 @@ def get_media_content_variants() -> list[dict]:
                         "type": "rich_text",
                         "id": "2026mc01-0000-0000-0000-000000000011",
                         "value": (
-                            '<p data-block-key="2026mc1c">Media content block in the 2026 design system. Visit the'
+                            '<p data-block-key="2026mc1c">Pair a media element with a content column. By default the media sits on'
+                            " the left and the text on the right on desktop. Visit the"
                             ' <a href="https://www.mozilla.org"'
                             ' uid="20260001-aaaa-aaaa-aaaa-000000000001">Mozilla website</a> for more.</p>'
                         ),
@@ -111,8 +112,8 @@ def get_media_content_variants() -> list[dict]:
                     }
                 ],
                 "heading": {
-                    "superheading_text": '<p data-block-key="2026mc2e">Eyebrow</p>',
-                    "heading_text": '<p data-block-key="2026mc2h">Media Content 2026 — Media Before</p>',
+                    "superheading_text": '<p data-block-key="2026mc2e">Media After</p>',
+                    "heading_text": '<p data-block-key="2026mc2h">Media + Content: Media Right</p>',
                     "subheading_text": "",
                 },
                 "content": [
@@ -120,7 +121,8 @@ def get_media_content_variants() -> list[dict]:
                     {
                         "type": "rich_text",
                         "id": "2026mc01-0000-0000-0000-000000000021",
-                        "value": '<p data-block-key="2026mc2c">Media content block with media on the left side.</p>',
+                        "value": '<p data-block-key="2026mc2c">Enable the Media After setting to move the media to the '
+                        "right of the text on desktop.</p>",
                     },
                     {"type": "buttons", "id": "2026mc01-0000-0000-0000-000000000023", "value": [buttons["secondary"]]},
                 ],
@@ -134,7 +136,7 @@ def get_media_content_variants() -> list[dict]:
                 "media": [videos["youtube"]],
                 "heading": {
                     "superheading_text": "",
-                    "heading_text": '<p data-block-key="2026mc3h">Media Content 2026 — Video</p>',
+                    "heading_text": '<p data-block-key="2026mc3h">Media + Content with a Video</p>',
                     "subheading_text": "",
                 },
                 "content": [
@@ -142,7 +144,8 @@ def get_media_content_variants() -> list[dict]:
                     {
                         "type": "rich_text",
                         "id": "2026mc01-0000-0000-0000-000000000031",
-                        "value": '<p data-block-key="2026mc3c">Media content block with a YouTube video.</p>',
+                        "value": '<p data-block-key="2026mc3c">The media slot accepts an image or a video. Here a YouTube '
+                        "video takes the place of the image.</p>",
                     },
                     {"type": "buttons", "id": "2026mc01-0000-0000-0000-000000000033", "value": [buttons["ghost"]]},
                 ],
@@ -168,8 +171,8 @@ def get_media_content_narrow_variants() -> list[dict]:
                     }
                 ],
                 "heading": {
-                    "superheading_text": '<p data-block-key="2026mcn1e">Narrow Layout</p>',
-                    "heading_text": '<p data-block-key="2026mcn1h">Narrow — Media Right</p>',
+                    "superheading_text": '<p data-block-key="2026mcn1e">Narrow + Media Left</p>',
+                    "heading_text": '<p data-block-key="2026mcn1h">Narrow Layout: Media Left</p>',
                     "subheading_text": "",
                 },
                 "content": [
@@ -177,7 +180,8 @@ def get_media_content_narrow_variants() -> list[dict]:
                     {
                         "type": "rich_text",
                         "id": "2026mcn1-0000-0000-0000-000000000011",
-                        "value": '<p data-block-key="2026mcn1c">Narrow layout narrows the media column, giving more space to the content.</p>',
+                        "value": '<p data-block-key="2026mcn1c">Narrow Layout shrinks the media column so the text gets more '
+                        "room. Media stays on the left here.</p>",
                     },
                     {"type": "buttons", "id": "2026mcn1-0000-0000-0000-000000000013", "value": [buttons["primary"]]},
                 ],
@@ -196,8 +200,8 @@ def get_media_content_narrow_variants() -> list[dict]:
                     }
                 ],
                 "heading": {
-                    "superheading_text": '<p data-block-key="2026mcn2e">Narrow Layout</p>',
-                    "heading_text": '<p data-block-key="2026mcn2h">Narrow — Media Left</p>',
+                    "superheading_text": '<p data-block-key="2026mcn2e">Narrow + Media After</p>',
+                    "heading_text": '<p data-block-key="2026mcn2h">Narrow Layout: Media Right</p>',
                     "subheading_text": "",
                 },
                 "content": [
@@ -205,7 +209,8 @@ def get_media_content_narrow_variants() -> list[dict]:
                     {
                         "type": "rich_text",
                         "id": "2026mcn2-0000-0000-0000-000000000021",
-                        "value": '<p data-block-key="2026mcn2c">Narrow layout with media on the left side.</p>',
+                        "value": '<p data-block-key="2026mcn2c">Narrow Layout combined with Media After: a slim media column '
+                        "sits to the right of the text.</p>",
                     },
                     {"type": "buttons", "id": "2026mcn2-0000-0000-0000-000000000023", "value": [buttons["secondary"]]},
                 ],
@@ -218,14 +223,14 @@ def get_media_content_narrow_variants() -> list[dict]:
 def get_media_content_sections() -> list[dict]:
     return [
         section(
-            heading_text="Media + Content 2026",
-            subheading_text="Media content blocks in the 2026 design system.",
+            heading_text="Media + Content",
+            subheading_text="An image or video beside a content column. Toggle Media After to swap which side the media is on.",
             content_blocks=get_media_content_variants(),
             section_id="2026mcs1-0000-0000-0000-000000000001",
         ),
         section(
-            heading_text="Media + Content 2026 — Narrow",
-            subheading_text="Narrow layout narrows the media element relative to the content.",
+            heading_text="Media + Content — Narrow Layout",
+            subheading_text="Narrow Layout shrinks the media column to give the content more room.",
             content_blocks=get_media_content_narrow_variants(),
             section_id="2026mcs1-0000-0000-0000-000000000002",
         ),
