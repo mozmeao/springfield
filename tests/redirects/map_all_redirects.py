@@ -67,5 +67,11 @@ URLS = flatten(
         # bug 868182
         url_test("/mobile/faq/?os=firefox-os", "https://support.mozilla.org/products/firefox-os"),
         url_test("/mobile/faq/", "https://support.mozilla.org/products/mobile"),
+        # Retired UK influencer campaign landing pages
+        url_test("/landing/{tech,education,gaming}/", "/", status_code=301),
+        url_test("/en-GB/landing/{tech,education,gaming}/", "/en-GB/", status_code=301),
+        # Retired Windows 10 end-of-service landing page
+        url_test("/landing/win-new-features/", "/features/", status_code=301),
+        url_test("/{en-US,en-GB,en-CA,fr,de}/landing/win-new-features/", "/{en-US,en-GB,en-CA,fr,de}/features/", status_code=301),
     )
 )

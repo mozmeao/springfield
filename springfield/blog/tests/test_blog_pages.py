@@ -2,17 +2,19 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-import itertools
+import json
 from datetime import UTC, date, datetime
 from types import SimpleNamespace
 
 from django.core.exceptions import ValidationError
 from django.http import Http404
 from django.test import override_settings
+from django.utils import timezone
 
 import pytest
 from bs4 import BeautifulSoup
-from wagtail.models import Locale, PageViewRestriction, Site
+from wagtail.admin.panels import FieldRowPanel
+from wagtail.models import Locale, PageViewRestriction
 from wagtail.rich_text import RichText
 from wagtail_localize.fields import TranslatableField, get_translatable_fields
 from wagtail_localize.operations import translate_object
@@ -45,23 +47,6 @@ pytestmark = [pytest.mark.django_db]
 
 
 @pytest.fixture
-def blog_index(minimal_site):
-    root_page = Site.objects.get(is_default_site=True).root_page
-    index_page = BlogIndexPage(
-        title="Blog",
-        slug="test-unit-blog",
-        locale=Locale.objects.get(language_code="en-US"),
-    )
-    root_page.add_child(instance=index_page)
-    return index_page
-
-
-@pytest.fixture
-def blog_topic(blog_index):
-    return BlogTopic.objects.create(name="Privacy", slug="test-unit-privacy", locale=blog_index.locale)
-
-
-@pytest.fixture
 def blog_tag(blog_index):
     return BlogTag.objects.create(name="VPN", slug="test-unit-vpn", locale=blog_index.locale)
 
@@ -75,26 +60,6 @@ def excluded_index(blog_index, blog_topic, blog_tag):
     ]
     blog_index.save()
     return blog_index
-
-
-@pytest.fixture
-def make_article(blog_index, blog_topic):
-    slug_numbers = itertools.count(1)
-
-    def make_article(**fields):
-        fields.setdefault("topic", blog_topic)
-        if not fields.get("image"):
-            fields.setdefault("hero_style", HeroStyle.TEXT_ONLY)
-        article = BlogArticlePage(
-            title=fields.pop("title", "Test article"),
-            slug=f"test-unit-article-{next(slug_numbers)}",
-            locale=blog_index.locale,
-            **fields,
-        )
-        blog_index.add_child(instance=article)
-        return article
-
-    return make_article
 
 
 @pytest.fixture
@@ -245,15 +210,15 @@ def stub_images(db):
 
 
 @pytest.fixture
-def real_images(db):
-    """Two image rows with real files, for tests that render an `<img>`."""
-    image, dark_image, _, _ = get_placeholder_images()
-    return image, dark_image
+def bare_article(make_article):
+    return make_article(title="Bare article")
 
 
 @pytest.fixture
-def bare_article(make_article):
-    return make_article(title="Bare article")
+def blog_article(make_article, real_images):
+    """An article with a non-decorative featured image and its alt text."""
+    image, _ = real_images
+    return make_article(image=image, image_alt="A laptop showing the Firefox home page")
 
 
 @pytest.fixture
@@ -1826,6 +1791,17 @@ def test_blog_article_listing_image_suppresses_the_featured_image_variants(bare_
     assert variants.dark_mode_mobile is None
 
 
+def test_get_listing_image_alt_follows_get_listing_image(blog_article):
+    blog_article.image_alt = "The featured image"
+    blog_article.listing_image_alt = "The listing image"
+
+    blog_article.listing_image = None
+    assert blog_article.get_listing_image_alt() == "The featured image"
+
+    blog_article.listing_image = blog_article.image
+    assert blog_article.get_listing_image_alt() == "The listing image"
+
+
 @pytest.mark.parametrize("hero_style", [HeroStyle.STANDARD_IMAGE, HeroStyle.LARGE_IMAGE])
 def test_blog_article_image_hero_styles_require_featured_image(hero_style, bare_article):
     bare_article.hero_style = hero_style
@@ -1849,6 +1825,20 @@ def test_blog_article_text_only_hero_style_needs_no_assets(bare_article):
     bare_article.hero_style = HeroStyle.TEXT_ONLY
 
     bare_article.clean()  # does not raise
+
+
+def test_blog_article_page_requires_alt_for_a_non_decorative_image(blog_article):
+    blog_article.image_alt = ""
+    with pytest.raises(ValidationError) as excinfo:
+        blog_article.clean()
+    assert "image_alt" in excinfo.value.error_dict
+
+
+def test_blog_article_page_accepts_a_blank_alt_for_a_decorative_image(blog_article):
+    blog_article.image.is_decorative = True
+    blog_article.image.save()
+    blog_article.image_alt = ""
+    blog_article.clean()  # does not raise
 
 
 def test_blog_article_hero_renders_in_the_split_page_upper(make_article, real_images, rf):
@@ -1975,6 +1965,17 @@ def test_blog_article_without_bottom_banner_renders_none(bare_article, rf):
     assert soup.find("div", class_="fl-banner") is None
 
 
+def _panel_labels(panels):
+    return [getattr(panel, "field_name", None) or getattr(panel, "relation_name", None) or panel.heading for panel in panels]
+
+
+def test_blog_index_internal_title_and_page_heading_are_in_settings_tab():
+    content_tab, *_, settings_tab = BlogIndexPage.get_edit_handler().children
+
+    assert _panel_labels(content_tab.children) == ["title", "featured_articles", "Article Sections"]
+    assert _panel_labels(settings_tab.children)[:2] == ["internal_title", "page_heading"]
+
+
 def test_blog_article_edit_handler_tabs():
     headings = [tab.heading for tab in BlogArticlePage.get_edit_handler().children]
 
@@ -1983,27 +1984,64 @@ def test_blog_article_edit_handler_tabs():
 
 def test_blog_article_content_tab_panel_order():
     content_tab = BlogArticlePage.get_edit_handler().children[0]
-    labels = [getattr(panel, "field_name", None) or getattr(panel, "relation_name", None) or panel.heading for panel in content_tab.children]
 
-    assert labels == [
+    assert _panel_labels(content_tab.children) == [
         "title",
-        "internal_title",
-        "description",
-        "Topic & Tags",
-        "article_authors",
-        "Dates",
-        "Featured Image",
-        "Hero Options",
+        "Post details",
+        "Featured image & hero",
         "content",
-        "bottom_banner",
+        "Bottom banner",
     ]
+
+
+def test_blog_article_content_tab_groups():
+    _, post_details, featured, _, bottom_banner = BlogArticlePage.get_edit_handler().children[0].children
+
+    assert _panel_labels(post_details.children) == [
+        "description",
+        "topic",
+        "tags",
+        "article_authors",
+        "first_published_at",
+        "updated_date",
+        "hide_dates",
+    ]
+    assert _panel_labels(featured.children) == [
+        "image",
+        "image_alt",
+        "listing_image",
+        "listing_image_alt",
+        "Dark mode & mobile versions",
+        "hero_style",
+        "hero_video",
+    ]
+    assert _panel_labels(featured.children[4].children) == ["image_dark_mode", "image_mobile", "image_dark_mode_mobile"]
+    assert isinstance(featured.children[4], FieldRowPanel)
+    for panel in (post_details, featured, bottom_banner):
+        assert "collapsed" in panel.classname
+
+
+def test_blog_article_hero_video_shows_only_for_video_hero_style():
+    featured = BlogArticlePage.get_edit_handler().children[0].children[2]
+    hero_video = featured.children[-1]
+
+    assert featured.attrs["data-controller"] == "w-rules"
+    assert hero_video.field_name == "hero_video"
+    assert hero_video.attrs["data-w-rules-target"] == "show"
+    assert json.loads(hero_video.attrs["data-w-rules"]) == {"hero_style": ["video"]}
+
+
+def test_blog_article_internal_title_is_in_settings_tab():
+    content_tab, *_, settings_tab = BlogArticlePage.get_edit_handler().children
+
+    assert "internal_title" not in _panel_labels(content_tab.children)
+    assert _panel_labels(settings_tab.children)[0] == "internal_title"
 
 
 def test_blog_article_related_articles_tab_panel_order():
     related_articles_tab = BlogArticlePage.get_edit_handler().children[1]
-    labels = [getattr(panel, "field_name", None) or getattr(panel, "relation_name", None) or panel.heading for panel in related_articles_tab.children]
 
-    assert labels == [
+    assert _panel_labels(related_articles_tab.children) == [
         "hide_related",
         "related_articles",
     ]
@@ -2043,6 +2081,34 @@ def test_blog_article_hero_renders_published_date(make_article, rf):
     assert meta
     assert meta.find("time")["datetime"].startswith("2026-06-12")
     assert "Last updated on" not in meta.get_text()
+
+
+@override_settings(TIME_ZONE="America/Los_Angeles")
+def test_blog_article_hero_shows_site_time_zone_date(make_article, rf):
+    # 21:01 Pacific on Oct 12 is 04:01 UTC on Oct 13.
+    article = make_article(first_published_at=datetime(2026, 10, 13, 4, 1, tzinfo=UTC))
+
+    response = article.serve(rf.get(article.get_full_url()))
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    time_el = soup.find("header", class_="fl-article-header").find("time", class_="fl-article-date")
+
+    assert "Oct. 12, 2026" in time_el.get_text()
+    assert time_el["datetime"].startswith("2026-10-13T04:01")
+
+
+@override_settings(TIME_ZONE="America/Los_Angeles")
+def test_blog_article_hero_ignores_the_editor_time_zone(make_article, rf):
+    # The Wagtail admin renders previews in the editor's own time zone.
+    article = make_article(first_published_at=datetime(2026, 10, 13, 4, 1, tzinfo=UTC))
+
+    with timezone.override("Europe/Berlin"):
+        response = article.serve(rf.get(article.get_full_url()))
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    time_el = soup.find("header", class_="fl-article-header").find("time", class_="fl-article-date")
+
+    assert "Oct. 12, 2026" in time_el.get_text()
 
 
 def test_blog_article_hero_renders_updated_date(make_article, rf):

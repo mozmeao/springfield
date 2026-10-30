@@ -1,0 +1,92 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{# The CMS block loads the form from a contact page, so these variants use static form markup. #}
+
+{% macro render_field(form_id, field) %}
+  {% set field_id = form_id ~ "-" ~ field.name %}
+  {% set required_marker = ' <span aria-hidden="true">*</span>'|safe if field.required else "" %}
+  {% if field.type == "checkbox" %}
+    <div class="fl-field-wrap">
+      <label class="fl-checkbox-label" for="{{ field_id }}">
+        <input class="fl-checkbox" type="checkbox" id="{{ field_id }}" name="{{ field.name }}"{% if field.required %} required{% endif %}>
+        <span>{{ field.label }}{{ required_marker }}</span>
+      </label>
+    </div>
+  {% elif field.type == "checkbox_group" %}
+    <fieldset class="fl-field-wrap"{% if field.required %} aria-required="true"{% endif %}>
+      <legend class="fl-legend">{{ field.label }}{{ required_marker }}</legend>
+      {% for option in field.options %}
+        <label class="fl-checkbox-label" for="{{ field_id }}-{{ loop.index }}">
+          <input class="fl-checkbox" type="checkbox" id="{{ field_id }}-{{ loop.index }}" name="{{ field.name }}" value="{{ option }}">
+          {{ option }}
+        </label>
+      {% endfor %}
+    </fieldset>
+  {% else %}
+    <div class="fl-field-wrap">
+      <label class="fl-label" for="{{ field_id }}">{{ field.label }}{{ required_marker }}</label>
+      {% if field.type == "select" %}
+        <select class="fl-field" id="{{ field_id }}" name="{{ field.name }}"{% if field.required %} required{% endif %}>
+          <option value="" selected>Select an option</option>
+          {% for option in field.options %}
+            <option value="{{ option }}">{{ option }}</option>
+          {% endfor %}
+        </select>
+      {% elif field.type == "textarea" %}
+        <textarea class="fl-field" id="{{ field_id }}" name="{{ field.name }}" rows="2"{% if field.required %} required{% endif %}></textarea>
+      {% else %}
+        <input class="fl-field" type="{{ field.type }}" id="{{ field_id }}" name="{{ field.name }}"{% if field.required %} required{% endif %}>
+      {% endif %}
+    </div>
+  {% endif %}
+{% endmacro %}
+
+{% for item in variants %}
+  <section data-testid="{{ item.testid }}" class="fl-section">
+    <div class="fl-section-container">
+      <include:form-content form_before="{{ item.form_before }}">
+        <content:content>
+          <include:heading
+            level="{{ item.heading.level }}"
+            superheading_text="{{ item.heading.superheading_text }}"
+            heading_size="fl-heading-size-{{ item.heading.level[1:] }}"
+            heading_text="{{ item.heading.heading_text }}"
+            subheading_text="{{ item.heading.subheading_text }}"
+          />
+          <p>{{ item.body }}</p>
+          {% if item.buttons %}
+            <include:buttons buttons="{{ item.buttons }}" />
+          {% endif %}
+        </content:content>
+        <content:form>
+          <div class="fl-contact-form-wrapper">
+            <form class="fl-form contact-form {% if item.two_column %}fl-form-two-column{% endif %}">
+              {% for field in item.fields %}
+                {% if field.type == "fieldset" %}
+                  <fieldset class="fl-fieldset" aria-describedby="{{ item.testid }}-{{ field.name }}-help">
+                    <legend class="fl-legend">{{ field.legend }}</legend>
+                    <div class="fl-fieldset-help fl-rich-text" id="{{ item.testid }}-{{ field.name }}-help">
+                      <p>{{ field.help_text }}</p>
+                    </div>
+                    {% for child_field in field.fields %}
+                      {{ render_field(item.testid, child_field) }}
+                    {% endfor %}
+                  </fieldset>
+                {% else %}
+                  {{ render_field(item.testid, field) }}
+                {% endif %}
+              {% endfor %}
+              <div class="fl-buttons">
+                <button type="submit" class="fl-button">Submit</button>
+              </div>
+            </form>
+          </div>
+        </content:form>
+      </include:form-content>
+    </div>
+  </section>
+{% endfor %}

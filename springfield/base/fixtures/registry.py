@@ -9,7 +9,7 @@ pages) it creates. Used by the translate-all regression test and the
 ``load_page_fixtures`` command to avoid a duplicated call list.
 """
 
-from springfield.blog.fixtures.blog_fixtures import get_blog_index_page, get_blog_pages, get_blog_topic_page
+from springfield.blog.fixtures.blog_fixtures import get_blog_index_page, get_blog_pages, get_blog_quotes_test_page, get_blog_topic_page
 from springfield.cms.fixtures.article_page_fixtures import get_article_pages, get_article_theme_hub_page, get_article_theme_page
 from springfield.cms.fixtures.banner_fixtures import get_banner_test_page
 from springfield.cms.fixtures.base_fixtures import get_article_index_test_page
@@ -34,6 +34,7 @@ from springfield.cms.fixtures.download_page_fixtures import get_download_pages
 from springfield.cms.fixtures.enterprise_download_fixtures import get_enterprise_download_test_page
 from springfield.cms.fixtures.enterprise_page_fixtures import get_enterprise_pages
 from springfield.cms.fixtures.featured_image_section_fixtures import get_featured_image_section_test_page
+from springfield.cms.fixtures.form_content_fixtures import get_form_content_test_page
 from springfield.cms.fixtures.freeformpage import (
     get_banner_snippet_test_page,
     get_custom_navigation_snippet_test_page,
@@ -119,12 +120,14 @@ PAGE_FIXTURES = [
     get_thanks_page,
     get_contact_test_page,
     get_contact_form_test_page,
+    get_form_content_test_page,
     get_article_index_test_page,
     get_article_pages,
     get_article_theme_page,
     get_article_theme_hub_page,
     get_blog_index_page,
     get_blog_pages,
+    get_blog_quotes_test_page,
     get_blog_topic_page,
     get_smart_window_explainer_test_page,
     get_smart_window_test_page,

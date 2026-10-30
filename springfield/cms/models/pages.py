@@ -65,6 +65,7 @@ from springfield.cms.blocks import (
     EnterpriseDownloadBlock,
     FeaturedImageSectionBlock,
     FieldsetAndLegendBlock,
+    FormContentBlock,
     HiddenFieldBlock,
     HomeKitBannerBlock,
     IconChoiceBlock,
@@ -101,7 +102,7 @@ from springfield.firefox.referral import crypto
 from springfield.firefox.referral.models import FirefoxReferralData
 from springfield.firefox.referral.utils import REFERRAL_ID_LENGTH, validate_referral_id
 
-from .base import AbstractSpringfieldCMSPage, PromotedPageMixin, QROpenBehavior
+from .base import AbstractSpringfieldCMSPage, ImageAltTextMixin, PromotedPageMixin, QROpenBehavior
 
 if TYPE_CHECKING:
     from springfield.cms.models import Tag
@@ -490,15 +491,16 @@ class DownloadIndexPage(AbstractSpringfieldCMSPage):
         return redirect(reverse("firefox.all"))
 
 
-class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
+class DownloadPage(ImageAltTextMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
     parent_page_types = ["cms.DownloadIndexPage"]
+    image_alt_fields = ("featured_image",)
 
     ftl_files = [
         "cms/download",
         "firefox/download/download",
         "firefox/browsers/mobile/android",
         "firefox/browsers/mobile/ios",
-        "firefox/browsers/desktop/chromebook",
+        "firefox/download/desktop",
     ]
 
     PLATFORM_CHOICES = (
@@ -524,6 +526,11 @@ class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         null=True,
         blank=True,
         related_name="download_page_featured_images",
+    )
+    featured_image_alt = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text="Text for screen readers describing the image.",
     )
     featured_image_dark_mode = models.ForeignKey(
         "cms.SpringfieldImage",
@@ -571,6 +578,7 @@ class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         FieldPanel("subheading"),
         FieldPanel("intro_footer_text"),
         FieldPanel("featured_image"),
+        FieldPanel("featured_image_alt"),
         MultiFieldPanel(
             [
                 FieldRowPanel(
@@ -604,6 +612,11 @@ class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
     def __str__(self):
         return f"DownloadPage: {self.title} - {self.locale}"
+
+    def clean(self):
+        super().clean()
+        if errors := self.clean_image_alt_text():
+            raise ValidationError(errors)
 
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)
@@ -797,8 +810,9 @@ class ArticleIndexPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         return context
 
 
-class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
+class ArticleDetailPage(ImageAltTextMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
     parent_page_types = ["cms.ArticleThemePage", "cms.ArticleIndexPage"]
+    image_alt_fields = ("featured_image", "image")
 
     featured = models.BooleanField(
         default=False,
@@ -811,6 +825,11 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         on_delete=models.SET_NULL,
         related_name="+",
         help_text="A portrait-oriented image used in featured article cards.",
+    )
+    featured_image_alt = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text="Text for screen readers describing the image.",
     )
     featured_image_dark_mode = models.ForeignKey(
         "cms.SpringfieldImage",
@@ -902,6 +921,11 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         null=True,
         blank=True,
     )
+    image_alt = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text="Text for screen readers describing the image.",
+    )
     image_dark_mode = models.ForeignKey(
         "cms.SpringfieldImage",
         on_delete=models.SET_NULL,
@@ -952,6 +976,7 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
                 FieldPanel("featured"),
                 FieldPanel("tag"),
                 FieldPanel("featured_image"),
+                FieldPanel("featured_image_alt"),
                 MultiFieldPanel(
                     [
                         FieldRowPanel(
@@ -994,6 +1019,7 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
             heading="Index Page Settings",
         ),
         FieldPanel("image"),
+        FieldPanel("image_alt"),
         MultiFieldPanel(
             [
                 FieldRowPanel(
@@ -1028,6 +1054,11 @@ class ArticleDetailPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
     def __str__(self):
         return f"ArticleDetailPage: {self.title} - {self.locale}"
+
+    def clean(self):
+        super().clean()
+        if errors := self.clean_image_alt_text():
+            raise ValidationError(errors)
 
     def get_tag(self) -> Tag | None:
         if self.tag:
@@ -1111,6 +1142,10 @@ def _get_freeform_page_blocks(allow_uitour=True, allow_kit_intro=False):
         ("sliding_carousel", SlidingCarouselBlock(group="Media")),
         ("card_gallery", CardGalleryBlock(group="Media")),
         ("media_content", MediaContentBlock(group="Media", template="cms/blocks/sections/media-content-section.html")),
+        (
+            "form_content",
+            FormContentBlock(group="Main", template="cms/blocks/sections/form-content-section.html"),
+        ),
         ("cards_list", CardsListBlock(template="cms/blocks/sections/cards-list-section.html", allow_uitour=allow_uitour, group="Main")),
         ("featured_image_section", FeaturedImageSectionBlock(allow_uitour=allow_uitour, group="Media")),
         ("mobile_store_qr_code", MobileStoreQRCodeBlock(group="Media")),
@@ -1344,7 +1379,7 @@ class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
             .live()
             .public()
             .annotate(version=F("whatsnewpage2026__version"))
-            .exclude(version__icontains="general")
+            .filter(slug=F("version"), slug__regex=r"^\d+$")
             .order_by("-version")
             .specific()
         )
@@ -1463,12 +1498,13 @@ class WhatsNewPage2026(RoutingMixin, PageThemeMixin, PreFooterImageMixin, UTMPar
         return bool(parent and isinstance(parent.specific, WhatsNewIndexPage))
 
 
-class SmartWindowPage(PromotedPageMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
+class SmartWindowPage(ImageAltTextMixin, PromotedPageMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A page to promote Smart Window"""
 
     ALLOWED_TERRITORIES = {"US", "CA", "FR"}
     ALLOWED_TERRITORIES_OPTION = "allowed_territories"
     ALLOWED_TERRITORIES_LABEL = "US, Canada, and France only"
+    image_alt_fields = ("image",)
 
     analytics_id_fields = (
         "nav_button_uid",
@@ -1486,6 +1522,11 @@ class SmartWindowPage(PromotedPageMixin, UTMParamsMixin, AbstractSpringfieldCMSP
     animation_alt = models.CharField(max_length=255, blank=True, help_text="Text for screen readers describing the video.")
     image = models.ForeignKey(
         "cms.SpringfieldImage", on_delete=models.PROTECT, related_name="+", help_text="Used as fallback if an animation is provided."
+    )
+    image_alt = models.CharField(
+        max_length=255,
+        blank=True,
+        help_text="Text for screen readers describing the image.",
     )
     image_dark_mode = models.ForeignKey(
         "cms.SpringfieldImage",
@@ -1595,6 +1636,7 @@ class SmartWindowPage(PromotedPageMixin, UTMParamsMixin, AbstractSpringfieldCMSP
                 FieldPanel("animation"),
                 FieldPanel("animation_alt"),
                 FieldPanel("image"),
+                FieldPanel("image_alt"),
                 FieldRowPanel(
                     [
                         FieldPanel("image_dark_mode"),
@@ -1676,8 +1718,11 @@ class SmartWindowPage(PromotedPageMixin, UTMParamsMixin, AbstractSpringfieldCMSP
 
     def clean(self):
         super().clean()
+        errors = self.clean_image_alt_text()
         if self.animation and not self.animation_alt:
-            raise ValidationError("An alt text description is required when an animation URL is provided.")
+            errors["animation_alt"] = "An alt text description is required when an animation URL is provided."
+        if errors:
+            raise ValidationError(errors)
 
     def serve(self, request, *args, **kwargs):
         if request.GET.get("v") == "product":
@@ -2609,20 +2654,17 @@ class ReferralGetFirefoxPage(AbstractSpringfieldCMSPage):
 
 
 class ShareFirefoxPage(AbstractSpringfieldCMSPage):
-    """
-    Only served in SHARE_FIREFOX_PAGE_LOCALES. The en-US page exists only as the
-    source for translation.
-    """
+    """Landing page for sharing Firefox, without referral attribution."""
 
-    # if the en-US page is published, the page will 404
-    SHARE_FIREFOX_PAGE_LOCALES = ("fr", "de")
-
-    parent_page_types = ["cms.HomePage"]
+    # StructuralPage so it can live under a folder such as /landing/.
+    parent_page_types = ["cms.HomePage", "cms.StructuralPage"]
     template = "cms/share_firefox_page.html"
 
     upper_content = StreamField(
         [
             ("intro", KitIntroBlock(allow_media_above_buttons=True)),
+            # Not "intro": that name already holds the Kit Intro in existing pages.
+            ("side_intro", IntroBlock()),
             ("showcase", ShowcaseBlock(allow_tabs=True)),
             ("cards_list", CardsListBlock(template="cms/blocks/sections/cards-list-section.html")),
             ("carousel", CarouselBlock()),
@@ -2643,12 +2685,26 @@ class ShareFirefoxPage(AbstractSpringfieldCMSPage):
         use_json_field=True,
     )
 
+    show_pre_footer = models.BooleanField(
+        default=False,
+        verbose_name="Show Pre-Footer",
+        help_text="If true, the page will display the default pre-footer section.",
+    )
+    show_nav_cta = models.BooleanField(
+        default=False,
+        verbose_name="Show Navigation CTA",
+        help_text="If true, the download button will appear in the navigation bar for this page.",
+    )
+
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("upper_content"),
         FieldPanel("lower_content"),
     ]
 
-    settings_panels = AbstractSpringfieldCMSPage.settings_panels
+    settings_panels = AbstractSpringfieldCMSPage.settings_panels + [
+        FieldPanel("show_nav_cta"),
+        FieldPanel("show_pre_footer"),
+    ]
 
     search_fields = AbstractSpringfieldCMSPage.search_fields + [
         index.SearchField("upper_content"),
@@ -2661,15 +2717,3 @@ class ShareFirefoxPage(AbstractSpringfieldCMSPage):
 
     class Meta:
         verbose_name = "Share Firefox Page"
-
-    def get_sitemap_urls(self, request=None):
-        if self.locale.language_code not in self.SHARE_FIREFOX_PAGE_LOCALES:
-            return []
-        return super().get_sitemap_urls(request)
-
-    def serve(self, request, *args, **kwargs):
-        if self.locale.language_code not in self.SHARE_FIREFOX_PAGE_LOCALES:
-            mark_locale_fallback_exempt(request)
-            raise Http404("Share Firefox page is not served in this locale")
-
-        return super().serve(request, *args, **kwargs)

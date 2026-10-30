@@ -53,6 +53,10 @@ redirectpatterns = (
         "https://blog.mozilla.org/en/firefox/shake-to-summarize-expansion/",
         permanent=False,
     ),
+    # Retired UK influencer campaign landing pages
+    redirect(r"^landing/(tech|education|gaming)/?$", "/", permanent=True),
+    # Retired Windows 10 end-of-service landing page, linked from in-product toasts
+    redirect(r"^landing/win-new-features/?$", "firefox.features.index", permanent=True),
     # bug 1299947, 1326383
     redirect(r"^channel/?$", firefox_channel(), cache_timeout=0, permanent=False),
     # https://github.com/mozilla/bedrock/issues/14172
@@ -69,7 +73,7 @@ redirectpatterns = (
     redirect(
         r"^switch/?$", "https://www.mozilla.org/firefox/switch/?redirect_source=firefox-com", permanent=False
     ),  # TODO pull this out when we port the page
-    redirect(r"^browsers/enterprise/?$", "firefox.enterprise.index", permanent=False),
+    redirect(r"^browsers/enterprise/?$", "/enterprise/", permanent=False),
     redirect(
         r"^containers/?$", "https://www.mozilla.org/firefox/facebookcontainer/?redirect_source=firefox-com", permanent=False
     ),  # TODO remove or amend depending on whether we port the page

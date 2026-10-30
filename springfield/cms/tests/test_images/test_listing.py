@@ -116,7 +116,7 @@ def test_grid_layout_renders_the_image_grid(admin_client, make_image):
     soup = BeautifulSoup(response.content, "html.parser")
     assert soup.select_one("ul.listing.horiz.images") is not None
     assert image.title in soup.select_one("ul.listing.horiz.images figcaption").get_text()
-    assert soup.select("[data-inline-image-form]") == []
+    assert soup.select("[data-inline-form]") == []
 
 
 def test_search_results_in_list_layout_are_served_by_our_view(admin_client, make_image):
@@ -152,3 +152,18 @@ def test_list_layout_query_count_does_not_grow_with_images(admin_client, make_im
 
     two_images_query_count, four_images_query_count = query_counts
     assert four_images_query_count == two_images_query_count
+
+
+def test_tag_filter_offers_every_image_tag_alphabetically(admin_client, make_image):
+    popular_tag_names = [f"popular-{tag_number:02}" for tag_number in range(10)]
+    for image_number in range(2):
+        make_image(title=f"Popular image {image_number}").tags.add(*popular_tag_names)
+    rare_image = make_image(title="Rare image")
+    rare_image.tags.add("Zebra", "apple")
+
+    response = admin_client.get(reverse("wagtailimages:index"), {"tag": "Zebra"})
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    tag_choices = [checkbox["value"] for checkbox in soup.select("input[name='tag']")]
+    assert tag_choices == ["apple", *popular_tag_names, "Zebra"]
+    assert [image.pk for image in response.context["object_list"]] == [rare_image.pk]

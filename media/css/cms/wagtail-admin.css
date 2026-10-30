@@ -13,6 +13,11 @@
     margin-inline-start: 0.5rem;
 }
 
+/* Align locale badges to their checkboxes in the locale checkbox list. */
+#id_locales .locale-role-badge {
+    margin-bottom: 0;
+}
+
 /* IconChoiceBlock sets thumbnail_is_one_color, so ThumbnailChoiceBlock tints
    every picker thumbnail by masking the wrapper and painting it a single color.
    The browser logos in icons/mobile-24/browsers/ are full-color brand artwork,
@@ -102,6 +107,16 @@
     max-width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.listing .inline-edit-cell[data-inline-cell='save'] {
+    min-width: 12rem;
+}
+
+.listing .inline-edit-status {
+    display: block;
+    min-height: 1lh;
     white-space: nowrap;
 }
 

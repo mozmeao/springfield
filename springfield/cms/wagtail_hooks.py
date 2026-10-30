@@ -48,6 +48,7 @@ from springfield.cms.admin_views import (
     create_translation_sharing_link,
 )
 from springfield.cms.blocks import regenerate_analytics_ids
+from springfield.cms.images.tags import ImageTagViewSet
 from springfield.cms.images.views import SpringfieldImageIndexView, inline_edit_image
 from springfield.cms.models import (
     AbstractSpringfieldCMSPage,
@@ -106,6 +107,11 @@ def register_image_listing_urls():
         path("images/results/", SpringfieldImageIndexView.as_view(results_only=True), name="cms_image_index_results"),
         path("images/<int:image_id>/inline-edit/", inline_edit_image, name="cms_image_inline_edit"),
     ]
+
+
+@hooks.register("register_admin_viewset")
+def register_image_tag_viewset():
+    return ImageTagViewSet()
 
 
 class PageUpdateSlugButton(PageMenuItem):
@@ -188,8 +194,14 @@ def relative_url_link_block_js():
 
 
 @hooks.register("insert_global_admin_js")
+def image_alt_prefill_js():
+    """Script that prefills an image's alt text field from its description."""
+    return format_html('<script src="{}"></script>', static("js/wagtailadmin-image-alt-prefill.js"))
+
+
+@hooks.register("insert_global_admin_js")
 def image_inline_edit_js():
-    """Script that saves rows of the image listing edited in place."""
+    """Script that saves rows of the image and image tag listings edited in place."""
     return format_html('<script src="{}"></script>', static("js/wagtailadmin-image-inline-edit.js"))
 
 
@@ -262,6 +274,16 @@ def routing_condition_help_js():
     return mark_safe(
         f'<script>window.ROUTING_SIGNAL_PAYLOAD = {payload};</script><script src="{static("js/wagtailadmin-routing-help.js")}"></script>'
     )
+
+
+@hooks.register("insert_global_admin_js")
+def translation_except_aliases_js():
+    """Deliver the "Select all except aliases" script for locale checkboxes.
+
+    Global because wagtail-localize's "Translate" form doesn't render form media; the
+    script does nothing on pages without its checkboxes.
+    """
+    return format_html('<script src="{}"></script>', static("js/wagtailadmin-except-aliases-checkbox.js"))
 
 
 @hooks.register("insert_global_admin_js")
@@ -847,7 +869,7 @@ def block_has_display_conditions(block):
     if not isinstance(block.value, dict):
         return False
     block_settings = block.value.get("settings")
-    show_to = block_settings.get("show_to") if block_settings else None
+    show_to = (block_settings and block_settings.get("show_to")) or block.value.get("show_to")
     return bool(show_to and show_to.has_conditions)
 
 

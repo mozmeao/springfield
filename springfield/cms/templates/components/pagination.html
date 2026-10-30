@@ -9,7 +9,7 @@
 <nav class="fl-pagination" aria-label="{{ aria_label }}">
   <div class="fl-pagination-prev">
     <a
-      {% if prev_url %}href="{{ prev_url }}"{% else %}aria-disabled="true"{% endif %}
+      {% if prev_url %}href="{{ prev_url }}"{% else %}role="link" aria-disabled="true"{% endif %}
       class="fl-button button-ghost"
       aria-label="{{ prev_label }}"
     >
@@ -19,7 +19,7 @@
   <span class="fl-pagination-indicator fl-body">{{ page_number }}/{{ total_pages }}</span>
   <div class="fl-pagination-next">
     <a
-      {% if next_url %}href="{{ next_url }}"{% else %}aria-disabled="true"{% endif %}
+      {% if next_url %}href="{{ next_url }}"{% else %}role="link" aria-disabled="true"{% endif %}
       class="fl-button button-ghost"
       aria-label="{{ next_label }}"
     >

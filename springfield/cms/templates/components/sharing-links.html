@@ -4,7 +4,7 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{# props instance_id, url, copy_label="", copy_success_label="", email_label="", email_subject="", email_body="", qr_label="", qr_heading="", qr_heading_level="h2", qr_text="", close_label="Close", analytics_text="", analytics_position="", analytics_id="" #}
+{# props instance_id, url, show_url=true, copy_label="", copy_success_label="", email_label="", email_subject="", email_body="", qr_label="", qr_heading="", qr_heading_level="h2", qr_text="", close_label="Close", analytics_text="", analytics_position="", analytics_id="" #}
 
 {% set qr_dialog_id = instance_id ~ '-qr-dialog' %}
 
@@ -16,7 +16,9 @@
 {% set mailto_link = 'mailto:?' ~ ('subject=' ~ email_subject|mailtoencode ~ '&' if email_subject else '') ~ 'body=' ~ email_body_text|mailtoencode %}
 
 <div class="fl-sharing-links">
-  <p class="fl-sharing-links-url"><a href="{{ url }}">{{ url }}</a></p>
+  {% if show_url %}
+    <p class="fl-sharing-links-url"><a href="{{ url }}">{{ url }}</a></p>
+  {% endif %}
 
   <div class="fl-buttons is-horizontal">
     <include:copy-to-clipboard-button
