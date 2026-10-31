@@ -4,6 +4,7 @@
 
 import re
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 
@@ -123,7 +124,7 @@ class SpringfieldImage(AbstractImage):
         # to generate renditions, else it will immediately generate them
         defer_task(
             _make_renditions,
-            queue_name="image_renditions",
+            queue_name=settings.RQ_IMAGE_RENDITIONS_QUEUE,
             func_kwargs={
                 "image_id": self.id,
                 "filter_specs": AUTOMATIC_RENDITION_FILTER_SPECS,
