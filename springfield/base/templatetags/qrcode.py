@@ -2,71 +2,27 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-import base64
-import os
 from hashlib import sha1
 from io import BytesIO
 
-from django.conf import settings
 from django.core.cache import caches
 
 import qrcode as qr
 from django_jinja import library
 from markupsafe import Markup
-from PIL import ImageDraw
-from qrcode.image.styledpil import StyledPilImage
-from qrcode.image.styles.colormasks import SolidFillColorMask
-from qrcode.image.styles.moduledrawers.pil import CircleModuleDrawer, StyledPilQRModuleDrawer
 from qrcode.image.svg import SvgPathFillImage
 
 cache = caches["qrcode"]
 
-FIREFOX_LOGO_PNG = os.path.join(settings.ROOT_PATH, "media/img/logos/firefox/firefox-logo-white-bg.png")
+FIREFOX_LOGO_SVG_URL = "/media/img/logos/firefox/firefox-logo.svg"
 
-
-class RoundedEyeDrawer(StyledPilQRModuleDrawer):
-    """Draw the three QR finder patterns (eyes) as concentric squircles.
-
-    `qrcode.image.styles.moduledrawers.pil.RoundedModuleDrawer` rounds each module independently,
-    so it can only shave a corner by up to half a module and leaves the concave inner corners of
-    the finder frame square. This drawer instead paints the whole 7×7 eye as three rounded
-    rectangles — outer frame, white gap, and centre dot — giving the larger, fully-rounded corners.
-    """
-
-    needs_neighbors = False
-
-    def initialize(self, *args, **kwargs):
-        super().initialize(*args, **kwargs)
-        self.imgDraw = ImageDraw.Draw(self.img._img)
-        box_size = self.img.box_size
-        self.outer_radius = int(box_size * 1.5)
-        self.ring_radius = int(self.outer_radius * 5 / 7)  # inner white gap — proportional to outer radius
-        self.dot_radius = int(box_size * 0.75)
-        # Module (row, col) coordinates of each eye's top-left corner.
-        last = self.img.width - 7
-        self.eye_origins = {(0, 0), (0, last), (last, 0)}
-
-    def drawrect(self, box, is_active):
-        box_size = self.img.box_size
-        col = round(box[0][0] / box_size) - self.img.border
-        row = round(box[0][1] / box_size) - self.img.border
-        # Paint the whole eye once, when we reach its top-left module.
-        if (row, col) not in self.eye_origins:
-            return
-        dark = self.img.paint_color
-        light = self.img.color_mask.back_color
-        x0, y0 = box[0]
-        # Outer 7×7 rounded rectangle.
-        eye_px = 7 * box_size
-        self.imgDraw.rounded_rectangle([x0, y0, x0 + eye_px - 1, y0 + eye_px - 1], radius=self.outer_radius, fill=dark)
-        # White interior (5×5) — also rounded so the inner corners of the ring match.
-        ring_px = 5 * box_size
-        ix0, iy0 = x0 + box_size, y0 + box_size
-        self.imgDraw.rounded_rectangle([ix0, iy0, ix0 + ring_px - 1, iy0 + ring_px - 1], radius=self.ring_radius, fill=light)
-        # Centre 3×3 rounded dot.
-        dot_px = 3 * box_size
-        cx0, cy0 = x0 + 2 * box_size, y0 + 2 * box_size
-        self.imgDraw.rounded_rectangle([cx0, cy0, cx0 + dot_px - 1, cy0 + dot_px - 1], radius=self.dot_radius, fill=dark)
+# Rounded SVG proportions, in modules.
+DOT_RADIUS = 0.45
+EYE_OUTER_RADIUS = 1.5
+EYE_RING_RADIUS = 1.07
+EYE_DOT_RADIUS = 0.75
+LOGO_RATIO = 0.23  # of the full image width, quiet zone included
+LOGO_GAP = 0.75  # clear space between the logo and the nearest dot
 
 
 @library.global_function
@@ -83,28 +39,78 @@ def qrcode(data, box_size=20):
     return Markup(svg)
 
 
+def _format_number(value):
+    """Format an SVG coordinate with at most three decimals and no trailing zeros."""
+    return f"{value:.3f}".rstrip("0").rstrip(".") or "0"
+
+
+def _rounded_rect_path(left, top, size, radius):
+    side = _format_number(size - 2 * radius)
+    corner = _format_number(radius)
+    arc = f"a{corner},{corner} 0 0 1"
+    return (
+        f"M{_format_number(left + radius)},{_format_number(top)}h{side}{arc} {corner},{corner}v{side}"
+        f"{arc} -{corner},{corner}h-{side}{arc} -{corner},-{corner}v-{side}{arc} {corner},-{corner}z"
+    )
+
+
 @library.global_function
-def qrcode_rounded(data, box_size=20):
-    key = sha1(f"rounded-{data}-{box_size}".encode()).hexdigest()
-    b64 = cache.get(key)
-    if not b64:
-        qr_obj = qr.QRCode(
-            error_correction=qr.constants.ERROR_CORRECT_H,
-            box_size=box_size,
-            border=4,
+def qrcode_rounded_svg(data, box_size=20):
+    """Inline SVG QR code with round dots, rounded finder eyes and a Firefox logo in the middle.
+
+    Keeps the same outer markup as `qrcode()` (a white background `rect` and mm sizing) so existing
+    CSS that hides the background or sizes the SVG still applies.
+    """
+    key = sha1(f"rounded-svg-{data}-{box_size}".encode()).hexdigest()
+    svg = cache.get(key)
+    if not svg:
+        border = 4
+        qr_code = qr.QRCode(error_correction=qr.constants.ERROR_CORRECT_H, border=border)
+        qr_code.add_data(data)
+        qr_code.make(fit=True)
+        matrix = qr_code.get_matrix()
+        size = len(matrix)
+        module_count = size - 2 * border
+
+        eye_origins = [(border, border), (border + module_count - 7, border), (border, border + module_count - 7)]
+
+        def in_eye(col, row):
+            return any(eye_col <= col < eye_col + 7 and eye_row <= row < eye_row + 7 for eye_col, eye_row in eye_origins)
+
+        logo_size = size * LOGO_RATIO
+        centre = size / 2
+        clear_radius = logo_size / 2 + LOGO_GAP + DOT_RADIUS
+
+        # Each dot is a zero-length line with a round cap, using relative moves to keep the markup small.
+        dots = ["M0.5,0.5"]
+        previous_col, previous_row = 0, 0
+        for row, cells in enumerate(matrix):
+            for col, is_dark in enumerate(cells):
+                if not is_dark or in_eye(col, row):
+                    continue
+                if (col + 0.5 - centre) ** 2 + (row + 0.5 - centre) ** 2 < clear_radius**2:
+                    continue
+                dots.append(f"m{col - previous_col},{row - previous_row}h0")
+                previous_col, previous_row = col, row
+
+        # Each eye is an outer frame, a hole and a centre dot; evenodd fill punches the hole.
+        eyes = []
+        for eye_col, eye_row in eye_origins:
+            eyes.append(_rounded_rect_path(eye_col, eye_row, 7, EYE_OUTER_RADIUS))
+            eyes.append(_rounded_rect_path(eye_col + 1, eye_row + 1, 5, EYE_RING_RADIUS))
+            eyes.append(_rounded_rect_path(eye_col + 2, eye_row + 2, 3, EYE_DOT_RADIUS))
+
+        logo_offset = _format_number(centre - logo_size / 2)
+        logo_width = _format_number(logo_size)
+        dimension = f"{_format_number(size * box_size / 10)}mm"
+        svg = (
+            f'<svg width="{dimension}" height="{dimension}" viewBox="0 0 {size} {size}" xmlns="http://www.w3.org/2000/svg">'
+            f'<rect fill="white" x="0" y="0" width="100%" height="100%"/>'
+            f'<path fill="none" stroke="black" stroke-width="{_format_number(DOT_RADIUS * 2)}" stroke-linecap="round" d="{"".join(dots)}"/>'
+            f'<path fill-rule="evenodd" d="{"".join(eyes)}"/>'
+            f'<image href="{FIREFOX_LOGO_SVG_URL}" x="{logo_offset}" y="{logo_offset}" width="{logo_width}" height="{logo_width}"/>'
+            f"</svg>"
         )
-        qr_obj.add_data(data)
-        qr_obj.make(fit=True)
-        qr_img = qr_obj.make_image(
-            image_factory=StyledPilImage,
-            module_drawer=CircleModuleDrawer(),
-            eye_drawer=RoundedEyeDrawer(),
-            color_mask=SolidFillColorMask(front_color=(51, 51, 51)),
-            embedded_image_path=FIREFOX_LOGO_PNG,
-            embedded_image_ratio=0.23,
-        )
-        buf = BytesIO()
-        qr_img.save(buf, format="PNG")
-        b64 = base64.b64encode(buf.getvalue()).decode()
-        cache.set(key, b64)
-    return Markup(f'<img src="data:image/png;base64,{b64}" alt="" aria-hidden="true">')
+        cache.set(key, svg)
+
+    return Markup(svg)

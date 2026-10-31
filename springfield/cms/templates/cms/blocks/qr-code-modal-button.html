@@ -32,8 +32,8 @@
     </button>
   </div>
   <div class="fl-qr-code-floating-content">
-    <div class="fl-qr-code-image">
-      {{ qrcode_rounded(value.url) }}
+    <div class="fl-qr-code-image" aria-hidden="true">
+      {{ qrcode_rounded_svg(value.url, 12) }}
     </div>
     {% if value.content %}
       <p>{{ value.content }}</p>
