@@ -22,6 +22,7 @@ def partner_form_data(**fields):
     return {
         "name": "Acme",
         "slug": "acme",
+        "fallback_mode": "message",
         "windows64_url": f"https://download.mozilla.org/?product={ACME_PRODUCT}&os=win64",
         "windows32_url": "",
         "windows_languages": "en-US, de",
@@ -174,3 +175,13 @@ def test_create_screen_has_no_test_links_yet(admin_client):
     help_text = find_test_links_help(response)
     assert help_text.find_parent("section").find("h2").get_text(strip=True) == "Test links"
     assert help_text.find_next("p").get_text(strip=True) == "No links yet"
+
+
+def test_create_screen_offers_the_fallback_choices_with_the_message_selected(admin_client):
+    response = admin_client.get(reverse("wagtailsnippets_cms_partnerrepack:add"))
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    choices = {radio["value"]: radio.has_attr("checked") for radio in soup.select('input[type="radio"][name="fallback_mode"]')}
+    assert choices == {"message": True, "immediate": False}
+    assert soup.select_one('input[name="slug"]').find_next("input")["name"] == "fallback_mode"
+    assert "Choose 'straight away' when this build is only for attribution." in unescape(response.content.decode())
