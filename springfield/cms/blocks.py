@@ -1466,9 +1466,9 @@ class ComparisonTableBlock(blocks.StructBlock):
 # comparison table above takes.
 
 COMPARISON_RESULT_CHOICES = (
-    ("yes", "Yes"),
-    ("no", "No"),
-    ("limited", "Limited"),
+    ("yes", ftl_lazy("browser-comparison-result-yes", ftl_files=["cms/browser-comparison"])),
+    ("no", ftl_lazy("browser-comparison-result-no", ftl_files=["cms/browser-comparison"])),
+    ("limited", ftl_lazy("browser-comparison-result-limited", ftl_files=["cms/browser-comparison"])),
 )
 
 COMPARISON_RESULT_ICONS = {
