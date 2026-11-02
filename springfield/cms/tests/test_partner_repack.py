@@ -15,6 +15,7 @@ from wagtail.models import TranslatableMixin
 
 from springfield.cms.fixtures.snippet_fixtures import get_partner_repack_snippet
 from springfield.cms.models import PartnerRepack
+from springfield.cms.models.snippets import PartnerRepackFallbackMode
 
 pytestmark = [pytest.mark.django_db]
 
@@ -115,6 +116,20 @@ def test_slug_is_unique_ignoring_case():
     errors = validation_errors(make_partner(name="Acme again", slug="ACME"))
 
     assert list(errors) == ["slug"]
+
+
+def test_new_partner_defaults_to_the_message():
+    partner = make_partner()
+    partner.full_clean()
+    partner.save()
+
+    assert PartnerRepack.objects.get().fallback_mode == PartnerRepackFallbackMode.MESSAGE
+
+
+def test_fallback_migration_defaults_existing_partners_to_the_message():
+    field = import_module("springfield.cms.migrations.0168_partnerrepack_fallback_mode").Migration.operations[0].field
+
+    assert field.default == PartnerRepackFallbackMode.MESSAGE
 
 
 def test_partner_is_not_translatable():
