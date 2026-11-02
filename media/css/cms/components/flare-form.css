@@ -164,11 +164,6 @@ fieldset.fl-field-wrap {
     margin-block-end: 0;
 }
 
-.fl-mediacontent:has(.fl-contact-form-wrapper),
-.fl-formcontent {
-    align-items: start;
-}
-
 .fl-intro + .fl-section:has(.fl-contact-form-wrapper) {
     margin-block-start: calc(var(--token-layout-sm) * -1);
     padding-block-start: 0;
@@ -188,7 +183,7 @@ fieldset.fl-field-wrap {
     .fl-form.fl-form-two-column .fl-buttons,
     .fl-form.fl-form-two-column .fl-fieldset-help,
     .fl-form.fl-form-two-column .fl-fieldset-orphan,
-    .fl-form.fl-form-two-column .fl-field-wrap:has(textarea),
+    .fl-form.fl-form-two-column .fl-field-wrap:has(textarea, .fl-checkbox),
     .fl-form.fl-form-two-column .fl-notification-wrapper {
         grid-column: span 2;
     }

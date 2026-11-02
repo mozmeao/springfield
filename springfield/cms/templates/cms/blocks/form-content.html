@@ -13,9 +13,7 @@
 
   <include:form-content form_before="{{ value.form_before }}">
     <content:heading>
-      {% with heading_size="fl-heading-sm" %}
-        {% include_block value.heading %}
-      {% endwith %}
+      {% include_block value.heading %}
     </content:heading>
 
     <content:content>
