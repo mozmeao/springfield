@@ -134,6 +134,7 @@ COPY pyproject.toml uv.lock ./
 RUN uv sync --locked
 COPY ./setup.cfg ./
 COPY ./.coveragerc ./
+COPY ./conftest.py ./
 COPY ./tests ./tests
 
 # ThumbnailChoiceBlock (wagtail-thumbnail-choice-block >=0.3.0) scans its
