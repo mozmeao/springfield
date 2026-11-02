@@ -1,3 +1,7 @@
+## 2026-11-02
+- Comparison Result label now uses Fluent-translated Yes/No/Limited text
+
+
 ## 2026-10-29
 - Share Firefox pages have "Show Navigation CTA" and "Show Pre-Footer" checkboxes on the Settings tab. Both are off by default.
 - The Sharing Links block has a "Show URL" checkbox in its settings. It's on by default, so existing blocks keep showing the URL above the buttons; turn it off to show only the buttons.
