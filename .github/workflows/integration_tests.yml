@@ -144,6 +144,13 @@ jobs:
         with:
           path: ~/.cache/uv
           key: uv-${{ runner.os }}-${{ hashFiles('uv.lock') }}
+      # uv.lock has no wheel for psycopg-c, so uv builds it from source and needs pg_config and
+      # the libpq headers. The runner image ships them today, but install explicitly so the job
+      # does not break when the image changes.
+      - name: Install the psycopg build dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends libpq-dev
       - name: Install Python dependencies
         # The uv pin matches the `ghcr.io/astral-sh/uv` image in the Dockerfile.
         run: |
