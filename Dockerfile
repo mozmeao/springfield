@@ -181,6 +181,13 @@ ENV DEMO_SERVER_ADMIN_USERS=${DEMO_SERVER_ADMIN_USERS}
 # the expensive run-sync-all layer cached across unrelated asset changes.
 COPY --from=assets /app/assets/img/firefox/flare/icons /app/assets/img/firefox/flare/icons
 
+# run-sync-all.sh downloads the database and fetches the l10n repo, neither of which BuildKit can
+# see change. Declaring GIT_SHA here, rather than only at the end of the stage, makes every RUN
+# that follows part of a per-commit cache key, so a build with cache_from never reuses a previous
+# commit's data snapshot. Local builds leave GIT_SHA at its default and keep the cached layer.
+ARG GIT_SHA=latest
+ENV GIT_SHA=${GIT_SHA}
+
 RUN bin/run-sync-all.sh
 
 COPY --from=assets /app/assets /app/assets
@@ -191,9 +198,5 @@ RUN honcho run --env docker/envfiles/prod.env docker/bin/build_staticfiles.sh
 RUN chown webdev:webdev -R .
 USER webdev
 CMD ["./bin/run.sh"]
-
-# build args
-ARG GIT_SHA=latest
-ENV GIT_SHA=${GIT_SHA}
 
 RUN echo "${GIT_SHA}" > ./root_files/revision.txt
