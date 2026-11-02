@@ -132,13 +132,22 @@ jobs:
           node-version: 24
           cache: npm
           cache-dependency-path: tests/playwright/package-lock.json
+      # Playwright downloads Firefox and WebKit builds compiled for the runner's distro release
+      # into directories named only by browser revision, and `playwright install` skips a browser
+      # whose directory is already present. A cache saved on one Ubuntu release and restored on
+      # the next would therefore hand the tests browsers linked against the wrong system
+      # libraries, so the distro label is part of the key. ImageOS is the hosted runner's
+      # distro label, e.g. ubuntu24.
+      - name: Record the runner image
+        id: runner-image
+        run: echo "os=${ImageOS}" >> "$GITHUB_OUTPUT"
       # The browser binaries are ~500 MB per run. `playwright install --with-deps` below skips the
       # download on a cache hit and still installs the system packages the browsers need.
       - name: Cache Playwright browsers
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-browsers-${{ runner.os }}-${{ hashFiles('tests/playwright/package-lock.json') }}
+          key: playwright-browsers-${{ steps.runner-image.outputs.os }}-${{ hashFiles('tests/playwright/package-lock.json') }}
       - name: Install dependencies
         run: cd tests/playwright && npm ci && npm run install-deps
       - name: Run Playwright tests
