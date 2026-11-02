@@ -459,10 +459,6 @@ I propose we move to "Filled (Primary)", "Outline (Secondary)", and
 Copy-to-Clipboard Button
 ===================================================================== */
 
-.fl-copy-to-clipboard-button:disabled {
-    cursor: default;
-}
-
 .fl-copy-to-clipboard-button {
     display: inline-grid;
     grid-template-columns: auto auto;
@@ -482,6 +478,17 @@ Copy-to-Clipboard Button
    that sizing */
 .fl-copy-to-clipboard-button .is-hidden {
     visibility: hidden;
+}
+
+.fl-copy-to-clipboard-status {
+    block-size: 1px;
+    clip-path: inset(50%);
+    inline-size: 1px;
+    overflow: hidden;
+    pointer-events: none;
+    position: absolute;
+    user-select: none;
+    white-space: nowrap;
 }
 
 /* =====================================================================
