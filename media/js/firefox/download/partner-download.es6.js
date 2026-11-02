@@ -9,6 +9,8 @@ import Plausible from '../../base/plausible/plausible.es6';
 const BITNESS_WAIT_MS = 500;
 const DOWNLOAD_DELAY_MS = 1000;
 const ATTRIBUTION_WAIT_MS = 2000;
+// The campaign other mobile download buttons use when the page has none.
+const DEFAULT_MOBILE_CAMPAIGN = 'fxcomdefault';
 
 const UNAVAILABLE_REASONS = {
     device: 'device',
@@ -238,6 +240,31 @@ PartnerDownload.startDownload = (link) => {
 };
 
 /**
+ * Add the page's campaign to App Store links, keeping each link's country.
+ * @param {HTMLElement} container
+ */
+PartnerDownload.attributeAppStoreLinks = (container) => {
+    const mobileAttribution = window.Mozilla.MobileAttribution;
+    if (!mobileAttribution) {
+        return;
+    }
+    const campaign =
+        mobileAttribution.getCampaign(
+            document.documentElement,
+            window.location.search
+        ) || DEFAULT_MOBILE_CAMPAIGN;
+    const query = new URL(mobileAttribution.getStoreUrl(campaign, false))
+        .search;
+    for (const link of container.querySelectorAll(
+        'a[href^="https://apps.apple.com/"]'
+    )) {
+        const url = new URL(link.href);
+        url.search = query;
+        link.href = url.toString();
+    }
+};
+
+/**
  * Unhide the section for `state` and hide the rest.
  * @param {HTMLElement} container
  * @param {String} state
@@ -261,6 +288,7 @@ PartnerDownload.begin = () => {
     const attributionDeadline = wait(ATTRIBUTION_WAIT_MS);
 
     return Promise.resolve()
+        .then(() => PartnerDownload.attributeAppStoreLinks(container))
         .then(() => PartnerDownload.isX64())
         .then((x64) => {
             const link = PartnerDownload.findLink(

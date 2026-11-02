@@ -716,5 +716,89 @@ describe('partner-download.es6.js', function () {
 
             expect(eventsNamed('partner_download_unavailable')).toEqual([]);
         });
+
+        describe('store links', function () {
+            const APP_STORE_URL =
+                'https://apps.apple.com/de/app/apple-store/id989804926';
+            const PLAY_STORE_URL =
+                'https://play.google.com/store/apps/details?id=org.mozilla.firefox&referrer=utm_source%3Dacme%26utm_medium%3Dpartner%26utm_campaign%3Dacme-launch';
+            let originalPath;
+
+            function renderStoreLinks() {
+                container = renderPage(macBuild);
+                container.insertAdjacentHTML(
+                    'beforeend',
+                    `<a id="app-store" href="${APP_STORE_URL}"></a><a id="play-store" href="${PLAY_STORE_URL}"></a>`
+                );
+            }
+
+            function visitWithQuery(query) {
+                window.history.replaceState(
+                    null,
+                    '',
+                    `${originalPath}${query}`
+                );
+            }
+
+            beforeEach(function () {
+                originalPath = window.location.pathname;
+            });
+
+            afterEach(function () {
+                window.history.replaceState(null, '', originalPath);
+            });
+
+            it('should add the URL campaign to App Store links, keeping the country', async function () {
+                visitOn('ios');
+                visitWithQuery('?utm_source=acme&utm_campaign=acme-launch');
+                renderStoreLinks();
+
+                PartnerDownload.begin();
+                await flushPromises();
+
+                expect(document.getElementById('app-store').href).toBe(
+                    `${APP_STORE_URL}?mz_pr=firefox_mobile&pt=373246&ct=acme-launch&mt=8`
+                );
+            });
+
+            it('should use the default campaign on App Store links when the URL has none', async function () {
+                visitOn('ios');
+                renderStoreLinks();
+
+                PartnerDownload.begin();
+                await flushPromises();
+
+                expect(document.getElementById('app-store').href).toBe(
+                    `${APP_STORE_URL}?mz_pr=firefox_mobile&pt=373246&ct=fxcomdefault&mt=8`
+                );
+            });
+
+            it('should report App Store downloads as Firefox for mobile', async function () {
+                visitOn('ios');
+                renderStoreLinks();
+
+                PartnerDownload.begin();
+                await flushPromises();
+
+                expect(
+                    window.Mozilla.TrackProductDownload.getEventFromUrl(
+                        document.getElementById('app-store').href
+                    ).product
+                ).toBe('firefox_mobile');
+            });
+
+            it('should leave the Play Store link and its campaign as rendered', async function () {
+                visitOn('android');
+                visitWithQuery('?utm_campaign=other');
+                renderStoreLinks();
+
+                PartnerDownload.begin();
+                await flushPromises();
+
+                expect(document.getElementById('play-store').href).toBe(
+                    PLAY_STORE_URL
+                );
+            });
+        });
     });
 });
