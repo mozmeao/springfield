@@ -134,12 +134,14 @@ def make_article(blog_index, blog_topic):
         publish=True,
         seo_title="Firefox 130 | The Mozilla Blog",
         search_description="Everything new in Firefox 130.",
+        description="",
     ):
         article = BlogArticlePage(
             title="Firefox 130",
             slug=slug,
             seo_title=seo_title,
             search_description=search_description,
+            description=description,
             topic=blog_topic,
             hero_style=HeroStyle.TEXT_ONLY,
             content=content or [text_block(ENGLISH)],
@@ -308,6 +310,36 @@ def test_english_paragraph_with_no_wordpress_counterpart_is_removed(tmp_path, ma
 
     assert "community forum" not in german_text(english)
     assert rows[0]["removed"] == "1"
+
+
+@responses.activate
+def test_a_description_repeating_a_paragraph_does_not_take_the_paragraph_translation(tmp_path, make_article):
+    english = make_article(description=f"<p>{ENGLISH[0]}</p>")
+    mock_wordpress("firefox-130")
+
+    _, _, rows = run(tmp_path, "firefox-130")
+
+    page = german_page(english)
+    assert GERMAN[0] in page.content.raw_data[0]["value"]
+    assert GERMAN[0] in page.description
+    assert rows[0]["removed"] == "1"
+
+
+@responses.activate
+def test_an_english_only_quote_is_removed(tmp_path, make_article):
+    quote = "<blockquote>Only in English, said nobody.</blockquote>"
+    english = make_article(content=[{"type": "text", "value": text_block(ENGLISH)["value"] + quote, "id": "00000000-0000-0000-0000-000000000001"}])
+    english_post = wordpress_post("en", "firefox-130", wordpress_html(ENGLISH) + quote)
+    mock_rest("en", english_post)
+    mock_rest("de", wordpress_post("de", "firefox-130-de", wordpress_html(GERMAN)))
+    responses.add(
+        responses.GET, english_post["link"], body=f'<link rel="alternate" hreflang="de" href="{WORDPRESS}/de/products/firefox/firefox-130-de/">'
+    )
+
+    _, _, rows = run(tmp_path, "firefox-130")
+
+    assert "blockquote" not in german_text(english)
+    assert rows[0]["removed"] == "2"
 
 
 @responses.activate

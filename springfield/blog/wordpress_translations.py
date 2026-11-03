@@ -46,8 +46,9 @@ YOUTUBE_ID_RE = re.compile(r"(?:youtube(?:-nocookie)?\.com/(?:embed/|watch\?v=)|
 GAP_COST = 0.6
 JOIN_COST = 0.3
 SPLIT_COST = 1.0
-# A paired paragraph scoring below this is reported as a guess.
-WEAK_MATCH = -1.2
+# A paired paragraph scoring below this is reported as a guess: the clues disagree more than
+# they agree, yet pairing still beat leaving both paragraphs out (which costs two gaps).
+WEAK_MATCH = 0.0
 
 
 def normalise(text_or_html):
@@ -129,12 +130,13 @@ def file_stem(url_or_name):
 def link_target(attrs):
     """A link's destination with the differences a translation makes folded away (the language
     directory, tracking parameters, www), or None for an element that is not a link. Other
-    query parameters stay: `?os=win` and `?os=mac` are different destinations."""
+    query parameters and the fragment stay: `?os=win` and `?os=mac`, or `#note-1` and
+    `#note-2`, are different destinations."""
     if not attrs.get("href"):
         return None
-    scheme, host, path, query, _ = urlsplit(attrs["href"].replace("://www.", "://"))
+    scheme, host, path, query, fragment = urlsplit(attrs["href"].replace("://www.", "://"))
     kept = sorted((name, value) for name, value in parse_qsl(query, keep_blank_values=True) if not TRACKING_PARAMS_RE.match(name))
-    return urlunsplit((scheme, host, LOCALE_PATH_RE.sub("", path).rstrip("/"), urlencode(kept), ""))
+    return urlunsplit((scheme, host, LOCALE_PATH_RE.sub("", path).rstrip("/"), urlencode(kept), fragment))
 
 
 def anchors(paragraph):
@@ -164,8 +166,9 @@ def score(english, translated):
 @dataclass
 class Alignment:
     """What the alignment found, by the position of each English paragraph: the translated
-    paragraph it lines up with (None where a hand correction says the translation has nothing;
-    absent where the alignment found nothing), and the positions matched only weakly.
+    paragraph it lines up with (None where the translation has nothing for it: a hand correction
+    says so, or the previous paragraph's translation covers it; absent where the alignment found
+    nothing), and the positions matched only weakly.
 
     Positions, not text, so two English paragraphs that read the same (a repeated "Learn more"
     with different links) each keep their own translation."""
@@ -184,6 +187,11 @@ class Alignment:
                 self.claimed.add(position)
                 return position
         return None
+
+    def find(self, key):
+        """The position of the first English paragraph reading `key`, or None, without claiming
+        it: for a page field outside the body (a description, alt text) that repeats a paragraph."""
+        return next((position for position, paragraph in enumerate(self.english) if paragraph.key == key), None)
 
 
 def align(english, translated):
@@ -237,6 +245,7 @@ def align(english, translated):
             row, column = row - 1, column - 2
         elif step == "split":
             translations[row - 2] = translated[column - 1]
+            translations[row - 1] = None
             doubtful.add(row - 2)
             row, column = row - 2, column - 1
         elif step == "skip_english":

@@ -74,6 +74,9 @@ SITE_NAME_SUFFIX_RE = re.compile(r"\s+[-|–—]\s+The Mozilla Blog\s*$", re.IGN
 # field the English page leaves blank, and the importer leaves these blank.
 METADATA_FIELDS = ("seo_title", "search_description")
 
+# The rich text elements wagtail-localize cuts a string from, and so the ones a removal targets.
+TEXT_ELEMENTS = ["p", "h2", "h3", "h4", "h5", "h6", "li", "figcaption", "blockquote", "td", "th"]
+
 # translation_url's answer when the English post's page redirects away from WordPress.
 REDIRECTED = object()
 
@@ -101,6 +104,10 @@ REPORT_HEADER = [
     "videos_missing",
     "detail",
 ]
+
+
+def is_body_string(segment):
+    return isinstance(segment, StringSegmentValue) and segment.path.startswith("content.")
 
 
 class Command(BaseCommand):
@@ -237,7 +244,7 @@ class Command(BaseCommand):
         unmatched = alignment.apply_corrections(paired, english_paragraphs, translated_paragraphs, self.corrections.get(key, []))
 
         english_segments = extract_segments(page)
-        page_keys = {alignment.normalise(segment.string.data) for segment in english_segments if isinstance(segment, StringSegmentValue)}
+        page_keys = {alignment.normalise(segment.string.data) for segment in english_segments if is_body_string(segment)}
         # WordPress paragraphs whose English the page no longer has word for word (edited since
         # the import): the only ones a near match may take, each once.
         unclaimed = [position for position, translated in paired.translations.items() if translated and paired.english[position].key not in page_keys]
@@ -245,13 +252,16 @@ class Command(BaseCommand):
         # For each English text, one decision per occurrence left in English, in page order:
         # True to remove it. Repeated text (a "Learn more" twice) is told apart by order.
         removals = defaultdict(list)
+        # Text outside the body (a description, alt text) that WordPress has no translation for:
+        # it can't be removed, so it stays in English and is reported.
+        left_english = []
         segments, counts, doubtful = [], dict(strings=0, translated=0, kept_english=0, removed=0), []
         for segment in english_segments:
             if segment.path in METADATA_FIELDS:
                 continue
             if isinstance(segment, StringSegmentValue):
                 counts["strings"] += 1
-                new_html = self.translated_string(segment, translated_post, paired, unclaimed, counts, removals, doubtful)
+                new_html = self.translated_string(segment, translated_post, paired, unclaimed, counts, removals, left_english, doubtful)
                 segment = StringSegmentValue(segment.path, StringValue(new_html), attrs=segment.attrs).with_order(segment.order)
             elif isinstance(segment, RelatedObjectSegmentValue) and segment.path != "topic":
                 segment = self.snippet_reference(segment, page.locale, locale)
@@ -280,7 +290,7 @@ class Command(BaseCommand):
 
         notes = [f"doubtful: {text}" for text in doubtful[:3]]
         notes += [f"correction matched nothing: {correction['en']!r}" for correction in unmatched]
-        notes += [f"left in English, not on WordPress: {text[:60]}" for text in sorted(not_removed)]
+        notes += [f"left in English, not on WordPress: {text[:60]}" for text in sorted(not_removed | set(left_english))]
         notes += [f"image not downloadable: {url}" for url in missing_images]
         notes += [f"video not swapped in: {youtube_watch_url(video_id)}" for video_id in videos_missing]
         row.update(
@@ -294,8 +304,10 @@ class Command(BaseCommand):
         )
         return translated_page
 
-    def translated_string(self, segment, translated_post, paired, unclaimed, counts, removals, doubtful):
-        """The WordPress text for one English string, mirroring what WordPress shows."""
+    def translated_string(self, segment, translated_post, paired, unclaimed, counts, removals, left_english, doubtful):
+        """The WordPress text for one English string, mirroring what WordPress shows. Body strings
+        each claim their own WordPress paragraph; other fields only look one up, so a description
+        that repeats a paragraph doesn't take the paragraph's translation."""
         english_html = segment.string.data
         if segment.path == "title":
             counts["translated"] += 1
@@ -304,8 +316,9 @@ class Command(BaseCommand):
             return english_html
 
         key = alignment.normalise(english_html)
-        position = paired.claim(key)
-        if position is None and unclaimed:
+        body = is_body_string(segment)
+        position = paired.claim(key) if body else paired.find(key)
+        if position is None and body and unclaimed:
             close = difflib.get_close_matches(key, [paired.english[candidate].key for candidate in unclaimed], n=1, cutoff=0.8)
             if close:
                 position = next(candidate for candidate in unclaimed if paired.english[candidate].key == close[0])
@@ -319,13 +332,20 @@ class Command(BaseCommand):
             # A correction saying the translation has nothing is final; otherwise text that is
             # the same in every language is kept, and the rest removed.
             remove = position in paired.translations or not alignment.same_in_every_language(english_html)
-            removals[key].append(remove)
-            if not remove:
-                counts["kept_english"] += 1
+            if not body:
+                if remove:
+                    left_english.append(key)
+                else:
+                    counts["kept_english"] += 1
+            else:
+                removals[key].append(remove)
+                if not remove:
+                    counts["kept_english"] += 1
             return english_html
         if translated.key == key:
             counts["kept_english"] += 1
-            removals[key].append(False)
+            if body:
+                removals[key].append(False)
             return english_html
         counts["translated"] += 1
         translated_html, dropped, guessed = alignment.with_english_links(translated, segment.attrs or {})
@@ -402,10 +422,12 @@ class Command(BaseCommand):
                 return {name: strip(item, inner_type) for name, item in value.items()}
             if isinstance(value, str) and value.lstrip().startswith("<"):
                 soup = BeautifulSoup(value, "html.parser")
+                # The innermost element holding the text: a quote wrapping one paragraph
+                # reads the same as the paragraph, and is one occurrence, not two.
                 found = [
                     element
-                    for element in soup.find_all(["p", "h2", "h3", "h4", "h5", "li", "figcaption"])
-                    if removals.get(alignment.normalise(str(element)))
+                    for element in soup.find_all(TEXT_ELEMENTS)
+                    if removals.get(alignment.normalise(str(element))) and not element.find(TEXT_ELEMENTS)
                 ]
                 if not found:
                     return value
@@ -413,9 +435,9 @@ class Command(BaseCommand):
                     if removals[alignment.normalise(str(element))].pop(0):
                         element.decompose()
                         removed += 1
-                for list_element in soup.find_all(["ul", "ol"]):
-                    if not list_element.find("li"):
-                        list_element.decompose()
+                for container in soup.find_all(["ul", "ol", "blockquote"]):
+                    if not container.find(TEXT_ELEMENTS) and not container.get_text(strip=True):
+                        container.decompose()
                 return str(soup)
             return value
 

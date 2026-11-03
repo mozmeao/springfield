@@ -119,7 +119,36 @@ def test_align_ignores_capitalised_words_only_the_translation_uses():
     result = align(english, translated)
 
     assert result.translations == {0: translated[0]}
-    assert result.doubtful == set()
+
+
+def test_align_reports_a_pair_whose_clues_disagree_as_doubtful():
+    # The English links where the translation doesn't; pairing still beats two gaps.
+    english = [
+        linked("Firefox keeps your passwords safe and fills them in on every site you visit", "https://support.mozilla.org/en-US/kb/passwords")
+    ]
+    translated = [Paragraph("Firefox schützt Ihre Passwörter und füllt sie auf jeder Website für Sie aus.")]
+
+    result = align(english, translated)
+
+    assert result.translations == {0: translated[0]}
+    assert result.doubtful == {0}
+
+
+def test_align_marks_an_english_paragraph_absorbed_into_the_previous_translation_as_nothing():
+    english = [
+        linked("Firefox 130 is out today with new features for everyone", "https://www.mozilla.org/en-US/firefox/130.0/releasenotes/"),
+        linked("Get it", "https://www.mozilla.org/en-US/firefox/new/"),
+    ]
+    translated = [
+        Paragraph(
+            'Firefox 130 erscheint heute mit neuen Funktionen für alle, <a id="a1">hier</a> die Versionshinweise, und <a id="a2">hier</a> laden.',
+            {"a1": {"href": "https://www.mozilla.org/de/firefox/130.0/releasenotes/"}, "a2": {"href": "https://www.mozilla.org/de/firefox/new/"}},
+        )
+    ]
+
+    result = align(english, translated)
+
+    assert result.translations == {0: translated[0], 1: None}
 
 
 def test_align_keeps_repeated_english_paragraphs_apart():
@@ -140,6 +169,7 @@ def test_align_keeps_repeated_english_paragraphs_apart():
     assert result.claim(english[0].key) == 0
     assert result.claim(english[0].key) == 2
     assert result.claim(english[0].key) is None
+    assert result.find(english[0].key) == 0
 
 
 def test_join_paragraphs_keeps_each_link_its_own_target():
@@ -209,6 +239,20 @@ def test_link_target_keeps_query_parameters_that_pick_the_destination_and_drops_
         {"href": "https://mozilla.org/firefox/download/?os=mac"}
     )
     assert link_target({"class": ["x"]}) is None
+
+
+def test_link_target_keeps_the_fragment():
+    assert link_target({"href": "#note-1"}) == "#note-1"
+    assert link_target({"href": "https://example.com/post/#note-1"}) != link_target({"href": "https://example.com/post/#note-2"})
+
+
+def test_with_english_links_keeps_a_footnote_link():
+    translated = Paragraph('Siehe <a id="a1">1</a>.', {"a1": {"href": "#note-1"}})
+
+    html, dropped, guessed = with_english_links(translated, {"a1": {"href": "#note-1"}})
+
+    assert html == 'Siehe <a id="a1">1</a>.'
+    assert dropped == 0
 
 
 def test_with_english_links_tells_links_apart_by_query_string_and_flags_a_tie():
