@@ -318,3 +318,12 @@ def test_page_names_the_partner_for_download_events(client):
     soup = render_page(client, "/de/get/?p=acme")
 
     assert soup.find("html")["data-download-partner"] == "acme"
+
+
+@pytest.mark.parametrize("fallback_mode", ["message", "immediate"])
+def test_page_gives_download_events_the_partners_fallback_mode(client, fallback_mode):
+    make_partner(fallback_mode=fallback_mode, **WINDOWS_DE)
+
+    soup = render_page(client, "/de/get/?p=acme")
+
+    assert soup.find("html")["data-download-partner-mode"] == fallback_mode

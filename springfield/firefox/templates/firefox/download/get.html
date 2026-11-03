@@ -20,8 +20,8 @@
 
 {% block page_og_desc %}{{ ftl('firefox-desktop-download-og-desc') }}{% endblock %}
 
-{# Adds the partner to every download event sent from this page. #}
-{% block html_attrs %}data-download-partner="{{ partner.slug }}"{% endblock %}
+{# Adds the partner and its fallback mode to every download event sent from this page. #}
+{% block html_attrs %}data-download-partner="{{ partner.slug }}" data-download-partner-mode="{{ partner.fallback_mode }}"{% endblock %}
 
 {% block canonical_urls %}<meta name="robots" content="noindex,follow">{% endblock %}
 
