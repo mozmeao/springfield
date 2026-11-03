@@ -266,6 +266,25 @@ class PosterPlan:
         return f"new image {self.filename} ({width}x{height}, {self.title!r})"
 
 
+def missing_alt_texts(page):
+    """The alt text to give each of a post's images that has none, as (alt field, text).
+
+    A live post has to have alt text for every image that isn't decorative, a rule that came in
+    after the posts were imported, so publishing one fails without it. The text is what the
+    importer now gives new posts and what the editor form prefills: the image's description,
+    or the post's title when that's blank, cut to the field's length as some descriptions
+    run to several sentences.
+    """
+    filled = []
+    for image_field in page.image_alt_fields:
+        image = getattr(page, image_field)
+        alt_field = f"{image_field}_alt"
+        if image and not image.is_decorative and not (getattr(page, alt_field) or "").strip():
+            max_length = page._meta.get_field(alt_field).max_length
+            filled.append((alt_field, Truncator(image.description or page.title).chars(max_length)))
+    return filled
+
+
 class Command(BaseCommand):
     help = (
         "Bulk fixes for blog posts imported from blog.mozilla.org: widescreen YouTube posters, the "
@@ -1015,7 +1034,7 @@ class Command(BaseCommand):
         needed = [(BlogTopic, topic_term.slug), *((BlogTag, term.slug) for term in tag_terms)]
         if any(term in self.blocked_terms for term in needed):
             return [{**row, "action": SKIPPED, "detail": f"a topic or tag it needs was skipped or failed above: {row['detail']}"} for row in rows]
-        alt_texts = self.missing_alt_texts(draft)
+        alt_texts = missing_alt_texts(draft)
         rows += [{"detail": f"{prefix}{field} filled so the post can be published", "old": "", "new": text} for field, text in alt_texts]
         if self.dry_run:
             self.retagged.add(page.pk)
@@ -1035,24 +1054,6 @@ class Command(BaseCommand):
         revision = draft.save_revision(log_action=True)
         revision.publish(log_action=True)
         return [{**row, "action": CHANGED, "revision_id": revision.pk} for row in rows]
-
-    def missing_alt_texts(self, draft):
-        """The alt text to give each of a post's images that has none, as (alt field, text).
-
-        A live post has to have alt text for every image that isn't decorative, a rule that came in
-        after the posts were imported, so publishing one fails without it. The text is what the
-        importer now gives new posts and what the editor form prefills: the image's description,
-        or the post's title when that's blank, cut to the field's length as some descriptions
-        run to several sentences.
-        """
-        filled = []
-        for image_field in draft.image_alt_fields:
-            image = getattr(draft, image_field)
-            alt_field = f"{image_field}_alt"
-            if image and not image.is_decorative and not (getattr(draft, alt_field) or "").strip():
-                max_length = draft._meta.get_field(alt_field).max_length
-                filled.append((alt_field, Truncator(image.description or draft.title).chars(max_length)))
-        return filled
 
     def delete_if_unused(self, snippet, kind):
         """Delete a retired topic or a tag that's off the list, with its translations, once nothing

@@ -17,6 +17,7 @@
 
 ## 2026-10-20
 
+- Blog index: when it has no featured articles and no article sections, the page lists every article in its language instead, 10 per page. Used for the German and French blog homes.
 - Added the Sharing Links block: copy link, email and QR code buttons for one URL. It is available in Section, Featured Image Section, Media + Content and Two-Column Card blocks.
 - Added Partner downloads (Snippets → Partner downloads): set up a partner's Firefox builds for firefox.com/get/?p=<link name>, with a Test links panel to check each download before publishing.
 - Added Buttons below to the Kit Intro: an optional second row of buttons under the first row and its privacy notice.
