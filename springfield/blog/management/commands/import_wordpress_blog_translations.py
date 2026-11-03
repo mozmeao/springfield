@@ -295,7 +295,7 @@ class Command(BaseCommand):
         translated_page.first_published_at = published
         translated_page.save_revision(log_action=True).publish(log_action=True)
 
-        notes = [f"doubtful: {text}" for text in doubtful[:3]]
+        notes = [f"doubtful: {text}" for text in doubtful]
         notes += [f"correction matched nothing: {correction['en']!r}" for correction in unmatched]
         notes += [f"left in English, not on WordPress: {text[:60]}" for text in sorted(not_removed | set(left_english))]
         notes += [f"{alt_field} filled from the image description, in English: {text[:60]}" for alt_field, text in alt_texts]
