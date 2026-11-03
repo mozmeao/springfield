@@ -7,6 +7,7 @@
 # inherits different leftover state from its predecessor.
 
 from django.core.cache import cache
+from django.urls import clear_url_caches
 from django.utils import translation
 
 import pytest
@@ -21,6 +22,19 @@ def clear_django_cache():
     build URLs from root pages that no longer exist or see switch overrides from an earlier
     test."""
     cache.clear()
+    yield
+
+
+@pytest.fixture(autouse=True)
+def reset_url_resolvers():
+    """Start each test with unpopulated URL resolvers.
+
+    Django caches reversed URLs per language, keyed on its own get_language(). The locale
+    prefix in those URLs comes from LocalePrefixPattern, which reads the language through
+    lib.l10n_utils.translation instead. A test that mocks django.utils.translation.get_language
+    while a URL is reversed fills the cache entry for the real language with the mocked
+    language's prefix, and every later test in the process reverses wrong URLs."""
+    clear_url_caches()
     yield
 
 
