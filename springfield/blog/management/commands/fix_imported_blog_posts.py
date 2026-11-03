@@ -59,6 +59,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.files.base import ContentFile
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
+from django.utils.text import Truncator
 
 import requests
 from PIL import Image
@@ -1041,14 +1042,16 @@ class Command(BaseCommand):
         A live post has to have alt text for every image that isn't decorative, a rule that came in
         after the posts were imported, so publishing one fails without it. The text is what the
         importer now gives new posts and what the editor form prefills: the image's description,
-        or the post's title when that's blank.
+        or the post's title when that's blank, cut to the field's length as some descriptions
+        run to several sentences.
         """
         filled = []
         for image_field in draft.image_alt_fields:
             image = getattr(draft, image_field)
             alt_field = f"{image_field}_alt"
             if image and not image.is_decorative and not (getattr(draft, alt_field) or "").strip():
-                filled.append((alt_field, image.description or draft.title))
+                max_length = draft._meta.get_field(alt_field).max_length
+                filled.append((alt_field, Truncator(image.description or draft.title).chars(max_length)))
         return filled
 
     def delete_if_unused(self, snippet, kind):

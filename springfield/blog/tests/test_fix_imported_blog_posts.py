@@ -803,12 +803,17 @@ def test_taxonomy_fills_missing_alt_text_so_a_post_can_be_published(tmp_path, ma
     BlogArticlePage.objects.filter(pk=described.pk).update(image=hqdefault_poster("abc"))
     bare_image = SpringfieldImage.objects.create(title="IMG_0001.jpg", file=ContentFile(jpeg(HQ), name="bare.jpg"))
     BlogArticlePage.objects.filter(pk=bare.pk).update(image=bare_image, listing_image=bare_image)
+    wordy = retag(make_post("wordy", live=True), firefox)
+    wordy_image = SpringfieldImage.objects.create(title="Wordy", description="word " * 100, file=ContentFile(jpeg(HQ), name="wordy.jpg"))
+    BlogArticlePage.objects.filter(pk=wordy.pk).update(image=wordy_image)
 
-    _, _, rows = run(tmp_path, "taxonomy", taxonomy=taxonomy_csv(tmp_path, ("described", "news", ""), ("bare", "news", "")))
+    csv_rows = [(slug, "news", "") for slug in ("described", "bare", "wordy")]
+    _, _, rows = run(tmp_path, "taxonomy", taxonomy=taxonomy_csv(tmp_path, *csv_rows))
 
-    described, bare = (BlogArticlePage.objects.get(pk=post.pk) for post in (described, bare))
+    described, bare, wordy = (BlogArticlePage.objects.get(pk=post.pk) for post in (described, bare, wordy))
     assert (described.live, described.topic_id, described.image_alt) == (True, topic.pk, "Post title")
     assert (bare.live, bare.topic_id, bare.image_alt, bare.listing_image_alt) == (True, topic.pk, "bare", "bare")
+    assert (wordy.live, len(wordy.image_alt), wordy.image_alt.endswith("word…")) == (True, 255, True)
     details = [(row["action"], row["detail"], row["new"]) for row in rows if row["slug"] == "bare"]
     assert details == [
         ("changed", "topic", "News"),
