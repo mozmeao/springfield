@@ -305,11 +305,17 @@ PartnerDownload.attributeAppStoreLinks = (container) => {
     if (!mobileAttribution) {
         return;
     }
-    const campaign =
-        mobileAttribution.getCampaign(
-            document.documentElement,
-            window.location.search
-        ) || DEFAULT_MOBILE_CAMPAIGN;
+    let campaign;
+    try {
+        campaign =
+            mobileAttribution.getCampaign(
+                document.documentElement,
+                window.location.search
+            ) || DEFAULT_MOBILE_CAMPAIGN;
+    } catch (error) {
+        // A malformed campaign in the URL leaves the links as rendered.
+        return;
+    }
     const query = new URL(mobileAttribution.getStoreUrl(campaign, false))
         .search;
     for (const link of container.querySelectorAll(
