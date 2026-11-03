@@ -1104,6 +1104,26 @@ describe('partner-download.es6.js', function () {
                 ).toBe('firefox_mobile');
             });
 
+            it('should still download the partner build when the URL campaign is malformed', async function () {
+                visitOn('osx');
+                visitWithQuery('?utm_campaign=50%off');
+                container = renderPage(macBuild, [['osx', OSX_URL]]);
+                container.insertAdjacentHTML(
+                    'beforeend',
+                    `<a id="app-store" href="${APP_STORE_URL}"></a>`
+                );
+
+                PartnerDownload.begin();
+                await flushPromises();
+                jasmine.clock().tick(1000);
+                await flushPromises();
+
+                expect(PartnerDownload.navigate).toHaveBeenCalledWith(OSX_URL);
+                expect(document.getElementById('app-store').href).toBe(
+                    APP_STORE_URL
+                );
+            });
+
             it('should leave the Play Store link and its campaign as rendered', async function () {
                 visitOn('android');
                 visitWithQuery('?utm_campaign=other');
