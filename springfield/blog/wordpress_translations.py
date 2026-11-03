@@ -123,8 +123,8 @@ def file_stem(url_or_name):
     same image compares equal across WordPress and the image library."""
     name = url_or_name.split("?")[0].rsplit("/", 1)[-1]
     name = re.sub(r"\.\w+$", "", name)
-    name = re.sub(r"-\d+x\d+$", "", name)
-    return re.sub(r"_[A-Za-z0-9]{7}$", "", name).lower()
+    name = re.sub(r"_[A-Za-z0-9]{7}$", "", name)
+    return re.sub(r"-\d+x\d+$", "", name).lower()
 
 
 def link_target(attrs):
@@ -299,9 +299,14 @@ def apply_corrections(alignment, english, translated, corrections):
     return unmatched
 
 
-def with_english_links(translated, english_attrs):
+def with_english_links(translated, english_attrs, wordpress_attrs=None):
     """The translated paragraph's HTML in the form wagtail-localize ingests: each link carries
     the id of the English link to the same target, the only links a translated string can have.
+
+    `wordpress_attrs` are the links of the same English paragraph as WordPress has it. The
+    importer rewrote links between imported posts to this site's paths, so a translated link
+    is compared with the WordPress address of the English link instead, link for link, when
+    the two versions of the paragraph have the same number of links.
 
     Links to targets the English has are paired by target. Those left over are paired by
     position when the two sides have the same number left, and otherwise unwrapped, keeping
@@ -316,6 +321,9 @@ def with_english_links(translated, english_attrs):
             tag.parent.unwrap()
 
     english_targets = {link_id: link_target(attrs) for link_id, attrs in english_attrs.items() if link_target(attrs)}
+    wordpress_targets = [target for target in map(link_target, (wordpress_attrs or {}).values()) if target]
+    if len(wordpress_targets) == len(english_targets):
+        english_targets = dict(zip(english_targets, wordpress_targets))
     links = soup.find_all("a")
     english_ids = [None] * len(links)
     guessed = False

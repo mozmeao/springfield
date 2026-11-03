@@ -36,7 +36,7 @@ import html
 import json
 import re
 import time
-from collections import defaultdict
+from collections import Counter, defaultdict
 from urllib.parse import urlparse
 
 from django.core.exceptions import ObjectDoesNotExist
@@ -267,7 +267,7 @@ class Command(BaseCommand):
                 segment = self.snippet_reference(segment, page.locale, locale)
             segments.append(segment)
 
-        swaps, dry_run_swaps, missing_images, videos = self.localized_media(english_segments, english_post, translated_post, key)
+        swaps, dry_run_swaps, missing_images, unplaced_images, videos = self.localized_media(english_segments, english_post, translated_post, key)
         segments = [
             OverridableSegmentValue(segment.path, swaps[segment.path]).with_order(segment.order) if segment.path in swaps else segment
             for segment in segments
@@ -292,12 +292,13 @@ class Command(BaseCommand):
         notes += [f"correction matched nothing: {correction['en']!r}" for correction in unmatched]
         notes += [f"left in English, not on WordPress: {text[:60]}" for text in sorted(not_removed | set(left_english))]
         notes += [f"image not downloadable: {url}" for url in missing_images]
+        notes += [f"image not swapped in, no image block for it on the page: {url}" for url in unplaced_images]
         notes += [f"video not swapped in: {youtube_watch_url(video_id)}" for video_id in videos_missing]
         row.update(
             counts,
             doubtful=len(doubtful),
             images_swapped=len(swaps) + dry_run_swaps,
-            images_missing=len(missing_images),
+            images_missing=len(missing_images) + len(unplaced_images),
             videos_swapped=len(videos_swapped),
             videos_missing=len(videos_missing),
             detail="; ".join(notes),
@@ -348,7 +349,7 @@ class Command(BaseCommand):
                 removals[key].append(False)
             return english_html
         counts["translated"] += 1
-        translated_html, dropped, guessed = alignment.with_english_links(translated, segment.attrs or {})
+        translated_html, dropped, guessed = alignment.with_english_links(translated, segment.attrs or {}, paired.english[position].attrs)
         if dropped:
             doubtful.append(f"{key[:50]} (extra link dropped)")
         elif guessed:
@@ -432,7 +433,10 @@ class Command(BaseCommand):
                 if not found:
                     return value
                 for element in found:
-                    if removals[alignment.normalise(str(element))].pop(0):
+                    # A translation can read like another English paragraph; once that text's
+                    # decisions are used up, the rest of the elements reading it stay.
+                    decisions = removals[alignment.normalise(str(element))]
+                    if decisions and decisions.pop(0):
                         element.decompose()
                         removed += 1
                 for container in soup.find_all(["ul", "ol", "blockquote"]):
@@ -503,32 +507,37 @@ class Command(BaseCommand):
 
     def localized_media(self, english_segments, english_post, translated_post, key):
         """For the media that differ between the posts: image overrides keyed by segment path,
-        how many images a dry run would swap, image URLs that couldn't be downloaded, and
-        (English, translated) YouTube id pairs."""
+        how many images a dry run would swap, image URLs that couldn't be downloaded, localized
+        images with no image block on the page to go into (an image inside prose is a rich text
+        embed, which this doesn't swap), and (English, translated) YouTube id pairs."""
         english_media = alignment.media(english_post["content"]["rendered"])
         translated_media = alignment.media(translated_post["content"]["rendered"])
+        # (English media, which occurrence of its file in the English post, translated media).
+        pairs = []
         if key in self.image_pairs:
             by_stem = {item.stem: item for item in translated_media}
-            pairs = [
-                (alignment.Media("image", english_name), by_stem.get(alignment.file_stem(translated_name)))
-                for english_name, translated_name in self.image_pairs[key]
-            ]
+            seen = Counter()
+            for english_name, translated_name in self.image_pairs[key]:
+                english = alignment.Media("image", english_name)
+                pairs.append((english, seen[english.stem], by_stem.get(alignment.file_stem(translated_name))))
+                seen[english.stem] += 1
         else:
+            occurrences = [sum(1 for earlier in english_media[:index] if earlier.stem == item.stem) for index, item in enumerate(english_media)]
             matcher = difflib.SequenceMatcher(a=[item.stem for item in english_media], b=[item.stem for item in translated_media], autojunk=False)
-            pairs = []
             for operation, english_start, english_end, translated_start, translated_end in matcher.get_opcodes():
-                if operation == "replace" and english_end - english_start == translated_end - translated_start:
-                    pairs += zip(english_media[english_start:english_end], translated_media[translated_start:translated_end])
-                elif operation == "equal":
+                if english_end - english_start != translated_end - translated_start:
+                    continue
+                for index, translated in zip(range(english_start, english_end), translated_media[translated_start:translated_end]):
+                    english = english_media[index]
                     # The same file with translated alt text: the page needs its own copy of the
                     # image, described in the page's language.
-                    pairs += [
-                        (english, translated)
-                        for english, translated in zip(english_media[english_start:english_end], translated_media[translated_start:translated_end])
-                        if english.kind == "image"
+                    same_file_new_alt = (
+                        english.kind == "image"
                         and image_description(translated.alt)
                         and image_description(translated.alt) != image_description(english.alt)
-                    ]
+                    )
+                    if operation == "replace" or (operation == "equal" and same_file_new_alt):
+                        pairs.append((english, occurrences[index], translated))
 
         # Body images the English page uses, by file name: (segment path, image), in page order.
         image_segments = [
@@ -542,16 +551,18 @@ class Command(BaseCommand):
             if segment.data in images:
                 page_images.setdefault(alignment.file_stem(images[segment.data].file.name), []).append((segment.path, images[segment.data]))
 
-        swaps, dry_run_swaps, missing, videos = {}, 0, [], []
-        for english, translated in pairs:
+        swaps, dry_run_swaps, missing, unplaced, videos = {}, 0, [], [], []
+        for english, occurrence, translated in pairs:
             if translated is None or english.kind != translated.kind:
                 continue
             if english.kind == "video":
                 videos.append((english.source, translated.source))
                 continue
-            if not page_images.get(english.stem):
+            targets = page_images.get(english.stem, [])
+            if occurrence >= len(targets):
+                unplaced.append(translated.source)
                 continue
-            path, english_image = page_images[english.stem].pop(0)
+            path, english_image = targets[occurrence]
             image = self.localized_image(translated, english_image.collection)
             if image is None:
                 missing.append(translated.source)
@@ -559,7 +570,7 @@ class Command(BaseCommand):
                 swaps[path] = image.pk
             else:
                 dry_run_swaps += 1
-        return swaps, dry_run_swaps, missing, videos
+        return swaps, dry_run_swaps, missing, unplaced, videos
 
     def localized_image(self, translated, collection):
         """The image library copy of a localized WordPress image: an existing one with the same

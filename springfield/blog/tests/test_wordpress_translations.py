@@ -246,6 +246,22 @@ def test_link_target_keeps_the_fragment():
     assert link_target({"href": "https://example.com/post/#note-1"}) != link_target({"href": "https://example.com/post/#note-2"})
 
 
+def test_with_english_links_compares_with_the_wordpress_address_of_a_relinked_english_link():
+    # The importer pointed the English link at this site; WordPress still has the blog URL.
+    english = {"a1": {"href": "/en-US/blog/other-post/"}}
+    wordpress = {"a1": {"href": "https://blog.mozilla.org/en/products/firefox/other-post/"}}
+    translated = Paragraph(
+        'Siehe <a id="a1">diesen Beitrag</a> und <a id="a2">mehr</a>.',
+        {"a1": {"href": "https://blog.mozilla.org/de/products/firefox/other-post/"}, "a2": {"href": "https://example.com/"}},
+    )
+
+    html, dropped, guessed = with_english_links(translated, english, wordpress)
+
+    assert html == 'Siehe <a id="a1">diesen Beitrag</a> und mehr.'
+    assert dropped == 1
+    assert not guessed
+
+
 def test_with_english_links_keeps_a_footnote_link():
     translated = Paragraph('Siehe <a id="a1">1</a>.', {"a1": {"href": "#note-1"}})
 
@@ -352,6 +368,7 @@ def test_media_finds_images_and_youtube_videos_in_document_order():
         "https://blog.mozilla.org/wp-content/uploads/2024/01/Privacy-Settings-1024x576.png?resize=2",
         "https://blog.mozilla.org/wp-content/uploads/2024/01/privacy-settings.jpg",
         "original_images/privacy-settings_AbC1234.png",
+        "original_images/Privacy-Settings-1024x576_AbC1234.png",
     ],
 )
 def test_file_stem_strips_folder_size_suffix_extension_and_storage_suffix(url_or_name):

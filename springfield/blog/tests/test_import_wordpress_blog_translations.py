@@ -55,11 +55,11 @@ def text_block(paragraphs):
     return {"type": "text", "value": html, "id": "00000000-0000-0000-0000-000000000001"}
 
 
-def image_block(image):
+def image_block(image, number=0):
     return {
         "type": "media",
-        "value": [{"type": "image", "value": {"image": image.pk, "settings": {}}, "id": "00000000-0000-0000-0000-000000000003"}],
-        "id": "00000000-0000-0000-0000-000000000002",
+        "value": [{"type": "image", "value": {"image": image.pk, "settings": {}}, "id": f"00000000-0000-0000-0000-00000000{number}003"}],
+        "id": f"00000000-0000-0000-0000-00000000{number}002",
     }
 
 
@@ -191,9 +191,12 @@ def links(html):
     return [(link.get_text(), link["href"]) for link in BeautifulSoup(html, "html.parser").find_all("a")]
 
 
+def content_images(page):
+    return [SpringfieldImage.objects.get(pk=block["value"][0]["value"]["image"]) for block in page.content.raw_data if block["type"] == "media"]
+
+
 def content_image(page):
-    media = next(block for block in page.content.raw_data if block["type"] == "media")
-    return SpringfieldImage.objects.get(pk=media["value"][0]["value"]["image"])
+    return content_images(page)[0]
 
 
 # -------------------------------------------------------------------------
@@ -340,6 +343,38 @@ def test_an_english_only_quote_is_removed(tmp_path, make_article):
 
     assert "blockquote" not in german_text(english)
     assert rows[0]["removed"] == "2"
+
+
+@responses.activate
+def test_a_link_between_imported_posts_keeps_its_local_href(tmp_path, make_article):
+    english = list(ENGLISH)
+    english[1] = 'Read <a href="https://blog.mozilla.org/en/products/firefox/other-post/">our other post</a> for everything new.'
+    page_english = list(english)
+    page_english[1] = 'Read <a href="/en-US/blog/other-post/">our other post</a> for everything new.'
+    page = make_article(content=[text_block(page_english)])
+    german = list(GERMAN)
+    german[1] = (
+        'Lesen Sie <a href="https://blog.mozilla.org/de/products/firefox/other-post/">unseren anderen Beitrag</a> '
+        'und <a href="https://support.mozilla.org/de/">die Hilfe</a> für alles Neue.'
+    )
+    mock_wordpress("firefox-130", english=english, german=german)
+
+    _, _, rows = run(tmp_path, "firefox-130")
+
+    assert links(german_text(page)) == [("unseren anderen Beitrag", "/en-US/blog/other-post/")]
+    assert "paired by position" not in rows[0]["detail"]
+
+
+@responses.activate
+def test_a_translation_reading_like_another_english_paragraph_does_not_break_removal(tmp_path, make_article):
+    english = make_article(content=[text_block(["Get Firefox", "Firefox", ENGLISH[2]])])
+    mock_wordpress("firefox-130", english=["Get Firefox", "Firefox", ENGLISH[2]], german=["Firefox", "Firefox"])
+
+    _, _, rows = run(tmp_path, "firefox-130")
+
+    assert rows[0]["action"] == "created", rows[0]["detail"]
+    assert plain(german_text(english)).count("Firefox") == 2
+    assert rows[0]["removed"] == "1"
 
 
 @responses.activate
@@ -664,6 +699,44 @@ def test_a_library_file_is_reused_only_with_the_same_alt_text(tmp_path, make_art
     image = content_image(german_page(english))
     assert image.pk != placeholder_image.pk
     assert image.description == "Die Einstellungen auf Deutsch"
+
+
+@responses.activate
+def test_a_repeated_image_is_swapped_at_the_occurrence_that_changed(tmp_path, make_article, placeholder_image):
+    english = make_article(content=[text_block(ENGLISH), image_block(placeholder_image), image_block(placeholder_image, number=1)])
+    figure = f'<figure class="wp-block-image"><img src="{UPLOADS}/placeholder_image.png" alt=""></figure>'
+    german_figure = f'<figure class="wp-block-image"><img src="{UPLOADS}/placeholder_image-de.png" alt=""></figure>'
+    english_post = wordpress_post("en", "firefox-130", wordpress_html(ENGLISH) + figure + figure)
+    mock_rest("en", english_post)
+    mock_rest("de", wordpress_post("de", "firefox-130-de", wordpress_html(GERMAN) + figure + german_figure))
+    responses.add(
+        responses.GET, english_post["link"], body=f'<link rel="alternate" hreflang="de" href="{WORDPRESS}/de/products/firefox/firefox-130-de/">'
+    )
+    responses.add(responses.GET, f"{UPLOADS}/placeholder_image-de.png", body=png((10, 200, 10)), content_type="image/png")
+
+    _, _, rows = run(tmp_path, "firefox-130")
+
+    first, second = content_images(german_page(english))
+    assert first.pk == placeholder_image.pk
+    assert second.pk != placeholder_image.pk
+    assert rows[0]["images_swapped"] == "1"
+
+
+@responses.activate
+def test_a_localized_image_with_no_image_block_on_the_page_is_reported(tmp_path, make_article):
+    make_article()
+    mock_wordpress(
+        "firefox-130",
+        english_image=f"{UPLOADS}/placeholder_image-1024x576.png",
+        german_image=f"{UPLOADS}/placeholder_image-de-1024x576.png",
+    )
+
+    _, _, rows = run(tmp_path, "firefox-130")
+
+    assert rows[0]["action"] == "created"
+    assert rows[0]["images_swapped"] == "0"
+    assert rows[0]["images_missing"] == "1"
+    assert f"image not swapped in, no image block for it on the page: {UPLOADS}/placeholder_image-de-1024x576.png" in rows[0]["detail"]
 
 
 @responses.activate
