@@ -58,7 +58,9 @@ def text_block(paragraphs):
 def image_block(image, number=0):
     return {
         "type": "media",
-        "value": [{"type": "image", "value": {"image": image.pk, "settings": {}}, "id": f"00000000-0000-0000-0000-00000000{number}003"}],
+        "value": [
+            {"type": "image", "value": {"image": image.pk, "image_alt": "", "settings": {}}, "id": f"00000000-0000-0000-0000-00000000{number}003"}
+        ],
         "id": f"00000000-0000-0000-0000-00000000{number}002",
     }
 
@@ -673,6 +675,20 @@ def test_localized_image_is_downloaded_described_and_swapped_in(tmp_path, make_a
     assert content_image(BlogArticlePage.objects.get(pk=english.pk)).pk == placeholder_image.pk
     assert rows[0]["images_swapped"] == "1"
     assert rows[0]["images_missing"] == "0"
+
+
+@responses.activate
+def test_body_images_without_alt_text_get_the_image_description(tmp_path, make_article, placeholder_image):
+    placeholder_image.description = "The settings page"
+    placeholder_image.save()
+    english = make_article(content=[text_block(ENGLISH), image_block(placeholder_image)])
+    mock_wordpress("firefox-130")
+
+    _, _, rows = run(tmp_path, "firefox-130")
+
+    media = next(block for block in german_page(english).content.raw_data if block["type"] == "media")
+    assert media["value"][0]["value"]["image_alt"] == "The settings page"
+    assert "1 body image alt text(s) filled from the image description" in rows[0]["detail"]
 
 
 @responses.activate

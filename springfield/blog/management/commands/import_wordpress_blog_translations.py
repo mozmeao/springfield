@@ -44,6 +44,7 @@ from django.core.files.base import ContentFile
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 from django.utils.dateparse import parse_datetime
+from django.utils.text import Truncator
 from django.utils.timezone import get_default_timezone, make_aware
 
 import requests
@@ -285,10 +286,12 @@ class Command(BaseCommand):
         videos_swapped = self.swap_videos(translated_page, videos)
         translated_videos = [item.source for item in alignment.media(translated_post["content"]["rendered"]) if item.kind == "video"]
         videos_missing = [video_id for video_id in translated_videos if video_id not in videos_swapped]
-        # An imported post may predate the alt text rule; its copy can't be published without.
+        # An imported post may predate the alt text rule; its copy can't be published, or edited
+        # again, without alt text on the hero and on every body image.
         alt_texts = missing_alt_texts(translated_page)
         for alt_field, text in alt_texts:
             setattr(translated_page, alt_field, text)
+        body_alt_texts = self.fill_body_image_alt(translated_page)
         translated_page.first_published_at = published
         translated_page.save_revision(log_action=True).publish(log_action=True)
 
@@ -296,6 +299,8 @@ class Command(BaseCommand):
         notes += [f"correction matched nothing: {correction['en']!r}" for correction in unmatched]
         notes += [f"left in English, not on WordPress: {text[:60]}" for text in sorted(not_removed | set(left_english))]
         notes += [f"{alt_field} filled from the image description, in English: {text[:60]}" for alt_field, text in alt_texts]
+        if body_alt_texts:
+            notes.append(f"{body_alt_texts} body image alt text(s) filled from the image description")
         notes += [f"image not downloadable: {url}" for url in missing_images]
         notes += [f"image not swapped in, no image block for it on the page: {url}" for url in unplaced_images]
         notes += [f"video not swapped in: {youtube_watch_url(video_id)}" for video_id in videos_missing]
@@ -454,6 +459,28 @@ class Command(BaseCommand):
         # still holds the English the page was copied with.
         translated_page.content = strip(translated_page.content.get_prep_value())
         return removed, {key for key, decisions in removals.items() if any(decisions)}
+
+    def fill_body_image_alt(self, translated_page):
+        """Give every body image block without alt text its image's description, the same
+        fallback as the hero, so an editor can save the page. Returns how many were filled."""
+        filled = 0
+
+        def fill(value):
+            nonlocal filled
+            if isinstance(value, list):
+                return [fill(item) for item in value]
+            if not isinstance(value, dict):
+                return value
+            value = {name: fill(item) for name, item in value.items()}
+            if isinstance(value.get("image"), int) and "image_alt" in value and not (value["image_alt"] or "").strip():
+                image = SpringfieldImage.objects.filter(pk=value["image"]).first()
+                if image and not image.is_decorative and image.description:
+                    value["image_alt"] = Truncator(image.description).chars(255)
+                    filled += 1
+            return value
+
+        translated_page.content = fill(translated_page.content.get_prep_value())
+        return filled
 
     def swap_videos(self, translated_page, videos):
         """Replace English YouTube videos with the translation's, in the body and the hero: the
