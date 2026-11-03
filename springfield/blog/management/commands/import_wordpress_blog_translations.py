@@ -413,6 +413,9 @@ class Command(BaseCommand):
                     if removals[alignment.normalise(str(element))].pop(0):
                         element.decompose()
                         removed += 1
+                for list_element in soup.find_all(["ul", "ol"]):
+                    if not list_element.find("li"):
+                        list_element.decompose()
                 return str(soup)
             return value
 
@@ -615,7 +618,8 @@ class Command(BaseCommand):
         return response.content if response is not None else None
 
     def get(self, url, params=None, follow_redirects=True):
-        """GET `url`, or None on a 404. A connection problem is retried twice, after 1s and 2s."""
+        """GET `url`, or None on a 404. A connection problem, a 429 or a server error is retried
+        twice, after 1s and 2s (or as long as a Retry-After header asks)."""
         for attempt in range(3):
             try:
                 response = requests.get(
@@ -632,6 +636,10 @@ class Command(BaseCommand):
                 continue
             if response.status_code == 404:
                 return None
+            if attempt < 2 and (response.status_code == 429 or response.status_code >= 500):
+                retry_after = response.headers.get("Retry-After", "")
+                time.sleep(int(retry_after) if retry_after.isdigit() else 2**attempt)
+                continue
             response.raise_for_status()
             return response
 

@@ -18,6 +18,7 @@ from responses import matchers
 from wagtail.models import Locale, Site
 from wagtail.utils.file import hash_filelike
 
+from springfield.blog.management.commands import import_wordpress_blog_translations
 from springfield.blog.management.commands.fix_imported_blog_posts import youtube_thumbnail_url
 from springfield.blog.models import BlogArticlePage, BlogIndexPage, BlogTopic, HeroStyle
 from springfield.cms.fixtures.base_fixtures import get_placeholder_images
@@ -155,6 +156,11 @@ def make_article(blog_index, blog_topic):
 @pytest.fixture
 def placeholder_image(minimal_site):
     return get_placeholder_images().image
+
+
+@pytest.fixture(autouse=True)
+def no_retry_delay(monkeypatch):
+    monkeypatch.setattr(import_wordpress_blog_translations.time, "sleep", lambda seconds: None)
 
 
 def run(tmp_path, *slugs, **options):
@@ -302,6 +308,25 @@ def test_english_paragraph_with_no_wordpress_counterpart_is_removed(tmp_path, ma
 
     assert "community forum" not in german_text(english)
     assert rows[0]["removed"] == "1"
+
+
+@responses.activate
+def test_a_list_with_no_translated_items_is_removed_whole(tmp_path, make_article):
+    list_html = "<ul><li>Only in English, first point.</li><li>Only in English, second point.</li></ul>"
+    english = make_article(
+        content=[{"type": "text", "value": text_block(ENGLISH)["value"] + list_html, "id": "00000000-0000-0000-0000-000000000001"}]
+    )
+    english_post = wordpress_post("en", "firefox-130", wordpress_html(ENGLISH) + list_html)
+    mock_rest("en", english_post)
+    mock_rest("de", wordpress_post("de", "firefox-130-de", wordpress_html(GERMAN)))
+    responses.add(
+        responses.GET, english_post["link"], body=f'<link rel="alternate" hreflang="de" href="{WORDPRESS}/de/products/firefox/firefox-130-de/">'
+    )
+
+    _, _, rows = run(tmp_path, "firefox-130")
+
+    assert "<ul>" not in german_text(english)
+    assert rows[0]["removed"] == "3"
 
 
 @responses.activate
@@ -735,6 +760,24 @@ def test_skips_when_the_english_post_redirects(tmp_path, make_article):
 # -------------------------------------------------------------------------
 # Failures
 # -------------------------------------------------------------------------
+
+
+@responses.activate
+def test_rate_limited_and_server_error_responses_are_retried(tmp_path, make_article):
+    english = make_article()
+    english_post = wordpress_post("en", "firefox-130", wordpress_html(ENGLISH))
+    responses.add(responses.GET, f"{WORDPRESS}/en/wp-json/wp/v2/posts", status=429, headers={"Retry-After": "1"})
+    responses.add(responses.GET, f"{WORDPRESS}/en/wp-json/wp/v2/posts", status=503)
+    mock_rest("en", english_post)
+    mock_rest("de", wordpress_post("de", "firefox-130-de", wordpress_html(GERMAN)))
+    responses.add(
+        responses.GET, english_post["link"], body=f'<link rel="alternate" hreflang="de" href="{WORDPRESS}/de/products/firefox/firefox-130-de/">'
+    )
+
+    _, _, rows = run(tmp_path, "firefox-130")
+
+    assert rows[0]["action"] == "created"
+    assert german_page(english).live
 
 
 @responses.activate
