@@ -831,6 +831,21 @@ def test_taxonomy_skips_posts_with_unpublished_changes_and_keeps_what_they_use(t
     assert kept["detail"] == "topic kept, still used by draft of drafted, post drafted (en-US), post unlisted (en-US)"
 
 
+def test_taxonomy_reports_a_post_whose_draft_already_has_the_new_topic(tmp_path, make_post, topic):
+    firefox = snippet(BlogTopic, "firefox", name="Firefox")
+    post = retag(make_post("drafted", live=True), firefox)
+    post.topic = topic
+    post.save_revision()
+
+    _, _, rows = run(tmp_path, "taxonomy", taxonomy=taxonomy_csv(tmp_path, ("drafted", "news", "")))
+
+    assert BlogArticlePage.objects.get(pk=post.pk).topic_id == firefox.pk
+    reported = [(row["action"], row["detail"], row["old"], row["new"]) for row in rows if row["slug"] == "drafted"]
+    assert reported == [
+        ("skipped", "has unpublished changes that set the topic and tags, publish it or rerun once it's published", "Firefox", "News")
+    ]
+
+
 def test_taxonomy_never_publishes_an_unpublished_post(tmp_path, make_post):
     post = make_post("unpublished")
 
@@ -981,21 +996,30 @@ def test_taxonomy_keeps_a_retired_topic_a_drafted_topic_page_or_blog_index_uses(
     news = snippet(BlogTopic, "news", name="News")
     firefox = snippet(BlogTopic, "firefox", name="Firefox")
     internet_culture = snippet(BlogTopic, "internet-culture", name="Internet Culture")
-    # Only the pages' pending drafts point at the retired topics; their saved rows don't.
+    our_work = snippet(BlogTag, "our-work", name="Our Work")
+    # Only the pages' pending drafts point at the retired terms; their saved rows don't.
     topic_page = BlogTopicPage(title="News", slug="news-page", topic=news)
     index_page.add_child(instance=topic_page)
     topic_page.save_revision().publish()
     topic_page.topic = firefox
     topic_page.save_revision()
     index_page.featured_topics = [("topic", internet_culture)]
+    index_page.article_sections = [
+        {
+            "type": "cards_list",
+            "value": {"heading_text": "<p>Our work</p>", "source": [{"type": "tag", "value": our_work.pk}], "count": 2, "link_label": "View all"},
+        }
+    ]
     index_page.save_revision()
 
     _, _, rows = run(tmp_path, "taxonomy", taxonomy=taxonomy_csv(tmp_path))
 
     assert BlogTopic.objects.filter(pk__in=[firefox.pk, internet_culture.pk]).count() == 2
+    assert BlogTag.objects.filter(pk=our_work.pk).exists()
     details = {row["slug"]: row["detail"] for row in rows if row["action"] == "skipped"}
     assert details["firefox"] == "topic kept, still used by draft of topic page news-page"
     assert details["internet-culture"] == "topic kept, still used by draft of blog index page blog"
+    assert details["our-work"] == "tag kept, still used by draft of blog index page blog"
 
 
 def test_taxonomy_keeps_the_old_tags_of_a_post_that_fails_to_publish(tmp_path, make_post, topic, monkeypatch):

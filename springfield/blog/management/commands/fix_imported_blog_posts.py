@@ -1000,6 +1000,11 @@ class Command(BaseCommand):
             detail = f"{prefix}tags: added {', '.join(added) or 'none'}; removed {', '.join(removed) or 'none'}"
             rows.append({"detail": detail, "old": ", ".join(tag.name for tag in old_tags), "new": ", ".join(term.name for term in tag_terms)})
         if not rows:
+            live_tag_pks = {tag.pk for tag in page.tags.all()}
+            if page.live and page.has_unpublished_changes and (page.topic_id != topic.pk or live_tag_pks != new_tag_pks):
+                # The draft already has the new topic and tags, but what's live doesn't.
+                detail = f"{prefix}has unpublished changes that set the topic and tags, publish it or rerun once it's published"
+                return [{"action": SKIPPED, "detail": detail, "old": page.topic.name if page.topic else "", "new": topic_term.name}]
             return []
 
         if not page.live or page.has_unpublished_changes:
@@ -1065,9 +1070,9 @@ class Command(BaseCommand):
 
     def pending_drafts(self):
         """The topics and tags each unpublished blog page draft points at, as (draft, topic pks,
-        tag pks): a post's topic and tags, a topic page's topic, and a blog index's featured topics
-        and feed exclusions. The reference index only covers what's saved, not what's drafted, and
-        publishing a draft of a deleted topic would fail."""
+        tag pks): a post's topic and tags, a topic page's topic, and a blog index's featured topics,
+        feed exclusions and article section sources. The reference index only covers what's saved,
+        not what's drafted, and publishing a draft of a deleted topic would fail."""
         if not hasattr(self, "_pending_drafts"):
             self._pending_drafts = []
             for page in BlogArticlePage.objects.filter(has_unpublished_changes=True):
@@ -1079,6 +1084,8 @@ class Command(BaseCommand):
             for page in BlogIndexPage.objects.filter(has_unpublished_changes=True):
                 draft = page.get_latest_revision_as_object()
                 chosen = [block.value for block in [*(draft.featured_topics or []), *(draft.feed_exclusions or [])] if block.value]
+                sources = [block.block.get_source(block.value) for block in draft.article_sections or []]
+                chosen += [source.value for source in sources if source is not None]
                 topic_pks = {snippet.pk for snippet in chosen if isinstance(snippet, BlogTopic)}
                 tag_pks = {snippet.pk for snippet in chosen if isinstance(snippet, BlogTag)}
                 self._pending_drafts.append((f"draft of blog index page {page.slug}", topic_pks, tag_pks))
