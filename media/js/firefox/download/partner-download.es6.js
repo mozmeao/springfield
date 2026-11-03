@@ -73,6 +73,31 @@ PartnerDownload.findLink = (container, platform, x64) => {
 };
 
 /**
+ * Find regular Firefox for an immediate partner's visitor who has no build: the desktop
+ * download on Windows and macOS, or the store badge on phones.
+ * @param {HTMLElement} container
+ * @param {String} platform
+ * @param {Boolean} x64
+ * @returns {HTMLAnchorElement|null}
+ */
+PartnerDownload.findFallbackLink = (container, platform, x64) => {
+    const link = (section, version) =>
+        container.querySelector(
+            `[data-state="${section}"] .download-list [data-download-version="${version}"]`
+        );
+    if (platform === 'windows') {
+        return link('device', x64 ? 'win64' : 'win');
+    }
+    if (platform === 'osx') {
+        return link('device', 'osx');
+    }
+    if (platform === 'android' || platform === 'ios') {
+        return link('store', platform);
+    }
+    return null;
+};
+
+/**
  * Whether this is an ARM machine, which can't run a partner's 64-bit Linux build.
  * @returns {Boolean}
  */
@@ -221,7 +246,7 @@ PartnerDownload.navigate = (url) => {
 
 /**
  * Start and track the download, and point "try again" at the same build.
- * @param {HTMLAnchorElement} link - the partner build for this machine
+ * @param {HTMLAnchorElement} link - the partner build, or regular Firefox, for this machine
  */
 PartnerDownload.startDownload = (link) => {
     const url = PartnerDownload.getAttributedURL(link.href);
@@ -240,6 +265,35 @@ PartnerDownload.startDownload = (link) => {
         // Analytics never blocks the download.
     }
     PartnerDownload.navigate(url);
+};
+
+/**
+ * Send a phone to the store after `delay`, unless the visitor taps a link first.
+ * @param {HTMLElement} container
+ * @param {HTMLAnchorElement} link - the store badge
+ * @param {Promise} delay
+ * @returns {Promise}
+ */
+PartnerDownload.redirectToStore = (container, link, delay) => {
+    let tapped = false;
+    container
+        .querySelector('[data-state="store"]')
+        .addEventListener('click', (event) => {
+            if (event.target.closest('a')) {
+                tapped = true;
+            }
+        });
+    return delay.then(() => {
+        if (tapped) {
+            return;
+        }
+        try {
+            window.Mozilla.TrackProductDownload.sendEventFromURL(link.href);
+        } catch (error) {
+            // Analytics never blocks the redirect.
+        }
+        PartnerDownload.navigate(link.href);
+    });
 };
 
 /**
@@ -280,6 +334,7 @@ PartnerDownload.showState = (container, state) => {
 
 /**
  * Show the visitor's state, and download the partner build when there's one for their machine.
+ * Immediate partners send visitors with no build straight to regular Firefox instead.
  * @returns {Promise<String>} the state shown
  */
 PartnerDownload.begin = () => {
@@ -304,6 +359,38 @@ PartnerDownload.begin = () => {
                 container.dataset,
                 link
             );
+            const fallbackLink =
+                container.dataset.mode === 'immediate' &&
+                (state === 'language' || state === 'device') &&
+                PartnerDownload.findFallbackLink(
+                    container,
+                    window.site.platform,
+                    x64
+                );
+
+            if (fallbackLink) {
+                PartnerDownload.sendUnavailableEvent(
+                    container,
+                    UNAVAILABLE_REASONS[state]
+                );
+                if (fallbackLink.closest('[data-state="store"]')) {
+                    PartnerDownload.showState(container, 'store');
+                    return PartnerDownload.redirectToStore(
+                        container,
+                        fallbackLink,
+                        downloadDelay
+                    ).then(() => 'store');
+                }
+                PartnerDownload.showState(container, 'download');
+                return Promise.all([
+                    downloadDelay,
+                    PartnerDownload.waitForAttribution(attributionDeadline)
+                ]).then(() => {
+                    PartnerDownload.startDownload(fallbackLink);
+                    return 'download';
+                });
+            }
+
             PartnerDownload.showState(container, state);
 
             if (state === 'download') {
