@@ -162,6 +162,16 @@ def test_untranslated_partner_strings_show_in_english(client, acme, production_l
     assert response.context["fluent_l10n"].format_value("partner-download-continue") == "Continue to firefox.com"
 
 
+def test_untranslated_store_message_shows_in_english(client, production_locales):
+    make_partner(fallback_mode="immediate", **WINDOWS_DE)
+
+    response = client.get("/fr/get/?p=acme")
+
+    assert response.status_code == 200
+    store = BeautifulSoup(response.content, "html.parser").select_one('section[data-state="store"]')
+    assert store.h1.get_text(strip=True) == "Taking you to the app store…"
+
+
 def test_locale_without_any_translations_shows_english(client, acme, production_locales):
     # `production_locales` only translates French, so German has no Fluent files at all.
     response = client.get("/de/get/?p=acme")
@@ -235,6 +245,30 @@ def test_messages_name_the_partner(client):
         assert "from Acme" in soup.select_one(f'section[data-state="{state}"] h1').get_text(strip=True)
 
 
+def test_immediate_partner_gives_linux_the_regular_heading(client):
+    make_partner(fallback_mode="immediate", **WINDOWS_DE)
+
+    response = client.get("/en-US/get/?p=acme")
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    assert soup.find("main")["data-mode"] == "immediate"
+    linux_heading = response.context["fluent_l10n"].format_value("firefox-desktop-download-select-linux")
+    for state in ["linux_language", "linux_device"]:
+        assert soup.select_one(f'section[data-state="{state}"] h1').decode_contents() == linux_heading
+
+
+def test_store_state_offers_both_store_badges(client):
+    make_partner(fallback_mode="immediate", **WINDOWS_DE)
+
+    store = render_page(client, "/en-US/get/?p=acme").select_one('section[data-state="store"]')
+
+    assert store.h1.get_text(strip=True) == "Taking you to the app store…"
+    android_badge = store.select_one('.download-list [data-download-version="android"]')
+    ios_badge = store.select_one('.download-list [data-download-version="ios"]')
+    assert android_badge["href"].startswith("https://play.google.com/store/apps/details?id=org.mozilla.firefox")
+    assert ios_badge["href"] == "https://apps.apple.com/us/app/apple-store/id989804926"
+
+
 def test_partner_name_is_escaped(client):
     make_partner(name="<b>Acme</b> & Co", windows64_url=partner_link("win64"), windows_languages="de")
 
@@ -286,6 +320,7 @@ def test_markup_for_the_page_script(client):
         "firefox",
         "language",
         "device",
+        "store",
         "linux_language",
         "linux_device",
         "unsupported_os",
@@ -293,6 +328,7 @@ def test_markup_for_the_page_script(client):
     assert all(section.has_attr("hidden") for section in sections)
     assert (main["data-partner"], main["data-lang"]) == ("acme", "de")
     assert (main["data-windows"], main["data-osx"], main["data-linux"]) == ("available", "available", "available")
+    assert main["data-mode"] == "message"
     repack_links = soup.select(".c-partner-download-links a")
     assert [(link["class"], link["data-download-version"]) for link in repack_links] == [
         (["download-link"], "win64"),
