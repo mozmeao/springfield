@@ -181,8 +181,10 @@ if (typeof window.Mozilla === 'undefined') {
         });
     };
 
-    Mozilla.UITour.showNewTab = function () {
-        _sendEvent('showNewTab');
+    Mozilla.UITour.showNewTab = function (hash) {
+        _sendEvent('showNewTab', {
+            hash: hash
+        });
     };
 
     Mozilla.UITour.showHome = function (hash) {
