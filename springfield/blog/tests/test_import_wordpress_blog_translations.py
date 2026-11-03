@@ -21,7 +21,7 @@ from wagtail.utils.file import hash_filelike
 from springfield.blog.management.commands.fix_imported_blog_posts import youtube_thumbnail_url
 from springfield.blog.models import BlogArticlePage, BlogIndexPage, BlogTopic, HeroStyle
 from springfield.cms.fixtures.base_fixtures import get_placeholder_images
-from springfield.cms.models import SpringfieldImage
+from springfield.cms.models import PretranslatedPhrase, SpringfieldImage
 
 pytestmark = [pytest.mark.django_db]
 
@@ -127,12 +127,18 @@ def blog_topic(blog_index):
 
 @pytest.fixture
 def make_article(blog_index, blog_topic):
-    def make_article(slug="firefox-130", content=None, publish=True):
+    def make_article(
+        slug="firefox-130",
+        content=None,
+        publish=True,
+        seo_title="Firefox 130 | The Mozilla Blog",
+        search_description="Everything new in Firefox 130.",
+    ):
         article = BlogArticlePage(
             title="Firefox 130",
             slug=slug,
-            seo_title="Firefox 130 | The Mozilla Blog",
-            search_description="Everything new in Firefox 130.",
+            seo_title=seo_title,
+            search_description=search_description,
             topic=blog_topic,
             hero_style=HeroStyle.TEXT_ONLY,
             content=content or [text_block(ENGLISH)],
@@ -235,6 +241,20 @@ def test_title_tag_and_meta_description_come_from_wordpress_and_yoast(tmp_path, 
 
 
 @responses.activate
+def test_title_tag_and_meta_description_are_set_when_the_english_page_leaves_them_blank(tmp_path, make_article):
+    # The importer leaves both blank, and wagtail-localize has no segment for a blank field.
+    english = make_article(seo_title="", search_description="")
+    mock_wordpress("firefox-130", yoast={"title": "Firefox 130 | Der Mozilla-Blog", "description": "Alles Neue in Firefox 130."})
+
+    _, _, rows = run(tmp_path, "firefox-130")
+
+    page = german_page(english)
+    assert page.seo_title == "Firefox 130 | Der Mozilla-Blog"
+    assert page.search_description == "Alles Neue in Firefox 130."
+    assert rows[0]["translated"] == "5"
+
+
+@responses.activate
 def test_body_paragraphs_are_translated_and_links_keep_the_english_href(tmp_path, make_article):
     english = make_article()
     mock_wordpress("firefox-130")
@@ -313,6 +333,83 @@ def test_links_the_english_paragraph_lacks_are_dropped_and_the_page_still_publis
     assert german_page(english).live
     assert rows[0]["action"] == "created"
     assert "(extra link dropped)" in rows[0]["detail"]
+
+
+@responses.activate
+def test_a_translated_link_gets_the_english_link_to_the_same_target_not_the_one_in_its_position(tmp_path, make_article):
+    support = "https://support.mozilla.org/en-US/products/firefox"
+    english = list(ENGLISH)
+    english[1] = f'Read the <a href="{RELEASE_NOTES}">release notes</a> or ask <a href="{support}">Support</a> for everything new.'
+    page = make_article(content=[text_block(english)])
+    german = list(GERMAN)
+    german[1] = 'Fragen Sie den <a href="https://support.mozilla.org/de/products/firefox">Support</a> nach allem Neuen.'
+    mock_wordpress("firefox-130", english=english, german=german)
+
+    _, _, rows = run(tmp_path, "firefox-130")
+
+    assert links(german_text(page)) == [("Support", support)]
+    assert "link" not in rows[0]["detail"]
+
+
+@responses.activate
+def test_repeated_english_paragraphs_each_get_their_own_translation(tmp_path, make_article):
+    features = "https://www.mozilla.org/en-US/firefox/features/"
+    passwords = "https://support.mozilla.org/en-US/kb/passwords"
+    english = [f'<a href="{features}">Learn more</a>', ENGLISH[0], f'<a href="{passwords}">Learn more</a>']
+    german = [
+        '<a href="https://www.mozilla.org/de/firefox/features/">Mehr erfahren</a>',
+        GERMAN[0],
+        '<a href="https://support.mozilla.org/de/kb/passwords">Mehr erfahren</a>',
+    ]
+    page = make_article(content=[text_block(english)])
+    mock_wordpress("firefox-130", english=english, german=german)
+
+    _, _, rows = run(tmp_path, "firefox-130")
+
+    assert links(german_text(page)) == [("Mehr erfahren", features), ("Mehr erfahren", passwords)]
+    assert rows[0]["removed"] == "0"
+
+
+@responses.activate
+def test_inline_tags_with_attributes_in_the_translation_do_not_fail_the_page(tmp_path, make_article):
+    german = list(GERMAN)
+    german[0] = 'Firefox 130 ist da, mit <strong class="has-inline-color">Funktionen</strong>, die Ihnen die Kontrolle geben.'
+    english = make_article()
+    mock_wordpress("firefox-130", german=german)
+
+    _, _, rows = run(tmp_path, "firefox-130")
+
+    assert rows[0]["action"] == "created"
+    assert "<strong>Funktionen</strong>" in german_text(english)
+
+
+@responses.activate
+def test_a_null_correction_removes_a_short_paragraph_the_heuristic_would_keep(tmp_path, make_article):
+    english = make_article(content=[text_block([*ENGLISH, "Learn more"])])
+    mock_wordpress("firefox-130", english=[*ENGLISH, "Learn more"])
+    overrides = tmp_path / "overrides.json"
+    overrides.write_text(json.dumps({"firefox-130-de": [{"en": "Learn more", "tr": None}]}))
+
+    _, _, rows = run(tmp_path, "firefox-130", overrides=str(overrides))
+
+    assert "Learn more" not in german_text(english)
+    assert rows[0]["removed"] == "2"
+
+
+@responses.activate
+def test_a_null_correction_removes_only_the_occurrence_it_names(tmp_path, make_article):
+    english = make_article(content=[text_block(["Learn more", ENGLISH[0], "Learn more"])])
+    mock_wordpress("firefox-130", english=["Learn more", ENGLISH[0], "Learn more"], german=[GERMAN[0]])
+    overrides = tmp_path / "overrides.json"
+    overrides.write_text(json.dumps({"firefox-130-de": [{"en": "Learn more", "tr": None}]}))
+
+    _, _, rows = run(tmp_path, "firefox-130", overrides=str(overrides))
+
+    text = german_text(english)
+    assert plain(text).count("Learn more") == 1
+    assert plain(text).index(GERMAN[0]) < plain(text).index("Learn more")
+    assert rows[0]["removed"] == "1"
+    assert rows[0]["kept_english"] == "1"
 
 
 @responses.activate
@@ -422,6 +519,28 @@ def test_skips_a_translation_published_before_since(tmp_path, make_article):
     assert not BlogArticlePage.objects.filter(locale__language_code="de").exists()
 
 
+@responses.activate
+def test_a_block_referencing_an_untranslated_snippet_keeps_the_english_snippet(tmp_path, make_article):
+    phrase = PretranslatedPhrase.objects.create(label="Learn more", locale=Locale.get_default(), live=True)
+    link = {"link_to": "custom_url", "custom_url": "https://example.com/", "relative_url": "", "anchor": "", "phone": ""}
+    button = {
+        "type": "button",
+        "value": {"pretranslated_label": phrase.pk, "custom_label": "", "link": link, "settings": {"analytics_id": ""}},
+        "id": "b1",
+    }
+    buttons = {"type": "buttons", "value": {"buttons": [button]}, "id": "b2"}
+    card = {"type": "card", "value": {"content": [buttons]}, "id": "b3"}
+    cards_list = {"type": "cards_list", "value": {"cards": [card]}, "id": "00000000-0000-0000-0000-000000000006"}
+    english = make_article(content=[text_block(ENGLISH), cards_list])
+    mock_wordpress("firefox-130")
+
+    _, _, rows = run(tmp_path, "firefox-130")
+
+    assert rows[0]["action"] == "created", rows[0]["detail"]
+    german_button = german_page(english).content[1].value["cards"][0].value["content"][0].value["buttons"][0].value
+    assert german_button["pretranslated_label"].pk == phrase.pk
+
+
 # -------------------------------------------------------------------------
 # Images
 # -------------------------------------------------------------------------
@@ -488,6 +607,33 @@ def test_a_library_file_is_reused_only_with_the_same_alt_text(tmp_path, make_art
     image = content_image(german_page(english))
     assert image.pk != placeholder_image.pk
     assert image.description == "Die Einstellungen auf Deutsch"
+
+
+@responses.activate
+def test_the_same_image_with_translated_alt_text_gets_its_own_described_copy(tmp_path, make_article, placeholder_image):
+    with placeholder_image.file.open("rb") as image_file:
+        content = image_file.read()
+    placeholder_image.description = "The settings page in English"
+    placeholder_image.file_hash = hash_filelike(BytesIO(content))
+    placeholder_image.save()
+    english = make_article(content=[text_block(ENGLISH), image_block(placeholder_image)])
+    english_post = wordpress_post("en", "firefox-130", wordpress_html(ENGLISH, f"{UPLOADS}/placeholder_image.png", "The settings page in English"))
+    mock_rest("en", english_post)
+    mock_rest(
+        "de", wordpress_post("de", "firefox-130-de", wordpress_html(GERMAN, f"{UPLOADS}/placeholder_image.png", "Die Einstellungen auf Deutsch"))
+    )
+    responses.add(
+        responses.GET, english_post["link"], body=f'<link rel="alternate" hreflang="de" href="{WORDPRESS}/de/products/firefox/firefox-130-de/">'
+    )
+    responses.add(responses.GET, f"{UPLOADS}/placeholder_image.png", body=content, content_type="image/png")
+
+    _, _, rows = run(tmp_path, "firefox-130")
+
+    image = content_image(german_page(english))
+    assert image.pk != placeholder_image.pk
+    assert image.description == "Die Einstellungen auf Deutsch"
+    assert image.file_hash == placeholder_image.file_hash
+    assert rows[0]["images_swapped"] == "1"
 
 
 # -------------------------------------------------------------------------

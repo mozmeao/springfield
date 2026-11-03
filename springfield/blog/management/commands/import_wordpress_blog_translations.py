@@ -36,8 +36,10 @@ import html
 import json
 import re
 import time
+from collections import defaultdict
 from urllib.parse import urlparse
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.files.base import ContentFile
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
@@ -48,7 +50,7 @@ import requests
 from bs4 import BeautifulSoup
 from wagtail.models import Locale
 from wagtail.utils.file import hash_filelike
-from wagtail_localize.segments import OverridableSegmentValue, StringSegmentValue
+from wagtail_localize.segments import OverridableSegmentValue, RelatedObjectSegmentValue, StringSegmentValue
 from wagtail_localize.segments.extract import extract_segments
 from wagtail_localize.segments.ingest import ingest_segments
 from wagtail_localize.strings import StringValue
@@ -68,6 +70,9 @@ DEFAULT_WORDPRESS_URL = "https://blog.mozilla.org"
 DEFAULT_LOCALES = ("de", "fr")
 REST_FIELDS = "id,slug,date,link,title,excerpt,content,yoast_head_json"
 SITE_NAME_SUFFIX_RE = re.compile(r"\s+[-|–—]\s+The Mozilla Blog\s*$", re.IGNORECASE)
+# Set from WordPress after ingest, not through segments: extract_segments has no segment for a
+# field the English page leaves blank, and the importer leaves these blank.
+METADATA_FIELDS = ("seo_title", "search_description")
 
 # translation_url's answer when the English post's page redirects away from WordPress.
 REDIRECTED = object()
@@ -234,14 +239,21 @@ class Command(BaseCommand):
         page_keys = {alignment.normalise(segment.string.data) for segment in english_segments if isinstance(segment, StringSegmentValue)}
         # WordPress paragraphs whose English the page no longer has word for word (edited since
         # the import): the only ones a near match may take, each once.
-        unclaimed = [key for key, translation in paired.translations.items() if translation and key not in page_keys]
+        unclaimed = [position for position, translated in paired.translations.items() if translated and paired.english[position].key not in page_keys]
 
-        segments, counts, to_remove, doubtful = [], dict(strings=0, translated=0, kept_english=0, removed=0), set(), []
+        # For each English text, one decision per occurrence left in English, in page order:
+        # True to remove it. Repeated text (a "Learn more" twice) is told apart by order.
+        removals = defaultdict(list)
+        segments, counts, doubtful = [], dict(strings=0, translated=0, kept_english=0, removed=0), []
         for segment in english_segments:
+            if segment.path in METADATA_FIELDS:
+                continue
             if isinstance(segment, StringSegmentValue):
                 counts["strings"] += 1
-                new_html = self.translated_string(segment, translated_post, paired, unclaimed, counts, to_remove, doubtful)
+                new_html = self.translated_string(segment, translated_post, paired, unclaimed, counts, removals, doubtful)
                 segment = StringSegmentValue(segment.path, StringValue(new_html), attrs=segment.attrs).with_order(segment.order)
+            elif isinstance(segment, RelatedObjectSegmentValue) and segment.path != "topic":
+                segment = self.snippet_reference(segment, page.locale, locale)
             segments.append(segment)
 
         swaps, dry_run_swaps, missing_images, videos = self.localized_media(english_segments, english_post, translated_post, key)
@@ -256,7 +268,9 @@ class Command(BaseCommand):
 
         translated_page = page.copy_for_translation(locale)
         ingest_segments(page, translated_page, page.locale, locale, segments)
-        counts["removed"], not_removed = self.remove_english_only(translated_page, to_remove)
+        translated_page.seo_title, translated_page.search_description = self.metadata(translated_post)
+        counts["translated"] += len(METADATA_FIELDS)
+        counts["removed"], not_removed = self.remove_english_only(translated_page, removals)
         videos_swapped = self.swap_videos(translated_page, videos)
         translated_page.first_published_at = published
         translated_page.save_revision(log_action=True).publish(log_action=True)
@@ -275,53 +289,56 @@ class Command(BaseCommand):
         )
         return translated_page
 
-    def translated_string(self, segment, translated_post, paired, unclaimed, counts, to_remove, doubtful):
+    def translated_string(self, segment, translated_post, paired, unclaimed, counts, removals, doubtful):
         """The WordPress text for one English string, mirroring what WordPress shows."""
         english_html = segment.string.data
         if segment.path == "title":
             counts["translated"] += 1
             return StringValue.from_plaintext(html.unescape(translated_post["title"]["rendered"])).data
-        yoast = translated_post.get("yoast_head_json") or {}
-        if segment.path == "seo_title":
-            counts["translated"] += 1
-            # Yoast's title is the whole <title>, often with the WordPress site name on the end.
-            seo_title = SITE_NAME_SUFFIX_RE.sub("", yoast.get("title") or "")
-            return StringValue.from_plaintext(seo_title or html.unescape(translated_post["title"]["rendered"])).data
-        if segment.path == "search_description":
-            counts["translated"] += 1
-            excerpt = BeautifulSoup(translated_post["excerpt"]["rendered"], "html.parser").get_text(" ", strip=True)
-            return StringValue.from_plaintext(
-                yoast.get("description") or excerpt or alignment.first_words(translated_post["content"]["rendered"])
-            ).data
         if english_html.strip().startswith("<!--"):
             return english_html
 
         key = alignment.normalise(english_html)
-        translated_html = paired.translations.get(key, "")
-        if translated_html == "" and unclaimed:
-            close = difflib.get_close_matches(key, unclaimed, n=1, cutoff=0.8)
+        position = paired.claim(key)
+        if position is None and unclaimed:
+            close = difflib.get_close_matches(key, [paired.english[candidate].key for candidate in unclaimed], n=1, cutoff=0.8)
             if close:
-                unclaimed.remove(close[0])
-                translated_html = paired.translations[close[0]]
+                position = next(candidate for candidate in unclaimed if paired.english[candidate].key == close[0])
+                unclaimed.remove(position)
                 doubtful.append(key[:60])
-        elif key in paired.doubtful:
+        elif position in paired.doubtful:
             doubtful.append(key[:60])
 
-        if not translated_html:
-            if alignment.same_in_every_language(english_html):
+        translated = paired.translations.get(position)
+        if translated is None:
+            # A correction saying the translation has nothing is final; otherwise text that is
+            # the same in every language is kept, and the rest removed.
+            remove = position in paired.translations or not alignment.same_in_every_language(english_html)
+            removals[key].append(remove)
+            if not remove:
                 counts["kept_english"] += 1
-            else:
-                to_remove.add(key)
             return english_html
-        if alignment.normalise(translated_html) == key:
+        if translated.key == key:
             counts["kept_english"] += 1
+            removals[key].append(False)
             return english_html
         counts["translated"] += 1
-        tidied = alignment.tidy(translated_html)
-        kept = alignment.keep_links(tidied, set(segment.attrs or {}))
-        if kept != tidied:
+        translated_html, dropped, guessed = alignment.with_english_links(translated, segment.attrs or {})
+        if dropped:
             doubtful.append(f"{key[:50]} (extra link dropped)")
-        return kept
+        elif guessed:
+            doubtful.append(f"{key[:50]} (link paired by position)")
+        return translated_html
+
+    def metadata(self, translated_post):
+        """The Title tag and Meta description as WordPress outputs them (Yoast), with the
+        fallbacks WordPress itself uses."""
+        yoast = translated_post.get("yoast_head_json") or {}
+        # Yoast's title is the whole <title>, often with the WordPress site name on the end.
+        seo_title = SITE_NAME_SUFFIX_RE.sub("", yoast.get("title") or "") or html.unescape(translated_post["title"]["rendered"])
+        excerpt = BeautifulSoup(translated_post["excerpt"]["rendered"], "html.parser").get_text(" ", strip=True)
+        description = yoast.get("description") or excerpt or alignment.first_words(translated_post["content"]["rendered"])
+        return seo_title, description
 
     # -----------------------------------------------------------------------
     # Page structure
@@ -349,13 +366,23 @@ class Command(BaseCommand):
         translated_topic.save()
         translated_topic.save_revision().publish()
 
-    def remove_english_only(self, translated_page, keys):
+    def snippet_reference(self, segment, source_locale, locale):
+        """A block's reference to a translatable snippet (a pre-translated phrase, say) as
+        ingest_segments can resolve it: as is when the snippet has a `locale` translation, and
+        otherwise pointing at the English snippet, which the block localizes when it renders."""
+        try:
+            segment.get_instance(locale)
+        except ObjectDoesNotExist:
+            return OverridableSegmentValue(segment.path, segment.get_instance(source_locale).pk).with_order(segment.order)
+        return segment
+
+    def remove_english_only(self, translated_page, removals):
         """Remove the paragraphs, headings, list items and captions WordPress has no translation
-        for, wherever they sit in the body. Returns how many were removed and the texts that
-        could not be (plain text fields such as alt text), which stay in English."""
-        if not keys:
+        for, wherever they sit in the body: the occurrences `removals` marks, taken in page
+        order. Returns how many were removed and the texts that could not be (plain text fields
+        such as alt text), which stay in English."""
+        if not any(decisions for decisions in removals.values() if any(decisions)):
             return 0, set()
-        removed_keys = set()
         removed = 0
 
         def strip(value, block_type=None):
@@ -373,21 +400,21 @@ class Command(BaseCommand):
                 found = [
                     element
                     for element in soup.find_all(["p", "h2", "h3", "h4", "h5", "li", "figcaption"])
-                    if alignment.normalise(str(element)) in keys
+                    if removals.get(alignment.normalise(str(element)))
                 ]
                 if not found:
                     return value
                 for element in found:
-                    removed_keys.add(alignment.normalise(str(element)))
-                    element.decompose()
-                    removed += 1
+                    if removals[alignment.normalise(str(element))].pop(0):
+                        element.decompose()
+                        removed += 1
                 return str(soup)
             return value
 
         # get_prep_value, not raw_data: ingest_segments updates the block values, and raw_data
         # still holds the English the page was copied with.
         translated_page.content = strip(translated_page.content.get_prep_value())
-        return removed, keys - removed_keys
+        return removed, {key for key, decisions in removals.items() if any(decisions)}
 
     def swap_videos(self, translated_page, videos):
         """Replace English YouTube videos with the translation's, in the body and the hero: the
@@ -461,6 +488,16 @@ class Command(BaseCommand):
             for operation, english_start, english_end, translated_start, translated_end in matcher.get_opcodes():
                 if operation == "replace" and english_end - english_start == translated_end - translated_start:
                     pairs += zip(english_media[english_start:english_end], translated_media[translated_start:translated_end])
+                elif operation == "equal":
+                    # The same file with translated alt text: the page needs its own copy of the
+                    # image, described in the page's language.
+                    pairs += [
+                        (english, translated)
+                        for english, translated in zip(english_media[english_start:english_end], translated_media[translated_start:translated_end])
+                        if english.kind == "image"
+                        and image_description(translated.alt)
+                        and image_description(translated.alt) != image_description(english.alt)
+                    ]
 
         # Body images the English page uses, by file name: (segment path, image), in page order.
         image_segments = [

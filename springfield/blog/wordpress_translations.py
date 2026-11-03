@@ -19,6 +19,7 @@ import html
 import math
 import re
 from dataclasses import dataclass, field
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 from bs4 import BeautifulSoup
 from wagtail_localize.strings import extract_strings
@@ -31,6 +32,8 @@ TYPOGRAPHY = str.maketrans({"‘": "'", "’": "'", "“": '"', "”": '"', "–
 
 # Language directories in a URL, removed so a link to /de/kb/x and /en-US/kb/x compare equal.
 LOCALE_PATH_RE = re.compile(r"/(?:en|en-us|de|fr|de-de|fr-fr)(?=/)", re.IGNORECASE)
+# Query parameters that say where a link was clicked, not where it goes.
+TRACKING_PARAMS_RE = re.compile(r"^(utm_|mtm_|pk_|fbclid$|gclid$)", re.IGNORECASE)
 
 # Words capitalised in every language, which carry no information about which paragraph is which.
 COMMON_CAPITALISED = {"the", "die", "der", "das", "les", "des", "une", "und", "pour", "with"}
@@ -74,9 +77,19 @@ def paragraphs(post_html):
         block_html = value if kind == "text" else (value.get("caption") or "") if kind == "image" else ""
         if not block_html:
             continue
-        _, strings = extract_strings(block_html)
+        _, strings = extract_strings(without_inline_attributes(block_html))
         found += [Paragraph(string.data, attrs) for string, attrs in strings if normalise(string.data)]
     return found
+
+
+def without_inline_attributes(block_html):
+    """`block_html` with attributes kept only on links: WordPress styles inline tags with classes
+    (`<strong class="has-inline-color">`), which wagtail-localize refuses to cut into strings."""
+    soup = BeautifulSoup(block_html, "html.parser")
+    for tag in soup.find_all(True):
+        if tag.name not in ("a", "img", "iframe"):
+            tag.attrs = {}
+    return str(soup)
 
 
 @dataclass
@@ -113,14 +126,21 @@ def file_stem(url_or_name):
     return re.sub(r"_[A-Za-z0-9]{7}$", "", name).lower()
 
 
+def link_target(attrs):
+    """A link's destination with the differences a translation makes folded away (the language
+    directory, tracking parameters, www), or None for an element that is not a link. Other
+    query parameters stay: `?os=win` and `?os=mac` are different destinations."""
+    if not attrs.get("href"):
+        return None
+    scheme, host, path, query, _ = urlsplit(attrs["href"].replace("://www.", "://"))
+    kept = sorted((name, value) for name, value in parse_qsl(query, keep_blank_values=True) if not TRACKING_PARAMS_RE.match(name))
+    return urlunsplit((scheme, host, LOCALE_PATH_RE.sub("", path).rstrip("/"), urlencode(kept), ""))
+
+
 def anchors(paragraph):
     """Clues that survive translation: link targets, numbers, capitalised words, length."""
     text = BeautifulSoup(paragraph.html, "html.parser").get_text(" ")
-    links = {
-        LOCALE_PATH_RE.sub("", attrs["href"]).split("?")[0].rstrip("/").replace("://www.", "://")
-        for attrs in paragraph.attrs.values()
-        if attrs.get("href")
-    }
+    links = {target for target in map(link_target, paragraph.attrs.values()) if target}
     numbers = set(re.findall(r"\d+", text))
     names = {word for word in re.findall(r"\b[A-Z][A-Za-z0-9+]{2,}\b", text) if word.lower() not in COMMON_CAPITALISED}
     return links, numbers, names, len(paragraph.key)
@@ -143,10 +163,27 @@ def score(english, translated):
 
 @dataclass
 class Alignment:
-    """For each English paragraph key: the translated HTML, and the keys matched only weakly."""
+    """What the alignment found, by the position of each English paragraph: the translated
+    paragraph it lines up with (None where a hand correction says the translation has nothing;
+    absent where the alignment found nothing), and the positions matched only weakly.
 
+    Positions, not text, so two English paragraphs that read the same (a repeated "Learn more"
+    with different links) each keep their own translation."""
+
+    english: list
     translations: dict
     doubtful: set
+    claimed: set = field(default_factory=set)
+
+    def claim(self, key):
+        """The position of the next English paragraph reading `key` that no page string has
+        taken yet, or None. The page's strings and the WordPress paragraphs run in the same
+        order, so repeated text goes to its own occurrence."""
+        for position, paragraph in enumerate(self.english):
+            if position not in self.claimed and paragraph.key == key:
+                self.claimed.add(position)
+                return position
+        return None
 
 
 def align(english, translated):
@@ -190,17 +227,17 @@ def align(english, translated):
         step = move[row][column]
         path.append((step, row))
         if step == "pair":
-            translations[english[row - 1].key] = translated[column - 1].html
+            translations[row - 1] = translated[column - 1]
             if score(english_anchors[row - 1], translated_anchors[column - 1]) < WEAK_MATCH:
-                doubtful.add(english[row - 1].key)
+                doubtful.add(row - 1)
             row, column = row - 1, column - 1
         elif step == "join":
-            translations[english[row - 1].key] = translated[column - 2].html + "<br/>" + translated[column - 1].html
-            doubtful.add(english[row - 1].key)
+            translations[row - 1] = join_paragraphs([translated[column - 2], translated[column - 1]])
+            doubtful.add(row - 1)
             row, column = row - 1, column - 2
         elif step == "split":
-            translations[english[row - 2].key] = translated[column - 1].html
-            doubtful.add(english[row - 2].key)
+            translations[row - 2] = translated[column - 1]
+            doubtful.add(row - 2)
             row, column = row - 2, column - 1
         elif step == "skip_english":
             row -= 1
@@ -212,8 +249,22 @@ def align(english, translated):
         if step != "pair":
             for nearby_step, nearby_row in path[max(0, position - 1) : position + 2]:
                 if nearby_step == "pair" and nearby_row > 0:
-                    doubtful.add(english[nearby_row - 1].key)
-    return Alignment(translations, doubtful)
+                    doubtful.add(nearby_row - 1)
+    return Alignment(english, translations, doubtful)
+
+
+def join_paragraphs(parts):
+    """One paragraph from several, as English joins them: a line break between, and the links
+    renumbered so each keeps its own target."""
+    pieces, attrs, number = [], {}, 0
+    for part in parts:
+        soup = BeautifulSoup(part.html, "html.parser")
+        for link in soup.find_all("a"):
+            number += 1
+            attrs[f"a{number}"] = part.attrs.get(link.get("id"), {})
+            link.attrs = {"id": f"a{number}"}
+        pieces.append(str(soup))
+    return Paragraph("<br/>".join(pieces), attrs)
 
 
 def apply_corrections(alignment, english, translated, corrections):
@@ -222,36 +273,65 @@ def apply_corrections(alignment, english, translated, corrections):
     nothing, so they can be reported."""
     unmatched = []
     for correction in corrections:
-        english_key = next((paragraph.key for paragraph in english if paragraph.key.startswith(normalise(correction["en"]))), None)
-        if english_key is None:
+        position = next((position for position, paragraph in enumerate(english) if paragraph.key.startswith(normalise(correction["en"]))), None)
+        if position is None:
             unmatched.append(correction)
             continue
-        alignment.doubtful.discard(english_key)
+        alignment.doubtful.discard(position)
         if correction["tr"] is None:
-            alignment.translations[english_key] = None
+            alignment.translations[position] = None
             continue
         starts = correction["tr"] if isinstance(correction["tr"], list) else [correction["tr"]]
-        parts = [next((paragraph.html for paragraph in translated if paragraph.key.startswith(normalise(start))), None) for start in starts]
+        parts = [next((paragraph for paragraph in translated if paragraph.key.startswith(normalise(start))), None) for start in starts]
         if None in parts:
             unmatched.append(correction)
             continue
-        alignment.translations[english_key] = "<br/>".join(parts)
+        alignment.translations[position] = parts[0] if len(parts) == 1 else join_paragraphs(parts)
     return unmatched
 
 
-def tidy(translated_html):
-    """Unwrap links nested in links (seen in WPML copies) and number the links a1, a2… in order,
-    the form wagtail-localize gives the English string."""
-    soup = BeautifulSoup(translated_html, "html.parser")
+def with_english_links(translated, english_attrs):
+    """The translated paragraph's HTML in the form wagtail-localize ingests: each link carries
+    the id of the English link to the same target, the only links a translated string can have.
+
+    Links to targets the English has are paired by target. Those left over are paired by
+    position when the two sides have the same number left, and otherwise unwrapped, keeping
+    their text. Returns the HTML, how many links were unwrapped, and whether any pairing was
+    a guess worth checking (by position, or between English links to the same target)."""
+    soup = BeautifulSoup(translated.html, "html.parser")
     for link in soup.find_all("a"):
         if link.find_parent("a"):
             link.unwrap()
     for tag in soup.find_all(["strong", "em", "b", "i"]):
         if tag.parent is not None and tag.parent.name == tag.name and len(tag.parent.contents) == 1:
             tag.parent.unwrap()
-    for number, link in enumerate(soup.find_all("a"), 1):
-        link.attrs = {"id": f"a{number}"}
-    return str(soup)
+
+    english_targets = {link_id: link_target(attrs) for link_id, attrs in english_attrs.items() if link_target(attrs)}
+    links = soup.find_all("a")
+    english_ids = [None] * len(links)
+    guessed = False
+    for number, link in enumerate(links):
+        target = link_target(translated.attrs.get(link.get("id"), {}))
+        candidates = [link_id for link_id, english_target in english_targets.items() if english_target == target and link_id not in english_ids]
+        if candidates:
+            english_ids[number] = candidates[0]
+            # Two English links to one target: either could be the right one.
+            guessed = guessed or len(candidates) > 1
+    unpaired_links = [number for number, link_id in enumerate(english_ids) if link_id is None]
+    unpaired_ids = [link_id for link_id in english_targets if link_id not in english_ids]
+    if unpaired_links and len(unpaired_links) == len(unpaired_ids):
+        guessed = True
+        for number, link_id in zip(unpaired_links, unpaired_ids):
+            english_ids[number] = link_id
+
+    dropped = 0
+    for link, link_id in zip(links, english_ids):
+        if link_id is None:
+            link.unwrap()
+            dropped += 1
+        else:
+            link.attrs = {"id": link_id}
+    return str(soup), dropped, guessed
 
 
 def same_in_every_language(english_html):
@@ -266,13 +346,3 @@ def first_words(post_html, limit=155):
     """The start of a post's text, as WordPress uses it when a post has no excerpt."""
     text = re.sub(r"\s+", " ", BeautifulSoup(post_html, "html.parser").get_text(" ")).strip()
     return text if len(text) <= limit else text[:limit].rsplit(" ", 1)[0]
-
-
-def keep_links(translated_html, link_ids):
-    """Unwrap the links whose id the English string doesn't have, keeping their text:
-    wagtail-localize can only give a translated string the links of its English one."""
-    soup = BeautifulSoup(translated_html, "html.parser")
-    for link in soup.find_all("a"):
-        if link.get("id") not in link_ids:
-            link.unwrap()
-    return str(soup)

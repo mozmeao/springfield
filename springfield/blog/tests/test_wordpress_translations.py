@@ -12,12 +12,13 @@ from springfield.blog.wordpress_translations import (
     apply_corrections,
     file_stem,
     first_words,
-    keep_links,
+    join_paragraphs,
+    link_target,
     media,
     normalise,
     paragraphs,
     same_in_every_language,
-    tidy,
+    with_english_links,
 )
 
 pytestmark = [pytest.mark.django_db]
@@ -57,9 +58,7 @@ def test_align_pairs_paragraphs_one_to_one():
 
     result = align(english, translated)
 
-    assert result.translations == {
-        english_paragraph.key: translated_paragraph.html for english_paragraph, translated_paragraph in zip(english, translated)
-    }
+    assert result.translations == dict(enumerate(translated))
     assert result.doubtful == set()
 
 
@@ -81,10 +80,10 @@ def test_align_joins_two_translated_paragraphs_when_the_translation_splits_one()
 
     result = align(english, translated)
 
-    assert result.translations[english[1].key] == translated[1].html + "<br/>" + translated[2].html
-    assert result.translations[english[0].key] == translated[0].html
-    assert result.translations[english[2].key] == translated[3].html
-    assert english[1].key in result.doubtful
+    assert result.translations[1] == join_paragraphs([translated[1], translated[2]])
+    assert result.translations[0] == translated[0]
+    assert result.translations[2] == translated[3]
+    assert 1 in result.doubtful
 
 
 def test_align_leaves_a_gap_for_a_paragraph_only_english_has_and_doubts_its_neighbours():
@@ -100,10 +99,10 @@ def test_align_leaves_a_gap_for_a_paragraph_only_english_has_and_doubts_its_neig
 
     result = align(english, translated)
 
-    assert english[1].key not in result.translations
-    assert result.translations[english[0].key] == translated[0].html
-    assert result.translations[english[2].key] == translated[1].html
-    assert {english[0].key, english[2].key} <= result.doubtful
+    assert 1 not in result.translations
+    assert result.translations[0] == translated[0]
+    assert result.translations[2] == translated[1]
+    assert {0, 2} <= result.doubtful
 
 
 def test_align_ignores_capitalised_words_only_the_translation_uses():
@@ -119,15 +118,42 @@ def test_align_ignores_capitalised_words_only_the_translation_uses():
 
     result = align(english, translated)
 
-    assert result.translations == {english[0].key: translated[0].html}
+    assert result.translations == {0: translated[0]}
     assert result.doubtful == set()
+
+
+def test_align_keeps_repeated_english_paragraphs_apart():
+    english = [
+        linked("Learn more", "https://www.mozilla.org/en-US/firefox/features/"),
+        Paragraph("Firefox keeps your passwords safe and fills them in for you on every site."),
+        linked("Learn more", "https://support.mozilla.org/en-US/kb/passwords"),
+    ]
+    translated = [
+        linked("Mehr erfahren", "https://www.mozilla.org/de/firefox/features/"),
+        Paragraph("Firefox schützt Ihre Passwörter und füllt sie auf jeder Website für Sie aus."),
+        linked("Mehr erfahren", "https://support.mozilla.org/de/kb/passwords"),
+    ]
+
+    result = align(english, translated)
+
+    assert result.translations == dict(enumerate(translated))
+    assert result.claim(english[0].key) == 0
+    assert result.claim(english[0].key) == 2
+    assert result.claim(english[0].key) is None
+
+
+def test_join_paragraphs_keeps_each_link_its_own_target():
+    joined = join_paragraphs([linked("Erstens", "https://example.com/one"), linked("Zweitens", "https://example.com/two")])
+
+    assert joined.html == 'Erstens <a id="a1">here</a>.<br/>Zweitens <a id="a2">here</a>.'
+    assert joined.attrs == {"a1": {"href": "https://example.com/one"}, "a2": {"href": "https://example.com/two"}}
 
 
 @pytest.fixture
 def corrected():
     english = [Paragraph("First English paragraph."), Paragraph("Second English paragraph."), Paragraph("Third English paragraph.")]
     translated = [Paragraph("Erster Absatz."), Paragraph("Zweiter Absatz, Teil eins."), Paragraph("Zweiter Absatz, Teil zwei.")]
-    alignment = Alignment({english[0].key: "<b>wrong</b>"}, {english[0].key, english[1].key, english[2].key})
+    alignment = Alignment(english, {0: Paragraph("<b>wrong</b>")}, {0, 1, 2})
     return alignment, english, translated
 
 
@@ -137,8 +163,8 @@ def test_apply_corrections_sets_a_paragraph(corrected):
     unmatched = apply_corrections(alignment, english, translated, [{"en": "First English", "tr": "Erster"}])
 
     assert unmatched == []
-    assert alignment.translations[english[0].key] == "Erster Absatz."
-    assert english[0].key not in alignment.doubtful
+    assert alignment.translations[0] == translated[0]
+    assert 0 not in alignment.doubtful
 
 
 def test_apply_corrections_joins_a_list_of_paragraphs(corrected):
@@ -146,8 +172,8 @@ def test_apply_corrections_joins_a_list_of_paragraphs(corrected):
 
     apply_corrections(alignment, english, translated, [{"en": "Second", "tr": ["Zweiter Absatz, Teil eins", "Zweiter Absatz, Teil zwei"]}])
 
-    assert alignment.translations[english[1].key] == "Zweiter Absatz, Teil eins.<br/>Zweiter Absatz, Teil zwei."
-    assert english[1].key not in alignment.doubtful
+    assert alignment.translations[1].html == "Zweiter Absatz, Teil eins.<br/>Zweiter Absatz, Teil zwei."
+    assert 1 not in alignment.doubtful
 
 
 def test_apply_corrections_null_leaves_a_paragraph_without_translation(corrected):
@@ -155,9 +181,9 @@ def test_apply_corrections_null_leaves_a_paragraph_without_translation(corrected
 
     apply_corrections(alignment, english, translated, [{"en": "Third", "tr": None}])
 
-    assert english[2].key in alignment.translations
-    assert alignment.translations[english[2].key] is None
-    assert english[2].key not in alignment.doubtful
+    assert 2 in alignment.translations
+    assert alignment.translations[2] is None
+    assert 2 not in alignment.doubtful
 
 
 def test_apply_corrections_returns_the_corrections_that_match_nothing(corrected):
@@ -168,17 +194,95 @@ def test_apply_corrections_returns_the_corrections_that_match_nothing(corrected)
     unmatched = apply_corrections(alignment, english, translated, [no_english, no_translation])
 
     assert unmatched == [no_english, no_translation]
-    assert alignment.translations[english[0].key] == "<b>wrong</b>"
+    assert alignment.translations[0] == Paragraph("<b>wrong</b>")
 
 
-def test_tidy_unwraps_nested_links_and_renumbers_them_in_order():
-    translated = '<a id="a4" href="x"><a id="a7">Firefox</a> holen</a> und <a id="a2" class="y">mehr</a> <strong><strong>lesen</strong></strong>'
+def test_link_target_keeps_query_parameters_that_pick_the_destination_and_drops_tracking():
+    assert (
+        link_target({"href": "https://www.mozilla.org/de/firefox/download/?os=mac&utm_source=blog"}) == "https://mozilla.org/firefox/download?os=mac"
+    )
+    assert (
+        link_target({"href": "https://www.mozilla.org/en-US/firefox/download/?utm_source=blog&os=mac"})
+        == "https://mozilla.org/firefox/download?os=mac"
+    )
+    assert link_target({"href": "https://mozilla.org/firefox/download/?os=win"}) != link_target(
+        {"href": "https://mozilla.org/firefox/download/?os=mac"}
+    )
+    assert link_target({"class": ["x"]}) is None
 
-    assert tidy(translated) == '<a id="a1">Firefox holen</a> und <a id="a2">mehr</a> <strong>lesen</strong>'
+
+def test_with_english_links_tells_links_apart_by_query_string_and_flags_a_tie():
+    download = "https://www.mozilla.org/en-US/firefox/download/"
+    english = {"a1": {"href": f"{download}?os=win"}, "a2": {"href": f"{download}?os=mac"}, "a3": {"href": f"{download}?os=mac&utm_source=x"}}
+    translated = Paragraph('<a id="a1">Für Mac</a>', {"a1": {"href": "https://www.mozilla.org/de/firefox/download/?os=mac"}})
+
+    html, dropped, guessed = with_english_links(translated, english)
+
+    assert html == '<a id="a2">Für Mac</a>'
+    assert guessed  # a2 and a3 both go to the Mac download
 
 
-def test_keep_links_unwraps_links_the_english_string_does_not_have():
-    assert keep_links('<a id="a1">Firefox</a> und <a id="a2">mehr</a>', {"a1"}) == '<a id="a1">Firefox</a> und mehr'
+ENGLISH_LINKS = {"a1": {"href": "https://www.mozilla.org/en-US/firefox/130.0/releasenotes/"}, "a2": {"href": "https://support.mozilla.org/en-US/"}}
+
+
+def test_with_english_links_pairs_links_by_target_not_position():
+    # The translation links only Support; by position it would get the release notes URL.
+    translated = Paragraph('Mehr in der <a id="a1">Hilfe</a>.', {"a1": {"href": "https://support.mozilla.org/de/"}})
+
+    html, dropped, guessed = with_english_links(translated, ENGLISH_LINKS)
+
+    assert html == 'Mehr in der <a id="a2">Hilfe</a>.'
+    assert dropped == 0
+    assert not guessed
+
+
+def test_with_english_links_unwraps_links_it_cannot_place():
+    # One target matches; two translated links are left for one English id, so neither is guessed.
+    translated = Paragraph(
+        '<a id="a1">Hilfe</a>, <a id="a2">mehr</a> und <a id="a3">noch mehr</a>',
+        {"a1": {"href": "https://support.mozilla.org/de/"}, "a2": {"href": "https://example.com/"}, "a3": {"href": "https://example.org/"}},
+    )
+
+    html, dropped, guessed = with_english_links(translated, ENGLISH_LINKS)
+
+    assert html == '<a id="a2">Hilfe</a>, mehr und noch mehr'
+    assert dropped == 2
+    assert not guessed
+
+
+def test_with_english_links_pairs_leftover_links_by_position_and_says_so():
+    translated = Paragraph(
+        '<a id="a1">Versionshinweise</a> und <a id="a2">Hilfe</a>',
+        {
+            "a1": {"href": "https://www.mozilla.org/de/firefox/130.0/releasenotes/"},
+            "a2": {"href": "https://support.mozilla.org/de/kb/hilfe-auf-deutsch"},
+        },
+    )
+
+    html, dropped, guessed = with_english_links(translated, ENGLISH_LINKS)
+
+    assert html == '<a id="a1">Versionshinweise</a> und <a id="a2">Hilfe</a>'
+    assert dropped == 0
+    assert guessed
+
+
+def test_with_english_links_unwraps_nested_links_and_doubled_tags():
+    translated = Paragraph(
+        '<a id="a1"><a id="a2">Firefox</a> holen</a> <em><em>lesen</em></em>',
+        {"a1": {"href": "https://support.mozilla.org/de/"}, "a2": {"href": "https://example.com/"}},
+    )
+
+    html, dropped, guessed = with_english_links(translated, ENGLISH_LINKS)
+
+    assert html == '<a id="a2">Firefox holen</a> <em>lesen</em>'
+    assert dropped == 0
+
+
+def test_paragraphs_drops_the_attributes_wordpress_puts_on_inline_tags():
+    found = paragraphs('<p>Mit <strong class="has-inline-color">Funktionen</strong>, die <a href="https://example.com/">helfen</a>.</p>')
+
+    assert found[0].html == 'Mit <strong>Funktionen</strong>, die <a id="a1">helfen</a>.'
+    assert found[0].attrs == {"a1": {"href": "https://example.com/"}}
 
 
 def test_media_finds_images_and_youtube_videos_in_document_order():
