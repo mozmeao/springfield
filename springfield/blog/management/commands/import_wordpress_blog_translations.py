@@ -56,7 +56,7 @@ from wagtail_localize.segments.ingest import ingest_segments
 from wagtail_localize.strings import StringValue
 
 from springfield.blog import wordpress_translations as alignment
-from springfield.blog.management.commands.fix_imported_blog_posts import YOUTUBE_THUMBNAILS, youtube_thumbnail_url
+from springfield.blog.management.commands.fix_imported_blog_posts import YOUTUBE_THUMBNAILS, missing_alt_texts, youtube_thumbnail_url
 from springfield.blog.management.commands.import_wordpress_blog_posts import (
     DOWNLOAD_TIMEOUT_SECONDS,
     image_description,
@@ -285,12 +285,17 @@ class Command(BaseCommand):
         videos_swapped = self.swap_videos(translated_page, videos)
         translated_videos = [item.source for item in alignment.media(translated_post["content"]["rendered"]) if item.kind == "video"]
         videos_missing = [video_id for video_id in translated_videos if video_id not in videos_swapped]
+        # An imported post may predate the alt text rule; its copy can't be published without.
+        alt_texts = missing_alt_texts(translated_page)
+        for alt_field, text in alt_texts:
+            setattr(translated_page, alt_field, text)
         translated_page.first_published_at = published
         translated_page.save_revision(log_action=True).publish(log_action=True)
 
         notes = [f"doubtful: {text}" for text in doubtful[:3]]
         notes += [f"correction matched nothing: {correction['en']!r}" for correction in unmatched]
         notes += [f"left in English, not on WordPress: {text[:60]}" for text in sorted(not_removed | set(left_english))]
+        notes += [f"{alt_field} filled from the image description, in English: {text[:60]}" for alt_field, text in alt_texts]
         notes += [f"image not downloadable: {url}" for url in missing_images]
         notes += [f"image not swapped in, no image block for it on the page: {url}" for url in unplaced_images]
         notes += [f"video not swapped in: {youtube_watch_url(video_id)}" for video_id in videos_missing]

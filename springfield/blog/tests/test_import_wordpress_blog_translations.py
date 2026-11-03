@@ -266,6 +266,22 @@ def test_title_tag_and_meta_description_are_set_when_the_english_page_leaves_the
 
 
 @responses.activate
+def test_a_hero_image_without_alt_text_gets_the_image_description_so_the_page_publishes(tmp_path, make_article, placeholder_image):
+    placeholder_image.description = "The settings page"
+    placeholder_image.save()
+    english = make_article()
+    # As the importer left posts before the alt text rule: an image on the saved row, no alt.
+    BlogArticlePage.objects.filter(pk=english.pk).update(hero_style=HeroStyle.STANDARD_IMAGE, image=placeholder_image, image_alt="")
+    mock_wordpress("firefox-130")
+
+    _, _, rows = run(tmp_path, "firefox-130")
+
+    assert rows[0]["action"] == "created", rows[0]["detail"]
+    assert german_page(english).image_alt == "The settings page"
+    assert "image_alt filled from the image description, in English: The settings page" in rows[0]["detail"]
+
+
+@responses.activate
 def test_body_paragraphs_are_translated_and_links_keep_the_english_href(tmp_path, make_article):
     english = make_article()
     mock_wordpress("firefox-130")
