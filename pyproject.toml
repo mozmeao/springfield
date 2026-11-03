@@ -81,7 +81,6 @@ dev = [
     "pytest-datadir==1.8.0",
     "pytest-django==4.14.0",
     "pytest-mock==3.15.1",
-    "pytest-parallel==0.1.1",
     "pytest-rerunfailures==16.7",
     "pytest-selenium==4.1.0",
     "pytest-xdist==3.8.0",
