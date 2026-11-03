@@ -795,6 +795,28 @@ def test_taxonomy_moves_a_post_and_publishes_it(tmp_path, make_post, topic):
     assert BlogTopic.objects.filter(slug="news").exists()
 
 
+def test_taxonomy_fills_missing_alt_text_so_a_post_can_be_published(tmp_path, make_post, topic):
+    firefox = snippet(BlogTopic, "firefox", name="Firefox")
+    described = retag(make_post("described", live=True), firefox)
+    bare = retag(make_post("bare", live=True), firefox)
+    # As the importer left them, before alt text was required: images on the saved rows, no alt.
+    BlogArticlePage.objects.filter(pk=described.pk).update(image=hqdefault_poster("abc"))
+    bare_image = SpringfieldImage.objects.create(title="IMG_0001.jpg", file=ContentFile(jpeg(HQ), name="bare.jpg"))
+    BlogArticlePage.objects.filter(pk=bare.pk).update(image=bare_image, listing_image=bare_image)
+
+    _, _, rows = run(tmp_path, "taxonomy", taxonomy=taxonomy_csv(tmp_path, ("described", "news", ""), ("bare", "news", "")))
+
+    described, bare = (BlogArticlePage.objects.get(pk=post.pk) for post in (described, bare))
+    assert (described.live, described.topic_id, described.image_alt) == (True, topic.pk, "Post title")
+    assert (bare.live, bare.topic_id, bare.image_alt, bare.listing_image_alt) == (True, topic.pk, "bare", "bare")
+    details = [(row["action"], row["detail"], row["new"]) for row in rows if row["slug"] == "bare"]
+    assert details == [
+        ("changed", "topic", "News"),
+        ("changed", "image_alt filled so the post can be published", "bare"),
+        ("changed", "listing_image_alt filled so the post can be published", "bare"),
+    ]
+
+
 def test_taxonomy_dry_run_writes_nothing_and_second_run_finds_nothing(tmp_path, make_post):
     firefox = snippet(BlogTopic, "firefox", name="Firefox")
     post = retag(make_post("a-post", live=True), firefox, snippet(BlogTag, "ai", name="AI"))
