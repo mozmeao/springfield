@@ -680,8 +680,27 @@ def test_localized_youtube_video_gets_the_translated_video_and_its_thumbnail_as_
     assert german_video["poster"] != placeholder_image.pk
     assert SpringfieldImage.objects.get(pk=german_video["poster"]).title == "BBBBBBBBBBB-maxresdefault"
     assert rows[0]["videos_swapped"] == "1"
+    assert rows[0]["videos_missing"] == "0"
     # The video's alt text has no WordPress counterpart and can't be removed, so it is reported.
     assert "left in English, not on WordPress: a tour of firefox 130" in rows[0]["detail"]
+
+
+@responses.activate
+def test_translated_videos_that_do_not_pair_with_an_english_one_are_reported_missing(tmp_path, make_article):
+    make_article()
+    english_post = wordpress_post("en", "firefox-130", wordpress_html(ENGLISH) + youtube_embed("AAAAAAAAAAA"))
+    german_post = wordpress_post("de", "firefox-130-de", wordpress_html(GERMAN) + youtube_embed("BBBBBBBBBBB") + youtube_embed("CCCCCCCCCCC"))
+    mock_rest("en", english_post)
+    mock_rest("de", german_post)
+    responses.add(
+        responses.GET, english_post["link"], body=f'<link rel="alternate" hreflang="de" href="{WORDPRESS}/de/products/firefox/firefox-130-de/">'
+    )
+
+    _, _, rows = run(tmp_path, "firefox-130")
+
+    assert rows[0]["videos_swapped"] == "0"
+    assert rows[0]["videos_missing"] == "2"
+    assert "video not swapped in: https://www.youtube.com/watch?v=BBBBBBBBBBB" in rows[0]["detail"]
 
 
 # -------------------------------------------------------------------------

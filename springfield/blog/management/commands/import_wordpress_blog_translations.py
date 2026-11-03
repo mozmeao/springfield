@@ -98,6 +98,7 @@ REPORT_HEADER = [
     "images_swapped",
     "images_missing",
     "videos_swapped",
+    "videos_missing",
     "detail",
 ]
 
@@ -272,6 +273,8 @@ class Command(BaseCommand):
         counts["translated"] += len(METADATA_FIELDS)
         counts["removed"], not_removed = self.remove_english_only(translated_page, removals)
         videos_swapped = self.swap_videos(translated_page, videos)
+        translated_videos = [item.source for item in alignment.media(translated_post["content"]["rendered"]) if item.kind == "video"]
+        videos_missing = [video_id for video_id in translated_videos if video_id not in videos_swapped]
         translated_page.first_published_at = published
         translated_page.save_revision(log_action=True).publish(log_action=True)
 
@@ -279,12 +282,14 @@ class Command(BaseCommand):
         notes += [f"correction matched nothing: {correction['en']!r}" for correction in unmatched]
         notes += [f"left in English, not on WordPress: {text[:60]}" for text in sorted(not_removed)]
         notes += [f"image not downloadable: {url}" for url in missing_images]
+        notes += [f"video not swapped in: {youtube_watch_url(video_id)}" for video_id in videos_missing]
         row.update(
             counts,
             doubtful=len(doubtful),
             images_swapped=len(swaps) + dry_run_swaps,
             images_missing=len(missing_images),
-            videos_swapped=videos_swapped,
+            videos_swapped=len(videos_swapped),
+            videos_missing=len(videos_missing),
             detail="; ".join(notes),
         )
         return translated_page
@@ -418,11 +423,12 @@ class Command(BaseCommand):
 
     def swap_videos(self, translated_page, videos):
         """Replace English YouTube videos with the translation's, in the body and the hero: the
-        video URL and its poster, which is the translated video's own thumbnail."""
+        video URL and its poster, which is the translated video's own thumbnail. Returns the
+        ids of the translated videos swapped in."""
         if not videos:
-            return 0
+            return []
         replacements = dict(videos)
-        swapped = 0
+        swapped = []
 
         def swap(value):
             nonlocal swapped
@@ -438,7 +444,7 @@ class Command(BaseCommand):
                 poster = self.youtube_poster(translated_id, value.get("poster"))
                 if poster is not None and poster.pk is not None:
                     value["poster"] = poster.pk
-                swapped += 1
+                swapped.append(translated_id)
             return value
 
         for field_name in ("content", "hero_video"):
