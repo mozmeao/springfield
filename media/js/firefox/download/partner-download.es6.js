@@ -191,7 +191,10 @@ PartnerDownload.sendUnavailableEvent = (container, reason) => {
         partner: container.getAttribute('data-partner'),
         platform: platform === 'osx' ? 'macos' : platform,
         download_language: container.getAttribute('data-lang'),
-        reason: reason
+        reason: reason,
+        partner_mode: document.documentElement.getAttribute(
+            'data-download-partner-mode'
+        )
     };
     try {
         window.dataLayer.push(

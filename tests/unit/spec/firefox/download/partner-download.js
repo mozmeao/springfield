@@ -347,6 +347,10 @@ describe('partner-download.es6.js', function () {
             originalSite = window.site;
             window.dataLayer = [];
             signedCookie = null;
+            document.documentElement.setAttribute(
+                'data-download-partner-mode',
+                'message'
+            );
             spyOn(PartnerDownload, 'navigate');
             spyOn(PartnerDownload, 'isX64').and.returnValue(
                 Promise.resolve(true)
@@ -369,6 +373,9 @@ describe('partner-download.es6.js', function () {
 
         afterEach(function () {
             jasmine.clock().uninstall();
+            document.documentElement.removeAttribute(
+                'data-download-partner-mode'
+            );
             window.site = originalSite;
             window.Mozilla.DownloadAttribution.gettingAnalyticsData = false;
             window.Mozilla.DownloadAttribution.inFlightXHR = null;
@@ -681,7 +688,8 @@ describe('partner-download.es6.js', function () {
                     partner: 'acme',
                     platform: platform === 'osx' ? 'macos' : platform,
                     download_language: 'en-US',
-                    reason: reason
+                    reason: reason,
+                    partner_mode: 'message'
                 };
                 expect(eventsNamed('partner_download_unavailable')).toEqual([
                     Object.assign(
