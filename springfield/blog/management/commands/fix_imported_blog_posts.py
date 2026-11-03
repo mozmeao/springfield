@@ -73,7 +73,7 @@ from springfield.blog.management.commands.import_wordpress_blog_posts import (
     youtube_video_id,
     youtube_watch_url,
 )
-from springfield.blog.models import BlogArticlePage, BlogAuthor, BlogTag, BlogTopic, BlogTopicPage, TaggedBlogArticle
+from springfield.blog.models import BlogArticlePage, BlogAuthor, BlogIndexPage, BlogTag, BlogTopic, BlogTopicPage, TaggedBlogArticle
 from springfield.cms.models import SpringfieldImage
 
 FIX_YOUTUBE_POSTERS = "youtube-posters"
@@ -892,8 +892,10 @@ class Command(BaseCommand):
         """Find, rename or create one kept topic or tag and publish it, renaming its translations to
         match. Returns it, or None if it is still to be created (in a dry run) or couldn't be.
 
-        If it's skipped or fails, its translations are left alone and it's blocked, so no post is
-        moved onto it until a rerun.
+        If it or any translation is live with a pending draft, publishing would publish that edit,
+        so none of them is touched and the term is blocked: no post is moved onto it until a rerun.
+        The slugs have to stay in step, since a translated page finds its topic by slug. A failure
+        rolls back and blocks the term the same way.
         """
         found = model.objects.filter(locale=self.locale, slug=term.slug).first()
         if found is None and term.was:
@@ -913,21 +915,28 @@ class Command(BaseCommand):
                         rows.append({"action": CHANGED, "detail": f"created and published the {kind}", "new": new, "revision_id": revision.pk})
                 else:
                     old_name = found.name
-                    rows += self.update_term(found, term.name, term.slug, kind)
-                    if any(row["action"] == SKIPPED for row in rows):
+                    translations = found.get_translations().select_related("locale").order_by("locale__language_code")
+                    snippets = [(found, kind), *((translation, f"{translation.locale.language_code} {kind}") for translation in translations)]
+                    drafted = [(snippet, each_kind) for snippet, each_kind in snippets if snippet.live and snippet.has_unpublished_changes]
+                    if drafted:
+                        for snippet, each_kind in drafted:
+                            detail = f"{each_kind} has an unpublished draft: publish or revert it, then rerun"
+                            rows.append({"action": SKIPPED, "detail": detail, "old": f"{snippet.name} ({snippet.slug})"})
                         self.blocked_terms.add((model, term.slug))
-                        translations = []
                     else:
-                        translations = found.get_translations().select_related("locale").order_by("locale__language_code")
-                    for translation in translations:
-                        # The slug has to match for the translation to be found. A name still in
-                        # English follows the English rename; a translated one is kept.
-                        name = term.name if translation.name == old_name else translation.name
-                        rows += self.update_term(translation, name, term.slug, f"{translation.locale.language_code} {kind}")
+                        for snippet, each_kind in snippets:
+                            # A name still in English follows the English rename; a translated one is kept.
+                            name = term.name if snippet.name == old_name else snippet.name
+                            rows += self.update_term(snippet, name, term.slug, each_kind)
         except Exception as exc:
             # Rolled back, so `found` is unchanged: it is still the kept term, never one to delete.
             rows = [{"action": FAILED, "detail": f"{kind}: {type(exc).__name__}: {exc}"}]
             self.blocked_terms.add((model, term.slug))
+        else:
+            if found is not None and not self.dry_run:
+                # Publishing saves a copy of the latest revision, so this instance may still carry
+                # the old name and point at the old revision, which copy_for_translation reads.
+                found.refresh_from_db()
         for row in rows:
             self.record(None, {"fix": FIX_TAXONOMY, "slug": term.slug, **row})
         return found
@@ -937,11 +946,9 @@ class Command(BaseCommand):
 
         A snippet that isn't live is published from its latest revision, since a topic or tag only
         shows once published; that includes a translation wagtail-localize's Translate put back to
-        draft. A live one with a pending draft is skipped, since publishing would publish that edit.
+        draft. prepare_term has already skipped any live one with a pending draft.
         """
         old = f"{snippet.name} ({snippet.slug})"
-        if snippet.live and snippet.has_unpublished_changes:
-            return [{"action": SKIPPED, "detail": f"{kind} has an unpublished draft: publish or revert it, then rerun", "old": old}]
         draft = snippet.get_latest_revision_as_object()
         if snippet.live and (draft.name, draft.slug) == (name, slug):
             return []
@@ -1039,18 +1046,17 @@ class Command(BaseCommand):
         self.record(None, {**row, "action": CHANGED, "detail": f"deleted the {kind}{translations}"})
 
     def uses_of(self, snippet):
-        """What still uses a topic or tag: blog posts, saved or in a pending draft, topic pages, and
-        anything else in Wagtail's reference index, such as a blog index's featured topics."""
+        """What still uses a topic or tag: blog posts and topic pages, saved or in a pending draft,
+        a blog index's pending draft, and anything else in Wagtail's reference index, such as a
+        published blog index's featured topics."""
         if isinstance(snippet, BlogTopic):
             posts = BlogArticlePage.objects.filter(topic=snippet)
             uses = {f"topic page {slug}" for slug in BlogTopicPage.objects.filter(topic=snippet).values_list("slug", flat=True)}
-            in_drafts = [slug for slug, topic_pk, _ in self.pending_drafts() if topic_pk == snippet.pk]
+            uses |= {draft for draft, topic_pks, _ in self.pending_drafts() if snippet.pk in topic_pks}
         else:
             posts = BlogArticlePage.objects.filter(tagged_items__tag=snippet)
-            uses = set()
-            in_drafts = [slug for slug, _, tag_pks in self.pending_drafts() if snippet.pk in tag_pks]
+            uses = {draft for draft, _, tag_pks in self.pending_drafts() if snippet.pk in tag_pks}
         uses |= {f"post {slug} ({locale})" for slug, locale in posts.exclude(pk__in=self.retagged).values_list("slug", "locale__language_code")}
-        uses |= {f"draft of {slug}" for slug in in_drafts}
         # Posts and topic pages are checked above, from their own rows, in case the index is stale.
         covered = ContentType.objects.get_for_models(BlogArticlePage, BlogTopicPage).values()
         for reference in ReferenceIndex.get_references_to(snippet).exclude(content_type__in=covered):
@@ -1058,12 +1064,24 @@ class Command(BaseCommand):
         return uses
 
     def pending_drafts(self):
-        """The topic and tags in each blog post's unpublished draft, as (slug, topic pk, tag pks)."""
+        """The topics and tags each unpublished blog page draft points at, as (draft, topic pks,
+        tag pks): a post's topic and tags, a topic page's topic, and a blog index's featured topics
+        and feed exclusions. The reference index only covers what's saved, not what's drafted, and
+        publishing a draft of a deleted topic would fail."""
         if not hasattr(self, "_pending_drafts"):
             self._pending_drafts = []
             for page in BlogArticlePage.objects.filter(has_unpublished_changes=True):
                 draft = page.get_latest_revision_as_object()
-                self._pending_drafts.append((page.slug, draft.topic_id, {tag.pk for tag in draft.tags.all()}))
+                self._pending_drafts.append((f"draft of {page.slug}", {draft.topic_id}, {tag.pk for tag in draft.tags.all()}))
+            for page in BlogTopicPage.objects.filter(has_unpublished_changes=True):
+                draft = page.get_latest_revision_as_object()
+                self._pending_drafts.append((f"draft of topic page {page.slug}", {draft.topic_id}, set()))
+            for page in BlogIndexPage.objects.filter(has_unpublished_changes=True):
+                draft = page.get_latest_revision_as_object()
+                chosen = [block.value for block in [*(draft.featured_topics or []), *(draft.feed_exclusions or [])] if block.value]
+                topic_pks = {snippet.pk for snippet in chosen if isinstance(snippet, BlogTopic)}
+                tag_pks = {snippet.pk for snippet in chosen if isinstance(snippet, BlogTag)}
+                self._pending_drafts.append((f"draft of blog index page {page.slug}", topic_pks, tag_pks))
         return self._pending_drafts
 
     # -----------------------------------------------------------------------

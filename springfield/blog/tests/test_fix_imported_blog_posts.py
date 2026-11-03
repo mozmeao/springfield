@@ -20,7 +20,7 @@ from wagtail.utils.file import hash_filelike
 
 from springfield.blog.fixtures.blog_fixtures import get_blog_index_page
 from springfield.blog.management.commands.fix_imported_blog_posts import crop_to_widescreen
-from springfield.blog.models import BlogArticleAuthor, BlogArticlePage, BlogAuthor, BlogTag, BlogTopic, HeroStyle, TaggedBlogArticle
+from springfield.blog.models import BlogArticleAuthor, BlogArticlePage, BlogAuthor, BlogTag, BlogTopic, BlogTopicPage, HeroStyle, TaggedBlogArticle
 from springfield.cms.models import SpringfieldImage
 
 pytestmark = [pytest.mark.django_db]
@@ -933,6 +933,69 @@ def test_taxonomy_skips_a_kept_topic_with_a_pending_draft_and_what_needs_it(tmp_
     assert BlogTopic.objects.filter(pk=firefox.pk).exists()
     actions = {(row["slug"], row["action"]) for row in rows}
     assert {("features", "skipped"), ("a-post", "skipped"), ("firefox", "skipped")} <= actions
+
+
+def test_taxonomy_skips_a_kept_topic_whose_translation_has_a_pending_draft(tmp_path, make_post):
+    french = Locale.objects.get(language_code="fr")
+    features = snippet(BlogTopic, "firefox-features", name="Firefox Features")
+    french_features = features.copy_for_translation(french)
+    french_features.save()
+    french_features.save_revision().publish()
+    french_features.name = "Unfinished French edit"
+    french_features.save_revision()
+    firefox = snippet(BlogTopic, "firefox", name="Firefox")
+    post = retag(make_post("a-post", live=True), firefox)
+
+    _, _, rows = run(tmp_path, "taxonomy", taxonomy=taxonomy_csv(tmp_path, ("a-post", "features", "")))
+
+    # The English topic keeps its slug too, so the two stay in step and translated pages find theirs.
+    features.refresh_from_db()
+    french_features.refresh_from_db()
+    assert (features.name, features.slug) == ("Firefox Features", "firefox-features")
+    assert (french_features.name, french_features.slug) == ("Firefox Features", "firefox-features")
+    assert BlogArticlePage.objects.get(pk=post.pk).topic_id == firefox.pk
+    skipped = [(row["slug"], row["detail"]) for row in rows if row["action"] == "skipped"]
+    assert ("features", "fr topic has an unpublished draft: publish or revert it, then rerun") in skipped
+    assert any(slug == "a-post" for slug, _ in skipped)
+
+
+def test_taxonomy_creates_a_translation_from_the_renamed_topic_not_its_stale_draft(tmp_path, make_post):
+    french = Locale.objects.get(language_code="fr")
+    # An unpublished kept topic with a pending draft: its latest revision is a separate object.
+    features = BlogTopic.objects.create(slug="firefox-features", name="Firefox Features", locale=Locale.get_default(), live=False)
+    features.save_revision()
+    firefox = snippet(BlogTopic, "firefox", name="Firefox")
+    french_firefox = firefox.copy_for_translation(french)
+    french_firefox.save()
+    french_firefox.save_revision().publish()
+    moved = retag(make_post("moved", live=True), firefox)
+    french_moved = retag(moved.copy_for_translation(french, copy_parents=True), french_firefox)
+
+    run(tmp_path, "taxonomy", taxonomy=taxonomy_csv(tmp_path, ("moved", "features", "")))
+
+    french_topic = BlogArticlePage.objects.get(pk=french_moved.pk).topic
+    assert (french_topic.locale, french_topic.name, french_topic.slug, french_topic.live) == (french, "Features", "features", True)
+
+
+def test_taxonomy_keeps_a_retired_topic_a_drafted_topic_page_or_blog_index_uses(tmp_path, index_page):
+    news = snippet(BlogTopic, "news", name="News")
+    firefox = snippet(BlogTopic, "firefox", name="Firefox")
+    internet_culture = snippet(BlogTopic, "internet-culture", name="Internet Culture")
+    # Only the pages' pending drafts point at the retired topics; their saved rows don't.
+    topic_page = BlogTopicPage(title="News", slug="news-page", topic=news)
+    index_page.add_child(instance=topic_page)
+    topic_page.save_revision().publish()
+    topic_page.topic = firefox
+    topic_page.save_revision()
+    index_page.featured_topics = [("topic", internet_culture)]
+    index_page.save_revision()
+
+    _, _, rows = run(tmp_path, "taxonomy", taxonomy=taxonomy_csv(tmp_path))
+
+    assert BlogTopic.objects.filter(pk__in=[firefox.pk, internet_culture.pk]).count() == 2
+    details = {row["slug"]: row["detail"] for row in rows if row["action"] == "skipped"}
+    assert details["firefox"] == "topic kept, still used by draft of topic page news-page"
+    assert details["internet-culture"] == "topic kept, still used by draft of blog index page blog"
 
 
 def test_taxonomy_keeps_the_old_tags_of_a_post_that_fails_to_publish(tmp_path, make_post, topic, monkeypatch):
