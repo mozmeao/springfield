@@ -1,0 +1,137 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% from "macros.html" import android_download_options with context %}
+
+{% extends "cms/base-flare.html" %}
+
+{% set android_url = play_store_url('firefox', 'firefox-browsers-mobile-android-china') %}
+
+{% block page_title_full %}{{ ftl('mobile-android-china-page-title') }} - Mozilla{% endblock %}
+
+{% block page_desc %}{{ ftl('mobile-android-china-page-description') }}{% endblock %}
+
+{% block body_class %}{{ super() }} mobile-android{% endblock %}
+
+{% block page_css %}
+  {{ css_bundle('flare-mobile-pages') }}
+{% endblock %}
+
+{% block flare_header %}
+  {% set hide_nav_cta = true %}
+  <include:flare-header theme="dark" />
+{% endblock %}
+
+{% block main_class %}{% endblock %}
+
+{% block content %}
+<div class="fl-main fl-mobile-subpage has-gradient-bottom">
+
+  <div class="fl-split-page-upper end-of-page has-gradient-bottom">
+    <div class="fl-section-container">
+      <include:intro slim vertical>
+        <content:heading>
+          <include:heading
+            level="h1"
+            heading_size="fl-heading-xl"
+            heading_text="{{ ftl('mobile-android-china-get-the-official') }}"
+            subheading_text="{{ ftl('mobile-android-china-download-from-a-store') }}"
+          />
+        </content:heading>
+
+        <content:content>
+          <div class="fl-intro-actions">
+            <div class="fl-mobile-download-buttons">
+              {{ android_download_options(href=android_url, id='playStoreLink-primary', cta_position='android-china-intro') }}
+            </div>
+          </div>
+        </content:content>
+      </include:intro>
+    </div>
+  </div>
+
+  <div class="fl-split-page-lower">
+    <div class="fl-section fl-android-china-reasons">
+      <div class="fl-section-container">
+        <include:heading
+          level="h2"
+          heading_size="fl-heading-lg"
+          alignment_class="text-center"
+          heading_text="{{ ftl('mobile-android-china-why-download') }}"
+        />
+
+        <include:cards-list cards_per_row="3">
+          <include:card variant="outline" align="center">
+            <content:media>
+              <div class="fl-card-media fl-card-media-icon">
+                <include:icon icon_name="sparkles" hidden="true" />
+              </div>
+            </content:media>
+            <content:body>
+              <include:heading
+                level="h3"
+                heading_size="fl-heading-size-3"
+                heading_text="{{ ftl('mobile-android-china-latest-features') }}"
+              />
+              <div class="fl-body"><p>{{ ftl('mobile-android-china-get-new-features') }}</p></div>
+            </content:body>
+          </include:card>
+          <include:card variant="outline" align="center">
+            <content:media>
+              <div class="fl-card-media fl-card-media-icon">
+                <include:icon icon_name="shield-checkmark" hidden="true" />
+              </div>
+            </content:media>
+            <content:body>
+              <include:heading
+                level="h3"
+                heading_size="fl-heading-size-3"
+                heading_text="{{ ftl('mobile-android-china-security-fixes') }}"
+              />
+              <div class="fl-body"><p>{{ ftl('mobile-android-china-every-update-includes') }}</p></div>
+            </content:body>
+          </include:card>
+          <include:card variant="outline" align="center">
+            <content:media>
+              <div class="fl-card-media fl-card-media-icon">
+                <include:icon icon_name="update" hidden="true" />
+              </div>
+            </content:media>
+            <content:body>
+              <include:heading
+                level="h3"
+                heading_size="fl-heading-size-3"
+                heading_text="{{ ftl('mobile-android-china-automatic-updates') }}"
+              />
+              <div class="fl-body"><p>{{ ftl('mobile-android-china-when-you-install') }}</p></div>
+            </content:body>
+          </include:card>
+        </include:cards-list>
+
+        <include:intro slim vertical>
+          <content:heading>
+            <include:heading
+              level="h2"
+              heading_size="fl-heading-lg"
+              heading_text="{{ ftl('mobile-android-china-using-an-older-version') }}"
+              subheading_text="{{ ftl('mobile-android-china-older-versions-no-longer') }}"
+            />
+          </content:heading>
+
+          <content:content>
+            <div class="fl-intro-actions">
+              <div class="fl-mobile-download-buttons">
+                {{ android_download_options(href=android_url, id='playStoreLink-footer', cta_position='android-china-footer') }}
+              </div>
+            </div>
+          </content:content>
+        </include:intro>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

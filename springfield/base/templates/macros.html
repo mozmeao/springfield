@@ -52,8 +52,7 @@
 </a>
 {%- endmacro %}
 
-{% macro android_download_button(href, class_name='', id='', cta_position='') -%}
-{% if country_code == "CN" %}
+{% macro android_download_options(href, id='', cta_position='') -%}
 <div class="fl-china-download-options">
   {{ store_badge_button(
       href=href,
@@ -93,6 +92,11 @@
     >{{ ftl('download-button-apk-via-github') }}</a>
   {% endif %}
 </div>
+{%- endmacro %}
+
+{% macro android_download_button(href, class_name='', id='', cta_position='') -%}
+{% if country_code == "CN" %}
+{{ android_download_options(href=href, id=id, cta_position=cta_position) }}
 {% else %}
 {{ google_play_button(href=href, class_name=class_name, id=id) }}
 {% endif %}

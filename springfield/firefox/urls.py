@@ -195,6 +195,18 @@ urlpatterns += (
         name="firefox.browsers.mobile.android",
     ),
     path(
+        "download/android/huohu/",
+        prefer_cms(
+            L10nTemplateView.as_view(
+                template_name="firefox/browsers/mobile/android-china.html",
+                ftl_files=["firefox/browsers/mobile/android-china"],
+                active_locales=["zh-CN"],
+            ),
+            fallback_lang_codes=["zh-CN"],
+        ),
+        name="firefox.browsers.mobile.android-china",
+    ),
+    path(
         "download/ios/",
         prefer_cms(
             L10nTemplateView.as_view(template_name="firefox/browsers/mobile/ios.html", ftl_files=["firefox/browsers/mobile/ios"]),
