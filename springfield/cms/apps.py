@@ -34,12 +34,23 @@ class CmsConfig(AppConfig):
 
         self._connect_audit_log_receivers()
 
+        # Report a Smartling job that has stopped being retried
+        self._connect_smartling_receivers()
+
     @staticmethod
     def _connect_audit_log_receivers():
         """Send every new Wagtail audit log entry, and every user deletion, to the audit.wagtail logger."""
         # Imported here because importing the module connects its receivers, and it imports
         # Wagtail models, which cannot be imported while the app registry is still loading.
         from springfield.cms import audit_log  # noqa: F401
+
+    @staticmethod
+    def _connect_smartling_receivers():
+        """Send a Smartling job that can no longer be synced to Sentry."""
+        # Imported here because importing the module connects its receiver, and the
+        # library it imports pulls in Wagtail models, which cannot be imported while
+        # the app registry is still loading.
+        from springfield.cms.wagtail_localize_smartling import signal_handlers  # noqa: F401
 
     @staticmethod
     def _register_routing_signals():
