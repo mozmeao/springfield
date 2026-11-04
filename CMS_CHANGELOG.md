@@ -1,3 +1,7 @@
+## 2026-11-04
+- Wagtail upgraded from 7.4 to 8.1. The page editor's Checks panel now shows the page's meta title and description, with their lengths measured against search engine limits. Moving or renaming a draft page no longer creates a redirect; live pages still do.
+
+
 ## 2026-11-02
 - Comparison Result label now uses Fluent-translated Yes/No/Limited text
 
