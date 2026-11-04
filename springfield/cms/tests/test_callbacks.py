@@ -12,7 +12,7 @@ from wagtail.models import Page
 from wagtail_localize_smartling.exceptions import IncapableVisualContextCallback
 from wagtaildraftsharing.models import WagtaildraftsharingLink
 
-from springfield.cms.tests.factories import SimpleRichTextPageFactory, WagtailUserFactory
+from springfield.cms.tests.factories import SimpleRichTextPageFactory, WagtailUserFactory, create_smartling_job
 from springfield.cms.wagtail_localize_smartling.callbacks import _get_html_for_sharing_link, visual_context
 
 
@@ -33,10 +33,11 @@ def test_visual_context__for_page(client):
     user = WagtailUserFactory()
 
     mock_job = mock.Mock()
-    mock_job.translation_source.get_source_instance.return_value = page
     mock_job.user = user
+    mock_source = mock.Mock()
+    mock_source.get_source_instance.return_value = page
 
-    url, html = visual_context(smartling_job=mock_job)
+    url, html = visual_context(mock_job, mock_source)
 
     # light checks because we're not testing wagtaildraftsharing itself
     assert "<body" in html
@@ -45,6 +46,36 @@ def test_visual_context__for_page(client):
 
     sharing_link_key = WagtaildraftsharingLink.objects.get().key
     assert url == f"https://cms.example.com/_internal_draft_preview/{sharing_link_key}/"
+
+
+@pytest.mark.django_db
+@override_settings(WAGTAILADMIN_BASE_URL="https://cms.example.com")
+def test_visual_context__renders_each_page_of_an_order(client):
+    """An order of several pages is one Smartling job with a file per page."""
+    top_level_page = SimpleRichTextPageFactory()
+
+    first_page = SimpleRichTextPageFactory(parent=top_level_page, title="First page of the order", slug="first-page")
+    first_page.save_revision()
+    second_page = SimpleRichTextPageFactory(parent=top_level_page, title="Second page of the order", slug="second-page")
+    second_page.save_revision()
+
+    wagtail_factories.SiteFactory(
+        root_page=top_level_page,
+        is_default_site=True,
+        hostname=client._base_environ()["SERVER_NAME"],
+    )
+
+    job = create_smartling_job([first_page, second_page])
+
+    # The sync walks the job's files and asks for the context of each one.
+    first_url, first_html = visual_context(job, job.files.all()[0].translation_source)
+    second_url, second_html = visual_context(job, job.files.all()[1].translation_source)
+
+    assert "First page of the order" in first_html
+    assert "Second page of the order" not in first_html
+    assert "First page of the order" not in second_html
+    assert "Second page of the order" in second_html
+    assert first_url != second_url
 
 
 @pytest.mark.django_db
@@ -67,10 +98,11 @@ def test_visual_context__cms_hostname_stripped_and_base_tag_injected(mock_get_ht
 
     user = WagtailUserFactory()
     mock_job = mock.Mock()
-    mock_job.translation_source.get_source_instance.return_value = page
     mock_job.user = user
+    mock_source = mock.Mock()
+    mock_source.get_source_instance.return_value = page
 
-    _, html = visual_context(smartling_job=mock_job)
+    _, html = visual_context(mock_job, mock_source)
 
     assert cms_root_url not in html
     assert "https://cms.example.com" not in html
@@ -84,10 +116,11 @@ def test_visual_context__for_inviable_object(client):
     assert not isinstance(inviable_obj, Page)
 
     mock_job = mock.Mock()
-    mock_job.translation_source.get_source_instance.return_value = inviable_obj
+    mock_source = mock.Mock()
+    mock_source.get_source_instance.return_value = inviable_obj
 
     with pytest.raises(IncapableVisualContextCallback) as exc:
-        url, html = visual_context(smartling_job=mock_job)
+        url, html = visual_context(mock_job, mock_source)
 
     assert exc.value.args[0] == "Object was not visually previewable (i.e. not a Page)"
 
@@ -109,13 +142,14 @@ def test_visual_context__for_page__with_no_revision(mock_capture_message, client
     user = WagtailUserFactory()
 
     mock_job = mock.Mock()
-    mock_job.translation_source.get_source_instance.return_value = page
     mock_job.user = user
+    mock_source = mock.Mock()
+    mock_source.get_source_instance.return_value = page
 
     page.latest_revision = None
     page.save()
     with pytest.raises(IncapableVisualContextCallback) as ctx:
-        visual_context(smartling_job=mock_job)
+        visual_context(mock_job, mock_source)
 
     assert ctx.value.args[0] == (
         "Object was not visually previewable because it didn't have a saved revision. Are you a developer with a local export?"

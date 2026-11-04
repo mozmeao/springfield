@@ -2,9 +2,13 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from django.utils import timezone
+
 import factory
 import wagtail_factories
 from wagtail import models as wagtail_models
+from wagtail_localize.models import TranslationSource
+from wagtail_localize_smartling import models as smartling_models
 
 from springfield.cms import models
 
@@ -203,3 +207,41 @@ class ShareFirefoxPageFactory(wagtail_factories.PageFactory):
 
     class Meta:
         model = models.ShareFirefoxPage
+
+
+def create_smartling_job(pages, user=None):
+    """
+    A Smartling job carrying one file per page, as submitting an order of those
+    pages produces. It has not been sent, so it holds no Smartling identifiers.
+    """
+    user = user or WagtailUserFactory()
+    project, _ = smartling_models.Project.objects.get_or_create(
+        environment="staging",
+        account_uid="test-account-uid",
+        project_id="test-project-id",
+        defaults={
+            "archived": False,
+            "name": "Test Smartling project",
+            "type_code": "APPLICATION_RESOURCES",
+            "source_locale_description": "English (United States) [en-US]",
+            "source_locale_id": "en-US",
+        },
+    )
+    order = smartling_models.Order.objects.create(
+        name="Test order",
+        created_by=user,
+        submitted_at=timezone.now(),
+    )
+    job = smartling_models.Job.objects.create(
+        project=project,
+        order=order,
+        user=user,
+        name="Test job",
+        description="Test order",
+        reference_number=order.reference_number,
+    )
+    for page in pages:
+        translation_source, _ = TranslationSource.get_or_create_from_instance(page)
+        smartling_models.JobFile.objects.create(job=job, translation_source=translation_source)
+
+    return job

@@ -19,6 +19,7 @@ from wagtail.models import Page, Site
 from wagtail_localize_smartling.exceptions import IncapableVisualContextCallback
 
 if TYPE_CHECKING:
+    from wagtail_localize.models import TranslationSource
     from wagtail_localize_smartling.models import Job
 from sentry_sdk import capture_exception, capture_message
 from wagtaildraftsharing.models import WagtaildraftsharingLink
@@ -55,13 +56,13 @@ def _get_full_url_for_sharing_link(sharing_link: WagtaildraftsharingLink) -> str
     return url
 
 
-def visual_context(smartling_job: "Job") -> tuple[str, str]:
+def visual_context(smartling_job: "Job", translation_source: "TranslationSource") -> tuple[str, str]:
     # Needs to return two strings:
     # 1. A URL where the content object (usually a Page; possibly a draft one)
     #    can be viewed _without authentication_
     # 2. The HTML of the state of the page at this point in time
 
-    content_obj = smartling_job.translation_source.get_source_instance()
+    content_obj = translation_source.get_source_instance()
 
     if not isinstance(content_obj, Page):
         # We can currently only supply visual context for Pages, but not for
