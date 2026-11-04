@@ -147,10 +147,15 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         if bool(options["slugs"]) == options["all"]:
             raise CommandError("Pass --slug (one or more) or --all")
-        self.dry_run = options["dry_run"]
-        self.since = options["since"]
-        self.wordpress_url = options["wordpress_url"].rstrip("/")
-        self.corrections, self.image_pairs, self.skip = self.read_overrides(options["overrides"])
+        corrections, image_pairs, skip = self.read_overrides(options["overrides"])
+        self.start_run(
+            dry_run=options["dry_run"],
+            wordpress_url=options["wordpress_url"],
+            corrections=corrections,
+            image_pairs=image_pairs,
+            skip=skip,
+            since=options["since"],
+        )
 
         source_locale = Locale.get_default()
         locales = []
@@ -167,9 +172,6 @@ class Command(BaseCommand):
             if missing:
                 raise CommandError(f"No {source_locale.language_code} blog post with slug {', '.join(sorted(missing))}")
 
-        self.english_posts = {}
-        self.announced_indexes = set()
-        self.counts = {}
         self.report_path = options["report_out"]
         self.report_rows = 0
         prefix = "[dry-run] " if self.dry_run else ""
@@ -185,12 +187,22 @@ class Command(BaseCommand):
         self.stdout.write(f"Done. {summary}.")
         self.stdout.write(f"Wrote {self.report_rows} rows to {self.report_path}")
 
+    def start_run(self, dry_run, wordpress_url, corrections, image_pairs, skip, since=None):
+        """Set the state a run shares across translations."""
+        self.dry_run = dry_run
+        self.since = since
+        self.wordpress_url = wordpress_url.rstrip("/")
+        self.corrections, self.image_pairs, self.skip = corrections, image_pairs, skip
+        self.english_posts = {}
+        self.announced_indexes = set()
+        self.counts = {}
+
     # -----------------------------------------------------------------------
     # One translation
     # -----------------------------------------------------------------------
 
-    def translate(self, page, locale):
-        """Create the `locale` translation of `page` from WordPress; returns its report row."""
+    def translate(self, page, locale, wordpress_slug=None):
+        """Create the `locale` translation of `page` from WordPress, found by `wordpress_slug` when given; returns its report row."""
         # A fresh instance each time: ingest_segments writes the translated text into the
         # source page's field values as well as the copy's.
         page = BlogArticlePage.objects.get(pk=page.pk)
@@ -202,7 +214,7 @@ class Command(BaseCommand):
         if existing:
             return {**row, "action": SKIPPED, "page_id": existing.pk, "detail": f"a {locale.language_code} page already exists"}
         try:
-            english_post = self.english_post(page.slug)
+            english_post = self.english_post(wordpress_slug or page.slug)
             if english_post is None:
                 return {**row, "action": SKIPPED, "detail": "not found on WordPress"}
             translation_url = self.translation_url(english_post["link"], locale.language_code)
@@ -293,6 +305,7 @@ class Command(BaseCommand):
             setattr(translated_page, alt_field, text)
         body_alt_texts = self.fill_body_image_alt(translated_page)
         translated_page.first_published_at = published
+        self.before_publish(translated_page, row, key)
         translated_page.save_revision(log_action=True).publish(log_action=True)
 
         notes = [f"doubtful: {text}" for text in doubtful]
@@ -314,6 +327,9 @@ class Command(BaseCommand):
             detail="; ".join(notes),
         )
         return translated_page
+
+    def before_publish(self, translated_page, row, key):
+        """Change the new translation just before it is published; does nothing here."""
 
     def translated_string(self, segment, translated_post, paired, unclaimed, counts, removals, left_english, doubtful):
         """The WordPress text for one English string, mirroring what WordPress shows. Body strings

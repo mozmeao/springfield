@@ -728,10 +728,6 @@ class Command(BaseCommand):
         if not xml_path.exists():
             raise CommandError(f"File not found: {xml_path}")
 
-        self.dry_run = options["dry_run"]
-        self.image_cache = {}
-        self.unavailable_image_urls = {}
-
         locale = Locale.objects.filter(language_code=options["locale"]).first()
         if locale is None:
             raise CommandError(f"No Locale found for language code {options['locale']!r}")
@@ -744,9 +740,10 @@ class Command(BaseCommand):
         self.stdout.write(f"Found {len(posts)} posts in {xml_path}")
 
         # Built before importing anything, so a post can link to one that comes later in the file.
-        self.new_paths = {
-            element_text(post, "Slug"): f"{index_page.url}{element_text(post, 'Slug')}/" for post in posts if element_text(post, "Slug")
-        }
+        self.start_run(
+            dry_run=options["dry_run"],
+            new_paths={element_text(post, "Slug"): f"{index_page.url}{element_text(post, 'Slug')}/" for post in posts if element_text(post, "Slug")},
+        )
 
         # Built before importing anything, so a byline on one post can be named by another's
         # owner record.
@@ -779,16 +776,12 @@ class Command(BaseCommand):
 
                 # Reset here rather than inside import_post, so a post that fails early cannot
                 # inherit the previous post's warnings.
-                self.post_warnings = []
-                self.images_without_alt = 0
-                self.urls_cached_by_post = []
+                self.start_post()
                 try:
                     url_map_row = self.import_post(post, index_page, locale)
                 except Exception as exc:
                     self.stderr.write(f"    ! failed to import {slug!r}: {exc}")
-                    # Clean up cached URLs from images rolled back by the transaction
-                    for cached_url in self.urls_cached_by_post:
-                        self.image_cache.pop(cached_url, None)
+                    self.forget_post_images()
                     # A failed post has no page to inspect, so the CSV is the only record of
                     # what went wrong.
                     self.record_warnings(post, new_url="", failure=(WARNING_FAILURE, f"post failed to import: {exc}"))
@@ -820,6 +813,24 @@ class Command(BaseCommand):
 
         counted = f"{imported} would be imported" if self.dry_run else f"{imported} imported"
         self.stdout.write(f"Done. {counted}, {skipped} skipped, {failed} failed.")
+
+    def start_run(self, dry_run, new_paths):
+        """Set the state a run shares across posts; `new_paths` maps slug -> path on this site."""
+        self.dry_run = dry_run
+        self.image_cache = {}
+        self.unavailable_image_urls = {}
+        self.new_paths = new_paths
+
+    def start_post(self):
+        """Clear the state one post's import collects."""
+        self.post_warnings = []
+        self.images_without_alt = 0
+        self.urls_cached_by_post = []
+
+    def forget_post_images(self):
+        """Drop cached images the failed post created, since its transaction rolled them back."""
+        for cached_url in self.urls_cached_by_post:
+            self.image_cache.pop(cached_url, None)
 
     @transaction.atomic
     def import_post(self, post, index_page, locale):
