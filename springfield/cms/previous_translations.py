@@ -35,17 +35,11 @@ class PreviousTranslation:
 
     @classmethod
     def from_pair(cls, untranslated: Sequence[StringSegment], stale: StringTranslation, is_exact: bool) -> Self:
-        """
-        Build an entry, turning the HTML fragments wagtail-localize stores into plain text.
-
-        Splitting a paragraph in the editor can leave one holding only a zero-width
-        joiner, so segments with no visible text are left out of `sources_now`.
-        """
+        """Build an entry, turning the HTML fragments wagtail-localize stores into plain text."""
         user = stale.last_translated_by
-        untranslated_texts = [StringValue(segment.string.data).render_text() for segment in untranslated]
         return cls(
             source_then=StringValue(stale.translation_of.data).render_text(),
-            sources_now=tuple(text for text in untranslated_texts if text.replace("‍", "").strip()),
+            sources_now=tuple(StringValue(segment.string.data).render_text() for segment in untranslated),
             translation=StringValue(stale.data).render_text(),
             is_exact=is_exact,
             comment=stale.get_comment(),
@@ -86,11 +80,12 @@ def find_stale_pair(
     two leftovers and the latest is the one to offer.
 
     When there is one leftover segment and one untranslated segment, this is a match.
-    Otherwise, the entry is a guess and is flagged as not exact.
+    Otherwise, the entry is a guess and is flagged as not exact. A segment with nothing
+    to translate counts towards neither.
     """
     current_string_ids = {segment.string_id for segment in segments}
     translated_string_ids = {row.translation_of_id for row in string_translations if row.translation_of_id in current_string_ids}
-    untranslated = [segment for segment in segments if segment.string_id not in translated_string_ids]
+    untranslated = [segment for segment in segments if segment.string_id not in translated_string_ids and has_visible_text(segment)]
     stale = [row for row in string_translations if row.translation_of_id not in current_string_ids and row.data and not is_do_not_translate(row)]
 
     if not untranslated or not stale:
@@ -99,3 +94,8 @@ def find_stale_pair(
         return None
     is_exact = len(untranslated) == 1 and len(stale) == 1
     return untranslated, max(stale, key=attrgetter("updated_at")), is_exact
+
+
+def has_visible_text(segment: StringSegment) -> bool:
+    """Whether the segment holds anything to translate."""
+    return bool(StringValue(segment.string.data).render_text().replace("‍", "").strip())

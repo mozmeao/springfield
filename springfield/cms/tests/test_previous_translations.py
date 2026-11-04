@@ -266,6 +266,50 @@ def test_untranslated_paragraphs_at_one_context_are_offered_as_separate_candidat
     assert not entries[0].is_exact
 
 
+def test_a_zero_width_joiner_paragraph_on_its_own_offers_nothing(translated_page):
+    """
+    A paragraph holding only a zero-width joiner is nothing anyone can translate, so a
+    leftover translation has nothing at that context to pair with.
+    """
+    set_rich_text(translated_page, "<p>Alpha</p><p>\u200d</p>")
+    context = content_context(translated_page)
+    first_paragraph = StringSegment.objects.filter(source=translated_page.translation.source, context=context).order_by("order").first()
+    translate_segment(translated_page, first_paragraph, "Alpha FR")
+    orphan_stringtranslation(translated_page, context, "Beta old", "Beta FR")
+
+    assert get_previous_translations(translated_page.translation) == []
+
+
+def test_a_zero_width_joiner_paragraph_does_not_make_the_pairing_a_guess(translated_page):
+    """One real paragraph beside an empty one is one candidate, so the entry is exact."""
+    set_rich_text(translated_page, "<p>Alpha</p><p>\u200d</p>")
+    context = content_context(translated_page)
+    orphan_stringtranslation(translated_page, context, "Alpha old", "Alpha FR ancien")
+
+    entries = get_previous_translations(translated_page.translation)
+
+    assert len(entries) == 1
+    assert entries[0].sources_now == ("Alpha",)
+    assert entries[0].is_exact
+
+
+def test_a_zero_width_joiner_paragraph_does_not_silence_an_entry(three_paragraph_page):
+    set_rich_text(three_paragraph_page, "<p>Alpha</p><p>\u200d</p><p>Gamma</p>")
+    context = content_context(three_paragraph_page)
+    segments = list(StringSegment.objects.filter(source=three_paragraph_page.translation.source, context=context).order_by("order"))
+    translate_segment(three_paragraph_page, segments[0], "Alpha FR")
+    older = orphan_stringtranslation(three_paragraph_page, context, "Gamma older", "Gamma FR ancien")
+    latest = orphan_stringtranslation(three_paragraph_page, context, "Gamma old", "Gamma FR")
+    StringTranslation.objects.filter(pk=older.pk).update(updated_at=latest.updated_at - timedelta(days=1))
+
+    entries = get_previous_translations(three_paragraph_page.translation)
+
+    assert len(entries) == 1
+    assert entries[0].sources_now == ("Gamma",)
+    assert entries[0].translation == "Gamma FR"
+    assert not entries[0].is_exact
+
+
 def test_zero_width_joiner_paragraph_is_left_out_of_the_entry(translated_page):
     """Splitting a paragraph in the editor can leave one holding only a zero-width joiner."""
     set_rich_text(translated_page, "<p>Alpha</p><p>‍</p><p>Gamma</p>")
