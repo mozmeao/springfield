@@ -17,14 +17,20 @@ SOURCE_NOW = "Get Firefox!"
 SOURCE_THEN = "Get Firefox"
 
 
+def set_rich_text(translated_page, html):
+    """Replace the source page's body copy and re-extract its segments, which is what an
+    editor's save does."""
+    translated_page.source_page.content = html
+    translated_page.source_page.save()
+    translated_page.translation.source.update_from_db()
+    translated_page.translation.source.refresh_segments()
+
+
 @pytest.fixture
 def drifted_page(translated_page):
     """A translated page with one paragraph of body copy, ready for an orphan at its
     content context."""
-    translated_page.source_page.content = f"<p>{SOURCE_NOW}</p>"
-    translated_page.source_page.save()
-    translated_page.translation.source.update_from_db()
-    translated_page.translation.source.refresh_segments()
+    set_rich_text(translated_page, f"<p>{SOURCE_NOW}</p>")
     return translated_page
 
 
@@ -84,6 +90,34 @@ def test_panel_shows_the_whole_entry(admin_client, drifted_page):
 
     # All three values, in order.
     assert [dd.get_text(strip=True) for dd in get_soup_for_panel(html).select("dd")] == [SOURCE_THEN, SOURCE_NOW, value]
+
+
+def test_several_untranslated_paragraphs_are_offered_as_separate_candidates(admin_client, drifted_page):
+    """
+    Paragraphs of one field share a context, so a field holding two untranslated ones
+    cannot say which the leftover translation belonged to.
+    """
+    set_rich_text(drifted_page, f"<p>{SOURCE_NOW}</p><p>Grab Firefox now</p>")
+    get_orphan_stringtranslation(drifted_page, SOURCE_THEN, "La barre latérale")
+
+    entry = get_soup_for_panel(editor_html(admin_client, drifted_page)).select_one("li")
+
+    assert [dd.get_text(strip=True) for dd in entry.select("dd")] == [
+        SOURCE_THEN,
+        SOURCE_NOW,
+        "Grab Firefox now",
+        "La barre latérale",
+    ]
+    assert "may not be correct" in entry.select_one("[data-inexact-pairing]").get_text()
+
+
+def test_an_exact_entry_is_offered_without_the_guess_note(admin_client, drifted_page):
+    """One untranslated string and one orphan is considered an exact match."""
+    get_orphan_stringtranslation(drifted_page, SOURCE_THEN, "La barre latérale")
+
+    entry = get_soup_for_panel(editor_html(admin_client, drifted_page)).select_one("li")
+
+    assert entry.select_one("[data-inexact-pairing]") is None
 
 
 def test_no_panel_without_entries(admin_client, drifted_page):

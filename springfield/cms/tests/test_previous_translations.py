@@ -82,8 +82,9 @@ def test_drifted_segment_offers_its_previous_translation(translated_page):
 
     assert len(entries) == 1
     assert entries[0].source_then == "Try Firefox"
-    assert entries[0].source_now == "Switch to Firefox"
+    assert entries[0].sources_now == ("Switch to Firefox",)
     assert entries[0].translation == "Essayez Firefox"
+    assert entries[0].is_exact
 
 
 def test_untouched_translation_offers_nothing(translated_page):
@@ -112,18 +113,37 @@ def test_field_edited_twice_offers_its_latest_translation(translated_page):
     assert len(entries) == 1
     assert entries[0].source_then == latest.translation_of.data
     assert entries[0].translation == latest.data
+    # Offering the latest is a heuristic: the entry says so rather than claiming the
+    # translator's edit certainly produced this one.
+    assert not entries[0].is_exact
 
 
-def test_two_orphan_stringtranslations_at_a_rich_text_context_offer_nothing(three_paragraph_page):
-    """Rich text paragraphs share one context, so with two orphans there is no telling which paragraph each belonged to."""
+def test_several_untranslated_paragraphs_and_several_orphan_stringtranslations_offer_nothing(three_paragraph_page):
+    context = content_context(three_paragraph_page)
+    segments = list(StringSegment.objects.filter(source=three_paragraph_page.translation.source, context=context).order_by("order"))
+    translate_segment(three_paragraph_page, segments[0], "Alpha FR")
+    orphan_stringtranslation(three_paragraph_page, context, "Beta old", "Beta FR")
+    orphan_stringtranslation(three_paragraph_page, context, "Gamma old", "Gamma FR")
+
+    assert get_previous_translations(three_paragraph_page.translation) == []
+
+
+def test_one_untranslated_paragraph_with_two_orphan_stringtranslations_offers_the_latest(three_paragraph_page):
     context = content_context(three_paragraph_page)
     segments = list(StringSegment.objects.filter(source=three_paragraph_page.translation.source, context=context).order_by("order"))
     translate_segment(three_paragraph_page, segments[0], "Alpha FR")
     translate_segment(three_paragraph_page, segments[2], "Gamma FR")
-    orphan_stringtranslation(three_paragraph_page, context, "Beta old", "Beta FR")
-    orphan_stringtranslation(three_paragraph_page, context, "Beta older", "Beta FR ancien")
+    older = orphan_stringtranslation(three_paragraph_page, context, "Beta older", "Beta FR ancien")
+    latest = orphan_stringtranslation(three_paragraph_page, context, "Beta old", "Beta FR")
+    StringTranslation.objects.filter(pk=older.pk).update(updated_at=latest.updated_at - timedelta(days=1))
 
-    assert get_previous_translations(three_paragraph_page.translation) == []
+    entries = get_previous_translations(three_paragraph_page.translation)
+
+    assert len(entries) == 1
+    assert entries[0].sources_now == ("Beta",)
+    assert entries[0].source_then == "Beta old"
+    assert entries[0].translation == "Beta FR"
+    assert not entries[0].is_exact
 
 
 def test_orphan_stringtranslation_with_empty_data_offers_nothing(translated_page):
@@ -224,12 +244,14 @@ def test_one_untranslated_paragraph_among_three_yields_that_paragraph(three_para
     entries = get_previous_translations(three_paragraph_page.translation)
 
     assert len(entries) == 1
-    assert entries[0].source_now == "Beta"
+    assert entries[0].sources_now == ("Beta",)
     assert entries[0].translation == "Beta FR"
+    assert entries[0].is_exact
 
 
-def test_untranslated_paragraphs_at_one_context_share_one_entry(three_paragraph_page):
-    """An edited paragraph next to an added one cannot be told apart, so the entry shows both."""
+def test_untranslated_paragraphs_at_one_context_are_offered_as_separate_candidates(three_paragraph_page):
+    """An edited paragraph next to an added one cannot be told apart, so the entry carries
+    each as its own candidate."""
     context = content_context(three_paragraph_page)
     segments = list(StringSegment.objects.filter(source=three_paragraph_page.translation.source, context=context).order_by("order"))
     translate_segment(three_paragraph_page, segments[0], "Alpha FR")
@@ -238,9 +260,10 @@ def test_untranslated_paragraphs_at_one_context_share_one_entry(three_paragraph_
     entries = get_previous_translations(three_paragraph_page.translation)
 
     assert len(entries) == 1
-    assert entries[0].source_now == "Beta Gamma"
+    assert entries[0].sources_now == ("Beta", "Gamma")
     assert entries[0].source_then == "Beta old"
     assert entries[0].translation == "Beta FR"
+    assert not entries[0].is_exact
 
 
 def test_zero_width_joiner_paragraph_is_left_out_of_the_entry(translated_page):
@@ -251,7 +274,7 @@ def test_zero_width_joiner_paragraph_is_left_out_of_the_entry(translated_page):
     entries = get_previous_translations(translated_page.translation)
 
     assert len(entries) == 1
-    assert entries[0].source_now == "Alpha Gamma"
+    assert entries[0].sources_now == ("Alpha", "Gamma")
 
 
 def test_deleted_paragraph_is_paired_with_an_unrelated_new_one(three_paragraph_page):
@@ -271,9 +294,10 @@ def test_deleted_paragraph_is_paired_with_an_unrelated_new_one(three_paragraph_p
     entries = get_previous_translations(three_paragraph_page.translation)
 
     assert len(entries) == 1
-    assert entries[0].source_now == "Delta"  # the paragraph that was appended
+    assert entries[0].sources_now == ("Delta",)  # the paragraph that was appended
     assert entries[0].source_then == "Beta"  # the paragraph that was deleted
     assert entries[0].translation == "Beta FR"
+    assert entries[0].is_exact
 
 
 def count_queries(translated_page):

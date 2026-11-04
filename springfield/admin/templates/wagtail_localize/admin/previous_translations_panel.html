@@ -35,10 +35,24 @@ belongs to the Jinja2 backend, which cannot compile these tags.
                     <dt class="w-mb-1 w-text-14 w-text-text-placeholder">{% blocktranslate with locale=source_locale %}Source then ({{ locale }}){% endblocktranslate %}</dt>
                     <dd class="w-m-0 w-mb-2 w-text-text-label">{{ entry.source_then }}</dd>
                     <dt class="w-mb-1 w-text-14 w-text-text-placeholder">{% blocktranslate with locale=source_locale %}Source now ({{ locale }}){% endblocktranslate %}</dt>
-                    <dd class="w-m-0 w-mb-2 w-text-text-label">{{ entry.source_now }}</dd>
+                    {% comment %}
+                        One value per candidate: several strings run together read as one
+                        string that is nowhere in the source.
+                    {% endcomment %}
+                    {% for source_now in entry.sources_now %}
+                        <dd class="w-m-0 w-mb-2 w-text-text-label">{{ source_now }}</dd>
+                    {% endfor %}
                     <dt class="w-mb-1 w-text-14 w-text-text-placeholder">{% blocktranslate with locale=target_locale %}Previous translation ({{ locale }}){% endblocktranslate %}</dt>
                     <dd class="w-m-0 w-font-semibold w-text-text-label">{{ entry.translation }}</dd>
                 </dl>
+                {% if not entry.is_exact %}
+                    {% comment %}
+                        Only an entry that pairs one missing string with one leftover states a
+                        fact. The rest are the best guess available, and say so rather than
+                        reading like the others.
+                    {% endcomment %}
+                    <p data-inexact-pairing class="w-help-text w-mt-3 w-mb-0">{% translate "Several strings changed in this field, so this translation may not be correct." %}</p>
+                {% endif %}
                 <p class="w-help-text w-mt-3 w-mb-0">
                     {{ entry.comment|default:"" }}{% if entry.translated_by %} &middot; {{ entry.translated_by }}{% endif %}
                 </p>

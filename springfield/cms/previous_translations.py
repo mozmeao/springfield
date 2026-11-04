@@ -18,26 +18,36 @@ from wagtail_localize_intentional_blanks.utils import is_do_not_translate
 
 @dataclass(frozen=True)
 class PreviousTranslation:
+    """
+    One translation left behind by a source edit, with the text that stands where it
+    used to apply.
+
+    `source_then` and `translation` were written together and are a matter of record.
+    `sources_now` is what the field holds that nobody has translated yet.
+    """
+
     source_then: str
-    source_now: str
+    sources_now: tuple[str, ...]
     translation: str
+    is_exact: bool
     comment: str
     translated_by: str
 
     @classmethod
-    def from_pair(cls, untranslated: Sequence[StringSegment], stale: StringTranslation) -> Self:
+    def from_pair(cls, untranslated: Sequence[StringSegment], stale: StringTranslation, is_exact: bool) -> Self:
         """
         Build an entry, turning the HTML fragments wagtail-localize stores into plain text.
 
         Splitting a paragraph in the editor can leave one holding only a zero-width
-        joiner, so segments with no visible text are left out of `source_now`.
+        joiner, so segments with no visible text are left out of `sources_now`.
         """
         user = stale.last_translated_by
         untranslated_texts = [StringValue(segment.string.data).render_text() for segment in untranslated]
         return cls(
             source_then=StringValue(stale.translation_of.data).render_text(),
-            source_now=" ".join(text for text in untranslated_texts if text.replace("‍", "").strip()),
+            sources_now=tuple(text for text in untranslated_texts if text.replace("‍", "").strip()),
             translation=StringValue(stale.data).render_text(),
+            is_exact=is_exact,
             comment=stale.get_comment(),
             translated_by=(user.get_full_name() or user.get_username()) if user else "",
         )
@@ -65,16 +75,18 @@ def get_previous_translations(translation: Translation) -> list[PreviousTranslat
 
 def find_stale_pair(
     segments: Sequence[StringSegment], string_translations: Sequence[StringTranslation]
-) -> tuple[list[StringSegment], StringTranslation] | None:
+) -> tuple[list[StringSegment], StringTranslation, bool] | None:
     """
     Pair the untranslated segments of a context with the translation left over
-    from text the source no longer has.
+    from text the source no longer has, and say whether the pairing is certain.
 
     Rich text paragraphs share a context, and an edited paragraph cannot be told
     apart from one added beside it, so every untranslated segment goes in the pair.
     wagtail-localize keeps every earlier translation, so a field edited twice holds
-    two leftovers and the latest is the one to offer. In rich text several leftovers
-    cannot be told apart, so nothing is offered.
+    two leftovers and the latest is the one to offer.
+
+    When there is one leftover segment and one untranslated segment, this is a match.
+    Otherwise, the entry is a guess and is flagged as not exact.
     """
     current_string_ids = {segment.string_id for segment in segments}
     translated_string_ids = {row.translation_of_id for row in string_translations if row.translation_of_id in current_string_ids}
@@ -83,6 +95,7 @@ def find_stale_pair(
 
     if not untranslated or not stale:
         return None
-    if len(segments) > 1 and len(stale) > 1:
+    if len(untranslated) > 1 and len(stale) > 1:
         return None
-    return untranslated, max(stale, key=attrgetter("updated_at"))
+    is_exact = len(untranslated) == 1 and len(stale) == 1
+    return untranslated, max(stale, key=attrgetter("updated_at")), is_exact
