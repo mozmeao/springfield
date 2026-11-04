@@ -7,6 +7,7 @@
 import copy
 import csv
 import hashlib
+from datetime import UTC
 from io import BytesIO
 from pathlib import Path
 from urllib.parse import urlparse
@@ -21,6 +22,7 @@ from defusedxml import ElementTree
 from wagtail.models import Locale, Site
 from wagtail.utils.file import hash_filelike
 
+from springfield.blog import wordpress_sync_check as checks, wordpress_translations as alignment
 from springfield.blog.management.commands import (
     fix_imported_blog_posts as fixer,
     import_wordpress_blog_posts as importer,
@@ -212,21 +214,22 @@ class SyncTranslator(translations.Command):
         row["hero"] = note
 
 
-def featured_image(translator, language, wp_id):
-    """The bytes of a WordPress post's featured image, read through the REST API, or None if it has none."""
+def wordpress_translation(translator, language, wp_id):
+    """A WordPress post's featured image bytes (None if it has none) and body HTML, read through the REST API."""
     base = f"{translator.wordpress_url}/{language}/wp-json/wp/v2"
-    response = translator.get(f"{base}/posts/{wp_id}", params={"_fields": "featured_media"})
-    media_id = response.json().get("featured_media") if response is not None else None
-    if not media_id:
-        return None
-    media = translator.get(f"{base}/media/{media_id}", params={"_fields": "source_url"})
+    response = translator.get(f"{base}/posts/{wp_id}", params={"_fields": "featured_media,content"})
+    post = response.json() if response is not None else {}
+    body = (post.get("content") or {}).get("rendered", "")
+    if not post.get("featured_media"):
+        return None, body
+    media = translator.get(f"{base}/media/{post['featured_media']}", params={"_fields": "source_url"})
     url = media.json().get("source_url") if media is not None else None
-    return translator.fetch(url) if url else None
+    return (translator.fetch(url) if url else None), body
 
 
 def swap_translation_hero(page, translator, *, expected_hash, alt, prefetched=None, language="", wp_id=None):
     """Give `page` the WordPress translation's own featured image and reviewed alt, without saving it."""
-    content = prefetched if prefetched is not None else featured_image(translator, language, wp_id)
+    content = prefetched if prefetched is not None else wordpress_translation(translator, language, wp_id)[0]
     if content is None:
         raise ValueError("the WordPress translation has no featured image")
     found = file_hash(content)
@@ -263,6 +266,7 @@ class Command(BaseCommand):
         parser.add_argument("sync_file", help="The reviewed sync.json.")
         parser.add_argument("--export", help="The WordPress export XML holding the posts to import.")
         parser.add_argument("--dry-run", action="store_true", help="Read and check everything, and report what would happen, without writing.")
+        parser.add_argument("--check-only", action="store_true", help="Only check the synced pages against the sync file and export.")
         parser.add_argument("--fix-translation-heroes", action="store_true", help="Only give existing translations their hero_fixes heroes.")
         parser.add_argument("--out", help="Output folder (default: blog-sync-<sync>/). Its files are overwritten.")
         parser.add_argument("--locale", default="en-US", help="Locale of the English posts (default: en-US).")
@@ -270,10 +274,11 @@ class Command(BaseCommand):
         parser.add_argument("--wordpress-url", help="WordPress site to read from (default: the sync file's wordpress_url).")
 
     def handle(self, *args, **options):
-        self.dry_run = options["dry_run"]
+        self.dry_run = options["dry_run"] or options["check_only"]
         sync_path = Path(options["sync_file"])
         self.out = Output(options["out"] or f"blog-sync-{sync_path.stem}")
         self.counts = {}
+        self.created = set()
         self.failed = 0
         self.stopped = []
         self.options = options
@@ -305,13 +310,18 @@ class Command(BaseCommand):
         if not self.options["export"]:
             raise StopRun("--export is needed (only --fix-translation-heroes runs without it)")
         for post in self.data["posts"]:
-            if not post.get("import"):
+            if not post.get("import") and not self.options["check_only"]:
                 self.report(slug=post.get("wp_slug", ""), action=NOT_IMPORTED, detail=f"not imported: {post.get('note', '')}")
         self.plans = [self.plan_post(post) for post in imported_posts(self.data)]
         self.importer.new_paths = self.new_paths()
-        pages = [self.sync_post(plan) for plan in self.plans]
+        if self.options["check_only"]:
+            pages = [self.existing_page(plan["post"]) for plan in self.plans]
+        else:
+            pages = [self.sync_post(plan) for plan in self.plans]
+            for plan, page in zip(self.plans, pages):
+                self.sync_translations(plan, page)
         for plan, page in zip(self.plans, pages):
-            self.sync_translations(plan, page)
+            self.check(plan, page)
 
     # -----------------------------------------------------------------------
     # Checking everything before writing
@@ -415,6 +425,7 @@ class Command(BaseCommand):
                     entry = decide(img.get("src", ""))
                     if entry:
                         img["data-alt"], img["data-title"], img["data-description"] = entry["alt"], entry["title"], entry["description"]
+                        img["data-hash"] = entry["hash"]
                 planned.append(("text", str(soup) if soup.find("img") else value))
             elif block_type == "video_file":
                 item = media.get(value["src"])
@@ -475,22 +486,57 @@ class Command(BaseCommand):
             "images": images,
             "translations": translations_plan,
             "hand_steps": self.placeholder_steps(post, planned),
+            "expected": self.expected(post, planned, hero_entry, hero_video, images),
+        }
+
+    def expected(self, post, specs, hero_entry, hero_video, images):
+        """What the check compares an English page with, from the sync file and the export."""
+        body, alts = [], []
+        for block_type, value in specs:
+            if block_type == "image":
+                body.append(value["hash"])
+                alts.append(value["image_alt"])
+            elif block_type == "animation":
+                body.append(checks.ANIMATION)
+            elif block_type == "text":
+                for img in BeautifulSoup(value, "html.parser").find_all("img"):
+                    body.append(img.get("data-hash"))
+                    alts.append(img.get("data-alt", ""))
+        hero_alt = ""
+        if hero_entry is not None:
+            hero_alt = text(post["hero"].get("alt")) or image_text(images[hero_entry["hash"]])["description"]
+        return {
+            "hero_hash": hero_entry["hash"] if hero_entry else None,
+            "body": body,
+            "hero_alt": hero_alt,
+            "alts": alts,
+            "youtube": [importer.youtube_video_id(value["url"]) for block_type, value in specs if block_type == "video"],
+            "hero_video": [importer.youtube_video_id(hero_video[1]["url"])] if hero_video else [],
+            "placeholder_url": (self.data.get("placeholder") or {}).get("webm_url"),
+            "topic": post["topic"],
+            "tags": sorted(post.get("tags") or []),
+            "search text": (text(post.get("seo_title")), text(post["search_description"])),
+            "byline": [text(author.get("slug")) or slugify(author["new"]) for author in post.get("authors") or []],
+            "rss": "excluded" if post.get("exclude_from_rss") else "included",
         }
 
     def plan_translation(self, post, translation, errors):
         where = f"post {post['wp_slug']} {translation['locale']}"
         hero = translation.get("hero") or {}
-        content = None
         try:
-            content = featured_image(self.translator, translation["locale"], translation["wp_id"])
+            content, body_html = wordpress_translation(self.translator, translation["locale"], translation["wp_id"])
         except requests.RequestException as exc:
             errors.append(f"{where}: could not read the translation from WordPress: {exc}")
             return None
-        if text(hero.get("hash")):
-            found = file_hash(content) if content else None
-            if found != hero["hash"]:
-                errors.append(f"{where}: hero image changed: expected hash {hero['hash']}, found {found or 'no featured image'}")
-        return {"entry": translation, "hero_content": content}
+        found = file_hash(content) if content else None
+        if text(hero.get("hash")) and found != hero["hash"]:
+            errors.append(f"{where}: hero image changed: expected hash {hero['hash']}, found {found or 'no featured image'}")
+        body = []
+        for item in alignment.media(body_html):
+            if item.kind == "image":
+                image = self.translator.fetch(self.translator.full_size_url(item.source)) or self.translator.fetch(item.source)
+                body.append(file_hash(image) if image else None)
+        return {"entry": translation, "hero_content": content, "expected": {"hero_hash": found, "body": body}}
 
     def placeholder_steps(self, post, specs):
         steps, heading = [], ""
@@ -511,6 +557,37 @@ class Command(BaseCommand):
         paths = {page.slug: page_path(page) for page in BlogArticlePage.objects.child_of(self.index).filter(locale=self.locale)}
         paths.update({plan["post"]["wp_slug"]: f"{self.index.url}{plan['post']['slug']}/" for plan in self.plans})
         return paths
+
+    # -----------------------------------------------------------------------
+    # The check
+    # -----------------------------------------------------------------------
+
+    def existing_page(self, post):
+        page = BlogArticlePage.objects.child_of(self.index).filter(locale=self.locale, slug=post["slug"]).first()
+        return page.specific if page else None
+
+    def check(self, plan, page):
+        """Check a page this run created or found, and its translations, writing every result and turning problems into hand steps."""
+        slug = plan["post"]["slug"]
+        if page is None:
+            if self.options["check_only"]:
+                self.write_check(slug, self.locale.language_code, checks.result("page", False, "exists", "missing"))
+            return
+        published = self.importer.parse_wp_date(importer.element_text(plan["export"], "Date"))
+        expected = {**plan["expected"], "date": published.astimezone(UTC).isoformat() if published else None}
+        expected["migrated_slugs"] = set(self.importer.new_paths)
+        for row in checks.check_english(page, expected):
+            self.write_check(slug, self.locale.language_code, row)
+        for code, translation_plan in plan["translations"].items():
+            translated = page.get_translation_or_none(self.translation_locales[code])
+            for row in checks.check_translation(translated.specific if translated else None, translation_plan["expected"]):
+                self.write_check(slug, code, row)
+
+    def write_check(self, slug, locale, row):
+        self.out.write(self.out.checks, {"slug": slug, "locale": locale, **row})
+        listed_already = row["check"] == "placeholders" and slug in self.created
+        if row["result"] != checks.PASS and not listed_already:
+            self.out.hand_steps.append(f"`{slug}` {locale}: check “{row['check']}” {row['result']}: expected {row['expected']}, found {row['found']}")
 
     # -----------------------------------------------------------------------
     # English pages
@@ -546,6 +623,7 @@ class Command(BaseCommand):
             self.record_warnings(post["slug"], [*plan["warnings"], *self.importer.post_warnings])
             return None
         self.importer.created_plans = []
+        self.created.add(post["slug"])
         self.report(**row, action=CREATED, page_id=page.pk, url=page.full_url or "", detail=self.image_text_changes())
         self.record_warnings(post["slug"], [*plan["warnings"], *self.importer.post_warnings])
         self.redirect(wp_id=post["wp_id"], old_url=row["wordpress_url"], locale="en", slug=post["wp_slug"], page=page)
@@ -733,6 +811,12 @@ class Command(BaseCommand):
             {"wp_id": wp_id, "old_url": old_url, "locale": locale, "slug": slug, "migrated": "yes", "new_url": f"{PUBLIC_HOST}{page_path(page)}"},
         )
 
+    def mode(self):
+        if self.options.get("check_only"):
+            return "check only"
+        name = "fix translation heroes" if self.options.get("fix_translation_heroes") else "sync"
+        return f"{name}, dry run" if self.dry_run else name
+
     def summary(self, sync_path):
         try:
             digest = hashlib.sha256(sync_path.read_bytes()).hexdigest()
@@ -743,7 +827,7 @@ class Command(BaseCommand):
             f"- Sync file: `{sync_path.name}` (sha256 `{digest}`)",
             f"- Export: `{self.options.get('export') or '(none)'}`",
             f"- Site: {site.hostname if site else '(none)'}",
-            f"- Mode: {'fix translation heroes' if self.options.get('fix_translation_heroes') else 'sync'}{', dry run' if self.dry_run else ''}",
+            f"- Mode: {self.mode()}",
         ]
         lines += [f"- {action}: {count}" for action, count in sorted(self.counts.items())]
         if self.stopped:

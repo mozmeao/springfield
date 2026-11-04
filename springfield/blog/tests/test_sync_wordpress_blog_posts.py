@@ -529,7 +529,8 @@ def mock_translation(slug="first-post", language="de", wp_id=201, status=200, he
         "link": f"{WORDPRESS}/{language}/products/firefox/{translated_slug}/",
         "title": {"rendered": "Erster Beitrag"},
     }
-    for post, content in ((english, "<p>Hello world.</p>"), (translated, "<p>Hallo Welt.</p>")):
+    image = f'<figure class="wp-block-image"><img src="{UPLOADS}/body.png" alt=""></figure>'
+    for post, content in ((english, f"{image}<p>Hello world.</p>"), (translated, f"{image}<p>Hallo Welt.</p>")):
         post.update(excerpt={"rendered": ""}, content={"rendered": content}, yoast_head_json={})
     responses.add(
         responses.GET,
@@ -556,7 +557,8 @@ def mock_translation(slug="first-post", language="de", wp_id=201, status=200, he
 
 
 def mock_featured_image(language, wp_id, content=GERMAN_HERO):
-    responses.add(responses.GET, f"{WORDPRESS}/{language}/wp-json/wp/v2/posts/{wp_id}", json={"featured_media": 77})
+    body = f'<figure class="wp-block-image"><img src="{UPLOADS}/body.png" alt=""></figure><p>Hallo Welt.</p>'
+    responses.add(responses.GET, f"{WORDPRESS}/{language}/wp-json/wp/v2/posts/{wp_id}", json={"featured_media": 77, "content": {"rendered": body}})
     responses.add(responses.GET, f"{WORDPRESS}/{language}/wp-json/wp/v2/media/77", json={"source_url": f"{UPLOADS}/{language}-hero-{wp_id}.png"})
     serve(f"{UPLOADS}/{language}-hero-{wp_id}.png", content)
 
@@ -753,3 +755,110 @@ def test_a_dry_run_writes_nothing_and_lists_what_the_real_run_does(tmp_path, blo
 
     assert [slug for slug, _, _ in real.actions()] == [slug for slug, _, _ in dry.actions()]
     assert dry.text("hand-steps.md").replace("**Dry run: nothing was written.**\n\n", "") == real.text("hand-steps.md")
+
+
+# -------------------------------------------------------------------------
+# The check, in a run and with --check-only
+# -------------------------------------------------------------------------
+
+
+def check_results(run):
+    return {(row["locale"], row["check"]): row for row in run.rows("check.csv")}
+
+
+def publish_change(page, change):
+    draft = page.get_latest_revision_as_object()
+    change(draft)
+    draft.save_revision().publish()
+
+
+@responses.activate
+def test_every_check_passes_for_pages_the_run_built(tmp_path, blog):
+    serve_post_images()
+    mock_translation()
+    post = sync_post(translations=[translated_post()], image_alt=[{"position": 1, "hash": file_hash(BODY), "alt": "Green"}])
+
+    run = run_sync(tmp_path, sync_data(post), export_post())
+
+    results = check_results(run)
+    assert {key: row["result"] for key, row in results.items() if row["result"] != "pass"} == {}
+    assert ("de", "translation hero") in results
+    assert "check “" not in run.text("hand-steps.md")
+
+
+@responses.activate
+def test_a_hero_swapped_by_hand_to_the_wrong_file_fails_with_both_hashes(tmp_path, blog):
+    serve_post_images()
+    run_sync(tmp_path / "first", sync_data(sync_post()), export_post())
+    page = created_page()
+    publish_change(page, lambda draft: setattr(draft, "image", SpringfieldImage.objects.get(file_hash=file_hash(BODY))))
+
+    run = run_sync(tmp_path / "check", sync_data(sync_post()), export_post(), check_only=True)
+
+    hero = check_results(run)[("en-US", "hero")]
+    assert (hero["result"], hero["expected"], hero["found"]) == ("fail", file_hash(HERO), file_hash(BODY))
+    assert "check “hero” fail" in run.text("hand-steps.md")
+
+
+@responses.activate
+def test_a_gif_replaced_by_an_animation_passes_the_body_image_check(tmp_path, blog):
+    serve_post_images()
+    serve(f"{ASSETS}/gif.jpg", POSTER)
+    gif = f"{UPLOADS}/huge.gif"
+    content = f'<figure class="wp-block-image"><img src="{UPLOADS}/body.png" alt=""></figure><p><img src="{gif}" alt=""></p>'
+    media = [{"src": gif, "kind": "gif", "alt": "A big animation", "webm_url": f"{ASSETS}/gif.webm", "poster_url": f"{ASSETS}/gif.jpg"}]
+
+    run = run_sync(tmp_path, sync_data(sync_post(media=media)), export_post(content=content))
+
+    body = check_results(run)[("en-US", "body images")]
+    assert (body["result"], body["found"]) == ("pass", f"{file_hash(BODY)} animation")
+
+
+@responses.activate
+def test_check_only_with_no_media_files_matches_the_run_and_writes_nothing(tmp_path, blog):
+    serve_post_images()
+    mock_translation()
+    data = sync_data(sync_post(translations=[translated_post()]))
+    run = run_sync(tmp_path / "run", data, export_post())
+    for image in SpringfieldImage.objects.all():
+        image.file.delete(save=False)
+    counts = (Page.objects.count(), SpringfieldImage.objects.count(), Revision.objects.count())
+
+    check = run_sync(tmp_path / "check", data, export_post(), check_only=True)
+
+    assert check.text("check.csv") == run.text("check.csv")
+    assert check.rows() == []
+    assert (Page.objects.count(), SpringfieldImage.objects.count(), Revision.objects.count()) == counts
+
+
+@responses.activate
+def test_a_placeholder_is_flagged_until_it_is_replaced_by_hand(tmp_path, blog):
+    serve_post_images()
+    serve(PLACEHOLDER["poster_url"], POSTER)
+    clip = f"{UPLOADS}/clip.mp4"
+    data = sync_data(sync_post(media=[{"src": clip, "kind": "video", "alt": "A clip"}]))
+    run_sync(tmp_path / "run", data, export_post(content=f'<video src="{clip}"></video>'))
+
+    before = run_sync(tmp_path / "before", data, export_post(content=f'<video src="{clip}"></video>'), check_only=True)
+    page = created_page()
+
+    def replace(draft):
+        draft.content[0].value[0].value["video_url"] = f"{ASSETS}/clip.webm"
+
+    publish_change(page, replace)
+    after = run_sync(tmp_path / "after", data, export_post(content=f'<video src="{clip}"></video>'), check_only=True)
+
+    assert check_results(before)[("en-US", "placeholders")]["result"] == "fail"
+    assert "check “placeholders” fail" in before.text("hand-steps.md")
+    assert check_results(after)[("en-US", "placeholders")]["result"] == "pass"
+
+
+@responses.activate
+def test_a_hero_repeated_as_the_first_image_is_a_warning_when_kept(tmp_path, blog):
+    serve(f"{UPLOADS}/hero.png", HERO)
+    content = f'<figure class="wp-block-image"><img src="{UPLOADS}/hero.png" alt=""></figure><p>Hello world.</p>'
+
+    run = run_sync(tmp_path, sync_data(sync_post()), export_post(content=content))
+
+    assert check_results(run)[("en-US", "hero duplicate")]["result"] == "warning"
+    assert body_values(created_page(), "image")[0]["image"] == created_page().image_id
