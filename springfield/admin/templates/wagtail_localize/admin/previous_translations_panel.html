@@ -1,0 +1,48 @@
+{% comment %} SKIP LICENSE INSERTION {% endcomment %}
+{% comment %}
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
+{% endcomment %}
+
+{% comment %}
+Rendered by PreviousTranslationsSidePanel, which supplies entries, source_locale
+and target_locale.
+
+This template has to live under springfield/admin/templates: {% component %} loads
+through the global template loader, and every other springfield templates directory
+belongs to the Jinja2 backend, which cannot compile these tags.
+{% endcomment %}
+
+{% load i18n %}
+
+<div class="w-p-2 lg:w-pl-8">
+    {% comment %}
+        side_panel.html already heads the panel with this title for screen readers,
+        so this copy is the sighted one and is hidden from assistive tech to keep it
+        from being announced twice.
+    {% endcomment %}
+    <h2 class="w-mt-0 w-mb-5 w-text-16 w-font-bold w-text-text-label" aria-hidden="true">{{ panel.title }}</h2>
+    <ul class="w-divide-y w-divide-border-furniture w-list-none w-m-0 w-p-0">
+        {% for entry in entries %}
+            <li class="w-py-5">
+                {% comment %}
+                    Labels recede and values carry the weight, as in Wagtail's own
+                    Checks panel. The previous translation is what a translator acts
+                    on, so it is the only value set in bold.
+                {% endcomment %}
+                <dl>
+                    <dt class="w-mb-1 w-text-14 w-text-text-placeholder">{% blocktranslate with locale=source_locale %}Source then ({{ locale }}){% endblocktranslate %}</dt>
+                    <dd class="w-m-0 w-mb-2 w-text-text-label">{{ entry.source_then }}</dd>
+                    <dt class="w-mb-1 w-text-14 w-text-text-placeholder">{% blocktranslate with locale=source_locale %}Source now ({{ locale }}){% endblocktranslate %}</dt>
+                    <dd class="w-m-0 w-mb-2 w-text-text-label">{{ entry.source_now }}</dd>
+                    <dt class="w-mb-1 w-text-14 w-text-text-placeholder">{% blocktranslate with locale=target_locale %}Previous translation ({{ locale }}){% endblocktranslate %}</dt>
+                    <dd class="w-m-0 w-font-semibold w-text-text-label">{{ entry.translation }}</dd>
+                </dl>
+                <p class="w-help-text w-mt-3 w-mb-0">
+                    {{ entry.comment|default:"" }}{% if entry.translated_by %} &middot; {{ entry.translated_by }}{% endif %}
+                </p>
+            </li>
+        {% endfor %}
+    </ul>
+</div>

@@ -8,13 +8,17 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 {% endcomment %}
 
 {% comment %}
-Adds the previous-translations bar and the draft sharing button to the translation editor.
+Adds the previous-translations side panel and the draft sharing button to the
+translation editor.
+
+The panel is added by rebinding side_panels for the parent block, so that the headers
+and the aside it renders pick it up without this template restating any of them.
 {% endcomment %}
 
 {% load cms_draftsharing_tags cms_previous_translations_tags %}
 
 {% block content %}
-    {% previous_translations_bar translation %}
-    {{ block.super }}
+    {% side_panels_with_previous_translations translation instance as panels %}
+    {% with side_panels=panels %}{{ block.super }}{% endwith %}
     {% translation_draftsharing_button translation instance %}
 {% endblock %}

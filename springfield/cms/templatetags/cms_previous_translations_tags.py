@@ -8,18 +8,27 @@ from django.conf import settings
 from wagtail_localize.models import Translation
 
 from springfield.cms.previous_translations import get_previous_translations
+from springfield.cms.side_panels import PreviousTranslationsSidePanel
 
 register = template.Library()
 
 
-@register.inclusion_tag("wagtail_localize/admin/previous_translations_bar.html")
-def previous_translations_bar(translation: Translation) -> dict:
-    """The bar of recoverable translations shown above the translation editor."""
+@register.simple_tag(takes_context=True)
+def side_panels_with_previous_translations(context, translation: Translation, instance) -> list:
+    """The editor's side panels, plus one for segments whose source text has changed."""
+    side_panels = context["side_panels"]
     if not settings.CMS_PREVIOUS_TRANSLATIONS_ENABLED:
-        return {"entries": []}
+        return side_panels
 
-    return {
-        "entries": get_previous_translations(translation),
-        "source_locale": translation.source.locale.language_code,
-        "target_locale": translation.target_locale.language_code,
-    }
+    entries = get_previous_translations(translation)
+    if not entries:
+        return side_panels
+
+    panel = PreviousTranslationsSidePanel(
+        instance,
+        context["request"],
+        entries=entries,
+        source_locale=translation.source.locale.language_code,
+        target_locale=translation.target_locale.language_code,
+    )
+    return [*side_panels, panel]
