@@ -496,10 +496,11 @@ class ContentParser:
     Call `parse_content` rather than using this class directly.
     """
 
-    def __init__(self):
+    def __init__(self, video_blocks=False):
         self.specs = []
         self.warnings = []
         self.text_buffer = []
+        self.video_blocks = video_blocks
 
     def parse(self, raw_html):
         rewritten = rewrite_embed_shortcodes(rewrite_caption_shortcodes(raw_html))
@@ -527,7 +528,7 @@ class ContentParser:
             elif name == "iframe":
                 self.add_video(node.get("src", ""), alt="")
             elif name == "video":
-                self.keep_video_as_text(node)
+                self.add_video_file(node)
             elif name == "pre":
                 self.flush_text()
                 self.specs.append(("code", {"code": node.get_text()}))
@@ -589,6 +590,18 @@ class ContentParser:
         )
         self.text_buffer.append(node)
 
+    def add_video_file(self, node):
+        """Add a ("video_file", {"src", "caption"}) spec when asked to, else keep the video as text."""
+        if not self.video_blocks:
+            self.keep_video_as_text(node)
+            return
+        video = node if node.name == "video" else node.find("video")
+        source = video.find("source")
+        figcaption = node.find("figcaption") if node.name == "figure" else None
+        self.flush_text()
+        src = video.get("src") or (source.get("src", "") if source else "")
+        self.specs.append(("video_file", {"src": src, "caption": caption_html(figcaption) if figcaption else ""}))
+
     def add_video(self, url, alt):
         """Add a video block spec for a YouTube URL, or a labelled link for any other provider.
 
@@ -608,7 +621,7 @@ class ContentParser:
         """Map a figure onto whichever block fits: a gallery, one image, a video, or plain text."""
         if figure.find("video") is not None:
             # The figure's caption travels inline with the video, so it needs no separate warning.
-            self.keep_video_as_text(figure)
+            self.add_video_file(figure)
             return
 
         if figure.find("figure") is not None:
@@ -668,14 +681,15 @@ class ContentParser:
             self.warn(WARNING_CAPTION, f"caption {text!r} describes a gallery of {len(produced)} images - dropped")
 
 
-def parse_content(raw_html):
+def parse_content(raw_html, video_blocks=False):
     """Convert a post's WordPress HTML body into ordered block specs, plus any warnings.
 
     Specs are ("text", html), ("image", {"src", "alt", "caption"}), ("video", {"url", "alt"}) or
     ("code", {"code": ...}); warnings are (kind, message) pairs so the caller can group them.
     Only the markup this export actually uses is recognised; everything else stays as rich text.
+    `video_blocks` turns a self-hosted video into ("video_file", {"src", "caption"}) instead.
     """
-    return ContentParser().parse(raw_html)
+    return ContentParser(video_blocks=video_blocks).parse(raw_html)
 
 
 # ---------------------------------------------------------------------------
