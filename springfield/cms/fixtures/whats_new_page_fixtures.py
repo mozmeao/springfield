@@ -142,7 +142,7 @@ def get_whats_new_full_test_page() -> WhatsNewPage2026:
 
     page = get_or_create_page(
         WhatsNewPage2026,
-        slug="test-wnp-full",
+        slug="159",
         parent=wnp_index,
         defaults={
             "title": "01. What's New — Full Sample",
