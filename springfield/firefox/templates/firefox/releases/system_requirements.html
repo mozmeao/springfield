@@ -10,7 +10,7 @@
 
 {% set channel_name = '' if release.channel == 'Release' else release.channel %}
 
-{% block page_title %}{{ release.product }} {{ channel_name }} {{ version }} System Requirements{% endblock %}
+{% block page_title %}{{ [release.product, channel_name, version]|select|join(' ') }} System Requirements{% endblock %}
 
 {% block body_id %}notes{% endblock %}
 {% block body_class %}mzp-t-firefox mzp-t-{{ channel_name|lower }}{% endblock %}
