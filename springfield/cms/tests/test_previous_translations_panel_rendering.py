@@ -10,6 +10,8 @@ from wagtail.models import Locale
 from wagtail_localize.models import String, StringSegment, StringTranslation, Translation, TranslationSource
 from wagtail_localize.strings import StringValue
 
+from springfield.cms.templatetags import cms_previous_translations_tags
+
 pytestmark = pytest.mark.django_db
 
 
@@ -199,6 +201,20 @@ def test_a_translator_without_a_comment_is_named_on_their_own(admin_client, drif
 
     # The text has no separator.
     assert entry.select_one("p").get_text(strip=True) == "Jo Bloggs"
+
+
+def test_wagtail_localize_editor_opens_even_when_the_panel_cannot_be_built(admin_client, drifted_page, monkeypatch):
+    def raise_error(translation):
+        raise ValueError("the query behind the panel failed")
+
+    get_orphan_stringtranslation(drifted_page, PREVIOUS_SOURCE, "La barre latérale")
+    monkeypatch.setattr(cms_previous_translations_tags, "get_previous_translations", raise_error)
+
+    # No error raised here
+    html = editor_html(admin_client, drifted_page)
+
+    assert get_soup_for_panel(html) is None
+    assert get_soup_for_toggle(html) is None
 
 
 def test_translator_is_named_without_their_email(admin_client, drifted_page, django_user_model):

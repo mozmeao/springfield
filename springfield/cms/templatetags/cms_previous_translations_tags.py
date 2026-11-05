@@ -2,6 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+import logging
+
 from django import template
 
 from wagtail_localize.models import Translation
@@ -11,20 +13,31 @@ from springfield.cms.side_panels import PreviousTranslationsSidePanel
 
 register = template.Library()
 
+logger = logging.getLogger(__name__)
+
 
 @register.simple_tag(takes_context=True)
 def side_panels_with_previous_translations(context, translation: Translation, instance) -> list:
-    """The editor's side panels, plus one for segments whose source text has changed."""
-    side_panels = context["side_panels"]
-    entries = get_previous_translations(translation)
-    if not entries:
-        return side_panels
+    """
+    The editor's side panels, plus one for segments whose source text has changed.
 
-    panel = PreviousTranslationsSidePanel(
-        instance,
-        context["request"],
-        entries=entries,
-        source_locale=translation.source.locale.language_code,
-        target_locale=translation.target_locale.language_code,
-    )
-    return [*side_panels, panel]
+    The panel is an extra beside the translation editor, so if anything goes
+    wrong building it, the rest of the page is not affected.
+    """
+    try:
+        side_panels = context["side_panels"]
+        entries = get_previous_translations(translation)
+        if not entries:
+            return side_panels
+
+        panel = PreviousTranslationsSidePanel(
+            instance,
+            context["request"],
+            entries=entries,
+            source_locale=translation.source.locale.language_code,
+            target_locale=translation.target_locale.language_code,
+        )
+        return [*side_panels, panel]
+    except Exception:
+        logger.exception("Could not build the previous translations panel for translation %s", translation.pk)
+        return context.get("side_panels", [])
