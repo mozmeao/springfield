@@ -18,6 +18,9 @@ class PreviousTranslationsSidePanel(BaseSidePanel):
 
     Locale codes are passed in rather than read from the translation: the panel renders
     what it is given.
+
+    Note: the editor view collects the side panels' media before this panel is
+    appended to them, so a Media declaration here would be dropped without warning.
     """
 
     class SidePanelToggle(BaseSidePanel.SidePanelToggle):
