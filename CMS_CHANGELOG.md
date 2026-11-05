@@ -1,3 +1,7 @@
+## 2026-11-05
+- When a page's English text is edited after it has been translated, the translation editor's "Previous translations" panel shows the previous translation for that text, so it can be read and reused instead of retyped.
+
+
 ## 2026-11-02
 - Comparison Result label now uses Fluent-translated Yes/No/Limited text
 
@@ -9,7 +13,6 @@
 ## 2026-10-26
 
 - The Sharing Links block can be added to a Banner's content.
-- When a page's English text is edited after it has been translated, the translation editor now shows the previous translation for that text in a bar at the top, so it can be read and reused instead of retyped.
 
 ## 2026-10-21
 
