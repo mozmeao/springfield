@@ -56,9 +56,11 @@ belongs to the Jinja2 backend, which cannot compile these tags.
                     {% endcomment %}
                     <p data-inexact-pairing class="w-help-text w-mt-3 w-mb-0">{% translate "Several strings changed in this field, so this translation may not be correct." %}</p>
                 {% endif %}
-                <p class="w-help-text w-mt-3 w-mb-0">
-                    {{ entry.comment|default:"" }}{% if entry.translated_by %} &middot; {{ entry.translated_by }}{% endif %}
-                </p>
+                {% if entry.comment or entry.translated_by %}
+                    <p class="w-help-text w-mt-3 w-mb-0">
+                        {{ entry.comment|default:"" }}{% if entry.comment and entry.translated_by %} &middot; {% endif %}{{ entry.translated_by }}
+                    </p>
+                {% endif %}
             </li>
         {% endfor %}
     </ul>

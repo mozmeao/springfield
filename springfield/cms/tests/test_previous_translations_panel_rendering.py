@@ -173,6 +173,34 @@ def test_attribution_follows_the_comment_only_when_there_is_a_translator(
     assert entry.select_one("p").get_text(strip=True) == f"{orphan.get_comment()}{expected_attribution}"
 
 
+def test_an_entry_with_nothing_to_attribute_shows_no_meta_line(admin_client, drifted_page):
+    """
+    A row written by an import or a data migration carries neither a comment nor a
+    translator, and an empty meta line is a gap under the entry with nothing in it.
+    """
+    get_orphan_stringtranslation(drifted_page, PREVIOUS_SOURCE, "La barre latérale", translation_type="")
+
+    entry = get_soup_for_panel(editor_html(admin_client, drifted_page)).select_one("li")
+
+    assert "La barre latérale" in entry.get_text()
+    assert entry.select("p") == []
+
+
+def test_a_translator_without_a_comment_is_named_on_their_own(admin_client, drifted_page, django_user_model):
+    get_orphan_stringtranslation(
+        drifted_page,
+        PREVIOUS_SOURCE,
+        "La barre latérale",
+        translation_type="",
+        last_translated_by=make_translator(django_user_model),
+    )
+
+    entry = get_soup_for_panel(editor_html(admin_client, drifted_page)).select_one("li")
+
+    # The text has no separator.
+    assert entry.select_one("p").get_text(strip=True) == "Jo Bloggs"
+
+
 def test_translator_is_named_without_their_email(admin_client, drifted_page, django_user_model):
     """The translator's username is their email address, which the panel must not print."""
     get_orphan_stringtranslation(drifted_page, PREVIOUS_SOURCE, "La barre latérale", last_translated_by=make_translator(django_user_model))
