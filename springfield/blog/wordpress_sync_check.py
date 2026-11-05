@@ -50,6 +50,15 @@ def page_media(page):
     return items
 
 
+def rich_text(page):
+    """The HTML of each text block and image caption."""
+    for block in page.content.raw_data:
+        if block["type"] == "text":
+            yield block["value"]
+        elif block["type"] == "image_caption":
+            yield block["value"].get("caption") or ""
+
+
 def body_tokens(items):
     return [item["hash"] if item["kind"] == "image" else ANIMATION for item in items if item["kind"] != "video"]
 
@@ -109,9 +118,8 @@ def check_english(page, expected):
 
     stale = [
         anchor["href"]
-        for block in page.content.raw_data
-        if block["type"] == "text"
-        for anchor in BeautifulSoup(block["value"], "html.parser").find_all("a", href=True)
+        for source in rich_text(page)
+        for anchor in BeautifulSoup(source, "html.parser").find_all("a", href=True)
         if urlparse(anchor["href"]).netloc.endswith("blog.mozilla.org")
         and urlparse(anchor["href"]).path.rstrip("/").rsplit("/", 1)[-1] in expected["migrated_slugs"]
     ]

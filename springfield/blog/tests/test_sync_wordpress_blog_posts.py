@@ -165,7 +165,7 @@ def run_sync(tmp_path, data, *posts, export=True, **options):
         export_path = tmp_path / "export.xml"
         export_path.write_text(f"<data>{''.join(posts)}</data>")
         options["export"] = str(export_path)
-    call_command("sync_wordpress_blog_posts", str(sync_path), out=str(out), stdout=stdout, stderr=stderr, **options)
+    call_command("sync_wordpress_blog_posts", str(sync_path), out=str(out), stdout=stdout, stderr=stderr, skip_checks=False, **options)
     return Run(out, stdout.getvalue(), stderr.getvalue())
 
 
@@ -256,6 +256,15 @@ def test_a_post_in_the_export_but_not_the_sync_file_is_ignored(tmp_path, blog):
     run = run_sync(tmp_path, sync_data(sync_post()), export_post(), export_post(wp_id=55, slug="an-old-post"))
 
     assert [slug for slug, _, _ in run.actions()] == ["first-post"]
+
+
+@responses.activate
+def test_an_export_naming_the_id_element_in_lowercase_is_read(tmp_path, blog):
+    serve_post_images()
+
+    run_sync(tmp_path, sync_data(sync_post()), export_post().replace("<ID>101</ID>", "<id>101</id>"))
+
+    assert created_page().live
 
 
 @responses.activate
@@ -396,6 +405,23 @@ def test_links_point_at_migrated_posts_and_this_runs_posts(tmp_path, blog, make_
 
 
 @responses.activate
+def test_a_caption_link_to_a_post_in_this_run_points_at_its_new_page_and_is_checked(tmp_path, blog):
+    serve_post_images()
+    content = (
+        f'<figure class="wp-block-image"><img src="{UPLOADS}/body.png" alt="">'
+        f'<figcaption><a href="{WORDPRESS}/en/firefox/second-wp/">More</a></figcaption></figure><p>Hello.</p>'
+    )
+    data = sync_data(sync_post(), sync_post(wp_id=102, slug="second-post", wp_slug="second-wp"))
+
+    run = run_sync(tmp_path, data, export_post(content=content), export_post(wp_id=102, slug="second-wp", content="<p>Two.</p>"))
+
+    [caption] = [block["value"]["caption"] for block in created_page().content.raw_data if block["type"] == "image_caption"]
+    assert 'href="/en-US/blog/second-post/"' in caption
+    [links] = [row for row in run.rows("check.csv") if (row["slug"], row["check"]) == ("first-post", "links")]
+    assert links["result"] == "pass"
+
+
+@responses.activate
 def test_each_use_of_an_image_gets_its_own_alt_and_the_library_text_is_the_reviewed_one(tmp_path, blog):
     serve_post_images()
     data = sync_data(
@@ -460,6 +486,19 @@ def test_a_video_hero_moves_the_first_youtube_video_into_the_header_with_its_rev
     assert page.image.file_hash == file_hash(HERO)
 
 
+@responses.activate
+def test_a_youtube_video_with_no_poster_fails_the_post_instead_of_becoming_a_link(tmp_path, blog):
+    serve_post_images()
+    responses.add(responses.GET, "https://www.youtube.com/oembed", status=404)
+    responses.add(responses.GET, responses.matchers.re.compile(r"https://img\.youtube\.com/vi/.+"), status=404)
+    content = '<figure class="wp-block-embed"><div class="wp-block-embed__wrapper">https://www.youtube.com/watch?v=abc123</div></figure>'
+
+    run, error = failing_run(tmp_path, sync_data(sync_post()), export_post(content=content))
+
+    assert "no poster from YouTube for video abc123" in run.rows()[0]["detail"]
+    assert not BlogArticlePage.objects.filter(slug="first-post").exists()
+
+
 # -------------------------------------------------------------------------
 # Self-hosted video and GIFs
 # -------------------------------------------------------------------------
@@ -498,6 +537,32 @@ def test_a_gif_needing_a_webm_is_never_downloaded_and_shares_the_placeholder_pos
     assert not any(call.request.url == gif for call in responses.calls)
     page.full_clean()
     assert "placeholder.webm" in str(page.content)
+
+
+@responses.activate
+def test_a_placeholder_poster_can_be_an_image_file_beside_the_sync_file(tmp_path, blog):
+    serve_post_images()
+    (tmp_path / "placeholder-poster.png").write_bytes(POSTER)
+    clips = [f"{UPLOADS}/one.mp4", f"{UPLOADS}/two.mp4"]
+    post = sync_post(media=[{"src": clip, "kind": "video", "alt": "A clip"} for clip in clips])
+    data = sync_data(post, placeholder={**PLACEHOLDER, "poster_url": "placeholder-poster.png"})
+
+    run_sync(tmp_path, data, export_post(content="".join(f'<video src="{clip}"></video>' for clip in clips)))
+
+    posters = [animation["poster"] for animation in body_values(created_page(), "animation")]
+    assert len(set(posters)) == 1
+    assert SpringfieldImage.objects.get(pk=posters[0]).file_hash == file_hash(POSTER)
+
+
+def test_a_placeholder_poster_file_missing_beside_the_sync_file_stops_the_run(tmp_path, blog):
+    data = sync_data(
+        sync_post(media=[{"src": f"{UPLOADS}/one.mp4", "kind": "video", "alt": "A clip"}]), placeholder={**PLACEHOLDER, "poster_url": "missing.png"}
+    )
+
+    _, error = failing_run(tmp_path, data, export_post())
+
+    assert "placeholder: poster file not found" in error
+    assert not BlogArticlePage.objects.exists()
 
 
 @responses.activate
@@ -601,12 +666,43 @@ def test_a_translation_whose_wordpress_hero_changed_stops_the_run(tmp_path, blog
     assert "post first-post de: hero image changed" in error
 
 
-def make_translation(tmp_path, english_slug="first-post"):
+@responses.activate
+def test_a_translation_with_no_reviewed_hero_whose_wordpress_hero_differs_stops_the_run(tmp_path, blog):
     serve_post_images()
-    mock_translation(slug=english_slug)
+    mock_featured_image("de", 201)
+    translation = {**translated_post(), "hero": {}}
+
+    run, error = failing_run(tmp_path, sync_data(sync_post(translations=[translation])), export_post())
+
+    assert f"post first-post de: the WordPress hero ({file_hash(GERMAN_HERO)}) differs from the English one" in error
+    assert not BlogArticlePage.objects.exists()
+
+
+@responses.activate
+def test_a_translation_with_no_wordpress_hero_keeps_the_english_one(tmp_path, blog):
+    serve_post_images()
+    mock_translation()
+    body = f'<figure class="wp-block-image"><img src="{UPLOADS}/body.png" alt=""></figure><p>Hallo Welt.</p>'
+    responses.replace(responses.GET, f"{WORDPRESS}/de/wp-json/wp/v2/posts/201", json={"featured_media": 0, "content": {"rendered": body}})
+
+    run = run_sync(tmp_path, sync_data(sync_post(translations=[{**translated_post(), "hero": {}}])), export_post())
+
+    assert translation_of(created_page()).image.file_hash == file_hash(HERO)
+    assert {row["check"]: row["result"] for row in run.rows("check.csv") if row["locale"] == "de"} == {
+        "translation": "pass",
+        "translation hero": "pass",
+        "translation body images": "pass",
+    }
+
+
+def make_translation(tmp_path, english_slug="first-post"):
+    """A translation that kept the English hero, before WordPress gave it its own."""
+    serve_post_images()
+    mock_translation(slug=english_slug, hero=HERO)
     untouched_hero = {key: value for key, value in translated_post().items() if key != "hero"}
     post = sync_post(slug=english_slug, translations=[untouched_hero])
     run_sync(tmp_path / "setup", sync_data(post), export_post(slug=english_slug))
+    responses.replace(responses.GET, f"{UPLOADS}/de-hero-201.png", body=GERMAN_HERO, content_type="image/png")
     return translation_of(created_page(english_slug))
 
 
@@ -646,6 +742,47 @@ def test_fix_translation_heroes_skips_a_translation_with_a_pending_draft(tmp_pat
 # -------------------------------------------------------------------------
 # Reruns, failures and redirects
 # -------------------------------------------------------------------------
+
+
+@responses.activate
+def test_a_new_author_is_shared_by_posts_and_reused_on_the_rerun(tmp_path, blog):
+    serve_post_images()
+    serve(f"{UPLOADS}/hero-2.png", HERO)
+    data = sync_data(
+        sync_post(authors=[{"new": "New Person"}]),
+        sync_post(wp_id=102, slug="second-post", authors=[{"new": "New Person"}]),
+    )
+    posts = (export_post(), export_post(wp_id=102, slug="second-post", hero_url=f"{UPLOADS}/hero-2.png"))
+    run_sync(tmp_path, data, *posts)
+
+    rerun = run_sync(tmp_path, data, *posts)
+
+    author = BlogAuthor.objects.get(slug="new-person")
+    assert [placement.author for placement in created_page("second-post").article_authors.all()] == [author]
+    assert [action for _, _, action in rerun.actions()] == ["skipped", "skipped"]
+
+
+@responses.activate
+def test_a_new_author_renamed_by_an_editor_in_case_only_doesnt_block_the_rerun(tmp_path, blog):
+    serve_post_images()
+    data = sync_data(sync_post(authors=[{"new": "new person"}]))
+    run_sync(tmp_path, data, export_post())
+    author = BlogAuthor.objects.get(slug="new-person")
+    author.name = "New Person"
+    author.save_revision().publish()
+
+    rerun = run_sync(tmp_path, data, export_post())
+
+    assert rerun.actions() == [("first-post", "en-US", "skipped")]
+
+
+def test_a_new_author_taking_another_authors_slug_stops_the_run(tmp_path, blog):
+    publish(BlogAuthor, name="New-Person", slug="new-person", locale=Locale.get_default())
+
+    run, error = failing_run(tmp_path, sync_data(sync_post(authors=[{"new": "New Person"}])), export_post())
+
+    assert "'New Person' would take the slug of 'New-Person'" in error
+    assert not BlogArticlePage.objects.exists()
 
 
 @responses.activate
@@ -738,7 +875,7 @@ def test_a_dry_run_writes_nothing_and_lists_what_the_real_run_does(tmp_path, blo
     serve(PLACEHOLDER["poster_url"], POSTER)
     clip = f"{UPLOADS}/clip.mp4"
     post = sync_post(media=[{"src": clip, "kind": "video", "alt": "A clip"}])
-    content = f'<figure class="wp-block-image"><img src="{UPLOADS}/body.png" alt=""></figure><video src="{clip}"></video>'
+    content = f'<p>Intro.</p><figure class="wp-block-image"><img src="{UPLOADS}/body.png" alt=""></figure><video src="{clip}"></video>'
     data = sync_data(post)
     counts = (Page.objects.count(), SpringfieldImage.objects.count(), Revision.objects.count(), BlogAuthor.objects.count())
     files = stored_files()
@@ -793,8 +930,9 @@ def test_a_hero_swapped_by_hand_to_the_wrong_file_fails_with_both_hashes(tmp_pat
     page = created_page()
     publish_change(page, lambda draft: setattr(draft, "image", SpringfieldImage.objects.get(file_hash=file_hash(BODY))))
 
-    run = run_sync(tmp_path / "check", sync_data(sync_post()), export_post(), check_only=True)
+    run, error = failing_run(tmp_path / "check", sync_data(sync_post()), export_post(), check_only=True)
 
+    assert "1 checks failed" in error
     hero = check_results(run)[("en-US", "hero")]
     assert (hero["result"], hero["expected"], hero["found"]) == ("fail", file_hash(HERO), file_hash(BODY))
     assert "check “hero” fail" in run.text("hand-steps.md")
@@ -839,7 +977,7 @@ def test_a_placeholder_is_flagged_until_it_is_replaced_by_hand(tmp_path, blog):
     data = sync_data(sync_post(media=[{"src": clip, "kind": "video", "alt": "A clip"}]))
     run_sync(tmp_path / "run", data, export_post(content=f'<video src="{clip}"></video>'))
 
-    before = run_sync(tmp_path / "before", data, export_post(content=f'<video src="{clip}"></video>'), check_only=True)
+    before, _ = failing_run(tmp_path / "before", data, export_post(content=f'<video src="{clip}"></video>'), check_only=True)
     page = created_page()
 
     def replace(draft):

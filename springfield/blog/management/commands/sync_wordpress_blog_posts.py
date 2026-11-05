@@ -12,6 +12,7 @@ from io import BytesIO
 from pathlib import Path
 from urllib.parse import urlparse
 
+from django.core.files.base import ContentFile
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 from django.utils.text import slugify
@@ -29,7 +30,7 @@ from springfield.blog.management.commands import (
     import_wordpress_blog_translations as translations,
 )
 from springfield.blog.models import BlogArticleAuthor, BlogArticlePage, BlogAuthor, BlogIndexPage, BlogTag, BlogTopic, HeroStyle
-from springfield.blog.wordpress_sync import SyncFileError, imported_posts, read_sync_file, text
+from springfield.blog.wordpress_sync import SyncFileError, imported_posts, is_local_image, read_sync_file, text
 from springfield.cms.models import SpringfieldImage
 
 PUBLIC_HOST = "https://www.firefox.com"
@@ -149,7 +150,10 @@ class SyncImporter(importer.Command):
         except requests.RequestException:
             plan = None
         if plan is None or not plan.usable:
-            return super().get_or_create_youtube_poster(video_id, alt)
+            poster = super().get_or_create_youtube_poster(video_id, alt)
+            if poster is None:
+                raise ValueError(f"no poster from YouTube for video {video_id}: rerun, or take it out of the post if it was deleted")
+            return poster
         if plan.image is None:
             plan.image = self.fixer.create_poster_image(plan)
             self.created_plans.append(plan)
@@ -170,11 +174,15 @@ class SyncImporter(importer.Command):
                     continue
                 image_value = {"image": image, "image_alt": value["image_alt"], "settings": {}}
                 if value.get("caption"):
-                    blocks.append(("image_caption", {"image": image_value, "caption": value["caption"]}))
+                    caption = importer.relink_imported_posts(value["caption"], self.new_paths)
+                    blocks.append(("image_caption", {"image": image_value, "caption": caption}))
                 else:
                     blocks.append(("media", [("image", image_value)]))
             elif block_type == "animation":
-                poster = self.get_or_create_image(value["poster_url"], value["alt"], description=value["alt"])
+                if value.get("poster_file"):
+                    poster = self.get_or_create_file_image(value["poster_file"], value["alt"])
+                else:
+                    poster = self.get_or_create_image(value["poster_url"], value["alt"], description=value["alt"])
                 if poster is None:
                     raise ValueError(f"could not download the animation poster {value['poster_url']}")
                 animation = {"video_url": value["video_url"], "poster": poster, "alt": value["alt"], "playback": "autoplay_loop"}
@@ -182,6 +190,18 @@ class SyncImporter(importer.Command):
             else:
                 blocks += super().materialize_content([(block_type, value)], title)
         return blocks
+
+    def get_or_create_file_image(self, path, title):
+        """An image for a local file, reused by its hash."""
+        if str(path) in self.image_cache:
+            return self.image_cache[str(path)]
+        content = Path(path).read_bytes()
+        digest = file_hash(content)
+        image = SpringfieldImage.objects.filter(file_hash=digest).first()
+        if image is None:
+            image = SpringfieldImage.objects.create(title=title, description=title, file=ContentFile(content, name=Path(path).name), file_hash=digest)
+        self.cache_image(str(path), image)
+        return image
 
     def import_inline_images(self, text_html, title):
         soup = BeautifulSoup(text_html, "html.parser")
@@ -224,7 +244,10 @@ def wordpress_translation(translator, language, wp_id):
         return None, body
     media = translator.get(f"{base}/media/{post['featured_media']}", params={"_fields": "source_url"})
     url = media.json().get("source_url") if media is not None else None
-    return (translator.fetch(url) if url else None), body
+    content = translator.fetch(url) if url else None
+    if content is None:
+        raise requests.RequestException(f"could not download the featured image {url or '(no URL)'}")
+    return content, body
 
 
 def swap_translation_hero(page, translator, *, expected_hash, alt, prefetched=None, language="", wp_id=None):
@@ -280,6 +303,7 @@ class Command(BaseCommand):
         self.counts = {}
         self.created = set()
         self.failed = 0
+        self.failed_checks = 0
         self.stopped = []
         self.options = options
         try:
@@ -293,9 +317,18 @@ class Command(BaseCommand):
             raise CommandError("Stopped before writing anything:\n" + "\n".join(self.stopped))
         if self.failed:
             raise CommandError(f"{self.failed} failed: see {self.out.folder / 'report.csv'}, then rerun")
+        # Only --check-only exits non-zero on a failed check: a placeholder fails until it's replaced by hand.
+        if self.options["check_only"] and self.failed_checks:
+            raise CommandError(f"{self.failed_checks} checks failed: see {self.out.folder / 'check.csv'}")
 
     def run(self, sync_path):
         self.data = read_sync_file(sync_path)
+        self.poster_file = None
+        poster = (self.data.get("placeholder") or {}).get("poster_url")
+        if is_local_image(poster):
+            self.poster_file = sync_path.parent / poster
+            if not self.poster_file.exists():
+                raise StopRun(f"placeholder: poster file not found: {self.poster_file}")
         self.wordpress_url = (self.options["wordpress_url"] or self.data.get("wordpress_url") or translations.DEFAULT_WORDPRESS_URL).rstrip("/")
         self.fixer = SyncFixer(stdout=self.stdout, stderr=self.stderr)
         self.fixer.start_run(dry_run=self.dry_run, writing=not self.dry_run)
@@ -321,7 +354,7 @@ class Command(BaseCommand):
             for plan, page in zip(self.plans, pages):
                 self.sync_translations(plan, page)
         for plan, page in zip(self.plans, pages):
-            self.check(plan, page)
+            self.check_post(plan, page)
 
     # -----------------------------------------------------------------------
     # Checking everything before writing
@@ -347,8 +380,9 @@ class Command(BaseCommand):
             for author in post.get("authors") or []:
                 if text(author.get("slug")) and author["slug"] not in self.authors:
                     errors.append(f"post {post['wp_slug']}: authors: no {self.locale.language_code} author {author['slug']!r}")
-                if text(author.get("new")) and slugify(author["new"]) in self.authors:
-                    errors.append(f"post {post['wp_slug']}: authors: {author['new']!r} exists already, use its slug {slugify(author['new'])!r}")
+                existing = self.authors.get(slugify(text(author.get("new"))))
+                if text(author.get("new")) and existing and existing.name.casefold() != text(author["new"]).casefold():
+                    errors.append(f"post {post['wp_slug']}: authors: {author['new']!r} would take the slug of {existing.name!r}")
         if errors:
             raise StopRun("\n".join(errors))
 
@@ -358,7 +392,8 @@ class Command(BaseCommand):
             if not path.exists():
                 raise StopRun(f"export not found: {path}")
             posts = ElementTree.parse(path).getroot().findall("post")
-            self.export_posts = {importer.element_text(post, "ID"): post for post in posts}
+            # The export labels its ID element "ID" or "id", depending on how the export is set up.
+            self.export_posts = {importer.element_text(post, "ID") or importer.element_text(post, "id"): post for post in posts}
         return self.export_posts
 
     def plan_post(self, post):
@@ -400,10 +435,10 @@ class Command(BaseCommand):
             used_media.add(item["src"])
             webm = text(item.get("webm_url")) or placeholder.get("webm_url", "")
             poster = text(item.get("poster_url")) or placeholder.get("poster_url", "")
-            return (
-                "animation",
-                {"video_url": webm, "poster_url": poster, "alt": item["alt"], "src": item["src"], "placeholder": not item.get("webm_url")},
-            )
+            value = {"video_url": webm, "poster_url": poster, "alt": item["alt"], "src": item["src"], "placeholder": not item.get("webm_url")}
+            if value["placeholder"] and self.poster_file:
+                value["poster_file"] = str(self.poster_file)
+            return ("animation", value)
 
         planned = []
         for block_type, value in specs:
@@ -531,12 +566,17 @@ class Command(BaseCommand):
         found = file_hash(content) if content else None
         if text(hero.get("hash")) and found != hero["hash"]:
             errors.append(f"{where}: hero image changed: expected hash {hero['hash']}, found {found or 'no featured image'}")
+        # With no hero of its own on WordPress, the translation keeps the English one.
+        elif not text(hero.get("hash")) and found and post["hero"]["image"] == "featured" and found != post["hero"]["hash"]:
+            english = post["hero"]["hash"]
+            errors.append(f"{where}: the WordPress hero ({found}) differs from the English one ({english}): give the translation a hero")
         body = []
         for item in alignment.media(body_html):
             if item.kind == "image":
                 image = self.translator.fetch(self.translator.full_size_url(item.source)) or self.translator.fetch(item.source)
                 body.append(file_hash(image) if image else None)
-        return {"entry": translation, "hero_content": content, "expected": {"hero_hash": found, "body": body}}
+        expected_hero = text(hero.get("hash")) or text(post["hero"].get("hash")) or None
+        return {"entry": translation, "hero_content": content, "expected": {"hero_hash": expected_hero, "body": body}}
 
     def placeholder_steps(self, post, specs):
         steps, heading = [], ""
@@ -566,7 +606,7 @@ class Command(BaseCommand):
         page = BlogArticlePage.objects.child_of(self.index).filter(locale=self.locale, slug=post["slug"]).first()
         return page.specific if page else None
 
-    def check(self, plan, page):
+    def check_post(self, plan, page):
         """Check a page this run created or found, and its translations, writing every result and turning problems into hand steps."""
         slug = plan["post"]["slug"]
         if page is None:
@@ -585,6 +625,8 @@ class Command(BaseCommand):
 
     def write_check(self, slug, locale, row):
         self.out.write(self.out.checks, {"slug": slug, "locale": locale, **row})
+        if row["result"] == checks.FAIL:
+            self.failed_checks += 1
         listed_already = row["check"] == "placeholders" and slug in self.created
         if row["result"] != checks.PASS and not listed_already:
             self.out.hand_steps.append(f"`{slug}` {locale}: check “{row['check']}” {row['result']}: expected {row['expected']}, found {row['found']}")
@@ -682,9 +724,12 @@ class Command(BaseCommand):
             if text(entry.get("slug")):
                 authors.append(self.authors[entry["slug"]])
                 continue
-            author = BlogAuthor(name=text(entry["new"]), slug=slugify(entry["new"]), locale=self.locale, live=False)
-            author.save()
-            author.save_revision().publish()
+            # A new author is reused by later posts and reruns.
+            author = BlogAuthor.objects.filter(slug=slugify(entry["new"]), locale=self.locale).first()
+            if author is None:
+                author = BlogAuthor(name=text(entry["new"]), slug=slugify(entry["new"]), locale=self.locale, live=False)
+                author.save()
+                author.save_revision().publish()
             authors.append(author)
         return authors
 
@@ -699,16 +744,18 @@ class Command(BaseCommand):
     def describe_plan(self, plan):
         counts = {}
         for block_type, value in plan["specs"]:
-            name = {"image": "image_caption" if value.get("caption") else "image", "video": "video"}.get(block_type, block_type)
+            name = "image_caption" if block_type == "image" and value.get("caption") else block_type
             counts[name] = counts.get(name, 0) + 1
         hashes = {entry["hash"] for entry in plan["body"] if entry["hash"]} | ({plan["hero"]["hash"]} if plan["hero"] else set())
         reused = set(SpringfieldImage.objects.filter(file_hash__in=hashes).values_list("file_hash", flat=True))
         paths = self.importer.new_paths
+        sources = [
+            value if block_type == "text" else value.get("caption") or "" for block_type, value in plan["specs"] if block_type in ("text", "image")
+        ]
         links = sum(
             1
-            for block_type, value in plan["specs"]
-            if block_type == "text"
-            for anchor in BeautifulSoup(value, "html.parser").find_all("a", href=True)
+            for source in sources
+            for anchor in BeautifulSoup(source, "html.parser").find_all("a", href=True)
             if urlparse(anchor["href"]).netloc.endswith("blog.mozilla.org") and urlparse(anchor["href"]).path.rstrip("/").rsplit("/", 1)[-1] in paths
         )
         blocks = ", ".join(f"{count} {name}" for name, count in counts.items())
@@ -834,4 +881,6 @@ class Command(BaseCommand):
             lines += ["", "**Stopped before writing anything:**", "", *[f"- {error}" for error in self.stopped]]
         elif self.failed:
             lines += ["", f"**{self.failed} failed.** See `report.csv`, fix the cause, then rerun the same file."]
+        if self.failed_checks:
+            lines += ["", f"**{self.failed_checks} checks failed.** See `check.csv` and `hand-steps.md`."]
         return "\n".join(lines)

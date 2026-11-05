@@ -94,13 +94,27 @@ def test_read_sync_file_raises_with_every_error(tmp_path):
         (lambda data: data["images"][0].update(title=""), "images entry 1 (aaa): title is missing"),
         (lambda data: data["images"][0].update(title="x" * 256), "images entry 1 (aaa): title is longer than 255"),
         (lambda data: data["images"][0].update(description=""), "images entry 1 (aaa): description is missing"),
+        (
+            lambda data: data["posts"].append(
+                {**first_post(data), "wp_id": 104, "wp_slug": "second-post", "slug": "second-post", "authors": [{"new": "New-Person"}]}
+            ),
+            "post second-post: authors: 'New-Person' and 'New Person' would share a slug",
+        ),
         (lambda data: first_post(data)["media"][0].update(alt=""), "post first-post: media https://blog.mozilla.org/x.mp4: alt is missing"),
+        (
+            lambda data: first_post(data)["media"][0].update(alt="x" * 256),
+            "post first-post: media https://blog.mozilla.org/x.mp4: alt is longer than 255",
+        ),
+        (
+            lambda data: first_post(data)["videos"][0].update(alt="x" * 256),
+            "post first-post: videos https://www.youtube.com/watch?v=abc: alt is longer than 255",
+        ),
         (lambda data: first_post(data)["media"][0].update(webm_url=f"{ASSETS}/x.webm"), "webm_url and poster_url come together"),
         (
             lambda data: first_post(data)["media"][0].update(webm_url="https://example.com/x.webm", poster_url="https://example.com/x.jpg"),
             "webm_url and poster_url must be on assets.mozilla.net",
         ),
-        (lambda data: data.pop("placeholder"), "placeholder: webm_url and poster_url on assets.mozilla.net are needed"),
+        (lambda data: data.pop("placeholder"), "placeholder: a webm_url on assets.mozilla.net and a poster_url"),
         (lambda data: first_post(data)["links"][0].update(action="replace"), "post first-post: links: each entry needs a url and action"),
         (lambda data: data["posts"][1].update(translations=[{"locale": "de"}]), "post a-mozilla-post: translations: only imported posts"),
         (lambda data: first_post(data)["translations"][0].update(locale="es"), "post first-post: translations: locale must be one of de, fr"),
@@ -114,6 +128,11 @@ def test_each_rule_names_the_post_and_field(change, message):
     errors = validate(changed(change))
 
     assert any(message in error for error in errors), errors
+
+
+def test_a_placeholder_poster_can_be_a_file_beside_the_sync_file():
+    assert validate(changed(lambda data: data["placeholder"].update(poster_url="placeholder-poster.jpg"))) == []
+    assert validate(changed(lambda data: data["placeholder"].update(poster_url="https://example.com/poster.jpg")))
 
 
 def test_a_translation_with_the_english_hero_needs_no_alt():
