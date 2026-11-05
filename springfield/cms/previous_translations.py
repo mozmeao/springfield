@@ -13,9 +13,6 @@ from django.db.models import Model
 from wagtail_localize.models import StringSegment, StringTranslation, Translation, TranslationContext
 from wagtail_localize.strings import StringValue
 from wagtail_localize.views.edit_translation import TabHelper, get_segment_location_info
-
-# The package owns both stored forms of its marker and the settings that override them,
-# so we use its helper to recognise segments marked "do not translate".
 from wagtail_localize_intentional_blanks.utils import is_do_not_translate
 
 # An escape character that is invisible in a diff, in review, and to grep.

@@ -45,7 +45,7 @@ def orphan_stringtranslation(translated_page, context, source_text, value, **kwa
 
 
 def context_of_only_title(translated_page):
-    """The context of the page's, with only 1 segment, its title."""
+    """The context of the page, with only 1 segment, its title."""
     return StringSegment.objects.get(source=translated_page.translation.source, context__path="title").context
 
 
@@ -76,7 +76,7 @@ def content_context(translated_page):
 def translated_freeform_page(minimal_site):
     """
     A translated page whose text sits in stream blocks, where the editor's name for a field
-    and the model's name for it part company.
+    and the model's name for it are different.
     """
     source_page = FreeFormPage2026Factory(
         title="Switch to Firefox",
@@ -150,8 +150,8 @@ def test_a_context_whose_field_no_longer_exists_is_left_unlabelled(translated_pa
 
 def test_a_block_is_named_as_the_translation_editor_names_it(translated_freeform_page):
     """
-    The panel sits beside the editor, and a translator matching an entry to the field it
-    belongs to needs the name the editor shows.
+    The panel sits beside the editor (from wagtail-localize), so the segment
+    labels match what the editor shows.
     """
     source = translated_freeform_page.translation.source
     for segment in StringSegment.objects.filter(source=source, context__path__startswith="content.").select_related("context"):
@@ -247,10 +247,7 @@ def test_orphan_stringtranslation_with_empty_data_offers_nothing(translated_page
 @pytest.mark.parametrize(
     "marker",
     [
-        # The literals are deliberate: the module reads the marker through get_marker(), so
-        # spelling it out here is what would catch a change to the package default. Do not
-        # "tidy" this into importing DO_NOT_TRANSLATE_MARKER — that would make the test agree
-        # with the code by construction and test nothing.
+        # The literals here are intentional, to catch changes to the package default.
         "__DO_NOT_TRANSLATE__",
         "__DO_NOT_TRANSLATE__|backup|Try Firefox",
     ],
@@ -264,13 +261,6 @@ def test_intentional_blank_marker_is_never_offered(translated_page, marker):
 
 
 def test_orphan_stringtranslation_in_another_locale_is_not_offered(translated_page):
-    """A TranslationContext is unique on (object, path), so every locale's
-    translations of a page hang off the same context rows. Only the locale under
-    translation is a candidate: an orphan in another locale belongs to that
-    locale's translator, and offering it here would both show text in a language
-    this translator is not writing and, by making the context ambiguous, silence
-    the entry they should have been offered.
-    """
     # Currently, the translated_page is translated into French.
     assert translated_page.translation.target_locale.language_code == "fr"
 
@@ -428,10 +418,11 @@ def test_zero_width_joiner_paragraph_is_left_out_of_the_entry(translated_page):
 
 def test_deleted_paragraph_is_paired_with_an_unrelated_new_one(three_paragraph_page):
     """
-    Deleting a paragraph and appending another leaves one orphan_stringtranslation and one untranslated
-    segment at the same context, so the pairing is one-to-one and the entry is offered
-    even though the two have nothing to do with each other. What saves the translator
-    is the display: the entry carries both source strings, and they do not match.
+    Deleting a paragraph and appending another leaves one
+    orphan_stringtranslation and one untranslated segment at the same context,
+    so the the entry is offered, even though the two do not necessarily match.
+    We offer the previous translation, and leave it to the editor to determine
+    what to do.
     """
     context = content_context(three_paragraph_page)
     segments = list(StringSegment.objects.filter(source=three_paragraph_page.translation.source, context=context).order_by("order"))
@@ -466,12 +457,6 @@ def test_query_count_does_not_grow_with_the_number_of_segments(three_paragraph_p
 
 
 def test_query_count_does_not_grow_with_the_number_of_contexts_and_candidates(translated_page):
-    """Each translatable field is its own context, so this is the test that varies the
-    thing the entry loop iterates over. One orphan_stringtranslation per context, so the entry count grows
-    with the context count and the query count must not."""
-    # Unconditional: SimpleRichTextPageFactory leaves `content` empty, so translated_page
-    # has exactly one context until something puts body copy on it. Without this the
-    # loop below has nothing to iterate and the test asserts 1 == 1.
     set_rich_text(translated_page, "<p>Body</p>")
     source = translated_page.translation.source
     contexts = [segment.context for segment in StringSegment.objects.filter(source=source).select_related("context")]
