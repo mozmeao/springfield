@@ -33,7 +33,9 @@ class PreviousTranslation:
     sources_now: tuple[str, ...]
     translation: str
     is_exact: bool
-    comment: str
+    # Note: wagtail-localize builds the comment from the tool or the translation
+    # type, so the comment may be blank when a row has neither.
+    comment: str | None
     translated_by: str
 
     @classmethod

@@ -228,6 +228,20 @@ def test_errored_current_translation_suppresses_the_entry(translated_page):
     assert get_previous_translations(translated_page.translation) == []
 
 
+def test_orphan_stringtranslation_without_a_translation_type_has_no_comment(translated_page):
+    """
+    wagtail-localize builds the comment from the translation type, and has
+    nothing to say about a row that carries neither a type nor a tool. The
+    'previous translations' panel shows the comment, so it even if it is blank.
+    """
+    context = context_of_only_title(translated_page)
+    orphan_stringtranslation(translated_page, context, "Try Firefox", "Essayez Firefox", translation_type="")
+
+    entries = get_previous_translations(translated_page.translation)
+
+    assert entries[0].comment is None
+
+
 def test_source_with_no_segments_returns_empty(translated_page):
     StringSegment.objects.filter(source=translated_page.translation.source).delete()
 
