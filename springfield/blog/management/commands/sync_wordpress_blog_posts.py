@@ -623,14 +623,15 @@ class Command(BaseCommand):
         elif not text(hero.get("hash")) and found and post["hero"]["image"] == "featured" and found != post["hero"]["hash"]:
             english = post["hero"]["hash"]
             errors.append(f"{where}: the WordPress hero ({found}) differs from the English one ({english}): give the translation a hero")
-        body = self.translated_images(english_images, english_html, body_html, translation.get("image_pairs"))
+        body = self.translated_images(english_images, english_html, body_html, translation.get("image_pairs"), where, errors)
         youtube = [item.source for item in alignment.media(body_html) if item.kind == "video"]
         expected_hero = text(hero.get("hash")) or text(post["hero"].get("hash")) or None
         return {"entry": translation, "hero_content": content, "expected": {"hero_hash": expected_hero, "body": body, "youtube": youtube}}
 
-    def translated_images(self, english_images, english_html, translated_html, image_pairs):
+    def translated_images(self, english_images, english_html, translated_html, image_pairs, where, errors):
         """The body image hashes a translation ends up with: the English page's, with the ones the
-        translations code swaps replaced by the localized file it would fetch."""
+        translations code swaps replaced by the localized file it would fetch. A localized file that
+        can't be downloaded is an error, as the translation would silently keep the English image."""
         images = [dict(image) for image in english_images]
         # Block images by file, in page order. An image inside text is a rich text embed, which isn't swapped.
         by_stem = {}
@@ -643,8 +644,10 @@ class Command(BaseCommand):
             if translated is None or english.kind != "image" or translated.kind != "image" or occurrence >= len(targets):
                 continue
             content = self.translator.localized_content(translated)
-            if content:
-                targets[occurrence]["hash"] = file_hash(content)
+            if content is None:
+                errors.append(f"{where}: could not download the translated image {translated.source}")
+                continue
+            targets[occurrence]["hash"] = file_hash(content)
         return [image["hash"] for image in images]
 
     def placeholder_steps(self, post, specs):

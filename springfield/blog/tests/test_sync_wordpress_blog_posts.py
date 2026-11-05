@@ -866,6 +866,19 @@ def test_an_empty_image_pairs_entry_keeps_the_english_images(tmp_path, blog):
 
 
 @responses.activate
+def test_a_translated_image_that_wont_download_stops_the_run(tmp_path, blog):
+    serve_post_images()
+    responses.add(responses.GET, f"{UPLOADS}/other.png", status=404)
+    other = f'<figure class="wp-block-image"><img src="{UPLOADS}/other.png" alt=""></figure>'
+    mock_translation(translated_body=f"{other}<p>Hallo Welt.</p>")
+
+    _, error = failing_run(tmp_path, sync_data(sync_post(translations=[translated_post()])), export_post())
+
+    assert f"post first-post de: could not download the translated image {UPLOADS}/other.png" in error
+    assert not BlogArticlePage.objects.exists()
+
+
+@responses.activate
 def test_a_translation_with_uncertain_text_gets_one_step_to_compare_it(tmp_path, blog):
     serve_post_images()
     image = f'<figure class="wp-block-image"><img src="{UPLOADS}/body.png" alt=""></figure>'
