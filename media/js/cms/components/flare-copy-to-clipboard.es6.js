@@ -8,6 +8,7 @@ const COPY_RESET_DELAY_MS = 2000;
 
 function initCopyToClipboardButton(buttonEl) {
     const value = buttonEl.dataset.copyValue;
+    const successMessage = buttonEl.dataset.labelSuccess;
     const labelEl = buttonEl.querySelector('.fl-copy-to-clipboard-label');
     const successLabelEl = buttonEl.querySelector(
         '.fl-copy-to-clipboard-label-success'
@@ -18,30 +19,31 @@ function initCopyToClipboardButton(buttonEl) {
     const iconSuccess = buttonEl.querySelector(
         '.fl-copy-to-clipboard-icon-success'
     );
+    const statusEl = buttonEl.nextElementSibling;
+    const hasStatusRegion =
+        statusEl && statusEl.classList.contains('fl-copy-to-clipboard-status');
 
-    if (!value || !labelEl || !successLabelEl || !iconDefault || !iconSuccess) {
+    if (
+        !value ||
+        !labelEl ||
+        !successLabelEl ||
+        !iconDefault ||
+        !iconSuccess ||
+        !hasStatusRegion
+    ) {
         return;
     }
 
     let resetTimer = null;
 
-    function showLabel(labelToShow, labelToHide) {
-        labelToShow.classList.remove('hidden');
-        labelToShow.removeAttribute('aria-hidden');
-        labelToHide.classList.add('hidden');
-        labelToHide.setAttribute('aria-hidden', 'true');
-    }
-
     function setCopiedState(isCopied) {
-        if (isCopied) {
-            showLabel(successLabelEl, labelEl);
-        } else {
-            showLabel(labelEl, successLabelEl);
-        }
-
+        labelEl.classList.toggle('hidden', isCopied);
+        successLabelEl.classList.toggle('hidden', !isCopied);
         iconDefault.classList.toggle('hidden', isCopied);
         iconSuccess.classList.toggle('hidden', !isCopied);
-        buttonEl.disabled = isCopied;
+        buttonEl.classList.toggle('is-copied', isCopied);
+        // Cleared on reset so a virtual cursor doesn't land on a stale message.
+        statusEl.textContent = isCopied ? successMessage : '';
     }
 
     buttonEl.addEventListener('click', () => {

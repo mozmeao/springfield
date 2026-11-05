@@ -12,7 +12,6 @@
   data-js="fl-copy-to-clipboard"
   data-copy-value="{{ value }}"
   data-label-success="{{ success_label }}"
-  aria-live="polite"
   {% if analytics_text %}
     data-cta-position="{{ analytics_position }}"
     data-cta-text="{{ analytics_text|escape }}"
@@ -20,7 +19,9 @@
   {% endif %}
 >
   <span class="fl-copy-to-clipboard-label">{{ label }}</span>
-  <span class="fl-copy-to-clipboard-label-success hidden" aria-hidden="true">{{ success_label }}</span>
+  <span class="fl-copy-to-clipboard-label-success hidden">{{ success_label }}</span>
   <span class="fl-icon fl-icon-right fl-icon-copy fl-copy-to-clipboard-icon-default" aria-hidden="true"></span>
   <span class="fl-icon fl-icon-right fl-icon-checkmark fl-copy-to-clipboard-icon-success hidden" aria-hidden="true"></span>
 </button>
+{# Announcements go through a live region outside the button: a live region on the button itself is announced multiple times by some screen readers. #}
+<span class="fl-copy-to-clipboard-status" role="status"></span>
