@@ -694,13 +694,14 @@ def mock_translation(slug="first-post", language="de", wp_id=201, status=200, he
         match=[matchers.query_param_matcher({"slug": translated_slug}, strict_match=False)],
     )
     responses.add(responses.GET, english_link, body=f'<link rel="alternate" hreflang="{language}" href="{translated["link"]}">')
-    mock_featured_image(language, wp_id, content=hero, body=translated_body)
+    mock_featured_image(language, wp_id, content=hero, body=translated_body, link=translated["link"])
     return translated
 
 
-def mock_featured_image(language, wp_id, content=GERMAN_HERO, body=None):
+def mock_featured_image(language, wp_id, content=GERMAN_HERO, body=None, link=None):
     body = body or f'<figure class="wp-block-image"><img src="{UPLOADS}/body.png" alt=""></figure><p>Hallo Welt.</p>'
-    responses.add(responses.GET, f"{WORDPRESS}/{language}/wp-json/wp/v2/posts/{wp_id}", json={"featured_media": 77, "content": {"rendered": body}})
+    post = {"featured_media": 77, "content": {"rendered": body}, "link": link or f"{WORDPRESS}/{language}/products/firefox/first-post-{language}/"}
+    responses.add(responses.GET, f"{WORDPRESS}/{language}/wp-json/wp/v2/posts/{wp_id}", json=post)
     responses.add(responses.GET, f"{WORDPRESS}/{language}/wp-json/wp/v2/media/77", json={"source_url": f"{UPLOADS}/{language}-hero-{wp_id}.png"})
     serve(f"{UPLOADS}/{language}-hero-{wp_id}.png", content)
 
@@ -987,14 +988,15 @@ def test_a_rerun_creates_nothing(tmp_path, blog):
     serve_post_images()
     mock_translation()
     data = sync_data(sync_post(translations=[translated_post()]))
-    run_sync(tmp_path, data, export_post())
+    run = run_sync(tmp_path / "run", data, export_post())
     counts = (Page.objects.count(), SpringfieldImage.objects.count(), Revision.objects.count())
 
-    rerun = run_sync(tmp_path, data, export_post())
+    rerun = run_sync(tmp_path / "rerun", data, export_post())
 
     assert (Page.objects.count(), SpringfieldImage.objects.count(), Revision.objects.count()) == counts
     assert rerun.actions() == [("first-post", "en-US", "skipped"), ("first-post", "de", "skipped")]
-    assert rerun.rows("redirects.csv") == []
+    assert rerun.rows("redirects.csv") == run.rows("redirects.csv")
+    assert [row["locale"] for row in rerun.rows("redirects.csv")] == ["en", "de"]
 
 
 @responses.activate
@@ -1009,6 +1011,10 @@ def test_a_translation_that_failed_is_created_on_the_rerun(tmp_path, blog):
     rerun = run_sync(tmp_path, data, export_post())
 
     assert rerun.actions() == [("first-post", "en-US", "skipped"), ("first-post", "de", "created")]
+    assert [(row["locale"], row["old_url"]) for row in rerun.rows("redirects.csv")] == [
+        ("en", f"{WORDPRESS}/en/products/firefox/first-post/"),
+        ("de", f"{WORDPRESS}/de/products/firefox/first-post-de/"),
+    ]
 
 
 @responses.activate

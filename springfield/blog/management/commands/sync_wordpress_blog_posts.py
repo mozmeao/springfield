@@ -250,21 +250,22 @@ class SyncTranslator(translations.Command):
 
 
 def wordpress_translation(translator, language, wp_id):
-    """A WordPress post's featured image bytes (None if it has none) and body HTML, read through the REST API."""
+    """A WordPress post's featured image bytes (None if it has none), body HTML and URL, read through the REST API."""
     base = f"{translator.wordpress_url}/{language}/wp-json/wp/v2"
-    response = translator.get(f"{base}/posts/{wp_id}", params={"_fields": "featured_media,content"})
+    response = translator.get(f"{base}/posts/{wp_id}", params={"_fields": "featured_media,content,link"})
     if response is None:
         raise requests.RequestException(f"no post {wp_id} in {language} on WordPress")
     post = response.json()
     body = (post.get("content") or {}).get("rendered", "")
+    link = post.get("link", "")
     if not post.get("featured_media"):
-        return None, body
+        return None, body, link
     media = translator.get(f"{base}/media/{post['featured_media']}", params={"_fields": "source_url"})
     url = media.json().get("source_url") if media is not None else None
     content = translator.fetch(url) if url else None
     if content is None:
         raise requests.RequestException(f"could not download the featured image {url or '(no URL)'}")
-    return content, body
+    return content, body, link
 
 
 def swap_translation_hero(page, translator, *, expected_hash, alt, prefetched=None, language="", wp_id=None):
@@ -612,7 +613,7 @@ class Command(BaseCommand):
         where = f"post {post['wp_slug']} {translation['locale']}"
         hero = translation.get("hero") or {}
         try:
-            content, body_html = wordpress_translation(self.translator, translation["locale"], translation["wp_id"])
+            content, body_html, wordpress_url = wordpress_translation(self.translator, translation["locale"], translation["wp_id"])
         except requests.RequestException as exc:
             errors.append(f"{where}: could not read the translation from WordPress: {exc}")
             return None
@@ -626,7 +627,12 @@ class Command(BaseCommand):
         body = self.translated_images(english_images, english_html, body_html, translation.get("image_pairs"), where, errors)
         youtube = [item.source for item in alignment.media(body_html) if item.kind == "video"]
         expected_hero = text(hero.get("hash")) or text(post["hero"].get("hash")) or None
-        return {"entry": translation, "hero_content": content, "expected": {"hero_hash": expected_hero, "body": body, "youtube": youtube}}
+        return {
+            "entry": translation,
+            "hero_content": content,
+            "wordpress_url": wordpress_url,
+            "expected": {"hero_hash": expected_hero, "body": body, "youtube": youtube},
+        }
 
     def translated_images(self, english_images, english_html, translated_html, image_pairs, where, errors):
         """The body image hashes a translation ends up with: the English page's, with the ones the
@@ -725,6 +731,7 @@ class Command(BaseCommand):
                 self.report(**row, action=FAILED, page_id=existing.pk, detail="a different page has this slug (title or date differ): left alone")
                 return None
             self.report(**row, action=SKIPPED, page_id=existing.pk, url=existing.full_url or "", detail="already there")
+            self.redirect(wp_id=post["wp_id"], old_url=row["wordpress_url"], locale="en", slug=post["wp_slug"], page=existing)
             return existing
         self.out.hand_steps += plan["hand_steps"]
         if self.dry_run:
@@ -883,9 +890,11 @@ class Command(BaseCommand):
                 wordpress_url=result.get("wordpress_url", ""),
                 detail=detail,
             )
-            if action == CREATED:
+            if result.get("page_id"):
                 translated = BlogArticlePage.objects.get(pk=result["page_id"])
-                self.redirect(wp_id=entry["wp_id"], old_url=result.get("wordpress_url", ""), locale=code, slug=entry["wp_slug"], page=translated)
+                old_url = translation_plan["wordpress_url"] or result.get("wordpress_url", "")
+                self.redirect(wp_id=entry["wp_id"], old_url=old_url, locale=code, slug=entry["wp_slug"], page=translated)
+            if action == CREATED:
                 self.translation_notes_step(post["slug"], code, result)
 
     def translation_notes_step(self, slug, code, result):
@@ -955,6 +964,7 @@ class Command(BaseCommand):
             self.out.write(self.out.warnings, {"slug": slug, "locale": self.locale.language_code, "type": kind, "warning": message})
 
     def redirect(self, *, wp_id, old_url, locale, slug, page):
+        """A redirects.csv row for a page that is there, whether this run created it or found it, so a rerun's file is complete."""
         self.out.write(
             self.out.redirects,
             {"wp_id": wp_id, "old_url": old_url, "locale": locale, "slug": slug, "migrated": "yes", "new_url": f"{PUBLIC_HOST}{page_path(page)}"},
