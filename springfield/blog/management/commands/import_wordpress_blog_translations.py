@@ -111,6 +111,37 @@ def is_body_string(segment):
     return isinstance(segment, StringSegmentValue) and segment.path.startswith("content.")
 
 
+def media_pairs(english_media, translated_media, image_pairs=None):
+    """The media to swap between an English post and its translation, as (English media, which
+    occurrence of its file in the English post, translated media or None): the reviewed
+    `image_pairs` when given (an empty list pairs nothing), else the media the posts differ on,
+    and the same image with translated alt text."""
+    pairs = []
+    if image_pairs is not None:
+        by_stem = {item.stem: item for item in translated_media}
+        seen = Counter()
+        for english_name, translated_name in image_pairs:
+            english = alignment.Media("image", english_name)
+            pairs.append((english, seen[english.stem], by_stem.get(alignment.file_stem(translated_name))))
+            seen[english.stem] += 1
+        return pairs
+    occurrences = [sum(1 for earlier in english_media[:index] if earlier.stem == item.stem) for index, item in enumerate(english_media)]
+    matcher = difflib.SequenceMatcher(a=[item.stem for item in english_media], b=[item.stem for item in translated_media], autojunk=False)
+    for operation, english_start, english_end, translated_start, translated_end in matcher.get_opcodes():
+        if english_end - english_start != translated_end - translated_start:
+            continue
+        for index, translated in zip(range(english_start, english_end), translated_media[translated_start:translated_end]):
+            english = english_media[index]
+            # The same file with translated alt text: the page needs its own copy of the image,
+            # described in the page's language.
+            same_file_new_alt = (
+                english.kind == "image" and image_description(translated.alt) and image_description(translated.alt) != image_description(english.alt)
+            )
+            if operation == "replace" or (operation == "equal" and same_file_new_alt):
+                pairs.append((english, occurrences[index], translated))
+    return pairs
+
+
 class Command(BaseCommand):
     help = (
         "Creates the de/fr translations of imported blog posts from their WPML translations on "
@@ -560,32 +591,7 @@ class Command(BaseCommand):
         embed, which this doesn't swap), and (English, translated) YouTube id pairs."""
         english_media = alignment.media(english_post["content"]["rendered"])
         translated_media = alignment.media(translated_post["content"]["rendered"])
-        # (English media, which occurrence of its file in the English post, translated media).
-        pairs = []
-        if key in self.image_pairs:
-            by_stem = {item.stem: item for item in translated_media}
-            seen = Counter()
-            for english_name, translated_name in self.image_pairs[key]:
-                english = alignment.Media("image", english_name)
-                pairs.append((english, seen[english.stem], by_stem.get(alignment.file_stem(translated_name))))
-                seen[english.stem] += 1
-        else:
-            occurrences = [sum(1 for earlier in english_media[:index] if earlier.stem == item.stem) for index, item in enumerate(english_media)]
-            matcher = difflib.SequenceMatcher(a=[item.stem for item in english_media], b=[item.stem for item in translated_media], autojunk=False)
-            for operation, english_start, english_end, translated_start, translated_end in matcher.get_opcodes():
-                if english_end - english_start != translated_end - translated_start:
-                    continue
-                for index, translated in zip(range(english_start, english_end), translated_media[translated_start:translated_end]):
-                    english = english_media[index]
-                    # The same file with translated alt text: the page needs its own copy of the
-                    # image, described in the page's language.
-                    same_file_new_alt = (
-                        english.kind == "image"
-                        and image_description(translated.alt)
-                        and image_description(translated.alt) != image_description(english.alt)
-                    )
-                    if operation == "replace" or (operation == "equal" and same_file_new_alt):
-                        pairs.append((english, occurrences[index], translated))
+        pairs = media_pairs(english_media, translated_media, self.image_pairs[key] if key in self.image_pairs else None)
 
         # Body images the English page uses, by file name: (segment path, image), in page order.
         image_segments = [
@@ -624,11 +630,7 @@ class Command(BaseCommand):
         """The image library copy of a localized WordPress image: an existing one with the same
         file, or a new one with the WordPress alt text. None if it can't be downloaded. In a dry
         run, an unsaved image, so no file is written to storage."""
-        content = None
-        for url in dict.fromkeys([self.full_size_url(translated.source), translated.source]):
-            content = self.fetch(url)
-            if content:
-                break
+        content = self.localized_content(translated)
         if not content:
             return None
         # An image's description is its alt text, so a file the library holds with different
@@ -644,6 +646,14 @@ class Command(BaseCommand):
         if self.dry_run:
             return SpringfieldImage(title=title)
         return self.create_image(title, alt, collection, content, name)
+
+    def localized_content(self, translated):
+        """The bytes of a localized WordPress image, the full-size upload when it is still there, else None."""
+        for url in dict.fromkeys([self.full_size_url(translated.source), translated.source]):
+            content = self.fetch(url)
+            if content:
+                return content
+        return None
 
     def create_image(self, title, description, collection, content, name):
         """Save a downloaded file as a library image, like the importer does, or None if saving

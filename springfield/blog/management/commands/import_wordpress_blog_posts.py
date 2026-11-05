@@ -262,6 +262,9 @@ def youtube_watch_url(video_id):
     return f"https://www.youtube.com/watch?v={video_id}"
 
 
+YOUTUBE_POSTER_SIZES = ("maxresdefault", "hqdefault")
+
+
 def youtube_poster_url(video_id, size):
     """Build the URL of one of YouTube's thumbnails for a video, used as its block's poster image."""
     return f"https://img.youtube.com/vi/{video_id}/{size}.jpg"
@@ -434,14 +437,19 @@ def relink_imported_posts(text_html, new_paths):
     soup = BeautifulSoup(text_html, "html.parser")
     changed = False
     for anchor in soup.find_all("a", href=True):
-        parsed = urlparse(anchor["href"])
-        if not parsed.netloc.lower().endswith("blog.mozilla.org"):
-            continue
-        path = new_paths.get(parsed.path.rstrip("/").rsplit("/", 1)[-1])
-        if path:
-            anchor["href"] = path
+        href = relinked_href(anchor["href"], new_paths)
+        if href != anchor["href"]:
+            anchor["href"] = href
             changed = True
     return str(soup) if changed else text_html
+
+
+def relinked_href(href, new_paths):
+    """The path on this site of the imported post that `href` points at on blog.mozilla.org, else `href` as it is."""
+    parsed = urlparse(href)
+    if not parsed.netloc.lower().endswith("blog.mozilla.org"):
+        return href
+    return new_paths.get(parsed.path.rstrip("/").rsplit("/", 1)[-1]) or href
 
 
 def unwrap_media_file_links(soup):
@@ -1075,9 +1083,10 @@ class Command(BaseCommand):
         Prefers the 16:9 maxresdefault, which older videos lack, over the 4:3 hqdefault that every
         upload has, which shows a widescreen video inside black bars.
         """
+        widescreen, fallback = YOUTUBE_POSTER_SIZES
         return self.get_or_create_image(
-            youtube_poster_url(video_id, "maxresdefault"), alt, description=alt, warn_on_failure=False
-        ) or self.get_or_create_image(youtube_poster_url(video_id, "hqdefault"), alt, description=alt)
+            youtube_poster_url(video_id, widescreen), alt, description=alt, warn_on_failure=False
+        ) or self.get_or_create_image(youtube_poster_url(video_id, fallback), alt, description=alt)
 
     def get_or_create_image(self, url, title, description="", warn_on_failure=True):
         """Download `url` into an image, reusing one the library already holds.

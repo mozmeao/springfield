@@ -99,7 +99,9 @@ def body_tokens(items):
 
 
 def check_english(page, expected):
-    """One result per check of an English page."""
+    """One result per check of an English page, or just one when it isn't live."""
+    if not page.live:
+        return [result("page", False, "live", "not live", step="The page isn't live. Publish it")]
     items = page_media(page)
     images = [item for item in items if item["kind"] == "image"]
     hero_hash = page.image.file_hash if page.image else None

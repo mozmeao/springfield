@@ -384,6 +384,47 @@ def test_a_page_that_fails_leaves_no_page_or_images_and_the_others_are_created(t
 
 
 @responses.activate
+@pytest.mark.parametrize(
+    "content",
+    [
+        f'<figure class="wp-block-image"><img src="{UPLOADS}/body.png" alt=""></figure><p>Hello.</p>',
+        f'<ul><li>Inline <img src="{UPLOADS}/body.png" alt=""></li></ul>',
+    ],
+    ids=["block", "inline"],
+)
+def test_a_body_image_that_cant_be_saved_fails_the_post(tmp_path, blog, content):
+    serve(f"{UPLOADS}/hero.png", HERO)
+    serve(f"{UPLOADS}/body.png", b"\x89PNG not really")
+    images = [
+        {"hash": file_hash(HERO), "title": "Hero", "description": "A red rectangle"},
+        {"hash": file_hash(b"\x89PNG not really"), "title": "Broken", "description": "Broken"},
+    ]
+
+    run, error = failing_run(tmp_path, sync_data(sync_post(), images=images), export_post(content=content))
+
+    assert "1 failed" in error
+    assert f"could not import the image {UPLOADS}/body.png" in run.rows()[0]["detail"]
+    assert not BlogArticlePage.objects.filter(slug="first-post").exists()
+
+
+@responses.activate
+def test_a_decorative_hero_is_published_with_empty_alt(tmp_path, blog):
+    serve_post_images()
+    images = [
+        {"hash": file_hash(HERO), "title": "Hero", "decorative": True},
+        {"hash": file_hash(BODY), "title": "Body", "description": "A green rectangle"},
+    ]
+    post = sync_post(hero={"image": "featured", "hash": file_hash(HERO), "alt": "", "style": "standard_image"})
+
+    run_sync(tmp_path, sync_data(post, images=images), export_post())
+
+    page = created_page()
+    assert page.live
+    assert page.image_alt == ""
+    assert page.image.is_decorative
+
+
+@responses.activate
 def test_links_point_at_migrated_posts_and_this_runs_posts(tmp_path, blog, make_article):
     serve_post_images()
     publish_migrated = BlogArticlePage(title="Old", slug="an-old-post", topic=BlogTopic.objects.get(slug="ai"), hero_style="text_only", content=[])
@@ -404,6 +445,21 @@ def test_links_point_at_migrated_posts_and_this_runs_posts(tmp_path, blog, make_
     assert 'href="/en-US/blog/second-post/"' in html
     assert f'href="{WORDPRESS}/en/mozilla/netpolicy/"' in html
     assert "example.com/gone" not in html and "gone" in html
+
+
+@responses.activate
+def test_a_link_decision_on_a_migrated_post_wins_over_the_automatic_relink(tmp_path, blog):
+    serve_post_images()
+    old = BlogArticlePage(title="Old", slug="an-old-post", topic=BlogTopic.objects.get(slug="ai"), hero_style="text_only", content=[])
+    blog.add_child(instance=old)
+    url = f"{WORDPRESS}/en/firefox/an-old-post/"
+    post = sync_post(links=[{"url": url, "action": "unlink"}])
+
+    run_sync(tmp_path, sync_data(post), export_post(content=f'<p><a href="{url}">old</a> stays</p>'))
+
+    html = created_page().content.raw_data[0]["value"]
+    assert "<a" not in html
+    assert "old stays" in html
 
 
 @responses.activate
@@ -489,15 +545,16 @@ def test_a_video_hero_moves_the_first_youtube_video_into_the_header_with_its_rev
 
 
 @responses.activate
-def test_a_youtube_video_with_no_poster_fails_the_post_instead_of_becoming_a_link(tmp_path, blog):
+@pytest.mark.parametrize("dry_run", [True, False], ids=["dry run", "real run"])
+def test_a_youtube_video_with_no_poster_stops_the_run(tmp_path, blog, dry_run):
     serve_post_images()
     responses.add(responses.GET, "https://www.youtube.com/oembed", status=404)
     responses.add(responses.GET, responses.matchers.re.compile(r"https://img\.youtube\.com/vi/.+"), status=404)
     content = '<figure class="wp-block-embed"><div class="wp-block-embed__wrapper">https://www.youtube.com/watch?v=abc123</div></figure>'
 
-    run, error = failing_run(tmp_path, sync_data(sync_post()), export_post(content=content))
+    _, error = failing_run(tmp_path, sync_data(sync_post()), export_post(content=content), dry_run=dry_run)
 
-    assert "no poster from YouTube for video abc123" in run.rows()[0]["detail"]
+    assert "post first-post: no poster from YouTube for video abc123" in error
     assert not BlogArticlePage.objects.filter(slug="first-post").exists()
 
 
@@ -699,6 +756,17 @@ def test_a_translation_with_no_reviewed_hero_whose_wordpress_hero_differs_stops_
 
 
 @responses.activate
+def test_a_translation_missing_from_wordpress_stops_the_run(tmp_path, blog):
+    serve_post_images()
+    responses.add(responses.GET, f"{WORDPRESS}/de/wp-json/wp/v2/posts/201", status=404)
+
+    _, error = failing_run(tmp_path, sync_data(sync_post(translations=[{**translated_post(), "hero": {}}])), export_post())
+
+    assert "post first-post de: could not read the translation from WordPress" in error
+    assert not BlogArticlePage.objects.exists()
+
+
+@responses.activate
 def test_a_translation_with_no_wordpress_hero_keeps_the_english_one(tmp_path, blog):
     serve_post_images()
     mock_translation()
@@ -762,6 +830,38 @@ def test_an_image_the_translation_shares_with_the_english_post_passes_its_check(
 
     run = run_sync(tmp_path, sync_data(sync_post(translations=[translated_post()])), export_post(content=f"{figure}<p>Hello world.</p>"))
 
+    assert check_results(run)[("de", "translation body images")]["result"] == "pass"
+
+
+@responses.activate
+def test_a_shared_image_with_translated_alt_gets_the_full_size_copy_and_passes_its_check(tmp_path, blog):
+    serve_post_images()
+    serve(f"{UPLOADS}/shared-1024x576.png", BODY)
+    serve(f"{UPLOADS}/shared.png", OTHER)
+
+    def figure(alt):
+        return f'<figure class="wp-block-image"><img src="{UPLOADS}/shared-1024x576.png" alt="{alt}"></figure>'
+
+    mock_translation(english_body=f"{figure('')}<p>Hello world.</p>", translated_body=f"{figure('Ein grünes Rechteck')}<p>Hallo Welt.</p>")
+
+    run = run_sync(tmp_path, sync_data(sync_post(translations=[translated_post()])), export_post(content=f"{figure('')}<p>Hello world.</p>"))
+
+    [image] = body_values(translation_of(created_page()), "image")
+    assert SpringfieldImage.objects.get(pk=image["image"]).file_hash == file_hash(OTHER)
+    assert check_results(run)[("de", "translation body images")]["result"] == "pass"
+
+
+@responses.activate
+def test_an_empty_image_pairs_entry_keeps_the_english_images(tmp_path, blog):
+    serve_post_images()
+    serve(f"{UPLOADS}/other.png", OTHER)
+    other = f'<figure class="wp-block-image"><img src="{UPLOADS}/other.png" alt=""></figure>'
+    mock_translation(translated_body=f"{other}<p>Hallo Welt.</p>")
+
+    run = run_sync(tmp_path, sync_data(sync_post(translations=[{**translated_post(), "image_pairs": []}])), export_post())
+
+    [image] = body_values(translation_of(created_page()), "image")
+    assert SpringfieldImage.objects.get(pk=image["image"]).file_hash == file_hash(BODY)
     assert check_results(run)[("de", "translation body images")]["result"] == "pass"
 
 
@@ -1026,6 +1126,19 @@ def test_a_hero_swapped_by_hand_to_the_wrong_file_fails_with_both_hashes(tmp_pat
         "- [ ] The hero isn't the reviewed image: use “Hero” from the image library\n"
         "- [ ] The first image in the body repeats the hero. Remove it if it isn't wanted\n"
     ) in run.text("hand-steps.md")
+
+
+@responses.activate
+def test_an_unpublished_english_page_fails_its_check(tmp_path, blog):
+    serve_post_images()
+    run_sync(tmp_path / "run", sync_data(sync_post()), export_post())
+    created_page().unpublish()
+
+    run, error = failing_run(tmp_path / "check", sync_data(sync_post()), export_post(), check_only=True)
+
+    assert "1 checks failed" in error
+    assert check_results(run)[("en-US", "page")]["result"] == "fail"
+    assert "- [ ] The page isn't live. Publish it" in run.text("hand-steps.md")
 
 
 @responses.activate

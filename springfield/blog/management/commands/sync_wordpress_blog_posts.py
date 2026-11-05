@@ -83,6 +83,18 @@ def page_path(page):
     return page.get_url_parts()[2]
 
 
+def planned_images(specs):
+    """The body images a page built from `specs` holds, in order: src, hash and whether the image sits inline in text."""
+    images = []
+    for block_type, value in specs:
+        if block_type == "image":
+            images.append({"src": value["src"], "hash": value["hash"], "inline": False})
+        elif block_type == "text":
+            for img in BeautifulSoup(value, "html.parser").find_all("img"):
+                images.append({"src": img.get("src", ""), "hash": img.get("data-hash"), "inline": True})
+    return images
+
+
 class Output:
     """The run's output folder; every file is written, even empty, so an old one is never mistaken for this run."""
 
@@ -174,7 +186,7 @@ class SyncImporter(importer.Command):
             if block_type == "image":
                 image = self.get_or_create_image(value["src"], value["title"], description=value["description"])
                 if image is None:
-                    continue
+                    raise ValueError(f"could not import the image {value['src']}")
                 image_value = {"image": image, "image_alt": value["image_alt"], "settings": {}}
                 if value.get("caption"):
                     caption = importer.relink_imported_posts(value["caption"], self.new_paths)
@@ -215,7 +227,7 @@ class SyncImporter(importer.Command):
             alt = img.get("data-alt", "")
             image = self.get_or_create_image(img.get("src", ""), img.get("data-title", "") or title, description=img.get("data-description", ""))
             if image is None:
-                continue
+                raise ValueError(f"could not import the image {img.get('src', '')}")
             embed = soup.new_tag("embed")
             embed.attrs = {"embedtype": "image", "id": str(image.pk), "alt": alt, "format": "fullwidth"}
             img.replace_with(embed)
@@ -241,7 +253,9 @@ def wordpress_translation(translator, language, wp_id):
     """A WordPress post's featured image bytes (None if it has none) and body HTML, read through the REST API."""
     base = f"{translator.wordpress_url}/{language}/wp-json/wp/v2"
     response = translator.get(f"{base}/posts/{wp_id}", params={"_fields": "featured_media,content"})
-    post = response.json() if response is not None else {}
+    if response is None:
+        raise requests.RequestException(f"no post {wp_id} in {language} on WordPress")
+    post = response.json()
     body = (post.get("content") or {}).get("rendered", "")
     if not post.get("featured_media"):
         return None, body
@@ -493,6 +507,8 @@ class Command(BaseCommand):
                 if value["caption"]:
                     planned.append(("text", value["caption"]))
             else:
+                if block_type == "video":
+                    errors += self.missing_poster(where, importer.youtube_video_id(value["url"]))
                 planned.append((block_type, value))
         errors += [f"{where}: media {src} isn't in the post" for src in media if src not in used_media]
         errors += [f"{where}: image_alt position {number} has no image" for number in alt_by_position if number > position]
@@ -529,8 +545,8 @@ class Command(BaseCommand):
         translations_plan = {}
         for translation in post.get("translations") or []:
             if translation.get("import"):
-                english_stems = {item.stem for item in alignment.media(importer.element_text(export_post, "Content")) if item.kind == "image"}
-                translations_plan[translation["locale"]] = self.plan_translation(post, translation, english_stems, errors)
+                english_html = importer.element_text(export_post, "Content")
+                translations_plan[translation["locale"]] = self.plan_translation(post, translation, planned_images(planned), english_html, errors)
         if errors:
             raise StopRun("\n".join(errors))
         return {
@@ -546,6 +562,20 @@ class Command(BaseCommand):
             "hand_steps": self.placeholder_steps(post, planned),
             "expected": self.expected(post, planned, hero_entry, hero_video, images),
         }
+
+    def missing_poster(self, where, video_id):
+        """An error when YouTube has no poster for the video; what the fetches find is reused when the page is built."""
+        try:
+            plan = self.fixer.plan_poster(video_id)
+        except requests.RequestException:
+            plan = None
+        if plan is not None and plan.usable:
+            return []
+        for size in importer.YOUTUBE_POSTER_SIZES:
+            response, _ = self.importer.fetch_image(importer.youtube_poster_url(video_id, size))
+            if response is not None:
+                return []
+        return [f"{where}: no poster from YouTube for video {video_id}: rerun, or take it out of the post if it was deleted"]
 
     def expected(self, post, specs, hero_entry, hero_video, images):
         """What the check compares an English page with, from the sync file and the export."""
@@ -578,7 +608,7 @@ class Command(BaseCommand):
             "rss": "excluded" if post.get("exclude_from_rss") else "included",
         }
 
-    def plan_translation(self, post, translation, english_stems, errors):
+    def plan_translation(self, post, translation, english_images, english_html, errors):
         where = f"post {post['wp_slug']} {translation['locale']}"
         hero = translation.get("hero") or {}
         try:
@@ -593,19 +623,29 @@ class Command(BaseCommand):
         elif not text(hero.get("hash")) and found and post["hero"]["image"] == "featured" and found != post["hero"]["hash"]:
             english = post["hero"]["hash"]
             errors.append(f"{where}: the WordPress hero ({found}) differs from the English one ({english}): give the translation a hero")
-        body, youtube = [], []
-        for item in alignment.media(body_html):
-            if item.kind == "image":
-                # A shared image keeps the English page's copy; a localized one is imported full size.
-                if item.stem in english_stems:
-                    image = self.translator.fetch(item.source)
-                else:
-                    image = self.translator.fetch(self.translator.full_size_url(item.source)) or self.translator.fetch(item.source)
-                body.append(file_hash(image) if image else None)
-            elif item.kind == "video":
-                youtube.append(item.source)
+        body = self.translated_images(english_images, english_html, body_html, translation.get("image_pairs"))
+        youtube = [item.source for item in alignment.media(body_html) if item.kind == "video"]
         expected_hero = text(hero.get("hash")) or text(post["hero"].get("hash")) or None
         return {"entry": translation, "hero_content": content, "expected": {"hero_hash": expected_hero, "body": body, "youtube": youtube}}
+
+    def translated_images(self, english_images, english_html, translated_html, image_pairs):
+        """The body image hashes a translation ends up with: the English page's, with the ones the
+        translations code swaps replaced by the localized file it would fetch."""
+        images = [dict(image) for image in english_images]
+        # Block images by file, in page order. An image inside text is a rich text embed, which isn't swapped.
+        by_stem = {}
+        for image in images:
+            if not image["inline"]:
+                by_stem.setdefault(alignment.file_stem(image["src"]), []).append(image)
+        pairs = translations.media_pairs(alignment.media(english_html), alignment.media(translated_html), image_pairs)
+        for english, occurrence, translated in pairs:
+            targets = by_stem.get(english.stem, [])
+            if translated is None or english.kind != "image" or translated.kind != "image" or occurrence >= len(targets):
+                continue
+            content = self.translator.localized_content(translated)
+            if content:
+                targets[occurrence]["hash"] = file_hash(content)
+        return [image["hash"] for image in images]
 
     def placeholder_steps(self, post, specs):
         steps, heading = [], ""
@@ -736,9 +776,17 @@ class Command(BaseCommand):
         used_hashes = {entry["hash"] for entry in plan["body"] if entry["hash"]} | ({plan["hero"]["hash"]} if plan["hero"] else set())
         for used in sorted(used_hashes):
             self.fixer.set_image_text(used, image_text(plan["images"][used]))
+        if page.image is not None:
+            # The fixer updated the library rows; validation reads the decorative flag from this instance.
+            page.image.refresh_from_db()
         self.fixer.video_decisions = {post["slug"]: {video["video_url"]: video["alt"] for video in post.get("videos") or []}}
+        # The text was relinked as it was built, so a decision on a migrated post's address has to match the new one.
         self.fixer.link_decisions = {
-            post["slug"]: {link["url"]: (link["action"], text(link.get("new_url"))) for link in post.get("links") or [] if link["action"] != "keep"}
+            post["slug"]: {
+                importer.relinked_href(link["url"], self.importer.new_paths): (link["action"], text(link.get("new_url")))
+                for link in post.get("links") or []
+                if link["action"] != "keep"
+            }
         }
         self.fixer.fix_video_alt(page)
         if page.hero_video:
@@ -814,7 +862,7 @@ class Command(BaseCommand):
             key = f"{page.slug}-{code}"
             self.translator.corrections = {key: entry.get("corrections") or []}
             # Any image_pairs entry, even an empty one, turns off the automatic pairing of images and videos.
-            self.translator.image_pairs = {key: entry["image_pairs"]} if entry.get("image_pairs") else {}
+            self.translator.image_pairs = {key: entry["image_pairs"]} if "image_pairs" in entry else {}
             hero = entry.get("hero") or {}
             self.translator.heroes = {}
             if text(hero.get("hash")) and hero["hash"] != text(post["hero"].get("hash")):
