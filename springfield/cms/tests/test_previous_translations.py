@@ -12,7 +12,7 @@ from wagtail.models import Locale
 from wagtail_localize.models import String, StringSegment, StringTranslation
 from wagtail_localize.strings import StringValue
 
-from springfield.cms.previous_translations import get_previous_translations
+from springfield.cms.previous_translations import ESCAPE_CHARACTER, get_previous_translations
 
 pytestmark = pytest.mark.django_db
 
@@ -294,7 +294,7 @@ def test_a_zero_width_joiner_paragraph_does_not_make_the_pairing_a_guess(transla
 
 
 def test_a_zero_width_joiner_paragraph_does_not_silence_an_entry(three_paragraph_page):
-    set_rich_text(three_paragraph_page, "<p>Alpha</p><p>\u200d</p><p>Gamma</p>")
+    set_rich_text(three_paragraph_page, f"<p>Alpha</p><p>{ESCAPE_CHARACTER}</p><p>Gamma</p>")
     context = content_context(three_paragraph_page)
     segments = list(StringSegment.objects.filter(source=three_paragraph_page.translation.source, context=context).order_by("order"))
     translate_segment(three_paragraph_page, segments[0], "Alpha FR")
@@ -312,7 +312,7 @@ def test_a_zero_width_joiner_paragraph_does_not_silence_an_entry(three_paragraph
 
 def test_zero_width_joiner_paragraph_is_left_out_of_the_entry(translated_page):
     """Splitting a paragraph in the editor can leave one holding only a zero-width joiner."""
-    set_rich_text(translated_page, "<p>Alpha</p><p>‍</p><p>Gamma</p>")
+    set_rich_text(translated_page, "<p>Alpha</p><p>\u200d</p><p>Gamma</p>")
     orphan_stringtranslation(translated_page, content_context(translated_page), "Alpha Gamma old", "Alpha Gamma FR")
 
     entries = get_previous_translations(translated_page.translation)

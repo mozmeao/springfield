@@ -15,6 +15,9 @@ from wagtail_localize.strings import StringValue
 # so we use its helper to recognise segments marked "do not translate".
 from wagtail_localize_intentional_blanks.utils import is_do_not_translate
 
+# An escape character that is invisible in a diff, in review, and to grep.
+ESCAPE_CHARACTER = "\u200d"
+
 
 @dataclass(frozen=True)
 class PreviousTranslation:
@@ -98,4 +101,4 @@ def find_stale_pair(
 
 def has_visible_text(segment: StringSegment) -> bool:
     """Whether the segment holds anything to translate."""
-    return bool(StringValue(segment.string.data).render_text().replace("‍", "").strip())
+    return bool(StringValue(segment.string.data).render_text().replace(ESCAPE_CHARACTER, "").strip())
