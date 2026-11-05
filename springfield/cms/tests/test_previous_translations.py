@@ -124,8 +124,8 @@ def test_drifted_segment_offers_its_previous_translation(translated_page):
     entries = get_previous_translations(translated_page.translation)
 
     assert len(entries) == 1
-    assert entries[0].source_then == "Try Firefox"
-    assert entries[0].sources_now == ("Switch to Firefox",)
+    assert entries[0].previous_source == "Try Firefox"
+    assert entries[0].current_sources == ("Switch to Firefox",)
     assert entries[0].translation == "Essayez Firefox"
     assert entries[0].is_exact
 
@@ -186,7 +186,7 @@ def test_field_edited_twice_offers_its_latest_translation(translated_page):
     entries = get_previous_translations(translated_page.translation)
 
     assert len(entries) == 1
-    assert entries[0].source_then == latest.translation_of.data
+    assert entries[0].previous_source == latest.translation_of.data
     assert entries[0].translation == latest.data
     # Offering the latest is a heuristic: the entry says so rather than claiming the
     # translator's edit certainly produced this one.
@@ -231,8 +231,8 @@ def test_one_untranslated_paragraph_with_two_orphan_stringtranslations_offers_th
     entries = get_previous_translations(three_paragraph_page.translation)
 
     assert len(entries) == 1
-    assert entries[0].sources_now == ("Beta",)
-    assert entries[0].source_then == "Beta old"
+    assert entries[0].current_sources == ("Beta",)
+    assert entries[0].previous_source == "Beta old"
     assert entries[0].translation == "Beta FR"
     assert not entries[0].is_exact
 
@@ -349,7 +349,7 @@ def test_one_untranslated_paragraph_among_three_yields_that_paragraph(three_para
     entries = get_previous_translations(three_paragraph_page.translation)
 
     assert len(entries) == 1
-    assert entries[0].sources_now == ("Beta",)
+    assert entries[0].current_sources == ("Beta",)
     assert entries[0].translation == "Beta FR"
     assert entries[0].is_exact
 
@@ -365,8 +365,8 @@ def test_untranslated_paragraphs_at_one_context_are_offered_as_separate_candidat
     entries = get_previous_translations(three_paragraph_page.translation)
 
     assert len(entries) == 1
-    assert entries[0].sources_now == ("Beta", "Gamma")
-    assert entries[0].source_then == "Beta old"
+    assert entries[0].current_sources == ("Beta", "Gamma")
+    assert entries[0].previous_source == "Beta old"
     assert entries[0].translation == "Beta FR"
     assert not entries[0].is_exact
 
@@ -394,7 +394,7 @@ def test_a_zero_width_joiner_paragraph_does_not_make_the_pairing_a_guess(transla
     entries = get_previous_translations(translated_page.translation)
 
     assert len(entries) == 1
-    assert entries[0].sources_now == ("Alpha",)
+    assert entries[0].current_sources == ("Alpha",)
     assert entries[0].is_exact
 
 
@@ -410,7 +410,7 @@ def test_a_zero_width_joiner_paragraph_does_not_silence_an_entry(three_paragraph
     entries = get_previous_translations(three_paragraph_page.translation)
 
     assert len(entries) == 1
-    assert entries[0].sources_now == ("Gamma",)
+    assert entries[0].current_sources == ("Gamma",)
     assert entries[0].translation == "Gamma FR"
     assert not entries[0].is_exact
 
@@ -423,7 +423,7 @@ def test_zero_width_joiner_paragraph_is_left_out_of_the_entry(translated_page):
     entries = get_previous_translations(translated_page.translation)
 
     assert len(entries) == 1
-    assert entries[0].sources_now == ("Alpha", "Gamma")
+    assert entries[0].current_sources == ("Alpha", "Gamma")
 
 
 def test_deleted_paragraph_is_paired_with_an_unrelated_new_one(three_paragraph_page):
@@ -443,8 +443,8 @@ def test_deleted_paragraph_is_paired_with_an_unrelated_new_one(three_paragraph_p
     entries = get_previous_translations(three_paragraph_page.translation)
 
     assert len(entries) == 1
-    assert entries[0].sources_now == ("Delta",)  # the paragraph that was appended
-    assert entries[0].source_then == "Beta"  # the paragraph that was deleted
+    assert entries[0].current_sources == ("Delta",)  # the paragraph that was appended
+    assert entries[0].previous_source == "Beta"  # the paragraph that was deleted
     assert entries[0].translation == "Beta FR"
     assert entries[0].is_exact
 

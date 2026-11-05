@@ -11,8 +11,8 @@ from springfield.cms.side_panels import PreviousTranslationsSidePanel
 def previous_translation(translation):
     return PreviousTranslation(
         field_label="Content",
-        source_then="Get Firefox",
-        sources_now=("Get Firefox!",),
+        previous_source="Get Firefox",
+        current_sources=("Get Firefox!",),
         translation=translation,
         is_exact=True,
         comment="Translated manually on 1 January 2026",

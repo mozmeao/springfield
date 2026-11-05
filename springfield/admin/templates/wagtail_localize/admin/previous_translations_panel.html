@@ -35,16 +35,16 @@ belongs to the Jinja2 backend, which cannot compile these tags.
                     on, so it is the only value set in bold.
                 {% endcomment %}
                 <dl>
-                    <dt class="w-mb-1 w-text-14 w-text-text-placeholder">{% blocktranslate with locale=source_locale %}Source then ({{ locale }}){% endblocktranslate %}</dt>
-                    <dd class="w-m-0 w-mb-2 w-text-text-label">{{ entry.source_then }}</dd>
-                    <dt class="w-mb-1 w-text-14 w-text-text-placeholder">{% blocktranslate with locale=source_locale %}Source now ({{ locale }}){% endblocktranslate %}</dt>
+                    <dt class="w-mb-1 w-text-14 w-text-text-placeholder">{% blocktranslate with locale=source_locale %}Current source ({{ locale }}){% endblocktranslate %}</dt>
                     {% comment %}
                         One value per candidate: several strings run together read as one
                         string that is nowhere in the source.
                     {% endcomment %}
-                    {% for source_now in entry.sources_now %}
-                        <dd class="w-m-0 w-mb-2 w-text-text-label">{{ source_now }}</dd>
+                    {% for current_source in entry.current_sources %}
+                        <dd class="w-m-0 w-mb-2 w-text-text-label">{{ current_source }}</dd>
                     {% endfor %}
+                    <dt class="w-mb-1 w-text-14 w-text-text-placeholder">{% blocktranslate with locale=source_locale %}Previous source ({{ locale }}){% endblocktranslate %}</dt>
+                    <dd class="w-m-0 w-mb-2 w-text-text-label">{{ entry.previous_source }}</dd>
                     <dt class="w-mb-1 w-text-14 w-text-text-placeholder">{% blocktranslate with locale=target_locale %}Previous translation ({{ locale }}){% endblocktranslate %}</dt>
                     <dd class="w-m-0 w-font-semibold w-text-text-label">{{ entry.translation }}</dd>
                 </dl>

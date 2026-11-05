@@ -28,13 +28,13 @@ class PreviousTranslation:
     One translation left behind by a source edit, with the text that stands where it
     used to apply.
 
-    `source_then` and `translation` were written together and are a matter of record.
-    `sources_now` is what the field holds that nobody has translated yet.
+    `previous_source` and `translation` were written together and are a matter of record.
+    `current_sources` is what the field holds that nobody has translated yet.
     """
 
     field_label: str
-    source_then: str
-    sources_now: tuple[str, ...]
+    previous_source: str
+    current_sources: tuple[str, ...]
     translation: str
     is_exact: bool
     # Note: wagtail-localize builds the comment from the tool or the translation
@@ -48,8 +48,8 @@ class PreviousTranslation:
         user = stale.last_translated_by
         return cls(
             field_label=field_label,
-            source_then=StringValue(stale.translation_of.data).render_text(),
-            sources_now=tuple(StringValue(segment.string.data).render_text() for segment in untranslated),
+            previous_source=StringValue(stale.translation_of.data).render_text(),
+            current_sources=tuple(StringValue(segment.string.data).render_text() for segment in untranslated),
             translation=StringValue(stale.data).render_text(),
             is_exact=is_exact,
             comment=stale.get_comment(),
