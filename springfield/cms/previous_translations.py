@@ -102,7 +102,7 @@ def find_stale_pair(
 
     # Most fields have no leftover to offer, and reading a segment's text means parsing
     # its HTML, so nothing is parsed until there is something to pair it with.
-    translated_string_ids = {row.translation_of_id for row in string_translations if row.translation_of_id in current_string_ids}
+    translated_string_ids = {row.translation_of_id for row in string_translations}
     untranslated = [segment for segment in segments if segment.string_id not in translated_string_ids and has_visible_text(segment)]
     if not untranslated:
         return None
