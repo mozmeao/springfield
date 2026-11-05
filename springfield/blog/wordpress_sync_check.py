@@ -42,6 +42,19 @@ def hero_step(expected_hash, link):
     return f"The hero isn't the featured image on [WordPress]({link})"
 
 
+def youtube_step(expected, found, link):
+    def linked(videos):
+        return ", ".join(f"[{video}](https://www.youtube.com/watch?v={video})" for video in videos)
+
+    missing = [video for video in expected if video not in found]
+    extra = [video for video in found if video not in expected]
+    if missing and extra:
+        return f"Replace the YouTube video {linked(extra)} with {linked(missing)}"
+    if missing:
+        return f"Add the YouTube video {linked(missing)}"
+    return f"The YouTube videos don't match [WordPress]({link})"
+
+
 def body_step(expected, found, link):
     return f"The body images don't match [WordPress]({link}) ({len(expected)} there, {len(found)} here). Swap them in the editor"
 
@@ -130,18 +143,13 @@ def check_english(page, expected):
 
     videos = [youtube_video_id(item["url"]) for item in items if item["kind"] == "video"]
     hero_video = [youtube_video_id(block.value["video_url"]) for block in page.hero_video or []]
-    missing = [video for video in expected["hero_video"] + expected["youtube"] if video not in hero_video + videos]
-    if missing:
-        youtube_step = "Add the YouTube video " + ", ".join(f"[{video}](https://www.youtube.com/watch?v={video})" for video in missing)
-    else:
-        youtube_step = f"The YouTube videos don't match [WordPress]({link})"
     rows.append(
         result(
             "youtube",
             (hero_video, videos) == (expected["hero_video"], expected["youtube"]),
             (expected["hero_video"], expected["youtube"]),
             (hero_video, videos),
-            step=youtube_step,
+            step=youtube_step(expected["hero_video"] + expected["youtube"], hero_video + videos, link),
         )
     )
 
@@ -152,6 +160,7 @@ def check_english(page, expected):
             not placeholders,
             "no Animation block on the placeholder",
             f"{len(placeholders)} on the placeholder",
+            WARNING,
             step="Replace the placeholder animation with its webm"
             if len(placeholders) == 1
             else f"Replace the {len(placeholders)} placeholder animations with their webms",
@@ -219,7 +228,10 @@ def check_translation(page, expected):
         return [result("translation", False, "exists and is live", "not live", step="The translation isn't live. Publish it")]
     link = expected["wordpress_url"]
     hero_hash = page.image.file_hash if page.image else None
-    images = [item["hash"] for item in page_media(page) if item["kind"] == "image"]
+    items = page_media(page)
+    images = [item["hash"] for item in items if item["kind"] == "image"]
+    videos = [youtube_video_id(block.value["video_url"]) for block in page.hero_video or []]
+    videos += [youtube_video_id(item["url"]) for item in items if item["kind"] == "video"]
     return [
         result("translation", True, "exists and is live", "live"),
         result(
@@ -235,5 +247,12 @@ def check_translation(page, expected):
             " ".join(map(str, expected["body"])),
             " ".join(map(str, images)),
             step=body_step(expected["body"], images, link),
+        ),
+        result(
+            "translation youtube",
+            videos == expected["youtube"],
+            " ".join(expected["youtube"]),
+            " ".join(videos),
+            step=youtube_step(expected["youtube"], videos, link),
         ),
     ]

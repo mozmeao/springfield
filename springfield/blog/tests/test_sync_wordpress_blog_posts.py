@@ -178,6 +178,8 @@ def failing_run(tmp_path, data, *posts, **options):
 def serve_post_images():
     serve(f"{UPLOADS}/hero.png", HERO)
     serve(f"{UPLOADS}/body.png", BODY)
+    serve(PLACEHOLDER["webm_url"], b"webm")
+    serve(PLACEHOLDER["poster_url"], POSTER)
 
 
 def created_page(slug="first-post"):
@@ -568,6 +570,20 @@ def test_a_placeholder_poster_file_missing_beside_the_sync_file_stops_the_run(tm
 
 
 @responses.activate
+def test_a_placeholder_webm_that_isnt_online_stops_the_run(tmp_path, blog):
+    serve(f"{UPLOADS}/hero.png", HERO)
+    serve(f"{UPLOADS}/body.png", BODY)
+    serve(PLACEHOLDER["poster_url"], POSTER)
+    responses.add(responses.GET, PLACEHOLDER["webm_url"], status=404)
+    data = sync_data(sync_post(media=[{"src": f"{UPLOADS}/one.mp4", "kind": "video", "alt": "A clip"}]))
+
+    _, error = failing_run(tmp_path, data, export_post(content=f'<video src="{UPLOADS}/one.mp4"></video>'))
+
+    assert f"placeholder: {PLACEHOLDER['webm_url']} isn't online (404)" in error
+    assert not BlogArticlePage.objects.exists()
+
+
+@responses.activate
 def test_media_with_its_own_webm_becomes_an_animation_with_no_hand_step(tmp_path, blog):
     serve_post_images()
     serve(f"{ASSETS}/clip.jpg", POSTER)
@@ -585,7 +601,7 @@ def test_media_with_its_own_webm_becomes_an_animation_with_no_hand_step(tmp_path
 # -------------------------------------------------------------------------
 
 
-def mock_translation(slug="first-post", language="de", wp_id=201, status=200, hero=GERMAN_HERO):
+def mock_translation(slug="first-post", language="de", wp_id=201, status=200, hero=GERMAN_HERO, english_body=None, translated_body=None):
     english_link = f"{WORDPRESS}/en/products/firefox/{slug}/"
     translated_slug = f"{slug}-{language}"
     english = {"id": 101, "slug": slug, "date": "2026-10-21T09:00:00", "link": english_link, "title": {"rendered": "First post"}}
@@ -597,7 +613,9 @@ def mock_translation(slug="first-post", language="de", wp_id=201, status=200, he
         "title": {"rendered": "Erster Beitrag"},
     }
     image = f'<figure class="wp-block-image"><img src="{UPLOADS}/body.png" alt=""></figure>'
-    for post, content in ((english, f"{image}<p>Hello world.</p>"), (translated, f"{image}<p>Hallo Welt.</p>")):
+    english_body = english_body or f"{image}<p>Hello world.</p>"
+    translated_body = translated_body or f"{image}<p>Hallo Welt.</p>"
+    for post, content in ((english, english_body), (translated, translated_body)):
         post.update(excerpt={"rendered": ""}, content={"rendered": content}, yoast_head_json={})
     responses.add(
         responses.GET,
@@ -619,12 +637,12 @@ def mock_translation(slug="first-post", language="de", wp_id=201, status=200, he
         match=[matchers.query_param_matcher({"slug": translated_slug}, strict_match=False)],
     )
     responses.add(responses.GET, english_link, body=f'<link rel="alternate" hreflang="{language}" href="{translated["link"]}">')
-    mock_featured_image(language, wp_id, content=hero)
+    mock_featured_image(language, wp_id, content=hero, body=translated_body)
     return translated
 
 
-def mock_featured_image(language, wp_id, content=GERMAN_HERO):
-    body = f'<figure class="wp-block-image"><img src="{UPLOADS}/body.png" alt=""></figure><p>Hallo Welt.</p>'
+def mock_featured_image(language, wp_id, content=GERMAN_HERO, body=None):
+    body = body or f'<figure class="wp-block-image"><img src="{UPLOADS}/body.png" alt=""></figure><p>Hallo Welt.</p>'
     responses.add(responses.GET, f"{WORDPRESS}/{language}/wp-json/wp/v2/posts/{wp_id}", json={"featured_media": 77, "content": {"rendered": body}})
     responses.add(responses.GET, f"{WORDPRESS}/{language}/wp-json/wp/v2/media/77", json={"source_url": f"{UPLOADS}/{language}-hero-{wp_id}.png"})
     serve(f"{UPLOADS}/{language}-hero-{wp_id}.png", content)
@@ -694,7 +712,57 @@ def test_a_translation_with_no_wordpress_hero_keeps_the_english_one(tmp_path, bl
         "translation": "pass",
         "translation hero": "pass",
         "translation body images": "pass",
+        "translation youtube": "pass",
     }
+
+
+@responses.activate
+def test_a_translation_missing_its_youtube_video_gets_a_step_to_add_it(tmp_path, blog):
+    serve_post_images()
+    mock_translation()
+    video = '<iframe src="https://www.youtube.com/embed/E2AoYIKwJqM"></iframe>'
+    body = f'<figure class="wp-block-image"><img src="{UPLOADS}/body.png" alt=""></figure>{video}<p>Hallo Welt.</p>'
+    responses.replace(responses.GET, f"{WORDPRESS}/de/wp-json/wp/v2/posts/201", json={"featured_media": 77, "content": {"rendered": body}})
+
+    run = run_sync(tmp_path, sync_data(sync_post(translations=[translated_post()])), export_post())
+
+    assert check_results(run)[("de", "translation youtube")]["result"] == "fail"
+    assert "- [ ] de: Add the YouTube video [E2AoYIKwJqM](https://www.youtube.com/watch?v=E2AoYIKwJqM)" in run.text("hand-steps.md")
+
+
+@responses.activate
+def test_a_translation_gets_its_own_youtube_video_when_the_review_gives_no_image_pairs(tmp_path, blog):
+    serve_post_images()
+    thumbnail = BytesIO()
+    Image.new("RGB", (64, 36), (200, 30, 30)).save(thumbnail, "JPEG")
+    responses.add(responses.GET, "https://www.youtube.com/oembed", json={"title": "Film", "width": 200, "height": 113})
+    responses.add(responses.GET, matchers.re.compile(r"https://img\.youtube\.com/vi/.+"), body=thumbnail.getvalue(), content_type="image/jpeg")
+
+    def iframe(video):
+        return f'<iframe src="https://www.youtube.com/embed/{video}?feature=oembed"></iframe>'
+
+    mock_translation(english_body=f"{iframe('englishvid1')}<p>Hello world.</p>", translated_body=f"{iframe('germanvid01')}<p>Hallo Welt.</p>")
+    export_body = '<figure class="wp-block-embed"><div class="wp-block-embed__wrapper">https://www.youtube.com/watch?v=englishvid1</div></figure>'
+    post = sync_post(videos=[{"video_url": "https://www.youtube.com/watch?v=englishvid1", "alt": "The film"}], translations=[translated_post()])
+
+    run = run_sync(tmp_path, sync_data(post), export_post(content=f"{export_body}<p>Hello world.</p>"))
+
+    [video] = body_values(translation_of(created_page()), "video")
+    assert video["video_url"] == "https://www.youtube.com/watch?v=germanvid01"
+    assert check_results(run)[("de", "translation youtube")]["result"] == "pass"
+
+
+@responses.activate
+def test_an_image_the_translation_shares_with_the_english_post_passes_its_check(tmp_path, blog):
+    serve_post_images()
+    serve(f"{UPLOADS}/shared-1024x576.png", BODY)
+    serve(f"{UPLOADS}/shared.png", OTHER)
+    figure = f'<figure class="wp-block-image"><img src="{UPLOADS}/shared-1024x576.png" alt=""></figure>'
+    mock_translation(english_body=f"{figure}<p>Hello world.</p>", translated_body=f"{figure}<p>Hallo Welt.</p>")
+
+    run = run_sync(tmp_path, sync_data(sync_post(translations=[translated_post()])), export_post(content=f"{figure}<p>Hello world.</p>"))
+
+    assert check_results(run)[("de", "translation body images")]["result"] == "pass"
 
 
 def make_translation(tmp_path, english_slug="first-post"):
@@ -990,14 +1058,14 @@ def test_check_only_with_no_media_files_matches_the_run_and_writes_nothing(tmp_p
 
 
 @responses.activate
-def test_a_placeholder_is_flagged_until_it_is_replaced_by_hand(tmp_path, blog):
+def test_a_placeholder_is_a_warning_and_a_hand_step_until_it_is_replaced(tmp_path, blog):
     serve_post_images()
     serve(PLACEHOLDER["poster_url"], POSTER)
     clip = f"{UPLOADS}/clip.mp4"
     data = sync_data(sync_post(media=[{"src": clip, "kind": "video", "alt": "A clip"}]))
     run_sync(tmp_path / "run", data, export_post(content=f'<video src="{clip}"></video>'))
 
-    before, _ = failing_run(tmp_path / "before", data, export_post(content=f'<video src="{clip}"></video>'), check_only=True)
+    before = run_sync(tmp_path / "before", data, export_post(content=f'<video src="{clip}"></video>'), check_only=True)
     page = created_page()
 
     def replace(draft):
@@ -1006,7 +1074,7 @@ def test_a_placeholder_is_flagged_until_it_is_replaced_by_hand(tmp_path, blog):
     publish_change(page, replace)
     after = run_sync(tmp_path / "after", data, export_post(content=f'<video src="{clip}"></video>'), check_only=True)
 
-    assert check_results(before)[("en-US", "placeholders")]["result"] == "fail"
+    assert check_results(before)[("en-US", "placeholders")]["result"] == "warning"
     assert "Replace the placeholder animation with its webm" in before.text("hand-steps.md")
     assert check_results(after)[("en-US", "placeholders")]["result"] == "pass"
 

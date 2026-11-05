@@ -320,7 +320,7 @@ class Command(BaseCommand):
             raise CommandError("Stopped before writing anything:\n" + "\n".join(self.stopped))
         if self.failed:
             raise CommandError(f"{self.failed} failed: see {self.out.folder / 'report.csv'}, then rerun")
-        # Only --check-only exits non-zero on a failed check: a placeholder fails until it's replaced by hand.
+        # A failed check is a hand step, not a failed run; only --check-only reports it in the exit code.
         if self.options["check_only"] and self.failed_checks:
             raise CommandError(f"{self.failed_checks} checks failed: see {self.out.folder / 'check.csv'}")
 
@@ -386,8 +386,27 @@ class Command(BaseCommand):
                 existing = self.authors.get(slugify(text(author.get("new"))))
                 if text(author.get("new")) and existing and existing.name.casefold() != text(author["new"]).casefold():
                     errors.append(f"post {post['wp_slug']}: authors: {author['new']!r} would take the slug of {existing.name!r}")
+        errors += self.missing_placeholder_files()
         if errors:
             raise StopRun("\n".join(errors))
+
+    def missing_placeholder_files(self):
+        """The placeholder's webm and poster, when a post needs them, must be online before anything is written."""
+        if self.options["check_only"] or self.options["fix_translation_heroes"]:
+            return []
+        needed = any(not text(item.get("webm_url")) for post in imported_posts(self.data) for item in post.get("media") or [])
+        placeholder = self.data.get("placeholder") or {}
+        urls = [placeholder.get("webm_url"), None if self.poster_file else placeholder.get("poster_url")]
+        errors = []
+        for url in [url for url in urls if needed and url]:
+            try:
+                with requests.get(url, stream=True, timeout=30) as response:
+                    status = response.status_code
+            except requests.RequestException as exc:
+                status = type(exc).__name__
+            if status != 200:
+                errors.append(f"placeholder: {url} isn't online ({status}). Upload it, or point the sync file at one that is")
+        return errors
 
     def read_export(self):
         if not hasattr(self, "export_posts"):
@@ -510,7 +529,8 @@ class Command(BaseCommand):
         translations_plan = {}
         for translation in post.get("translations") or []:
             if translation.get("import"):
-                translations_plan[translation["locale"]] = self.plan_translation(post, translation, errors)
+                english_stems = {item.stem for item in alignment.media(importer.element_text(export_post, "Content")) if item.kind == "image"}
+                translations_plan[translation["locale"]] = self.plan_translation(post, translation, english_stems, errors)
         if errors:
             raise StopRun("\n".join(errors))
         return {
@@ -558,7 +578,7 @@ class Command(BaseCommand):
             "rss": "excluded" if post.get("exclude_from_rss") else "included",
         }
 
-    def plan_translation(self, post, translation, errors):
+    def plan_translation(self, post, translation, english_stems, errors):
         where = f"post {post['wp_slug']} {translation['locale']}"
         hero = translation.get("hero") or {}
         try:
@@ -573,13 +593,19 @@ class Command(BaseCommand):
         elif not text(hero.get("hash")) and found and post["hero"]["image"] == "featured" and found != post["hero"]["hash"]:
             english = post["hero"]["hash"]
             errors.append(f"{where}: the WordPress hero ({found}) differs from the English one ({english}): give the translation a hero")
-        body = []
+        body, youtube = [], []
         for item in alignment.media(body_html):
             if item.kind == "image":
-                image = self.translator.fetch(self.translator.full_size_url(item.source)) or self.translator.fetch(item.source)
+                # A shared image keeps the English page's copy; a localized one is imported full size.
+                if item.stem in english_stems:
+                    image = self.translator.fetch(item.source)
+                else:
+                    image = self.translator.fetch(self.translator.full_size_url(item.source)) or self.translator.fetch(item.source)
                 body.append(file_hash(image) if image else None)
+            elif item.kind == "video":
+                youtube.append(item.source)
         expected_hero = text(hero.get("hash")) or text(post["hero"].get("hash")) or None
-        return {"entry": translation, "hero_content": content, "expected": {"hero_hash": expected_hero, "body": body}}
+        return {"entry": translation, "hero_content": content, "expected": {"hero_hash": expected_hero, "body": body, "youtube": youtube}}
 
     def placeholder_steps(self, post, specs):
         steps, heading = [], ""
@@ -787,7 +813,8 @@ class Command(BaseCommand):
                 continue
             key = f"{page.slug}-{code}"
             self.translator.corrections = {key: entry.get("corrections") or []}
-            self.translator.image_pairs = {key: entry.get("image_pairs") or []}
+            # Any image_pairs entry, even an empty one, turns off the automatic pairing of images and videos.
+            self.translator.image_pairs = {key: entry["image_pairs"]} if entry.get("image_pairs") else {}
             hero = entry.get("hero") or {}
             self.translator.heroes = {}
             if text(hero.get("hash")) and hero["hash"] != text(post["hero"].get("hash")):
