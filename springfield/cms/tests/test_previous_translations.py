@@ -13,6 +13,7 @@ from wagtail.models import Locale
 from wagtail_localize.models import String, StringSegment, StringTranslation, Translation, TranslationSource
 from wagtail_localize.strings import StringValue
 from wagtail_localize.views.edit_translation import TabHelper
+from wagtail_localize_intentional_blanks.utils import mark_segment_do_not_translate
 
 from springfield.cms.fixtures.base_fixtures import SHOW_TO_ALL
 from springfield.cms.previous_translations import ESCAPE_CHARACTER, get_field_label, get_previous_translations
@@ -193,6 +194,26 @@ def test_field_edited_twice_offers_its_latest_translation(translated_page):
     assert not entries[0].is_exact
 
 
+def test_a_field_edited_and_translated_twice_still_offers_a_previous_translation(translated_page):
+    """
+    The panel shows the previous translation, not all of the previous translations.
+
+    Each edit leaves another translation behind, so a field edited twice has
+    two of them, but the panel should only show the most recent one.
+    """
+    source = translated_page.translation.source
+    set_rich_text(translated_page, "<p>Get Firefox</p>")
+    translate_segment(translated_page, StringSegment.objects.get(source=source, context__path="content"), "Obtenez Firefox")
+    set_rich_text(translated_page, "<p>Get Firefox now</p>")
+    translate_segment(translated_page, StringSegment.objects.get(source=source, context__path="content"), "Obtenez Firefox maintenant")
+    set_rich_text(translated_page, "<p>Get Firefox today</p>")
+
+    entries = get_previous_translations(translated_page.translation)
+
+    assert StringTranslation.objects.filter(locale=translated_page.locale, context__path="content").count() == 2
+    assert [(entry.previous_source, entry.translation) for entry in entries] == [("Get Firefox now", "Obtenez Firefox maintenant")]
+
+
 def test_orphan_stringtranslations_written_at_the_same_moment_offer_the_later_row(translated_page):
     """
     An import writes a whole file of translations in one go, so two leftovers can share a
@@ -257,6 +278,26 @@ def test_intentional_blank_marker_is_never_offered(translated_page, marker):
     context = context_of_only_title(translated_page)
     orphan_stringtranslation(translated_page, context, "Try Firefox", marker)
 
+    assert get_previous_translations(translated_page.translation) == []
+
+
+def test_a_field_marked_do_not_translate_and_then_edited_does_not_appear_in_panel(translated_page):
+    """
+    Since the field was marked as "Do Not Translate", it is still considered
+    translated, so it is not offered as a previous translation.
+    """
+    source = translated_page.translation.source
+    set_rich_text(translated_page, "<p>Get Firefox</p>")
+    translate_segment(translated_page, StringSegment.objects.get(source=source, context__path="content"), "Obtenez Firefox")
+    set_rich_text(translated_page, "<p>Get Firefox now</p>")
+    mark_segment_do_not_translate(translated_page.translation, StringSegment.objects.get(source=source, context__path="content"))
+
+    set_rich_text(translated_page, "<p>Get Firefox today</p>")
+
+    # The literal is intentional, to catch changes to
+    # the wagtail_localize_intentional_blanks default.
+    marker_row = StringTranslation.objects.get(locale=translated_page.locale, context__path="content", data__startswith="__DO_NOT_TRANSLATE__")
+    assert marker_row.translation_of_id == StringSegment.objects.get(source=source, context__path="content").string_id
     assert get_previous_translations(translated_page.translation) == []
 
 
