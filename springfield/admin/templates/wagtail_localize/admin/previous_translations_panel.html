@@ -40,9 +40,21 @@ belongs to the Jinja2 backend, which cannot compile these tags.
                         One value per candidate: several strings run together read as one
                         string that is nowhere in the source.
                     {% endcomment %}
-                    {% for current_source in entry.current_sources %}
+                    {% for current_source in entry.current_sources|slice:":2" %}
                         <dd class="w-m-0 w-mb-2 w-text-text-label">{{ current_source }}</dd>
                     {% endfor %}
+                    {% with remaining=entry.current_sources|length|add:"-2" %}
+                        {% if remaining > 0 %}
+                            <dd class="w-m-0 w-mb-2">
+                                <details>
+                                    <summary class="w-text-14 w-text-text-link-default hover:w-text-text-link-hover" style="cursor: pointer">{% blocktranslate %}+{{ remaining }} more{% endblocktranslate %}</summary>
+                                    {% for current_source in entry.current_sources|slice:"2:" %}
+                                        <p class="w-m-0 w-mt-2 w-text-text-label">{{ current_source }}</p>
+                                    {% endfor %}
+                                </details>
+                            </dd>
+                        {% endif %}
+                    {% endwith %}
                     <dt class="w-mb-1 w-text-14 w-text-text-placeholder">{% blocktranslate with locale=source_locale %}Previous source ({{ locale }}){% endblocktranslate %}</dt>
                     <dd class="w-m-0 w-mb-2 w-text-text-label">{{ entry.previous_source }}</dd>
                     <dt class="w-mb-1 w-text-14 w-text-text-placeholder">{% blocktranslate with locale=target_locale %}Previous translation ({{ locale }}){% endblocktranslate %}</dt>

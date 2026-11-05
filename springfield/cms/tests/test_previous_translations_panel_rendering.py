@@ -113,6 +113,24 @@ def test_several_untranslated_paragraphs_are_offered_as_separate_candidates(admi
     assert "may not be correct" in entry.select_one("[data-inexact-pairing]").get_text()
 
 
+def test_a_field_with_many_untranslated_strings_shows_the_first_two_and_folds_the_rest_away(admin_client, drifted_page):
+    """
+    The panel is a column beside the editor, and a rich text field can hold dozens of
+    paragraphs. Listing them all would bury the previous translation the entry is for.
+    """
+    set_rich_text(drifted_page, "".join(f"<p>Paragraph {number}</p>" for number in range(1, 6)))
+    get_orphan_stringtranslation(drifted_page, PREVIOUS_SOURCE, "La barre latérale")
+
+    entry = get_soup_for_panel(editor_html(admin_client, drifted_page)).select_one("li")
+    overflow = entry.select_one("details")
+
+    assert [dd.get_text(strip=True) for dd in entry.select("dd")][:2] == ["Paragraph 1", "Paragraph 2"]
+    assert overflow.select_one("summary").get_text(strip=True) == "+3 more"
+    assert [paragraph.get_text(strip=True) for paragraph in overflow.select("p")] == ["Paragraph 3", "Paragraph 4", "Paragraph 5"]
+    # The entry still ends with what the translator came for.
+    assert entry.select("dd")[-1].get_text(strip=True) == "La barre latérale"
+
+
 def test_an_exact_entry_is_offered_without_the_guess_note(admin_client, drifted_page):
     """One untranslated string and one orphan is considered an exact match."""
     get_orphan_stringtranslation(drifted_page, PREVIOUS_SOURCE, "La barre latérale")
