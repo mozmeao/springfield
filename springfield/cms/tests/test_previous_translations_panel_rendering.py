@@ -206,20 +206,6 @@ def test_stored_html_renders_as_plain_text(admin_client, drifted_page):
     assert 'id="a1"' not in markup
 
 
-def test_setting_controls_the_panel(admin_client, drifted_page, settings):
-    """The same entry renders a panel with the setting on and none with it off, so a
-    broken feature cannot be mistaken for a disabled one."""
-    get_orphan_stringtranslation(drifted_page, PREVIOUS_SOURCE, "La barre latérale")
-
-    assert get_soup_for_panel(editor_html(admin_client, drifted_page)) is not None
-
-    settings.CMS_PREVIOUS_TRANSLATIONS_ENABLED = False
-    html = editor_html(admin_client, drifted_page)
-
-    assert get_soup_for_panel(html) is None
-    assert get_soup_for_toggle(html) is None
-
-
 def test_toggle_button_carries_the_entry_count(admin_client, drifted_page):
     get_orphan_stringtranslation(drifted_page, PREVIOUS_SOURCE, "La barre latérale")
     get_orphan_at_title(drifted_page, "Try Firefox", "Essayez Firefox")

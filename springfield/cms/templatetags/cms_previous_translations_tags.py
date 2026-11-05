@@ -3,7 +3,6 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 from django import template
-from django.conf import settings
 
 from wagtail_localize.models import Translation
 
@@ -17,9 +16,6 @@ register = template.Library()
 def side_panels_with_previous_translations(context, translation: Translation, instance) -> list:
     """The editor's side panels, plus one for segments whose source text has changed."""
     side_panels = context["side_panels"]
-    if not settings.CMS_PREVIOUS_TRANSLATIONS_ENABLED:
-        return side_panels
-
     entries = get_previous_translations(translation)
     if not entries:
         return side_panels
