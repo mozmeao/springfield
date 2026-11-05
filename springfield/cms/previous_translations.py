@@ -15,8 +15,9 @@ from wagtail_localize.strings import StringValue
 from wagtail_localize.views.edit_translation import TabHelper, get_segment_location_info
 from wagtail_localize_intentional_blanks.utils import is_do_not_translate
 
-# An escape character that is invisible in a diff, in review, and to grep.
-ESCAPE_CHARACTER = "\u200d"
+# Splitting a paragraph in the rich text editor can leave one of these behind as a
+# paragraph's only content, which reads as empty and has nothing to translate.
+ZERO_WIDTH_JOIN_CHARACTER = "\u200d"
 
 
 @dataclass(frozen=True)
@@ -114,7 +115,7 @@ def find_stale_pair(
 
 def has_visible_text(segment: StringSegment) -> bool:
     """Whether the segment holds anything to translate."""
-    return bool(StringValue(segment.string.data).render_text().replace(ESCAPE_CHARACTER, "").strip())
+    return bool(StringValue(segment.string.data).render_text().replace(ZERO_WIDTH_JOIN_CHARACTER, "").strip())
 
 
 def get_field_label(source_instance: Model, tab_helper: TabHelper, context: TranslationContext) -> str:

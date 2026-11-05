@@ -16,7 +16,7 @@ from wagtail_localize.views.edit_translation import TabHelper
 from wagtail_localize_intentional_blanks.utils import mark_segment_do_not_translate
 
 from springfield.cms.fixtures.base_fixtures import SHOW_TO_ALL
-from springfield.cms.previous_translations import ESCAPE_CHARACTER, get_field_label, get_previous_translations
+from springfield.cms.previous_translations import ZERO_WIDTH_JOIN_CHARACTER, get_field_label, get_previous_translations
 from springfield.cms.tests.factories import FreeFormPage2026Factory
 
 pytestmark = pytest.mark.django_db
@@ -430,7 +430,7 @@ def test_a_zero_width_joiner_paragraph_does_not_make_the_pairing_a_guess(transla
 
 
 def test_a_zero_width_joiner_paragraph_does_not_silence_an_entry(three_paragraph_page):
-    set_rich_text(three_paragraph_page, f"<p>Alpha</p><p>{ESCAPE_CHARACTER}</p><p>Gamma</p>")
+    set_rich_text(three_paragraph_page, f"<p>Alpha</p><p>{ZERO_WIDTH_JOIN_CHARACTER}</p><p>Gamma</p>")
     context = content_context(three_paragraph_page)
     segments = list(StringSegment.objects.filter(source=three_paragraph_page.translation.source, context=context).order_by("order"))
     translate_segment(three_paragraph_page, segments[0], "Alpha FR")
