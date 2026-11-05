@@ -17,7 +17,7 @@ const desktopTestURLs = [
     '/en-US/channel/desktop/developer/',
     '/en-US/download/all/',
     '/en-US/thanks/',
-    '/en-US/browsers/enterprise/',
+    '/en-US/enterprise/',
     '/en-US/firefox/releasenotes/',
     '/en-US/privacy/websites/cookie-settings/'
 ];

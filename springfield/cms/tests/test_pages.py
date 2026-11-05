@@ -949,6 +949,27 @@ def test_editor_is_warned_when_a_notification_precedes_the_conditional_blocks(fr
 
 
 @pytest.mark.django_db
+def test_editor_is_warned_when_a_block_without_settings_leads_with_conditions(free_form_page: FreeFormPage2026, rf):
+    """Form + Content keeps its show_to beside its other fields rather than in a settings group."""
+    conditional_form_content = {
+        "type": "form_content",
+        "value": {"show_to": {"platforms": ["osx"]}, "heading": {"heading_text": "<p>Talk to us on macOS</p>"}},
+    }
+
+    warnings = save_page_and_collect_warnings(
+        free_form_page,
+        [
+            conditional_intro_block("Firefox for Windows", ["windows"]),
+            conditional_form_content,
+        ],
+        rf,
+    )
+
+    assert len(warnings) == 1
+    assert "leads with 2 conditional blocks" in warnings[0]
+
+
+@pytest.mark.django_db
 def test_editor_is_not_warned_when_the_page_leads_with_an_unconditional_block(free_form_page: FreeFormPage2026, rf):
     unconditional_intro = {
         "type": "intro",

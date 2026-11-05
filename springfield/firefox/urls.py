@@ -37,14 +37,6 @@ urlpatterns = (
     page("channel/android/", "firefox/channel/android.html", ftl_files=["firefox/channel"]),
     page("channel/ios/", "firefox/channel/ios.html", ftl_files=["firefox/channel"]),
     path("channel/ios/testflight/", views.ios_testflight, name="firefox.ios.testflight"),
-    path(
-        "enterprise/",
-        prefer_cms(
-            L10nTemplateView.as_view(template_name="firefox/enterprise/index.html", ftl_files=["firefox/enterprise"]),
-            fallback_ftl_files=["firefox/enterprise"],
-        ),
-        name="firefox.enterprise.index",
-    ),  # formerly browsers/enterprise/
     path("features/", prefer_cms(views.FirefoxFeaturesIndex.as_view()), name="firefox.features.index"),
     path("features/customize/", prefer_cms(views.FirefoxFeaturesCustomize.as_view()), name="firefox.features.customize"),
     path("features/add-ons/", prefer_cms(views.FirefoxFeaturesAddons.as_view()), name="firefox.features.add-ons"),
@@ -143,12 +135,6 @@ urlpatterns = (
         "landing/get/",
         prefer_cms(views.landing_get_page, fallback_ftl_files=["firefox/download/desktop", "firefox/download/home"]),
         name="landing.get",
-    ),
-    # Issue 487 - Win10 End of Service
-    page(
-        "landing/win-new-features/",
-        "firefox/landing/win10-eos.html",
-        active_locales=["en-US", "en-GB", "en-CA", "fr", "de"],
     ),
     # Issue 606 - NA + DE Windows Defense/Josef Landing Page
     page(

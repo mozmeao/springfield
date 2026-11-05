@@ -1,3 +1,11 @@
+## 2026-11-02
+- Comparison Result label now uses Fluent-translated Yes/No/Limited text
+
+
+## 2026-10-29
+- Share Firefox pages have "Show Navigation CTA" and "Show Pre-Footer" checkboxes on the Settings tab. Both are off by default.
+- The Sharing Links block has a "Show URL" checkbox in its settings. It's on by default, so existing blocks keep showing the URL above the buttons; turn it off to show only the buttons.
+
 ## 2026-10-26
 
 - The Sharing Links block can be added to a Banner's content.
@@ -10,6 +18,7 @@
 
 ## 2026-10-20
 
+- Blog index: when it has no featured articles and no article sections, the page lists every article in its language instead, 10 per page. Used for the German and French blog homes.
 - Added the Sharing Links block: copy link, email and QR code buttons for one URL. It is available in Section, Featured Image Section, Media + Content and Two-Column Card blocks.
 - Added Partner downloads (Snippets → Partner downloads): set up a partner's Firefox builds for firefox.com/get/?p=<link name>, with a Test links panel to check each download before publishing.
 - Added Buttons below to the Kit Intro: an optional second row of buttons under the first row and its privacy notice.

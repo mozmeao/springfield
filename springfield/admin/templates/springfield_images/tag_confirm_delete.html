@@ -1,0 +1,25 @@
+{% extends "wagtailadmin/generic/confirm_delete.html" %}
+
+{% comment %} SKIP LICENSE INSERTION {% endcomment %}
+{% comment %}
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
+{% endcomment %}
+
+{% comment %}
+Delete confirmation for an image tag, linking to the images that have it.
+{% endcomment %}
+{% load i18n %}
+
+{% block usage_summary %}
+    <p>
+        <a href="{% url 'wagtailimages:index' %}?tag={{ object.name|urlencode:'' }}">
+            {% blocktrans trimmed count image_count=image_count %}
+                This tag is used in {{ image_count }} image.
+            {% plural %}
+                This tag is used in {{ image_count }} images.
+            {% endblocktrans %}
+        </a>
+    </p>
+{% endblock %}

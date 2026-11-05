@@ -2,14 +2,11 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-from django.contrib.auth import get_user_model
-from django.contrib.auth.models import Group, Permission
-from django.test import override_settings
 from django.urls import reverse
 
 import pytest
 from bs4 import BeautifulSoup
-from wagtail.models import Collection, GroupCollectionPermission, ModelLogEntry
+from wagtail.models import ModelLogEntry
 
 pytestmark = [pytest.mark.django_db]
 
@@ -22,26 +19,6 @@ def test_url(make_image):
     image = make_image()
     image.pk = 1
     assert url(image) == "/cms-admin/images/1/inline-edit/"
-
-
-@pytest.fixture
-def uploader_client(client):
-    """A logged-in editor who can upload images but can only change their own."""
-    with override_settings(
-        AUTHENTICATION_BACKENDS=("django.contrib.auth.backends.ModelBackend",),
-        USE_SSO_AUTH=False,
-    ):
-        uploaders = Group.objects.create(name="Image uploaders")
-        uploaders.permissions.add(Permission.objects.get(content_type__app_label="wagtailadmin", codename="access_admin"))
-        GroupCollectionPermission.objects.create(
-            group=uploaders,
-            collection=Collection.get_first_root_node(),
-            permission=Permission.objects.get(content_type__app_label="wagtailimages", codename="add_image"),
-        )
-        uploader = get_user_model().objects.create_user(username="uploader", password="uploaderpass")
-        uploader.groups.add(uploaders)
-        client.force_login(uploader, backend="django.contrib.auth.backends.ModelBackend")
-        yield client
 
 
 def test_valid_post_saves_and_returns_the_row_cells(admin_client, make_image):
@@ -75,7 +52,7 @@ def test_valid_post_saves_and_returns_the_row_cells(admin_client, make_image):
     ]
     assert soup.select_one(f"input[name='{prefix}-title']")["value"] == "Firefox logo on purple"
     assert soup.select_one(f"input[name='{prefix}-title']")["form"] == f"image-inline-{image.pk}"
-    row_form = soup.select_one(f"form#image-inline-{image.pk}[data-inline-image-form]")
+    row_form = soup.select_one(f"form#image-inline-{image.pk}[data-inline-form]")
     assert row_form["action"] == reverse("cms_image_inline_edit", args=[image.pk])
     assert row_form.select_one("[role='status']").get_text(strip=True) == "Saved"
     assert image.filename in soup.select_one("td[data-inline-cell='title'] .filename-wrapper").get_text()

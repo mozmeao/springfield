@@ -2,20 +2,23 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.db.models import prefetch_related_objects
+from django.db.models.functions import Lower
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.utils.functional import cached_property
 from django.utils.translation import gettext as _, gettext_lazy
 from django.views.decorators.http import require_POST
 
+from taggit.models import Tag
 from wagtail.admin.ui.tables import BaseColumn
 from wagtail.admin.widgets import AdminTagWidget
 from wagtail.images import get_image_model
 from wagtail.images.permissions import permission_policy
-from wagtail.images.views.images import IndexView
+from wagtail.images.views.images import ImagesFilterSet, IndexView
 from wagtail.log_actions import log
 
 from springfield.cms.images.forms import InlineImageForm
@@ -83,9 +86,29 @@ class UsageListColumn(BaseColumn):
     cell_template_name = "springfield_images/usage_cell.html"
 
 
+class SpringfieldImagesFilterSet(ImagesFilterSet):
+    """Wagtail's image filters, offering every image tag alphabetically instead of only the ten
+    most used."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if "tag" in self.filters:
+            image_content_type = ContentType.objects.get_for_model(self._meta.model)
+            tag_names = (
+                Tag.objects.filter(taggit_taggeditem_items__content_type=image_content_type)
+                .distinct()
+                .order_by(Lower("name"))
+                .values_list("name", flat=True)
+            )
+            self.filters["tag"].extra["choices"] = [(tag_name, tag_name) for tag_name in tag_names]
+            self.filters["tag"].extra["help_text"] = gettext_lazy("Filter by tag.")
+
+
 class SpringfieldImageIndexView(IndexView):
     """Wagtail's image listing, with the list layout's title, description, decorative flag and
     tags editable per row, and its usage shown as the pages and snippets that use each image."""
+
+    filterset_class = SpringfieldImagesFilterSet
 
     def decorate_paginated_queryset(self, object_list):
         object_list = super().decorate_paginated_queryset(object_list)
