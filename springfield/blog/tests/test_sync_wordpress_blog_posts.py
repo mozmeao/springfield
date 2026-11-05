@@ -940,7 +940,9 @@ def stored_files():
 
 
 @responses.activate
-def test_a_dry_run_writes_nothing_and_lists_what_the_real_run_does(tmp_path, blog):
+def test_a_dry_run_writes_nothing_and_lists_what_the_real_run_does(tmp_path, blog, settings):
+    # Tests running in parallel share the media folder, so this one gets its own.
+    settings.MEDIA_ROOT = str(tmp_path / "media")
     serve_post_images()
     serve(PLACEHOLDER["poster_url"], POSTER)
     clip = f"{UPLOADS}/clip.mp4"
