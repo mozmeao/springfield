@@ -96,11 +96,15 @@ def find_stale_pair(
     to translate counts towards neither.
     """
     current_string_ids = {segment.string_id for segment in segments}
+    stale = [row for row in string_translations if row.translation_of_id not in current_string_ids and row.data and not is_do_not_translate(row)]
+    if not stale:
+        return None
+
+    # Most fields have no leftover to offer, and reading a segment's text means parsing
+    # its HTML, so nothing is parsed until there is something to pair it with.
     translated_string_ids = {row.translation_of_id for row in string_translations if row.translation_of_id in current_string_ids}
     untranslated = [segment for segment in segments if segment.string_id not in translated_string_ids and has_visible_text(segment)]
-    stale = [row for row in string_translations if row.translation_of_id not in current_string_ids and row.data and not is_do_not_translate(row)]
-
-    if not untranslated or not stale:
+    if not untranslated:
         return None
     if len(untranslated) > 1 and len(stale) > 1:
         return None
