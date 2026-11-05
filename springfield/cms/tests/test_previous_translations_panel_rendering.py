@@ -1,0 +1,299 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+from django.urls import reverse
+
+import pytest
+from bs4 import BeautifulSoup
+from wagtail.models import Locale
+from wagtail_localize.models import String, StringSegment, StringTranslation, Translation, TranslationSource
+from wagtail_localize.strings import StringValue
+
+from springfield.cms.templatetags import cms_previous_translations_tags
+from springfield.cms.tests.helpers import content_context, orphan_stringtranslation, set_rich_text, title_context
+
+pytestmark = pytest.mark.django_db
+
+
+CURRENT_SOURCE = "Get Firefox!"
+PREVIOUS_SOURCE = "Get Firefox"
+
+
+@pytest.fixture
+def drifted_page(translated_page):
+    """A translated page with one paragraph of body copy, ready for an orphan at its
+    content context."""
+    set_rich_text(translated_page, f"<p>{CURRENT_SOURCE}</p>")
+    return translated_page
+
+
+def get_orphan_stringtranslation(drifted_page, source_text, value, **kwargs):
+    """
+    An orphan built at `content` and never at `title`: a wagtail-localize signal copies a
+    title translation's data into the page's draft_title, which the admin then prints in
+    its own chrome. An assertion on that text would pass with the panel absent.
+    """
+    return orphan_stringtranslation(drifted_page, content_context(drifted_page), source_text, value, **kwargs)
+
+
+def get_orphan_at_title(drifted_page, source_text, value):
+    """A second orphan, at the context that precedes `content` in page order."""
+    return orphan_stringtranslation(drifted_page, title_context(drifted_page), source_text, value)
+
+
+def editor_html_for(admin_client, page):
+    response = admin_client.get(reverse("wagtailadmin_pages:edit", args=[page.id]))
+    assert response.status_code == 200
+    return response.content.decode()
+
+
+def editor_html(admin_client, drifted_page):
+    return editor_html_for(admin_client, drifted_page.page)
+
+
+def get_soup_for_panel(html):
+    """The first rendered previous-translations panel."""
+    return BeautifulSoup(html, "html.parser").select_one('[data-side-panel="previous-translations"]')
+
+
+def get_soup_for_toggle(html):
+    """The button that opens the panel, which lives in the editor header."""
+    return BeautifulSoup(html, "html.parser").select_one('[data-side-panel-toggle="previous-translations"]')
+
+
+def test_panel_shows_the_whole_entry(admin_client, drifted_page):
+    value = "La barre latérale garde vos outils à portée de clic."
+    get_orphan_stringtranslation(drifted_page, PREVIOUS_SOURCE, value)
+
+    html = editor_html(admin_client, drifted_page)
+
+    # All three values, in order.
+    assert [dd.get_text(strip=True) for dd in get_soup_for_panel(html).select("dd")] == [CURRENT_SOURCE, PREVIOUS_SOURCE, value]
+
+
+def test_several_untranslated_paragraphs_are_offered_as_separate_candidates(admin_client, drifted_page):
+    """
+    Paragraphs of one field share a context, so a field holding two untranslated ones
+    cannot say which the leftover translation belonged to.
+    """
+    set_rich_text(drifted_page, f"<p>{CURRENT_SOURCE}</p><p>Grab Firefox now</p>")
+    get_orphan_stringtranslation(drifted_page, PREVIOUS_SOURCE, "La barre latérale")
+
+    entry = get_soup_for_panel(editor_html(admin_client, drifted_page)).select_one("li")
+
+    assert [dd.get_text(strip=True) for dd in entry.select("dd")] == [
+        CURRENT_SOURCE,
+        "Grab Firefox now",
+        PREVIOUS_SOURCE,
+        "La barre latérale",
+    ]
+    assert "may not be correct" in entry.select_one("[data-inexact-pairing]").get_text()
+
+
+def test_a_field_with_many_untranslated_strings_shows_the_first_two_and_folds_the_rest_away(admin_client, drifted_page):
+    """
+    The panel is a column beside the editor, and a rich text field can hold dozens of
+    paragraphs. Listing them all would bury the previous translation the entry is for.
+    """
+    set_rich_text(drifted_page, "".join(f"<p>Paragraph {number}</p>" for number in range(1, 6)))
+    get_orphan_stringtranslation(drifted_page, PREVIOUS_SOURCE, "La barre latérale")
+
+    entry = get_soup_for_panel(editor_html(admin_client, drifted_page)).select_one("li")
+    overflow = entry.select_one("details")
+
+    assert [dd.get_text(strip=True) for dd in entry.select("dd")][:2] == ["Paragraph 1", "Paragraph 2"]
+    assert overflow.select_one("summary").get_text(strip=True) == "+3 more"
+    assert [paragraph.get_text(strip=True) for paragraph in overflow.select("p")] == ["Paragraph 3", "Paragraph 4", "Paragraph 5"]
+    # The entry still ends with what the translator came for.
+    assert entry.select("dd")[-1].get_text(strip=True) == "La barre latérale"
+
+
+def test_an_exact_entry_is_offered_without_the_guess_note(admin_client, drifted_page):
+    """One untranslated string and one orphan is considered an exact match."""
+    get_orphan_stringtranslation(drifted_page, PREVIOUS_SOURCE, "La barre latérale")
+
+    entry = get_soup_for_panel(editor_html(admin_client, drifted_page)).select_one("li")
+
+    assert entry.select_one("[data-inexact-pairing]") is None
+
+
+def test_no_panel_without_entries(admin_client, drifted_page):
+    """If there are no entries, the panel does not show up."""
+    html = editor_html(admin_client, drifted_page)
+
+    assert get_soup_for_panel(html) is None
+    assert get_soup_for_toggle(html) is None
+
+
+def test_labels_carry_the_locale_codes_from_the_translation(admin_client, drifted_page):
+    """Run against a *second* target locale, because an assertion built from the
+    fixture's own `fr` is satisfied by a template that hardcodes `fr`."""
+    german = Locale.objects.create(language_code="de")
+    translation = Translation.objects.create(source=drifted_page.translation.source, target_locale=german, enabled=True)
+    translation.save_target(publish=False)
+    context = StringSegment.objects.filter(source=translation.source, context__path="content").first().context
+    StringTranslation.objects.create(
+        translation_of=String.from_value(translation.source.locale, StringValue(PREVIOUS_SOURCE)),
+        locale=german,
+        context=context,
+        data="Die Seitenleiste",
+        translation_type=StringTranslation.TRANSLATION_TYPE_MANUAL,
+    )
+
+    text = get_soup_for_panel(editor_html_for(admin_client, translation.get_target_instance())).get_text()
+
+    assert f"Previous source ({drifted_page.translation.source.locale.language_code})" in text
+    assert "Previous translation (de)" in text
+    assert "Previous translation (fr)" not in text
+
+
+def make_translator(django_user_model):
+    return django_user_model.objects.create_user(
+        username="jbloggs@example.com",
+        email="jbloggs@example.com",
+        password="irrelevant",
+        first_name="Jo",
+        last_name="Bloggs",
+    )
+
+
+@pytest.mark.parametrize(("has_translator", "expected_attribution"), [(False, ""), (True, " · Jo Bloggs")])
+def test_attribution_follows_the_comment_only_when_there_is_a_translator(
+    admin_client, drifted_page, django_user_model, has_translator, expected_attribution
+):
+    translator = make_translator(django_user_model) if has_translator else None
+    orphan = get_orphan_stringtranslation(drifted_page, PREVIOUS_SOURCE, "La barre latérale", last_translated_by=translator)
+
+    entry = get_soup_for_panel(editor_html(admin_client, drifted_page)).select_one("li")
+
+    assert "La barre latérale" in entry.get_text()
+    assert entry.select_one("p").get_text(strip=True) == f"{orphan.get_comment()}{expected_attribution}"
+
+
+def test_an_entry_with_nothing_to_attribute_shows_no_meta_line(admin_client, drifted_page):
+    """
+    A row written by an import or a data migration carries neither a comment nor a
+    translator, and an empty meta line is a gap under the entry with nothing in it.
+    """
+    get_orphan_stringtranslation(drifted_page, PREVIOUS_SOURCE, "La barre latérale", translation_type="")
+
+    entry = get_soup_for_panel(editor_html(admin_client, drifted_page)).select_one("li")
+
+    assert "La barre latérale" in entry.get_text()
+    assert entry.select("p") == []
+
+
+def test_a_translator_without_a_comment_is_named_on_their_own(admin_client, drifted_page, django_user_model):
+    get_orphan_stringtranslation(
+        drifted_page,
+        PREVIOUS_SOURCE,
+        "La barre latérale",
+        translation_type="",
+        last_translated_by=make_translator(django_user_model),
+    )
+
+    entry = get_soup_for_panel(editor_html(admin_client, drifted_page)).select_one("li")
+
+    # The text has no separator.
+    assert entry.select_one("p").get_text(strip=True) == "Jo Bloggs"
+
+
+def test_wagtail_localize_editor_opens_even_when_the_panel_cannot_be_built(admin_client, drifted_page, monkeypatch):
+    def raise_error(translation):
+        raise ValueError("the query behind the panel failed")
+
+    get_orphan_stringtranslation(drifted_page, PREVIOUS_SOURCE, "La barre latérale")
+    monkeypatch.setattr(cms_previous_translations_tags, "get_previous_translations", raise_error)
+
+    # No error raised here
+    html = editor_html(admin_client, drifted_page)
+
+    assert get_soup_for_panel(html) is None
+    assert get_soup_for_toggle(html) is None
+
+
+def test_translator_is_named_without_their_email(admin_client, drifted_page, django_user_model):
+    """The translator's username is their email address, which the panel must not print."""
+    get_orphan_stringtranslation(drifted_page, PREVIOUS_SOURCE, "La barre latérale", last_translated_by=make_translator(django_user_model))
+
+    html = editor_html(admin_client, drifted_page)
+
+    assert "Jo Bloggs" in get_soup_for_panel(html).get_text()
+    assert "jbloggs@example.com" not in html
+
+
+def test_one_list_item_per_entry(admin_client, drifted_page):
+    """A page with 2 orphaned segments shows both, in the order they appear on the page."""
+    get_orphan_stringtranslation(drifted_page, PREVIOUS_SOURCE, "La barre latérale")
+    get_orphan_at_title(drifted_page, "Try Firefox", "Essayez Firefox")
+
+    items = get_soup_for_panel(editor_html(admin_client, drifted_page)).select("li")
+
+    # However many strings the field holds now, the previous translation is an entry's last value.
+    assert [item.select("dd")[-1].get_text(strip=True) for item in items] == ["Essayez Firefox", "La barre latérale"]
+    assert [item.select_one("h3").get_text(strip=True) for item in items] == ["Title", "Content"]
+
+
+def test_stored_html_renders_as_plain_text(admin_client, drifted_page):
+    """wagtail-localize stores strings as HTML fragments; the panel shows their text, escaped once."""
+    get_orphan_stringtranslation(drifted_page, "Get Firefox &lt;3", 'Barre <a id="a1">latérale</a> &lt;3')
+
+    markup = str(get_soup_for_panel(editor_html(admin_client, drifted_page)))
+
+    assert "Barre latérale &lt;3" in markup
+    assert "Get Firefox &lt;3" in markup
+    assert 'id="a1"' not in markup
+
+
+def test_toggle_button_carries_the_entry_count(admin_client, drifted_page):
+    get_orphan_stringtranslation(drifted_page, PREVIOUS_SOURCE, "La barre latérale")
+    get_orphan_at_title(drifted_page, "Try Firefox", "Essayez Firefox")
+
+    counter = get_soup_for_toggle(editor_html(admin_client, drifted_page)).select_one("[data-side-panel-toggle-counter]")
+
+    assert counter.get_text(strip=True) == "2"
+    # Wagtail hides the counter when the count is falsy, so a visible count is the assertion.
+    assert "hidden" not in counter.attrs
+
+
+def test_status_panel_still_renders(admin_client, drifted_page):
+    """The panel is added to the editor's side panels, not substituted for them."""
+    get_orphan_stringtranslation(drifted_page, PREVIOUS_SOURCE, "La barre latérale")
+
+    html = editor_html(admin_client, drifted_page)
+
+    # The "Status" panel still appears.
+    assert BeautifulSoup(html, "html.parser").select_one('[data-side-panel="status"]') is not None
+
+
+def test_panel_follows_the_status_panel(admin_client, drifted_page):
+    get_orphan_stringtranslation(drifted_page, PREVIOUS_SOURCE, "La barre latérale")
+
+    aside = BeautifulSoup(editor_html(admin_client, drifted_page), "html.parser").select_one("aside.form-side")
+    names = [panel["data-side-panel"] for panel in aside.select("[data-side-panel]")]
+
+    assert names.index("previous-translations") > names.index("status")
+
+
+def test_panel_renders_for_a_translated_snippet(admin_client, pretranslated_phrase_snippet):
+    locale = Locale.objects.create(language_code="de")
+    translated_snippet = pretranslated_phrase_snippet.copy_for_translation(locale)
+    translated_snippet.save()
+    source, __ = TranslationSource.get_or_create_from_instance(pretranslated_phrase_snippet)
+    Translation.objects.create(source=source, target_locale=locale, enabled=True)
+
+    segment = StringSegment.objects.filter(source=source).first()
+    StringTranslation.objects.create(
+        translation_of=String.from_value(source.locale, StringValue("Download the browser")),
+        locale=locale,
+        context=segment.context,
+        data="Browser herunterladen",
+        translation_type=StringTranslation.TRANSLATION_TYPE_MANUAL,
+    )
+
+    url = reverse("wagtailsnippets_cms_pretranslatedphrase:edit", args=[translated_snippet.pk])
+    response = admin_client.get(url)
+
+    assert response.status_code == 200
+    assert "Browser herunterladen" in get_soup_for_panel(response.content.decode()).get_text()
