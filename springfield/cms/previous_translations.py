@@ -5,7 +5,6 @@
 from collections import defaultdict
 from collections.abc import Sequence
 from dataclasses import dataclass
-from operator import attrgetter
 from typing import Self
 
 from wagtail_localize.models import StringSegment, StringTranslation, Translation
@@ -82,7 +81,9 @@ def find_stale_pair(
     Rich text paragraphs share a context, and an edited paragraph cannot be told
     apart from one added beside it, so every untranslated segment goes in the pair.
     wagtail-localize keeps every earlier translation, so a field edited twice holds
-    two leftovers and the latest is the one to offer.
+    two leftovers and the one written most recently is the one to offer. Rows written
+    in the same moment, as an import writes them, are separated by the one added
+    last (by pk).
 
     When there is one leftover segment and one untranslated segment, this is a match.
     Otherwise, the entry is a guess and is flagged as not exact. A segment with nothing
@@ -98,7 +99,7 @@ def find_stale_pair(
     if len(untranslated) > 1 and len(stale) > 1:
         return None
     is_exact = len(untranslated) == 1 and len(stale) == 1
-    return untranslated, max(stale, key=attrgetter("updated_at")), is_exact
+    return untranslated, max(stale, key=lambda row: (row.updated_at, row.pk)), is_exact
 
 
 def has_visible_text(segment: StringSegment) -> bool:

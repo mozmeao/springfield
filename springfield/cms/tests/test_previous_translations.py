@@ -118,6 +118,22 @@ def test_field_edited_twice_offers_its_latest_translation(translated_page):
     assert not entries[0].is_exact
 
 
+def test_orphan_stringtranslations_written_at_the_same_moment_offer_the_later_row(translated_page):
+    """
+    An import writes a whole file of translations in one go, so two leftovers can share a
+    timestamp to the microsecond. Picking by timestamp alone leaves the database to break
+    the tie and the panel showing a different translation on different machines.
+    """
+    context = context_of_only_title(translated_page)
+    earlier = orphan_stringtranslation(translated_page, context, "Try Firefox", "Essayez Firefox")
+    later = orphan_stringtranslation(translated_page, context, "Download Firefox", "Téléchargez Firefox")
+    StringTranslation.objects.filter(pk=earlier.pk).update(updated_at=later.updated_at)
+
+    entries = get_previous_translations(translated_page.translation)
+
+    assert entries[0].translation == later.data
+
+
 def test_several_untranslated_paragraphs_and_several_orphan_stringtranslations_offer_nothing(three_paragraph_page):
     context = content_context(three_paragraph_page)
     segments = list(StringSegment.objects.filter(source=three_paragraph_page.translation.source, context=context).order_by("order"))
