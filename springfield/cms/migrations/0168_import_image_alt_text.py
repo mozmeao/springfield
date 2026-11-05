@@ -19,18 +19,20 @@ def import_image_alt_text(apps, schema_editor):
         return
 
     call_command("import_image_alt_text", verbosity=1)
+    # After the import, so that the tags it sets are the ones left to tidy up.
+    call_command("normalize_image_tags", verbosity=1)
 
 
 class Migration(migrations.Migration):
     dependencies = [
         ("cms", "0167_sharefirefoxpage_nav_cta_and_pre_footer"),
-        # The command adds every image it changes to the search index, so the index table
+        # Both commands add every image they change to the search index, so the index table
         # must exist in its current shape before this runs on a fresh database.
         ("wagtailsearch", "0010_add_text_fields"),
     ]
 
     # Forward-only, like the other content migrations: reversing would leave the images as
-    # the CSV set them, so there is nothing for a rollback to restore.
+    # these commands set them, so there is nothing for a rollback to restore.
     operations = [
         migrations.RunPython(import_image_alt_text, migrations.RunPython.noop),
     ]
