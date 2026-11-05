@@ -114,9 +114,12 @@ class Output:
             csv_file.close()
         marker = "**Dry run: nothing was written.**\n\n" if dry_run else ""
         (self.folder / "summary.md").write_text(f"# Blog sync summary\n\n{marker}{summary}\n")
-        steps = [*self.hand_steps, "foxtail PR: merge `redirects.csv` into the inventory and open the redirects PR", "Spot check each new page"]
-        lines = "\n".join(f"- [ ] {step}" for step in steps)
-        (self.folder / "hand-steps.md").write_text(f"# Hand steps\n\n{marker}{lines}\n")
+        pages = {}
+        for slug, step in self.hand_steps:
+            pages.setdefault(slug, []).append(step)
+        pages["All pages"] = ["Add the rows in `redirects.csv` to the redirects list and open a PR", "Spot check each new page"]
+        sections = "\n\n".join(f"## {slug}\n\n" + "\n".join(f"- [ ] {step}" for step in steps) for slug, steps in pages.items())
+        (self.folder / "hand-steps.md").write_text(f"# Hand steps\n\n{marker}{sections}\n")
 
 
 class SyncFixer(fixer.Command):
@@ -585,11 +588,9 @@ class Command(BaseCommand):
                 headings = BeautifulSoup(value, "html.parser").find_all(["h2", "h3", "h4", "h5", "h6"])
                 heading = headings[-1].get_text(strip=True) if headings else heading
             if block_type == "animation" and value["placeholder"]:
-                near = f", after the heading “{heading}”" if heading else ""
-                steps.append(
-                    f"`{post['slug']}`: block {number}{near} is a placeholder Animation. "
-                    f"Make the webm from {value['src']}, then set the block's URL and poster"
-                )
+                near = f" (“{heading.split(':')[0]}”)" if heading else ""
+                name = value["src"].rstrip("/").rsplit("/", 1)[-1]
+                steps.append((post["slug"], f"Block {number}{near}: replace the placeholder animation with a webm of [{name}]({value['src']})"))
         return steps
 
     def new_paths(self):
@@ -611,16 +612,23 @@ class Command(BaseCommand):
         slug = plan["post"]["slug"]
         if page is None:
             if self.options["check_only"]:
-                self.write_check(slug, self.locale.language_code, checks.result("page", False, "exists", "missing"))
+                self.write_check(
+                    slug,
+                    self.locale.language_code,
+                    checks.result("page", False, "exists", "missing", step="The page is missing. Run the sync without --check-only"),
+                )
             return
         published = self.importer.parse_wp_date(importer.element_text(plan["export"], "Date"))
         expected = {**plan["expected"], "date": published.astimezone(UTC).isoformat() if published else None}
         expected["migrated_slugs"] = set(self.importer.new_paths)
+        expected["wordpress_url"] = importer.element_text(plan["export"], "Permalink")
         for row in checks.check_english(page, expected):
             self.write_check(slug, self.locale.language_code, row)
         for code, translation_plan in plan["translations"].items():
             translated = page.get_translation_or_none(self.translation_locales[code])
-            for row in checks.check_translation(translated.specific if translated else None, translation_plan["expected"]):
+            # WordPress forwards ?p=<id> to the post, whatever its category.
+            link = f"{self.wordpress_url}/{code}/?p={translation_plan['entry']['wp_id']}"
+            for row in checks.check_translation(translated.specific if translated else None, {**translation_plan["expected"], "wordpress_url": link}):
                 self.write_check(slug, code, row)
 
     def write_check(self, slug, locale, row):
@@ -629,7 +637,7 @@ class Command(BaseCommand):
             self.failed_checks += 1
         listed_already = row["check"] == "placeholders" and slug in self.created
         if row["result"] != checks.PASS and not listed_already:
-            self.out.hand_steps.append(f"`{slug}` {locale}: check “{row['check']}” {row['result']}: expected {row['expected']}, found {row['found']}")
+            self.out.hand_steps.append((slug, row["step"] if locale == self.locale.language_code else f"{locale}: {row['step']}"))
 
     # -----------------------------------------------------------------------
     # English pages
@@ -843,7 +851,8 @@ class Command(BaseCommand):
         self.counts[row["action"]] = self.counts.get(row["action"], 0) + 1
         if row["action"] == FAILED:
             self.failed += 1
-            self.out.hand_steps.append(f"`{row['slug']}` {row['locale']} failed: {row.get('detail', '')}. Fix the cause, then rerun")
+            prefix = f"{row['locale']}: " if row.get("locale") and row["locale"] != self.locale.language_code else ""
+            self.out.hand_steps.append((row["slug"], f"{prefix}Failed: {row.get('detail', '')}. Fix the cause, then rerun"))
         self.out.write(self.out.report, row)
         line = f"  {row['action']}: {row['slug']} {row.get('locale', '')}{': ' + row['detail'] if row.get('detail') else ''}"
         (self.stderr if row["action"] == FAILED else self.stdout).write(line)

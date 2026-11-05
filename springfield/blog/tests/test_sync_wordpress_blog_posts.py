@@ -516,7 +516,9 @@ def test_a_self_hosted_video_becomes_a_placeholder_animation_with_a_hand_step(tm
 
     animation = body_values(created_page(), "animation")[0]
     assert (animation["video_url"], animation["alt"]) == (PLACEHOLDER["webm_url"], "Firefox sounds playing")
-    assert f"`first-post`: block 2, after the heading “Listen” is a placeholder Animation. Make the webm from {clip}" in run.text("hand-steps.md")
+    assert f"## first-post\n\n- [ ] Block 2 (“Listen”): replace the placeholder animation with a webm of [sounds.mp4]({clip})" in run.text(
+        "hand-steps.md"
+    )
 
 
 @responses.activate
@@ -920,7 +922,7 @@ def test_every_check_passes_for_pages_the_run_built(tmp_path, blog):
     results = check_results(run)
     assert {key: row["result"] for key, row in results.items() if row["result"] != "pass"} == {}
     assert ("de", "translation hero") in results
-    assert "check “" not in run.text("hand-steps.md")
+    assert "## first-post" not in run.text("hand-steps.md")
 
 
 @responses.activate
@@ -935,7 +937,25 @@ def test_a_hero_swapped_by_hand_to_the_wrong_file_fails_with_both_hashes(tmp_pat
     assert "1 checks failed" in error
     hero = check_results(run)[("en-US", "hero")]
     assert (hero["result"], hero["expected"], hero["found"]) == ("fail", file_hash(HERO), file_hash(BODY))
-    assert "check “hero” fail" in run.text("hand-steps.md")
+    assert (
+        "## first-post\n\n"
+        "- [ ] The hero isn't the reviewed image: use “Hero” from the image library\n"
+        "- [ ] The first image in the body repeats the hero. Remove it if it isn't wanted\n"
+    ) in run.text("hand-steps.md")
+
+
+@responses.activate
+def test_a_translation_missing_its_body_images_gets_a_step_linking_to_wordpress(tmp_path, blog):
+    serve_post_images()
+    mock_translation()
+    data = sync_data(sync_post(translations=[translated_post()]))
+    run_sync(tmp_path / "run", data, export_post())
+    publish_change(translation_of(created_page()), lambda draft: setattr(draft, "content", []))
+
+    run, _ = failing_run(tmp_path / "check", data, export_post(), check_only=True)
+
+    step = f"de: The body images don't match [WordPress]({WORDPRESS}/de/?p=201) (1 there, 0 here). Swap them in the editor"
+    assert f"- [ ] {step}" in run.text("hand-steps.md")
 
 
 @responses.activate
@@ -987,7 +1007,7 @@ def test_a_placeholder_is_flagged_until_it_is_replaced_by_hand(tmp_path, blog):
     after = run_sync(tmp_path / "after", data, export_post(content=f'<video src="{clip}"></video>'), check_only=True)
 
     assert check_results(before)[("en-US", "placeholders")]["result"] == "fail"
-    assert "check “placeholders” fail" in before.text("hand-steps.md")
+    assert "Replace the placeholder animation with its webm" in before.text("hand-steps.md")
     assert check_results(after)[("en-US", "placeholders")]["result"] == "pass"
 
 
