@@ -11,21 +11,13 @@ from wagtail_localize.models import String, StringSegment, StringTranslation, Tr
 from wagtail_localize.strings import StringValue
 
 from springfield.cms.templatetags import cms_previous_translations_tags
+from springfield.cms.tests.helpers import content_context, orphan_stringtranslation, set_rich_text, title_context
 
 pytestmark = pytest.mark.django_db
 
 
 CURRENT_SOURCE = "Get Firefox!"
 PREVIOUS_SOURCE = "Get Firefox"
-
-
-def set_rich_text(translated_page, html):
-    """Replace the source page's body copy and re-extract its segments, which is what an
-    editor's save does."""
-    translated_page.source_page.content = html
-    translated_page.source_page.save()
-    translated_page.translation.source.update_from_db()
-    translated_page.translation.source.refresh_segments()
 
 
 @pytest.fixture
@@ -38,30 +30,16 @@ def drifted_page(translated_page):
 
 def get_orphan_stringtranslation(drifted_page, source_text, value, **kwargs):
     """
-    A StringTranslation at the content context whose source String has no segment there.
-
-    Built at `content` and never at `title`: a wagtail-localize signal copies a title
-    translation's data into the page's draft_title, which the admin then prints in its
-    own chrome. An assertion on that text would pass with the panel absent.
+    An orphan built at `content` and never at `title`: a wagtail-localize signal copies a
+    title translation's data into the page's draft_title, which the admin then prints in
+    its own chrome. An assertion on that text would pass with the panel absent.
     """
-    source = drifted_page.translation.source
-    context = StringSegment.objects.filter(source=source, context__path="content").first().context
-    string = String.from_value(source.locale, StringValue(source_text))
-    defaults = {"data": value, "translation_type": StringTranslation.TRANSLATION_TYPE_MANUAL, "tool_name": ""}
-    defaults.update(kwargs)
-    return StringTranslation.objects.create(translation_of=string, locale=drifted_page.locale, context=context, **defaults)
+    return orphan_stringtranslation(drifted_page, content_context(drifted_page), source_text, value, **kwargs)
 
 
 def get_orphan_at_title(drifted_page, source_text, value):
     """A second orphan, at the context that precedes `content` in page order."""
-    context = StringSegment.objects.get(source=drifted_page.translation.source, context__path="title").context
-    return StringTranslation.objects.create(
-        translation_of=String.from_value(drifted_page.translation.source.locale, StringValue(source_text)),
-        locale=drifted_page.locale,
-        context=context,
-        data=value,
-        translation_type=StringTranslation.TRANSLATION_TYPE_MANUAL,
-    )
+    return orphan_stringtranslation(drifted_page, title_context(drifted_page), source_text, value)
 
 
 def editor_html_for(admin_client, page):

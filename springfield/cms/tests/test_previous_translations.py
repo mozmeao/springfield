@@ -18,36 +18,9 @@ from wagtail_localize_intentional_blanks.utils import mark_segment_do_not_transl
 from springfield.cms.fixtures.base_fixtures import SHOW_TO_ALL
 from springfield.cms.previous_translations import ZERO_WIDTH_JOIN_CHARACTER, get_field_label, get_previous_translations
 from springfield.cms.tests.factories import FreeFormPage2026Factory
+from springfield.cms.tests.helpers import content_context, orphan_stringtranslation, set_rich_text, title_context
 
 pytestmark = pytest.mark.django_db
-
-
-def orphan_stringtranslation(translated_page, context, source_text, value, **kwargs):
-    """
-    A StringTranslation at `context` whose source String has no segment there.
-
-    This is the state wagtail-localize leaves behind when an editor changes the
-    source: refresh_segments() drops the StringSegment and leaves the translation.
-    """
-    string = String.from_value(translated_page.translation.source.locale, StringValue(source_text))
-    defaults = {
-        "data": value,
-        "translation_type": StringTranslation.TRANSLATION_TYPE_MANUAL,
-        "tool_name": "",
-        "has_error": False,
-    }
-    defaults.update(kwargs)
-    return StringTranslation.objects.create(
-        translation_of=string,
-        locale=translated_page.locale,
-        context=context,
-        **defaults,
-    )
-
-
-def context_of_only_title(translated_page):
-    """The context of the page, with only 1 segment, its title."""
-    return StringSegment.objects.get(source=translated_page.translation.source, context__path="title").context
 
 
 def translate_segment(translated_page, segment, value):
@@ -58,19 +31,6 @@ def translate_segment(translated_page, segment, value):
         data=value,
         translation_type=StringTranslation.TRANSLATION_TYPE_MANUAL,
     )
-
-
-def set_rich_text(translated_page, html):
-    """Replace the source page's rich text and re-extract its segments, which is what
-    an editor's save does."""
-    translated_page.source_page.content = html
-    translated_page.source_page.save()
-    translated_page.translation.source.update_from_db()
-    translated_page.translation.source.refresh_segments()
-
-
-def content_context(translated_page):
-    return StringSegment.objects.filter(source=translated_page.translation.source, context__path="content").first().context
 
 
 @pytest.fixture
@@ -119,7 +79,7 @@ def three_paragraph_page(translated_page):
 
 
 def test_drifted_segment_offers_its_previous_translation(translated_page):
-    context = context_of_only_title(translated_page)
+    context = title_context(translated_page)
     orphan_stringtranslation(translated_page, context, "Try Firefox", "Essayez Firefox")
 
     entries = get_previous_translations(translated_page.translation)
@@ -133,7 +93,7 @@ def test_drifted_segment_offers_its_previous_translation(translated_page):
 
 def test_entries_name_the_field_each_one_came_from(translated_page):
     set_rich_text(translated_page, "<p>Switch today</p>")
-    orphan_stringtranslation(translated_page, context_of_only_title(translated_page), "Try Firefox", "Essayez Firefox")
+    orphan_stringtranslation(translated_page, title_context(translated_page), "Try Firefox", "Essayez Firefox")
     orphan_stringtranslation(translated_page, content_context(translated_page), "Switch now", "Changez maintenant")
 
     entries = get_previous_translations(translated_page.translation)
@@ -143,7 +103,7 @@ def test_entries_name_the_field_each_one_came_from(translated_page):
 
 def test_a_context_whose_field_no_longer_exists_is_left_unlabelled(translated_page):
     source_instance = translated_page.translation.source.get_source_instance()
-    context = context_of_only_title(translated_page)
+    context = title_context(translated_page)
     context.path = context.field_path = "field_that_was_renamed"
 
     assert get_field_label(source_instance, TabHelper(source_instance), context) == ""
@@ -169,7 +129,7 @@ def test_untouched_translation_offers_nothing(translated_page):
 
 def test_current_translation_suppresses_an_orphan_stringtranslation_at_its_context(translated_page):
     """A segment that already has a translation does not return its previous translation."""
-    context = context_of_only_title(translated_page)
+    context = title_context(translated_page)
     segment = StringSegment.objects.get(source=translated_page.translation.source, context=context)
     translate_segment(translated_page, segment, "Passer à Firefox")
     orphan_stringtranslation(translated_page, context, "Try Firefox", "Essayez Firefox")
@@ -179,7 +139,7 @@ def test_current_translation_suppresses_an_orphan_stringtranslation_at_its_conte
 
 def test_field_edited_twice_offers_its_latest_translation(translated_page):
     """A field edited twice keeps a translation of each earlier version; the latest one is offered."""
-    context = context_of_only_title(translated_page)
+    context = title_context(translated_page)
     older = orphan_stringtranslation(translated_page, context, "Try Firefox", "Essayez Firefox")
     latest = orphan_stringtranslation(translated_page, context, "Download Firefox", "Téléchargez Firefox")
     StringTranslation.objects.filter(pk=older.pk).update(updated_at=latest.updated_at - timedelta(days=1))
@@ -220,7 +180,7 @@ def test_orphan_stringtranslations_written_at_the_same_moment_offer_the_later_ro
     timestamp to the microsecond. Picking by timestamp alone leaves the database to break
     the tie and the panel showing a different translation on different machines.
     """
-    context = context_of_only_title(translated_page)
+    context = title_context(translated_page)
     earlier = orphan_stringtranslation(translated_page, context, "Try Firefox", "Essayez Firefox")
     later = orphan_stringtranslation(translated_page, context, "Download Firefox", "Téléchargez Firefox")
     StringTranslation.objects.filter(pk=earlier.pk).update(updated_at=later.updated_at)
@@ -259,7 +219,7 @@ def test_one_untranslated_paragraph_with_two_orphan_stringtranslations_offers_th
 
 
 def test_orphan_stringtranslation_with_empty_data_offers_nothing(translated_page):
-    context = context_of_only_title(translated_page)
+    context = title_context(translated_page)
     orphan_stringtranslation(translated_page, context, "Try Firefox", "")
 
     assert get_previous_translations(translated_page.translation) == []
@@ -275,7 +235,7 @@ def test_orphan_stringtranslation_with_empty_data_offers_nothing(translated_page
     ids=["bare", "with-backup"],
 )
 def test_intentional_blank_marker_is_never_offered(translated_page, marker):
-    context = context_of_only_title(translated_page)
+    context = title_context(translated_page)
     orphan_stringtranslation(translated_page, context, "Try Firefox", marker)
 
     assert get_previous_translations(translated_page.translation) == []
@@ -306,7 +266,7 @@ def test_orphan_stringtranslation_in_another_locale_is_not_offered(translated_pa
     assert translated_page.translation.target_locale.language_code == "fr"
 
     # Add an orphaned translation in German.
-    context = context_of_only_title(translated_page)
+    context = title_context(translated_page)
     string = String.from_value(translated_page.translation.source.locale, StringValue("Try Firefox"))
     StringTranslation.objects.create(
         translation_of=string,
@@ -322,7 +282,7 @@ def test_orphan_stringtranslation_in_another_locale_is_not_offered(translated_pa
 def test_errored_orphan_stringtranslation_is_still_offered(translated_page):
     """An errored translation is not usable as-is, but it is still the text a
     translator would otherwise retype from nothing."""
-    context = context_of_only_title(translated_page)
+    context = title_context(translated_page)
     orphan_stringtranslation(translated_page, context, "Try Firefox", 'Essayez <a href="/x/">Firefox</a>', has_error=True)
 
     entries = get_previous_translations(translated_page.translation)
@@ -333,7 +293,7 @@ def test_errored_orphan_stringtranslation_is_still_offered(translated_page):
 
 def test_errored_current_translation_suppresses_the_entry(translated_page):
     """Since the segment is still considered translated, nothing is returned."""
-    context = context_of_only_title(translated_page)
+    context = title_context(translated_page)
     segment = StringSegment.objects.get(source=translated_page.translation.source, context=context)
     StringTranslation.objects.update_or_create(
         translation_of_id=segment.string_id,
@@ -356,7 +316,7 @@ def test_orphan_stringtranslation_without_a_translation_type_has_no_comment(tran
     nothing to say about a row that carries neither a type nor a tool. The
     'previous translations' panel shows the comment, so it even if it is blank.
     """
-    context = context_of_only_title(translated_page)
+    context = title_context(translated_page)
     orphan_stringtranslation(translated_page, context, "Try Firefox", "Essayez Firefox", translation_type="")
 
     entries = get_previous_translations(translated_page.translation)
@@ -488,7 +448,7 @@ def count_queries(translated_page):
 
 
 def test_query_count_does_not_grow_with_the_number_of_segments(three_paragraph_page):
-    orphan_stringtranslation(three_paragraph_page, context_of_only_title(three_paragraph_page), "Try Firefox", "Essayez Firefox")
+    orphan_stringtranslation(three_paragraph_page, title_context(three_paragraph_page), "Try Firefox", "Essayez Firefox")
     count_for_a_few_strings = count_queries(three_paragraph_page)
 
     set_rich_text(three_paragraph_page, "".join(f"<p>Para {n}</p>" for n in range(30)))
