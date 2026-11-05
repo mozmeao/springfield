@@ -765,6 +765,20 @@ def test_an_image_the_translation_shares_with_the_english_post_passes_its_check(
     assert check_results(run)[("de", "translation body images")]["result"] == "pass"
 
 
+@responses.activate
+def test_a_translation_with_uncertain_text_gets_one_step_to_compare_it(tmp_path, blog):
+    serve_post_images()
+    image = f'<figure class="wp-block-image"><img src="{UPLOADS}/body.png" alt=""></figure>'
+    english = f"{image}<p>Hello world.</p><p>A second paragraph about Firefox.</p>"
+    mock_translation(english_body=english, translated_body=f"{image}<p>Hallo Welt.</p>")
+
+    run = run_sync(tmp_path, sync_data(sync_post(translations=[translated_post()])), export_post(content=english))
+
+    link = f"{WORDPRESS}/de/products/firefox/first-post-de/"
+    step = f"- [ ] de: compare the translation with [WordPress]({link}): 1 doubtful text match, listed in `report.csv`"
+    assert step in run.text("hand-steps.md")
+
+
 def make_translation(tmp_path, english_slug="first-post"):
     """A translation that kept the English hero, before WordPress gave it its own."""
     serve_post_images()

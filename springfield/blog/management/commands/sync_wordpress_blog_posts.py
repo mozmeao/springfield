@@ -835,6 +835,21 @@ class Command(BaseCommand):
             if action == CREATED:
                 translated = BlogArticlePage.objects.get(pk=result["page_id"])
                 self.redirect(wp_id=entry["wp_id"], old_url=result.get("wordpress_url", ""), locale=code, slug=entry["wp_slug"], page=translated)
+                self.translation_notes_step(post["slug"], code, result)
+
+    def translation_notes_step(self, slug, code, result):
+        """A hand step for the text the translations code wasn't sure of; image and video problems are checks."""
+        notes = (result.get("detail") or "").split("; ")
+        doubtful = sum(note.startswith("doubtful:") for note in notes)
+        english = sum(note.startswith("left in English") or ", in English:" in note for note in notes)
+        parts = [
+            f"{doubtful} doubtful text {'match' if doubtful == 1 else 'matches'}" if doubtful else "",
+            f"{english} {'text' if english == 1 else 'texts'} left in English" if english else "",
+        ]
+        if doubtful or english:
+            listed = " and ".join(part for part in parts if part)
+            link = result.get("wordpress_url", "")
+            self.out.hand_steps.append((slug, f"{code}: compare the translation with [WordPress]({link}): {listed}, listed in `report.csv`"))
 
     # -----------------------------------------------------------------------
     # --fix-translation-heroes
