@@ -10,6 +10,7 @@ from springfield.cms.side_panels import PreviousTranslationsSidePanel
 
 def previous_translation(translation):
     return PreviousTranslation(
+        field_label="Content",
         source_then="Get Firefox",
         sources_now=("Get Firefox!",),
         translation=translation,

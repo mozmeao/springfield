@@ -26,6 +26,9 @@ belongs to the Jinja2 backend, which cannot compile these tags.
     <ul class="w-divide-y w-divide-border-furniture w-list-none w-m-0 w-p-0">
         {% for entry in entries %}
             <li class="w-py-5">
+                {% if entry.field_label %}
+                    <h3 class="w-mt-0 w-mb-2 w-text-16 w-text-text-label">{{ entry.field_label }}</h3>
+                {% endif %}
                 {% comment %}
                     Labels recede and values carry the weight, as in Wagtail's own
                     Checks panel. The previous translation is what a translator acts

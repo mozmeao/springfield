@@ -3,16 +3,20 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 from datetime import timedelta
+from types import SimpleNamespace
 
 from django.db import connection
 from django.test.utils import CaptureQueriesContext
 
 import pytest
 from wagtail.models import Locale
-from wagtail_localize.models import String, StringSegment, StringTranslation
+from wagtail_localize.models import String, StringSegment, StringTranslation, Translation, TranslationSource
 from wagtail_localize.strings import StringValue
+from wagtail_localize.views.edit_translation import TabHelper
 
-from springfield.cms.previous_translations import ESCAPE_CHARACTER, get_previous_translations
+from springfield.cms.fixtures.base_fixtures import SHOW_TO_ALL
+from springfield.cms.previous_translations import ESCAPE_CHARACTER, get_field_label, get_previous_translations
+from springfield.cms.tests.factories import FreeFormPage2026Factory
 
 pytestmark = pytest.mark.django_db
 
@@ -69,6 +73,45 @@ def content_context(translated_page):
 
 
 @pytest.fixture
+def translated_freeform_page(minimal_site):
+    """
+    A translated page whose text sits in stream blocks, where the editor's name for a field
+    and the model's name for it part company.
+    """
+    source_page = FreeFormPage2026Factory(
+        title="Switch to Firefox",
+        slug="switch-to-firefox-blocks",
+        parent=minimal_site.root_page,
+        content=[
+            {"type": "rich_text", "value": "<p>Alpha</p>", "id": "11111111-1111-1111-1111-111111111111"},
+            {
+                "type": "intro",
+                "value": {
+                    # Every child of the block: a missing one reaches segment extraction as None,
+                    # which it cannot read.
+                    "settings": {
+                        "layout": "vertical",
+                        "full_width": False,
+                        "slim": False,
+                        "show_to": SHOW_TO_ALL,
+                        "anchor_id": "",
+                        "remove_border_radius": False,
+                    },
+                    "media": [],
+                    "heading": {"superheading_text": "", "heading_text": "<p>Beta</p>", "subheading_text": ""},
+                    "content": [],
+                },
+                "id": "22222222-2222-2222-2222-222222222222",
+            },
+        ],
+    )
+    locale = Locale.objects.get(language_code="fr")
+    source, _ = TranslationSource.get_or_create_from_instance(source_page)
+    translation = Translation.objects.create(source=source, target_locale=locale, enabled=True)
+    return SimpleNamespace(source_page=source_page, translation=translation, locale=locale)
+
+
+@pytest.fixture
 def three_paragraph_page(translated_page):
     set_rich_text(translated_page, "<p>Alpha</p><p>Beta</p><p>Gamma</p>")
     return translated_page
@@ -85,6 +128,38 @@ def test_drifted_segment_offers_its_previous_translation(translated_page):
     assert entries[0].sources_now == ("Switch to Firefox",)
     assert entries[0].translation == "Essayez Firefox"
     assert entries[0].is_exact
+
+
+def test_entries_name_the_field_each_one_came_from(translated_page):
+    set_rich_text(translated_page, "<p>Switch today</p>")
+    orphan_stringtranslation(translated_page, context_of_only_title(translated_page), "Try Firefox", "Essayez Firefox")
+    orphan_stringtranslation(translated_page, content_context(translated_page), "Switch now", "Changez maintenant")
+
+    entries = get_previous_translations(translated_page.translation)
+
+    assert {entry.field_label for entry in entries} == {"Title", "Content"}
+
+
+def test_a_context_whose_field_no_longer_exists_is_left_unlabelled(translated_page):
+    source_instance = translated_page.translation.source.get_source_instance()
+    context = context_of_only_title(translated_page)
+    context.path = context.field_path = "field_that_was_renamed"
+
+    assert get_field_label(source_instance, TabHelper(source_instance), context) == ""
+
+
+def test_a_block_is_named_as_the_translation_editor_names_it(translated_freeform_page):
+    """
+    The panel sits beside the editor, and a translator matching an entry to the field it
+    belongs to needs the name the editor shows.
+    """
+    source = translated_freeform_page.translation.source
+    for segment in StringSegment.objects.filter(source=source, context__path__startswith="content.").select_related("context"):
+        orphan_stringtranslation(translated_freeform_page, segment.context, "Old text", "Ancien texte")
+
+    entries = get_previous_translations(translated_freeform_page.translation)
+
+    assert {entry.field_label for entry in entries} == {"Rich text", "Intro › Heading"}
 
 
 def test_untouched_translation_offers_nothing(translated_page):

@@ -191,6 +191,7 @@ def test_one_list_item_per_entry(admin_client, drifted_page):
     items = get_soup_for_panel(editor_html(admin_client, drifted_page)).select("li")
 
     assert [item.select_one("dd").get_text(strip=True) for item in items] == ["Try Firefox", SOURCE_THEN]
+    assert [item.select_one("h3").get_text(strip=True) for item in items] == ["Title", "Content"]
     assert "Essayez Firefox" in items[0].get_text()
     assert "La barre latérale" in items[1].get_text()
 

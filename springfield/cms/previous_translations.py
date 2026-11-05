@@ -7,8 +7,12 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Self
 
-from wagtail_localize.models import StringSegment, StringTranslation, Translation
+from django.core.exceptions import FieldDoesNotExist
+from django.db.models import Model
+
+from wagtail_localize.models import StringSegment, StringTranslation, Translation, TranslationContext
 from wagtail_localize.strings import StringValue
+from wagtail_localize.views.edit_translation import TabHelper, get_segment_location_info
 
 # The package owns both stored forms of its marker and the settings that override them,
 # so we use its helper to recognise segments marked "do not translate".
@@ -28,6 +32,7 @@ class PreviousTranslation:
     `sources_now` is what the field holds that nobody has translated yet.
     """
 
+    field_label: str
     source_then: str
     sources_now: tuple[str, ...]
     translation: str
@@ -38,10 +43,11 @@ class PreviousTranslation:
     translated_by: str
 
     @classmethod
-    def from_pair(cls, untranslated: Sequence[StringSegment], stale: StringTranslation, is_exact: bool) -> Self:
+    def from_pair(cls, untranslated: Sequence[StringSegment], stale: StringTranslation, is_exact: bool, field_label: str) -> Self:
         """Build an entry, turning the HTML fragments wagtail-localize stores into plain text."""
         user = stale.last_translated_by
         return cls(
+            field_label=field_label,
             source_then=StringValue(stale.translation_of.data).render_text(),
             sources_now=tuple(StringValue(segment.string.data).render_text() for segment in untranslated),
             translation=StringValue(stale.data).render_text(),
@@ -53,8 +59,10 @@ class PreviousTranslation:
 
 def get_previous_translations(translation: Translation) -> list[PreviousTranslation]:
     """Previous translations for fields whose source text changed since they were translated, in page order."""
+    source_instance = translation.source.get_source_instance()
+    tab_helper = TabHelper(source_instance)
     segments_by_context: defaultdict[int, list[StringSegment]] = defaultdict(list)
-    for segment in StringSegment.objects.filter(source_id=translation.source_id).select_related("string").order_by("order"):
+    for segment in StringSegment.objects.filter(source_id=translation.source_id).select_related("string", "context").order_by("order"):
         segments_by_context[segment.context_id].append(segment)
 
     translations_by_context: defaultdict[int, list[StringTranslation]] = defaultdict(list)
@@ -67,7 +75,8 @@ def get_previous_translations(translation: Translation) -> list[PreviousTranslat
     for context_id, segments in segments_by_context.items():
         pair = find_stale_pair(segments, translations_by_context[context_id])
         if pair:
-            entries.append(PreviousTranslation.from_pair(*pair))
+            label = get_field_label(source_instance, tab_helper, segments[0].context)
+            entries.append(PreviousTranslation.from_pair(*pair, field_label=label))
     return entries
 
 
@@ -105,3 +114,18 @@ def find_stale_pair(
 def has_visible_text(segment: StringSegment) -> bool:
     """Whether the segment holds anything to translate."""
     return bool(StringValue(segment.string.data).render_text().replace(ESCAPE_CHARACTER, "").strip())
+
+
+def get_field_label(source_instance: Model, tab_helper: TabHelper, context: TranslationContext) -> str:
+    """
+    Return the label for this field.
+
+    This label matches what wagtail-localize already shows the user for each
+    segment.
+    """
+    try:
+        location = get_segment_location_info(source_instance, tab_helper, context.path, context.get_field_path(source_instance))
+    except (KeyError, FieldDoesNotExist):
+        return ""
+
+    return " › ".join(str(part) for part in (location["field"], location["subField"]) if part)
