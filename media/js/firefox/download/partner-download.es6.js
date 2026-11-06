@@ -9,6 +9,8 @@ import Plausible from '../../base/plausible/plausible.es6';
 const BITNESS_WAIT_MS = 500;
 const DOWNLOAD_DELAY_MS = 1000;
 const ATTRIBUTION_WAIT_MS = 2000;
+// The campaign other mobile download buttons use when the page has none.
+const DEFAULT_MOBILE_CAMPAIGN = 'fxcomdefault';
 
 const UNAVAILABLE_REASONS = {
     device: 'device',
@@ -66,6 +68,31 @@ PartnerDownload.findLink = (container, platform, x64) => {
     }
     if (platform === 'windows') {
         return (x64 && link('win64')) || link('win');
+    }
+    return null;
+};
+
+/**
+ * Find regular Firefox for an immediate partner's visitor who has no build: the desktop
+ * download on Windows and macOS, or the store badge on phones.
+ * @param {HTMLElement} container
+ * @param {String} platform
+ * @param {Boolean} x64
+ * @returns {HTMLAnchorElement|null}
+ */
+PartnerDownload.findFallbackLink = (container, platform, x64) => {
+    const link = (section, version) =>
+        container.querySelector(
+            `[data-state="${section}"] .download-list [data-download-version="${version}"]`
+        );
+    if (platform === 'windows') {
+        return link('device', x64 ? 'win64' : 'win');
+    }
+    if (platform === 'osx') {
+        return link('device', 'osx');
+    }
+    if (platform === 'android' || platform === 'ios') {
+        return link('store', platform);
     }
     return null;
 };
@@ -189,7 +216,10 @@ PartnerDownload.sendUnavailableEvent = (container, reason) => {
         partner: container.getAttribute('data-partner'),
         platform: platform === 'osx' ? 'macos' : platform,
         download_language: container.getAttribute('data-lang'),
-        reason: reason
+        reason: reason,
+        partner_mode: document.documentElement.getAttribute(
+            'data-download-partner-mode'
+        )
     };
     try {
         window.dataLayer.push(
@@ -216,7 +246,7 @@ PartnerDownload.navigate = (url) => {
 
 /**
  * Start and track the download, and point "try again" at the same build.
- * @param {HTMLAnchorElement} link - the partner build for this machine
+ * @param {HTMLAnchorElement} link - the partner build, or regular Firefox, for this machine
  */
 PartnerDownload.startDownload = (link) => {
     const url = PartnerDownload.getAttributedURL(link.href);
@@ -238,6 +268,66 @@ PartnerDownload.startDownload = (link) => {
 };
 
 /**
+ * Send a phone to the store after `delay`, unless the visitor taps a link first.
+ * @param {HTMLElement} container
+ * @param {HTMLAnchorElement} link - the store badge
+ * @param {Promise} delay
+ * @returns {Promise}
+ */
+PartnerDownload.redirectToStore = (container, link, delay) => {
+    let tapped = false;
+    container
+        .querySelector('[data-state="store"]')
+        .addEventListener('click', (event) => {
+            if (event.target.closest('a')) {
+                tapped = true;
+            }
+        });
+    return delay.then(() => {
+        if (tapped) {
+            return;
+        }
+        try {
+            window.Mozilla.TrackProductDownload.sendEventFromURL(link.href);
+        } catch (error) {
+            // Analytics never blocks the redirect.
+        }
+        PartnerDownload.navigate(link.href);
+    });
+};
+
+/**
+ * Add the page's campaign to App Store links, keeping each link's country.
+ * @param {HTMLElement} container
+ */
+PartnerDownload.attributeAppStoreLinks = (container) => {
+    const mobileAttribution = window.Mozilla.MobileAttribution;
+    if (!mobileAttribution) {
+        return;
+    }
+    let campaign;
+    try {
+        campaign =
+            mobileAttribution.getCampaign(
+                document.documentElement,
+                window.location.search
+            ) || DEFAULT_MOBILE_CAMPAIGN;
+    } catch (error) {
+        // A malformed campaign in the URL leaves the links as rendered.
+        return;
+    }
+    const query = new URL(mobileAttribution.getStoreUrl(campaign, false))
+        .search;
+    for (const link of container.querySelectorAll(
+        'a[href^="https://apps.apple.com/"]'
+    )) {
+        const url = new URL(link.href);
+        url.search = query;
+        link.href = url.toString();
+    }
+};
+
+/**
  * Unhide the section for `state` and hide the rest.
  * @param {HTMLElement} container
  * @param {String} state
@@ -250,6 +340,7 @@ PartnerDownload.showState = (container, state) => {
 
 /**
  * Show the visitor's state, and download the partner build when there's one for their machine.
+ * Immediate partners send visitors with no build straight to regular Firefox instead.
  * @returns {Promise<String>} the state shown
  */
 PartnerDownload.begin = () => {
@@ -261,6 +352,7 @@ PartnerDownload.begin = () => {
     const attributionDeadline = wait(ATTRIBUTION_WAIT_MS);
 
     return Promise.resolve()
+        .then(() => PartnerDownload.attributeAppStoreLinks(container))
         .then(() => PartnerDownload.isX64())
         .then((x64) => {
             const link = PartnerDownload.findLink(
@@ -273,6 +365,38 @@ PartnerDownload.begin = () => {
                 container.dataset,
                 link
             );
+            const fallbackLink =
+                container.dataset.mode === 'immediate' &&
+                (state === 'language' || state === 'device') &&
+                PartnerDownload.findFallbackLink(
+                    container,
+                    window.site.platform,
+                    x64
+                );
+
+            if (fallbackLink) {
+                PartnerDownload.sendUnavailableEvent(
+                    container,
+                    UNAVAILABLE_REASONS[state]
+                );
+                if (fallbackLink.closest('[data-state="store"]')) {
+                    PartnerDownload.showState(container, 'store');
+                    return PartnerDownload.redirectToStore(
+                        container,
+                        fallbackLink,
+                        downloadDelay
+                    ).then(() => 'store');
+                }
+                PartnerDownload.showState(container, 'download');
+                return Promise.all([
+                    downloadDelay,
+                    PartnerDownload.waitForAttribution(attributionDeadline)
+                ]).then(() => {
+                    PartnerDownload.startDownload(fallbackLink);
+                    return 'download';
+                });
+            }
+
             PartnerDownload.showState(container, state);
 
             if (state === 'download') {

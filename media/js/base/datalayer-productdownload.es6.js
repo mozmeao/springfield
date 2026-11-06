@@ -204,6 +204,7 @@ TrackProductDownload.getEventFromUrl = (downloadURL) => {
 
 /**
  * Partner fields when `<html>` has `data-download-partner`, otherwise empty.
+ * `partner_mode` says whether a missing partner build shows a message first or falls back straight away.
  * @param {String} downloadURL
  * @returns {Object}
  */
@@ -218,7 +219,10 @@ TrackProductDownload.getPartnerFields = (downloadURL) => {
     const isRepack = /[?&]product=partner-/.test(downloadURL);
     return {
         partner: partner,
-        partner_download: isRepack ? 'repack' : 'fallback'
+        partner_download: isRepack ? 'repack' : 'fallback',
+        partner_mode: document.documentElement.getAttribute(
+            'data-download-partner-mode'
+        )
     };
 };
 

@@ -4,6 +4,7 @@
 
 ## 2026-11-02
 - Comparison Result label now uses Fluent-translated Yes/No/Limited text
+- Partner downloads have a "When there's no build for the visitor" choice. "Show a message" is the default and keeps today's behaviour; "Download Firefox straight away" is for partners whose build is only for attribution.
 
 
 ## 2026-10-29

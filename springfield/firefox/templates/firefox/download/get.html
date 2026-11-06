@@ -20,8 +20,8 @@
 
 {% block page_og_desc %}{{ ftl('firefox-desktop-download-og-desc') }}{% endblock %}
 
-{# Adds the partner to every download event sent from this page. #}
-{% block html_attrs %}data-download-partner="{{ partner.slug }}"{% endblock %}
+{# Adds the partner and its fallback mode to every download event sent from this page. #}
+{% block html_attrs %}data-download-partner="{{ partner.slug }}" data-download-partner-mode="{{ partner.fallback_mode }}"{% endblock %}
 
 {% block canonical_urls %}<meta name="robots" content="noindex,follow">{% endblock %}
 
@@ -39,10 +39,12 @@
 {# Fluent doesn't escape variables. #}
 {% set partner_name = partner.name|e %}
 {% set download_all_url = firefox_url('desktop', 'all') %}
+{# Immediate partners skip the partner message on Linux, as on /thanks/. #}
+{% set linux_heading = ftl('firefox-desktop-download-select-linux') if partner.fallback_mode == 'immediate' else '' %}
 
 {% block main_class %}c-partner-download{% endblock %}
 
-{% block main_attrs %} data-partner="{{ partner.slug }}" data-lang="{{ partner_lang }}" data-windows="{{ options.windows.state }}" data-osx="{{ options.mac.state }}" data-linux="{{ options.linux.state }}"{% endblock %}
+{% block main_attrs %} data-partner="{{ partner.slug }}" data-lang="{{ partner_lang }}" data-windows="{{ options.windows.state }}" data-osx="{{ options.mac.state }}" data-linux="{{ options.linux.state }}" data-mode="{{ partner.fallback_mode }}"{% endblock %}
 
 {# The page script unhides the section for the visitor's state. #}
 {% block content %}
@@ -122,16 +124,23 @@
       </div>
     </section>
 
+    <section class="fl-section" data-state="store" hidden>
+      <div class="fl-section-container fl-download-support">
+        <h1 class="fl-heading fl-heading-size-3 text-center">{{ ftl('partner-download-taking-you-to-store') }}</h1>
+        {{ download_firefox(force_direct=true, dom_id='partner-download-store', button_class='fl-button') }}
+      </div>
+    </section>
+
     <section class="fl-section" data-state="linux_language" hidden>
       <div class="fl-section-container fl-download-support">
-        <h1 class="fl-heading fl-heading-size-3 text-center">{{ ftl('partner-download-language-not-available', partner=partner_name) }}</h1>
+        <h1 class="fl-heading fl-heading-size-3 text-center">{{ linux_heading or ftl('partner-download-language-not-available', partner=partner_name) }}</h1>
         {{ firefox_download_desktop_button_linux(id='partner-download-linux-language', flare_styles=true) }}
       </div>
     </section>
 
     <section class="fl-section" data-state="linux_device" hidden>
       <div class="fl-section-container fl-download-support">
-        <h1 class="fl-heading fl-heading-size-3 text-center">{{ ftl('partner-download-device-not-available', partner=partner_name) }}</h1>
+        <h1 class="fl-heading fl-heading-size-3 text-center">{{ linux_heading or ftl('partner-download-device-not-available', partner=partner_name) }}</h1>
         {{ firefox_download_desktop_button_linux(id='partner-download-linux-device', flare_styles=true) }}
       </div>
     </section>
