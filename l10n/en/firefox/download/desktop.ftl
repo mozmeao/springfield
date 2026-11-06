@@ -10,8 +10,8 @@
 # this title could also be written as "Download Firefox (Fast, Private & Free) — Mozilla"
 firefox-desktop-download-meta-title = Download { -brand-name-firefox-browser } — Fast, Private & Free — from { -brand-name-mozilla }
 firefox-desktop-download-meta-title-v2 = Download { -brand-name-firefox } for Desktop — from { -brand-name-mozilla }
-firefox-desktop-download-meta-desc = Get { -brand-name-firefox }, a free web browser backed by { -brand-name-mozilla }, a non-profit dedicated to internet health and privacy. Available now on { -brand-name-windows }, { -brand-name-mac-short }, { -brand-name-linux }, { -brand-name-android } and { -brand-name-ios }.
-firefox-desktop-download-meta-desc-v2 = Get { -brand-name-firefox } for { -brand-name-windows }, { -brand-name-mac-short } or { -brand-name-linux }. { -brand-name-firefox } is a free web browser backed by { -brand-name-mozilla }, a non-profit dedicated to internet health and privacy.
+firefox-desktop-download-meta-desc = Get { -brand-name-firefox }, a free web browser backed by { -brand-name-mozilla }, a non-profit dedicated to internet health and privacy. Available now on Windows, Mac, Linux, Android and iOS.
+firefox-desktop-download-meta-desc-v2 = Get { -brand-name-firefox } for Windows, Mac or Linux. { -brand-name-firefox } is a free web browser backed by { -brand-name-mozilla }, a non-profit dedicated to internet health and privacy.
 firefox-desktop-download-og-title = Download the fastest { -brand-name-firefox } ever
 firefox-desktop-download-og-desc = Faster page loading, less memory usage and packed with features, the new { -brand-name-firefox } is here.
 firefox-desktop-download-firefox = { -brand-name-firefox-browser }
@@ -36,10 +36,10 @@ firefox-desktop-download-we-block-the-ad = We block the ad trackers. You explore
 firefox-desktop-download-ads-are-distracting = Ads are distracting and make web pages load slower while their trackers watch every move you make online. The { -brand-name-firefox-browser } blocks most trackers automatically, so there’s no need to dig into your security settings.
 firefox-desktop-download-see-your-report = See your protection report
 firefox-desktop-download-for-everyone = { -brand-name-firefox } is for everyone
-firefox-desktop-download-available-in-over = Available in over 90 languages, and compatible with { -brand-name-windows }, { -brand-name-mac-short } and { -brand-name-linux } machines, { -brand-name-firefox } works no matter what you’re using or where you are. Make sure your operating system is up to date for the best experience.
+firefox-desktop-download-available-in-over = Available in over 90 languages, and compatible with Windows, Mac and Linux machines, { -brand-name-firefox } works no matter what you’re using or where you are. Make sure your operating system is up to date for the best experience.
 firefox-desktop-download-review-system-req = Review system requirements
 firefox-desktop-download-all-your-devices = Put { -brand-name-firefox } on all your devices
-firefox-desktop-download-take-your-privacy = Take your privacy with you everywhere. { -brand-name-firefox-browsers } for { -brand-name-ios } and { -brand-name-android } have the same strong privacy settings to block trackers from following you around the web, no matter where you are.
+firefox-desktop-download-take-your-privacy = Take your privacy with you everywhere. { -brand-name-firefox-browsers } for iOS and Android have the same strong privacy settings to block trackers from following you around the web, no matter where you are.
 # The strong tag wraps a word that gets highlighted with a colorful underline for emphasis. The underline breaks if it is on two words, please omit the strong tags if they need to be around multiple words in your language
 firefox-desktop-download-do-it-all = Do it <strong>all</strong> with { -brand-name-firefox }
 firefox-desktop-download-search-smarter = Search smarter, faster
@@ -48,7 +48,7 @@ firefox-desktop-download-search-engine-options = Search engine options
 firefox-desktop-download-smart-search-suggestions = Smart search suggestions
 firefox-desktop-download-bookmark-history = Bookmark, history and open tab in results
 firefox-desktop-download-boost-your = Boost your productivity
-firefox-desktop-download-works-with-google = Works with { -brand-name-google } products
+firefox-desktop-download-works-with-google = Works with Google products
 firefox-desktop-download-built-in-screenshot = Built-in screenshot tool
 firefox-desktop-download-bookmarks-manager = Bookmarks manager
 firefox-desktop-download-autosuggest-urls = Autosuggest URLs
@@ -94,19 +94,19 @@ firefox-desktop-download-your-privacy-comes = Your privacy comes first
 # The strong tag wraps a word that gets highlighted with a colorful underline for emphasis. The underline breaks if it is on two words, please omit the strong tags if they need to be around multiple words in your language
 firefox-desktop-download-keep-all-your = Keep all your favorite browser features — and <strong>discover</strong> new ones.
 # Gmail and Docs are product names and should not be translated
-firefox-desktop-download-all-your-favourite = All your favorite { -brand-name-google } tools (like Gmail and Docs) work seamlessly in the { -brand-name-firefox-browser }.
-firefox-desktop-download-facebook-container = { -brand-name-facebook-container }
+firefox-desktop-download-all-your-favourite = All your favorite Google tools (like Gmail and Docs) work seamlessly in the { -brand-name-firefox-browser }.
+firefox-desktop-download-facebook-container = Facebook Container
 
 # Variables:
 #   $attrs (attrs) - link to https://addons.mozilla.org/firefox/addon/facebook-container/
-firefox-desktop-download-download-this-browser = <a { $attrs } >Download this browser extension</a> to stop { -brand-name-facebook } (and { -brand-name-instagram }) from tracking you around the web.
+firefox-desktop-download-download-this-browser = <a { $attrs } >Download this browser extension</a> to stop Facebook (and Instagram) from tracking you around the web.
 firefox-desktop-download-sync-your-devices = Sync your devices
 firefox-desktop-download-screenshots = Screenshots
 # Enhanced Tracking Protection is a feature name and so is capitalized in English
 firefox-desktop-download-enhanced-tracking-protection = Enhanced Tracking Protection (ETP)
 firefox-desktop-download-from-watching-a = From watching a web tutorial to keeping an eye on your favorite team, your video follows you while you multitask.
-firefox-desktop-download-get-firefox-android = Get { -brand-name-firefox-browser } for <strong>{ -brand-name-android }</strong>
-firefox-desktop-download-get-firefox-ios = Get { -brand-name-firefox-browser } for <strong>{ -brand-name-ios }</strong>
+firefox-desktop-download-get-firefox-android = Get { -brand-name-firefox-browser } for <strong>Android</strong>
+firefox-desktop-download-get-firefox-ios = Get { -brand-name-firefox-browser } for <strong>iOS</strong>
 firefox-desktop-download-download-the-mobile = Download the { -brand-name-firefox } mobile browser for automatic protection on all your devices.
 firefox-desktop-download-learn-about-the = Learn about the { -brand-name-firefox } desktop browser below
 
@@ -117,7 +117,7 @@ firefox-desktop-download-from-security-to = From security to news to gaming, the
 
 # Variables:
 #   $attrs (attrs) - link to https://www.mozilla.org/about/
-firefox-desktop-download-firefox-was-created = { -brand-name-firefox } was created by <a {$attrs }>{ -brand-name-mozilla }</a> as a faster, more private alternative to browsers like { -brand-name-ie }, and now { -brand-name-chrome }. Today, our mission-driven company and volunteer community continue to put your privacy above all else.
+firefox-desktop-download-firefox-was-created = { -brand-name-firefox } was created by <a {$attrs }>{ -brand-name-mozilla }</a> as a faster, more private alternative to browsers like Internet Explorer, and now Chrome. Today, our mission-driven company and volunteer community continue to put your privacy above all else.
 
 # Variables:
 #   $attrs (attrs) - link to https://www.mozilla.org/privacy/firefox/
@@ -159,11 +159,11 @@ firefox-desktop-download-select-linux = Select a <strong>download</strong> optio
 #   $attrs (attrs) - link to https://support.mozilla.org/products/firefox/download-and-install
 firefox-desktop-download-get-help = Having trouble? <a { $attrs }>Get help with your installation</a>.
 firefox-desktop-download-in-another-language = Download in another language or for another operating system.
-firefox-desktop-download-windows = { -brand-name-windows }
+firefox-desktop-download-windows = Windows
 
 # Variables:
 #   $attrs (attrs) - link to https://support.mozilla.org/kb/windows-10-warns-me-use-microsoft-verified-app
-firefox-desktop-download-if-you-see-a-prompt = If you see a prompt stating the app you’re trying to install isn’t a { -brand-name-microsoft }-verified app, click “Install anyway” or <a { $attrs }>change app recommendation settings</a>.
+firefox-desktop-download-if-you-see-a-prompt = If you see a prompt stating the app you’re trying to install isn’t a Microsoft-verified app, click “Install anyway” or <a { $attrs }>change app recommendation settings</a>.
 firefox-desktop-download-visit-support-for-more = Visit Support for More Details
 
 # Variables:
@@ -179,4 +179,4 @@ firefox-desktop-download-interrupted = Your download was interrupted. But all is
 #   $url (url) - link to https://www.firefox.com/download/all/
 firefox-desktop-download-your-system-may-not = Your system may not meet the requirements for { -brand-name-firefox }, but you can try one of <a href="{ $url }">these versions</a>.
 
-download-chromebook-x86-based-chromebook = *x86 based { -brand-name-chromebook } running { -brand-name-chromeos } 80 or later
+download-chromebook-x86-based-chromebook = *x86 based Chromebook running Chrome OS 80 or later
