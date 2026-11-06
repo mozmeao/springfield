@@ -977,7 +977,7 @@ BOUNCER_URL = config("BOUNCER_URL", default="https://download.mozilla.org/")
 
 # Use a message storage mechanism that doesn't need a database.
 # This can be changed to use session once we do add a database.
-MESSAGE_STORAGE = "django.contrib.messages.storage.cookie.CookieStorage"
+MESSAGE_STORAGE = "springfield.cms.messages.SpringfieldCookieStorage"
 
 default_email_backend = "django.core.mail.backends.smtp.EmailBackend"
 if DEBUG:
@@ -1444,6 +1444,10 @@ if WAGTAIL_ENABLE_ADMIN:
         "django.contrib.sessions.middleware.SessionMiddleware",
     ]:
         MIDDLEWARE.insert(3, midddleware_spec)
+
+    # Last in the chain: it needs request.user, which AuthenticationMiddleware above
+    # provides, and the view it guards only exists when the admin is enabled.
+    MIDDLEWARE.append("springfield.cms.middleware.PendingTranslationSyncGuardMiddleware")
 
     SUPPORTED_NONLOCALES.extend(
         [
