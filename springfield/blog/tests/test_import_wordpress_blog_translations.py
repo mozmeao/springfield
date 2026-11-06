@@ -932,3 +932,39 @@ def test_a_failed_translation_is_reported_and_the_run_continues(tmp_path, make_a
     assert "failed: broken de" in stderr
     assert by_slug["firefox-130"]["action"] == "created"
     assert german_page(working).live
+
+
+# -------------------------------------------------------------------------
+# Reuse from other commands
+# -------------------------------------------------------------------------
+
+
+def start_translator():
+    command = import_wordpress_blog_translations.Command(stdout=StringIO(), stderr=StringIO())
+    command.start_run(dry_run=False, wordpress_url=WORDPRESS, corrections={}, image_pairs={}, skip=set())
+    return command
+
+
+@responses.activate
+def test_translate_looks_the_post_up_by_its_wordpress_slug(make_article):
+    english = make_article(slug="firefox-130-release")
+    mock_wordpress("firefox-130")
+
+    row = start_translator().translate(english, Locale.objects.get(language_code="de"), wordpress_slug="firefox-130")
+
+    assert row["action"] == "created"
+    assert german_page(english).live
+
+
+@responses.activate
+def test_before_publish_changes_are_in_the_published_revision(make_article):
+    english = make_article()
+    mock_wordpress("firefox-130")
+    command = start_translator()
+    command.before_publish = lambda translated_page, row, key: setattr(translated_page, "search_description", f"changed {key}")
+
+    command.translate(english, Locale.objects.get(language_code="de"))
+
+    page = german_page(english)
+    assert page.live_revision.as_object().search_description == "changed firefox-130-de"
+    assert not page.has_unpublished_changes

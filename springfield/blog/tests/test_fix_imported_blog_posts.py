@@ -19,7 +19,7 @@ from wagtail.models import Locale
 from wagtail.utils.file import hash_filelike
 
 from springfield.blog.fixtures.blog_fixtures import get_blog_index_page
-from springfield.blog.management.commands.fix_imported_blog_posts import crop_to_widescreen
+from springfield.blog.management.commands.fix_imported_blog_posts import Command, crop_to_widescreen
 from springfield.blog.models import BlogArticleAuthor, BlogArticlePage, BlogAuthor, BlogTag, BlogTopic, BlogTopicPage, HeroStyle, TaggedBlogArticle
 from springfield.cms.models import SpringfieldImage
 
@@ -538,6 +538,16 @@ def test_image_text_reports_a_hash_it_cannot_find(tmp_path, index_page):
 def test_image_text_rejects_bad_entries(tmp_path, index_page, entry, message):
     with pytest.raises(CommandError, match=message):
         run(tmp_path, "image-text", decisions=decisions_json(tmp_path, images=[entry]))
+
+
+def test_load_decisions_takes_a_dict_and_names_its_source_in_errors():
+    command = Command()
+    command.start_run(dry_run=True)
+    command.load_decisions({"images": [{"hash": "abc", "title": "Chart", "description": "Bar chart"}]}, "sync.json")
+
+    assert command.image_decisions == {"abc": {"title": "Chart", "description": "Bar chart", "decorative": False}}
+    with pytest.raises(CommandError, match="sync.json images entry 1"):
+        command.load_decisions({"images": [{"hash": "abc", "title": ""}]}, "sync.json")
 
 
 def test_decision_fixes_need_a_decisions_file(tmp_path, index_page):
