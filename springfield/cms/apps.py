@@ -164,7 +164,6 @@ class CmsConfig(AppConfig):
         from django.contrib.contenttypes.models import ContentType
 
         from wagtail.models import GroupPagePermission, Page
-        from wagtail.models.pages import PAGE_PERMISSION_CODENAMES
         from wagtail.permission_policies.pages import PagePermissionPolicy
 
         from springfield.base.models import TranslatedPagePermission, page_codename
@@ -189,7 +188,7 @@ class CmsConfig(AppConfig):
 
             page_permissions_by_codename: dict[str, Permission] = {
                 permission.codename: permission
-                for permission in Permission.objects.filter(content_type__app_label="wagtailcore", codename__in=PAGE_PERMISSION_CODENAMES)
+                for permission in Permission.objects.filter(content_type__app_label="wagtailcore", codename__in=Page.permission_codenames)
             }
 
             # The group's own pages keep exactly the levels stored for them, so only the
@@ -236,8 +235,7 @@ class CmsConfig(AppConfig):
         from django.contrib.auth.base_user import AbstractBaseUser
         from django.contrib.auth.models import Permission
 
-        from wagtail.models import GroupPagePermission
-        from wagtail.models.pages import PAGE_PERMISSION_CODENAMES
+        from wagtail.models import GroupPagePermission, Page
         from wagtail.permission_policies.pages import PagePermissionPolicy
 
         from springfield.cms.models.pages import FlareDocsIndexPage
@@ -249,7 +247,7 @@ class CmsConfig(AppConfig):
             if not user.is_active or user.is_anonymous or user.is_superuser:
                 return permissions
 
-            page_permissions = Permission.objects.filter(content_type__app_label="wagtailcore", codename__in=PAGE_PERMISSION_CODENAMES)
+            page_permissions = Permission.objects.filter(content_type__app_label="wagtailcore", codename__in=Page.permission_codenames)
             flare_docs_permissions = [
                 GroupPagePermission(page=page, permission=permission) for page in FlareDocsIndexPage.objects.all() for permission in page_permissions
             ]
