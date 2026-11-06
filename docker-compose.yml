@@ -1,6 +1,9 @@
-# Build services list the images the pipeline already pushes as `cache_from`, and write inline cache
-# metadata into what they build (`cache_to: type=inline`). `make pull` fetches those images before a
-# build, so unchanged layers (apt, `uv sync`, `npm ci`, `npm run build`) are reused instead of rebuilt.
+# A CI runner starts with an empty image store, so left to itself every build runs every step.
+# `make pull` fetches the images the previous build pushed, and the `cache_from` and `cache_to`
+# settings below let BuildKit treat their layers as its own, so steps whose inputs have not
+# changed (apt, `uv sync`, `npm ci`, `npm run build`) are reused rather than rerun. Inline cache
+# records only a target's final layers, nothing from intermediate stages, which is why each
+# service lists every stage image the pipeline pushes rather than just its own.
 services:
   # Run webpack-dev-server and compile static assets.
   #

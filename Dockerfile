@@ -181,10 +181,11 @@ ENV DEMO_SERVER_ADMIN_USERS=${DEMO_SERVER_ADMIN_USERS}
 # the expensive run-sync-all layer cached across unrelated asset changes.
 COPY --from=assets /app/assets/img/firefox/flare/icons /app/assets/img/firefox/flare/icons
 
-# run-sync-all.sh downloads the database and fetches the l10n repo, neither of which BuildKit can
-# see change. Declaring GIT_SHA here, rather than only at the end of the stage, makes every RUN
-# that follows part of a per-commit cache key, so a build with cache_from never reuses a previous
-# commit's data snapshot. Local builds leave GIT_SHA at its default and keep the cached layer.
+# The next step fetches the database and the l10n repo over the network. BuildKit judges a RUN
+# by its text and its parent layer alone, so with the pushed images acting as a cache it would
+# reuse the data layer from the previous build. Declaring GIT_SHA here gives this step, and every
+# step after it, an input that changes on each CI build, so they always run. Local builds leave
+# GIT_SHA at its default and keep the layer cached.
 ARG GIT_SHA=latest
 ENV GIT_SHA=${GIT_SHA}
 
