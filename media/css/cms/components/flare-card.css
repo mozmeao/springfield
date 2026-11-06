@@ -477,6 +477,10 @@ Alignment modifiers
     align-self: center;
 }
 
+.fl-card.fl-card-center .fl-card-top-media .fl-card-media-icon {
+    margin-inline: auto;
+}
+
 .fl-card.fl-card-end .fl-buttons,
 .fl-card.fl-card-end .fl-tags {
     align-items: flex-end;
@@ -514,12 +518,17 @@ Card media containers
 
 /* Outline/filled cards: break out of padding, clip to top card corners only. */
 .fl-card.fl-card-outline
-    .fl-card-top-media:not(:has(.fl-card-media-pictogram)) {
+    .fl-card-top-media:not(
+        :has(.fl-card-media-pictogram, .fl-card-media-icon)
+    ) {
     margin-block-start: calc(var(--token-spacing-2xl) * -1);
     margin-inline: calc(var(--token-spacing-2xl) * -1);
 }
 
-.fl-card.fl-card-filled .fl-card-top-media:not(:has(.fl-card-media-pictogram)) {
+.fl-card.fl-card-filled
+    .fl-card-top-media:not(
+        :has(.fl-card-media-pictogram, .fl-card-media-icon)
+    ) {
     margin-block-start: calc(var(--token-spacing-3xl) * -1);
     margin-inline: calc(var(--token-spacing-xl) * -1);
 }
