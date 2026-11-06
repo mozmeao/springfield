@@ -22,25 +22,25 @@ def get_card_gallery_variants() -> list[dict]:
                 "main_card": {
                     "icon": "themes",
                     "superheading": "",
-                    "headline": '<p data-block-key="2026cg1mh">Main Card Headline</p>',
-                    "description": '<ul><li data-block-key="2026cg1md1">Feature one with rich text</li>'
-                    '<li data-block-key="2026cg1md2">Feature two in a list</li>'
-                    '<li data-block-key="2026cg1md3">Feature three with more detail</li></ul>',
+                    "headline": '<p data-block-key="2026cg1mh">Main Card</p>',
+                    "description": '<ul><li data-block-key="2026cg1md1">The main card takes the largest cell</li>'
+                    '<li data-block-key="2026cg1md2">Its description supports rich text, like this list</li>'
+                    '<li data-block-key="2026cg1md3">It has an icon, an image, and one button</li></ul>',
                     "buttons": [buttons["primary"]],
                     "image": image_variants,
                 },
                 "secondary_card": {
                     "icon": "shield",
                     "superheading": "",
-                    "headline": '<p data-block-key="2026cg1sh">Secondary Card Headline</p>',
-                    "description": '<p data-block-key="2026cg1sd">Secondary card description with supporting text.</p>',
+                    "headline": '<p data-block-key="2026cg1sh">Secondary Card</p>',
+                    "description": '<p data-block-key="2026cg1sd">Sits beside the main card with its own icon, image, and button.</p>',
                     "buttons": [buttons["primary"]],
                     "image": image_variants,
                 },
                 "callout_card": {
                     "superheading": "",
-                    "headline": '<p data-block-key="2026cg1ch">Callout Card Headline</p>',
-                    "description": '<p data-block-key="2026cg1cd">Callout card description text.</p>',
+                    "headline": '<p data-block-key="2026cg1ch">Callout Card</p>',
+                    "description": '<p data-block-key="2026cg1cd">The smallest card: a heading and text only, no icon, image, or button.</p>',
                 },
                 "cta": [],
             },

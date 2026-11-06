@@ -95,7 +95,7 @@ def get_windows_section():
             "heading": {
                 "superheading_text": "Windows Users",
                 "heading_text": '<p data-block-key="x4k4z">Thank you for downloading Firefox!</p>',
-                "subheading_text": '<p data-block-key="hablc">This sections will only show to Windows users.</p>',
+                "subheading_text": '<p data-block-key="hablc">This section will only show to Windows users.</p>',
             },
             "content": [],
             "cta": [],
@@ -120,7 +120,7 @@ def get_linux_section():
             "heading": {
                 "superheading_text": "Linux Users",
                 "heading_text": '<p data-block-key="x4k4z">Almost there!</p>',
-                "subheading_text": '<p data-block-key="hablc">This sections will only show to Linux users.</p>',
+                "subheading_text": '<p data-block-key="hablc">This section will only show to Linux users.</p>',
             },
             "content": [],
             "cta": [],
@@ -145,7 +145,7 @@ def get_unsupported_section():
             "heading": {
                 "superheading_text": "Unsupported OS Users",
                 "heading_text": '<p data-block-key="x4k4z">Your download was interrupted. But all is not lost.</p>',
-                "subheading_text": '<p data-block-key="hablc">This sections will only show to Unsupported OS users.</p>',
+                "subheading_text": '<p data-block-key="hablc">This section will only show to Unsupported OS users.</p>',
             },
             "content": [],
             "cta": [],
@@ -170,7 +170,7 @@ def get_other_os_section():
             "heading": {
                 "superheading_text": "Other OS Users",
                 "heading_text": '<p data-block-key="x4k4z">Thank you for downloading Firefox!</p>',
-                "subheading_text": '<p data-block-key="hablc">This sections will only show to Other OS users.</p>',
+                "subheading_text": '<p data-block-key="hablc">This section will only show to Other OS users.</p>',
             },
             "content": [],
             "cta": [],
@@ -274,7 +274,7 @@ def get_thanks_page() -> ThanksPage:
     page.subheading = (
         '<p data-block-key="0b474f02">Every other major browser is owned by a company that makes money from your data. Firefox sets you free.</p>'
     )
-    page.intro_footer_text = '<p data-block-key="intro-footer-text">Some note about the OS version.</p>'
+    page.intro_footer_text = '<p data-block-key="intro-footer-text">A note under the hero — use it for OS requirements or version details.</p>'
     page.featured_image = image
     page.notification = with_fresh_ids(notification)
     page.content = with_fresh_ids(content)

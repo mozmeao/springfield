@@ -375,7 +375,7 @@ def get_enterprise_test_page() -> FreeFormPage2026:
             "title": "Enterprise",
         },
     )
-
+    page.title = "Enterprise"
     page.theme = "enterprise"
     page.show_pre_footer = False
     page.upper_content = enterprise_upper_content()

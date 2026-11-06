@@ -30,8 +30,8 @@ def get_roadmap_item_variants() -> list[dict]:
                 "icon": "",
                 "description": (
                     '<p data-block-key="rm01d">The description field accepts rich text. '
-                    "This item uses the Exploring status, two platform tags (Android and iOS), "
-                    "and no buttons — the minimal layout.</p>"
+                    "This item leaves the status unset, so no status pill shows; it has two platform "
+                    "tags (Android and iOS) and no buttons — the minimal layout.</p>"
                 ),
                 "status": None,
                 "tags": ["android", "ios"],
@@ -51,9 +51,9 @@ def get_roadmap_item_variants() -> list[dict]:
                 "title": "Roadmap Item - Icon and status",
                 "icon": "activity",
                 "description": (
-                    '<p data-block-key="rm02d">The icon field is optional. When set, it appears above the title. '
-                    "The Learn More button uses the localized ui-learn-more FTL string; "
-                    "only the URL is provided here.</p>"
+                    '<p data-block-key="rm02d">The icon field is optional; when set it appears above the title. '
+                    "The status renders as a pill — this item shows Exploring. "
+                    "Learn More uses the localized ui-learn-more FTL string; only the URL is provided here.</p>"
                 ),
                 "status": "exploring",
                 "tags": ["desktop"],
@@ -73,9 +73,8 @@ def get_roadmap_item_variants() -> list[dict]:
                 "title": "Roadmap Item - Learn More button only",
                 "icon": "shield",
                 "description": (
-                    '<p data-block-key="rm02d">The icon field is optional. When set, it appears above the title. '
-                    "The Learn More button uses the localized ui-learn-more FTL string; "
-                    "only the URL is provided here.</p>"
+                    '<p data-block-key="rm02d">This item shows the In Progress status and a single Learn More button. '
+                    "The secondary button fields are left blank, so only one button renders.</p>"
                 ),
                 "status": "in-progress",
                 "tags": ["desktop"],
@@ -161,7 +160,7 @@ def get_roadmap_list_section_variants() -> list[dict]:
         {
             "type": "roadmap_list_section",
             "value": {
-                "headline": "Roadmap List Section 1",
+                "headline": "Roadmap List Section — with subheadline",
                 "subheadline": "The subheadline field is optional. When set it renders as a paragraph beside the section headline.",
                 "list_items": items,
             },
@@ -170,7 +169,7 @@ def get_roadmap_list_section_variants() -> list[dict]:
         {
             "type": "roadmap_list_section",
             "value": {
-                "headline": "Roadmap List Section 2",
+                "headline": "Roadmap List Section — headline only, no subheadline",
                 "subheadline": "",
                 "list_items": [items[0], items[2], items[3]],
             },
