@@ -6,8 +6,8 @@
 @import 'variables/flare-media-query-tokens.css';
 
 @layer page {
-    .fl-mobile-subpage #playStoreLink-primary img,
-    .fl-mobile-subpage #playStoreLink-footer img {
+    .fl-mobile-subpage #playStoreLink-primary img:not(.fl-store-badge-logo),
+    .fl-mobile-subpage #playStoreLink-footer img:not(.fl-store-badge-logo) {
         min-block-size: 45px;
     }
 
@@ -78,7 +78,9 @@
         list-style: none;
     }
 
-    .fl-mobile-subpage .fl-mobile-download-buttons img {
+    .fl-mobile-subpage
+        .fl-mobile-download-buttons
+        img:not(.fl-store-badge-logo) {
         margin: 0;
         min-block-size: 45px;
     }
