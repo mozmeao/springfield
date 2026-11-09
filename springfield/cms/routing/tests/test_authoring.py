@@ -23,8 +23,20 @@ from wagtail.test.utils.form_data import (
     streamfield,
 )
 
+from springfield.cms.routing.mixins import (
+    BROWSER_SIGNAL_ON_SERVER_ERROR,
+    MATCH_ALL_ON_SERVER_ERROR,
+    NO_CONDITION_ON_SERVER_ERROR,
+    ORGANIC_ROUTING_TAB_HELP,
+    ROUTING_TAB_HELP,
+)
 from springfield.cms.routing.models import RoutingCondition, RoutingConfig, RoutingRule
-from springfield.cms.tests.factories import WhatsNewIndexPageFactory, WhatsNewPage2026Factory
+from springfield.cms.tests.factories import (
+    DownloadIndexPageFactory,
+    DownloadPageFactory,
+    WhatsNewIndexPageFactory,
+    WhatsNewPage2026Factory,
+)
 
 pytestmark = [pytest.mark.django_db]
 
@@ -438,3 +450,101 @@ def test_non_descendant_target_is_rejected_in_admin(admin_client, wnp):
     assert response.status_code == 200
     assert "must be a descendant" in response.content.decode("utf-8")
     assert not RoutingRule.objects.filter(page=canonical).exists()
+
+
+def _help_panel_contents(page_form_response):
+    """The content of every help panel the routing tab renders."""
+    tab = page_form_response.context["edit_handler"].children[-1]
+    return [child.content for child in tab.children if hasattr(child, "content")]
+
+
+def test_the_whats_new_tab_shows_the_browser_help(admin_client, wnp):
+    canonical, _target = wnp
+    assert _help_panel_contents(admin_client.get(_edit_url(canonical))) == [ROUTING_TAB_HELP]
+
+
+# ---------------------------------------------------------------------------
+# Organic pages match on the server, so the tab and its guards change with them.
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture
+def download():
+    """A canonical Android DownloadPage with a nested variant as a valid target."""
+    site_root = Site.objects.get(is_default_site=True).root_page
+    index = DownloadIndexPageFactory(parent=site_root, slug="download")
+    canonical = DownloadPageFactory(parent=index, slug="android", platform="android")
+    target = DownloadPageFactory(parent=canonical, slug="china", platform="android")
+    return canonical, target
+
+
+def _download_post_data(canonical, rules_formset):
+    config, _ = RoutingConfig.objects.get_or_create(page=canonical)
+    return nested_form_data(
+        {
+            "title": canonical.title,
+            "slug": canonical.slug,
+            "platform": canonical.platform,
+            "subheading": rich_text("<p>Subheading</p>"),
+            "content": streamfield([]),
+            "routing_rules": rules_formset,
+            "routing_config": inline_formset([{"id": config.pk, "routing_paused": ""}], initial=1),
+            "action-publish": "action-publish",
+        }
+    )
+
+
+def _one_rule(target, match_all="", conditions=()):
+    return inline_formset([{"name": "China", "match_all": match_all, "target": target.pk, "conditions": inline_formset(list(conditions))}])
+
+
+def _country_is_cn():
+    return {"signal": "country", "operator": "is", "expected_value": "CN"}
+
+
+def _rule_errors(response):
+    rule_form = response.context["form"].formsets["routing_rules"].forms[0]
+    condition_errors = [form.errors for form in rule_form.formsets["conditions"].forms]
+    return rule_form.errors, condition_errors
+
+
+def test_an_organic_page_saves_a_country_rule(admin_client, download):
+    canonical, target = download
+    response = admin_client.post(_edit_url(canonical), _download_post_data(canonical, _one_rule(target, conditions=[_country_is_cn()])))
+    assert response.status_code == 302, _routing_errors(response)
+    assert RoutingRule.objects.filter(page=canonical).count() == 1
+
+
+def test_an_organic_page_rejects_match_all(admin_client, download):
+    canonical, target = download
+    response = admin_client.post(_edit_url(canonical), _download_post_data(canonical, _one_rule(target, match_all="on")))
+    rule_errors, _ = _rule_errors(response)
+    assert rule_errors["match_all"] == [str(MATCH_ALL_ON_SERVER_ERROR)]
+    assert not RoutingRule.objects.filter(page=canonical).exists()
+
+
+def test_an_organic_page_rejects_a_browser_only_signal(admin_client, download):
+    canonical, target = download
+    condition = {"signal": "is_firefox", "operator": "is", "expected_value": "true"}
+    response = admin_client.post(_edit_url(canonical), _download_post_data(canonical, _one_rule(target, conditions=[condition])))
+    _, condition_errors = _rule_errors(response)
+    assert condition_errors[0]["signal"] == [str(BROWSER_SIGNAL_ON_SERVER_ERROR) % {"name": "is_firefox"}]
+    assert not RoutingRule.objects.filter(page=canonical).exists()
+
+
+def test_an_organic_page_rejects_a_rule_with_no_conditions(admin_client, download):
+    canonical, target = download
+    response = admin_client.post(_edit_url(canonical), _download_post_data(canonical, _one_rule(target)))
+    rule_errors, _ = _rule_errors(response)
+    assert rule_errors["match_all"] == [str(NO_CONDITION_ON_SERVER_ERROR)]
+    assert not RoutingRule.objects.filter(page=canonical).exists()
+
+
+def test_an_organic_tab_offers_only_server_signals_and_its_own_help(admin_client, download):
+    canonical, _target = download
+    response = admin_client.get(_edit_url(canonical))
+    forms = list(_condition_forms(response.context["form"]))
+    assert forms, "expected at least the add-a-row template"
+    for form in forms:
+        assert [name for name in _offered_signals(form) if name] == ["country"]
+    assert _help_panel_contents(response) == [ORGANIC_ROUTING_TAB_HELP]
