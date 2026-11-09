@@ -15,7 +15,9 @@ migration**.
 
 from contextlib import contextmanager
 
+from django.conf import settings
 from django.db import models
+from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
 import waffle
@@ -26,7 +28,9 @@ from wagtail.utils.decorators import cached_classmethod
 from springfield.cms.routing.dispatch import SERVE_PREVIEW, SERVE_REDIRECT, SERVE_RESOLVER, USER_ROUTING_SWITCH, decide_routing
 from springfield.cms.routing.models import RoutingConfig, localized_target, rule_panels
 from springfield.cms.routing.params import LOOP_BREAKER_PARAM
-from springfield.cms.routing.server_match import SERVER_SIGNALS
+from springfield.cms.routing.preview import get_preview_response, is_preview_admin, is_preview_request
+from springfield.cms.routing.resolver import render_resolver, usable_rules
+from springfield.cms.routing.server_match import SERVER_SIGNALS, matched_target, redirect_to_target
 from springfield.cms.routing.signals import registry
 
 # Consumer-agnostic guidance shown at the top of the "User Routing" tab. Kept
@@ -43,16 +47,19 @@ ROUTING_TAB_HELP = _(
 
 
 # Shown instead of ROUTING_TAB_HELP on pages that match their rules on the server.
-ORGANIC_ROUTING_TAB_HELP = _(
-    "<p>This page checks its rules <strong>on the server</strong>, for every visitor. A visitor who "
-    "matches is redirected to the rule's target; everyone else, search engines included, sees this "
-    "page unchanged.</p>"
-    "<p>Rules are checked <strong>top to bottom, first match wins</strong>. Drag to reorder. Each rule "
-    "needs at least one condition, and only signals the server knows are offered.</p>"
-    "<p>Countries use two-letter ISO codes. Mainland China is CN; Hong Kong (HK), Macao (MO) and "
-    "Taiwan (TW) have their own codes.</p>"
-    "<p>The <strong>kill switch</strong> in Options pauses routing without deleting any rules. It takes "
-    "effect when you <strong>publish</strong>, and reaches cached pages within 10 minutes.</p>"
+ORGANIC_ROUTING_TAB_HELP = format_lazy(
+    _(
+        "<p>This page checks its rules <strong>on the server</strong>, for every visitor. A visitor who "
+        "matches is redirected to the rule's target; everyone else, search engines included, sees this "
+        "page unchanged.</p>"
+        "<p>Rules are checked <strong>top to bottom, first match wins</strong>. Drag to reorder. Each rule "
+        "needs at least one condition, and only signals the server knows are offered.</p>"
+        "<p>Countries use two-letter ISO codes. Mainland China is CN; Hong Kong (HK), Macao (MO) and "
+        "Taiwan (TW) have their own codes.</p>"
+        "<p>The <strong>kill switch</strong> in Options pauses routing without deleting any rules. It takes "
+        "effect when you <strong>publish</strong>, and reaches cached pages within {minutes} minutes.</p>"
+    ),
+    minutes=settings.ROUTING_RESOLVER_CACHE_SECONDS // 60,
 )
 
 # Save errors on pages that match their rules on the server.
@@ -376,10 +383,6 @@ class RoutingMixin(models.Model):
         can never let a page serve a resolver the serializer then empties — or withhold
         one whose rules resolve perfectly well in this locale.
         """
-        # Imported at call time for the same reason serve() does: keeps the resolver's
-        # l10n import chain out of model loading.
-        from springfield.cms.routing.resolver import usable_rules
-
         return bool(usable_rules(self))
 
     def serve(self, request, *args, **kwargs):
@@ -391,15 +394,9 @@ class RoutingMixin(models.Model):
         # Raw switch_is_active, deliberately not springfield.base.waffle.switch, which
         # treats a missing switch as settings.DEV — that would put every local dev on the
         # routing path. Checked here as well as in decide_routing so a dark page returns
-        # before importing the resolver chain or touching the database.
+        # before touching the database.
         if not waffle.switch_is_active(USER_ROUTING_SWITCH):
             return super().serve(request, *args, **kwargs)
-
-        # Imported here (request time) to keep the resolver/preview + l10n import chain
-        # out of model loading; dispatch only matters when a page is actually served.
-        from springfield.cms.routing.preview import get_preview_response, is_preview_admin, is_preview_request
-        from springfield.cms.routing.resolver import render_resolver
-        from springfield.cms.routing.server_match import matched_target, redirect_to_target
 
         matched = None
 
