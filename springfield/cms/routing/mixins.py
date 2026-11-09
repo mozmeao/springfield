@@ -26,6 +26,7 @@ from wagtail.utils.decorators import cached_classmethod
 from springfield.cms.routing.dispatch import SERVE_PREVIEW, SERVE_REDIRECT, SERVE_RESOLVER, USER_ROUTING_SWITCH, decide_routing
 from springfield.cms.routing.models import RoutingConfig, localized_target, rule_panels
 from springfield.cms.routing.params import LOOP_BREAKER_PARAM
+from springfield.cms.routing.server_match import SERVER_SIGNALS
 from springfield.cms.routing.signals import registry
 
 # Consumer-agnostic guidance shown at the top of the "User Routing" tab. Kept
@@ -39,6 +40,25 @@ ROUTING_TAB_HELP = _(
     "it takes effect when you <strong>publish</strong>, like every other change on this page, "
     "and reaches already-cached pages shortly after.</p>"
 )
+
+
+# Shown instead of ROUTING_TAB_HELP on pages that match their rules on the server.
+ORGANIC_ROUTING_TAB_HELP = _(
+    "<p>This page checks its rules <strong>on the server</strong>, for every visitor. A visitor who "
+    "matches is redirected to the rule's target; everyone else, search engines included, sees this "
+    "page unchanged.</p>"
+    "<p>Rules are checked <strong>top to bottom, first match wins</strong>. Drag to reorder. Each rule "
+    "needs at least one condition, and only signals the server knows are offered.</p>"
+    "<p>Countries use two-letter ISO codes. Mainland China is CN; Hong Kong (HK), Macao (MO) and "
+    "Taiwan (TW) have their own codes.</p>"
+    "<p>The <strong>kill switch</strong> in Options pauses routing without deleting any rules. It takes "
+    "effect when you <strong>publish</strong>, and reaches cached pages within 10 minutes.</p>"
+)
+
+# Save errors on pages that match their rules on the server.
+MATCH_ALL_ON_SERVER_ERROR = _("Match all would send every visitor, including search engines, to the target. Add a condition, or use a redirect.")
+BROWSER_SIGNAL_ON_SERVER_ERROR = _("This page checks its rules on the server, which can't read “%(name)s”. Pick a signal from the list.")
+NO_CONDITION_ON_SERVER_ERROR = _("Add at least one condition.")
 
 
 class RoutingPageForm(WagtailAdminPageForm):
@@ -101,6 +121,7 @@ class RoutingPageForm(WagtailAdminPageForm):
                 self._enforce_condition_floor(rule_form)
                 self._enforce_target_scope(rule_form)
                 self._enforce_signal_scope(rule_form)
+                self._enforce_server_signals(rule_form)
         return cleaned_data
 
     def _enforce_signal_scope(self, rule_form):
@@ -124,19 +145,42 @@ class RoutingPageForm(WagtailAdminPageForm):
                 _("“%(name)s” is what triggers routing on this page, so a condition on it always matches.") % {"name": param},
             )
 
-    @staticmethod
-    def _enforce_condition_floor(rule_form):
+    def _matches_on_server(self):
+        return type(self.instance).routing_matches_on_server()
+
+    def _enforce_condition_floor(self, rule_form):
         data = getattr(rule_form, "cleaned_data", None)
-        # Skip blank extra rows, rows marked for deletion, and explicit match-all rules.
-        if not data or data.get("DELETE") or data.get("match_all"):
+        # Skip blank extra rows and rows marked for deletion.
+        if not data or data.get("DELETE"):
             return
+        if data.get("match_all"):
+            # On the server, match all would redirect every visitor, crawlers included.
+            if self._matches_on_server():
+                rule_form.add_error("match_all", MATCH_ALL_ON_SERVER_ERROR)
+            return
+        if not any(self._live_condition_forms(rule_form)):
+            if self._matches_on_server():
+                rule_form.add_error("match_all", NO_CONDITION_ON_SERVER_ERROR)
+            else:
+                rule_form.add_error("match_all", _("Add at least one condition, or enable “Match all triggered visitors”."))
+
+    def _enforce_server_signals(self, rule_form):
+        # The narrowed dropdown is presentation only; this also covers a hand-crafted POST.
+        if not self._matches_on_server():
+            return
+        data = getattr(rule_form, "cleaned_data", None)
+        if not data or data.get("DELETE"):
+            return
+        for condition_form in self._live_condition_forms(rule_form):
+            signal = condition_form.cleaned_data.get("signal")
+            if signal and signal not in SERVER_SIGNALS:
+                condition_form.add_error("signal", BROWSER_SIGNAL_ON_SERVER_ERROR % {"name": signal})
+
+    @staticmethod
+    def _live_condition_forms(rule_form):
         conditions_formset = rule_form.formsets.get("conditions")
         condition_forms = conditions_formset.forms if conditions_formset is not None else []
-        has_condition = any(
-            getattr(condition_form, "cleaned_data", None) and not condition_form.cleaned_data.get("DELETE") for condition_form in condition_forms
-        )
-        if not has_condition:
-            rule_form.add_error("match_all", _("Add at least one condition, or enable “Match all triggered visitors”."))
+        return [form for form in condition_forms if getattr(form, "cleaned_data", None) and not form.cleaned_data.get("DELETE")]
 
     def _enforce_target_scope(self, rule_form):
         # Admin-side counterpart of RoutingRule.clean()'s target guards. A rule the author is
@@ -268,9 +312,10 @@ class RoutingMixin(models.Model):
     @classmethod
     def get_routing_tab(cls):
         """The "User Routing" tab: guidance, page-level options, then the rules."""
+        on_server = cls.routing_matches_on_server()
         panels = [
             # Consumer-agnostic guidance on how matching works.
-            HelpPanel(content=ROUTING_TAB_HELP),
+            HelpPanel(content=ORGANIC_ROUTING_TAB_HELP if on_server else ROUTING_TAB_HELP),
             # Page-level routing options, grouped so future per-page settings nest here.
             # For now it holds the kill switch (0-or-1 per page); its pause checkbox always
             # renders with no "Add" step because RoutingPageForm auto-adds the record
@@ -284,7 +329,11 @@ class RoutingMixin(models.Model):
             # the condition signals narrowed by the consumer's own trigger.
             InlinePanel(
                 "routing_rules",
-                panels=rule_panels(cls.routing_target_page_types, cls.get_routing_arming_param()),
+                panels=rule_panels(
+                    cls.routing_target_page_types,
+                    cls.get_routing_arming_param(),
+                    server_signals=SERVER_SIGNALS if on_server else None,
+                ),
                 label=_("Rules"),
             ),
         ]
