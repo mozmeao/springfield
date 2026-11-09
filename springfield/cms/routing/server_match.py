@@ -8,6 +8,9 @@ The server matches a signal only when the CDN cache key includes it, so a cached
 can only reach visitors it was decided for. Anything else is matched in the browser.
 """
 
+from django.conf import settings
+from django.shortcuts import redirect
+
 from springfield.base.geo import get_country_from_request
 
 # What the server can match, with its reader. The admin dropdown and save guard use this too.
@@ -51,3 +54,16 @@ def matched_target(page, request):
         if all(condition_matches(condition, read(condition.signal)) for condition in conditions):
             return target
     return None
+
+
+def redirect_to_target(request, target):
+    """A 302 to ``target`` in the requested locale, keeping the visitor's attribution.
+
+    No loop-breaker: the target is never canonical, so it can't route again. The response
+    states its own cache lifetime because it freezes the target and the pause state.
+    """
+    from springfield.cms.routing.resolver import url_in_requested_locale, with_visitor_query
+
+    response = redirect(with_visitor_query(url_in_requested_locale(target, request), request))
+    response["Cache-Control"] = f"max-age={settings.ROUTING_RESOLVER_CACHE_SECONDS}"
+    return response
