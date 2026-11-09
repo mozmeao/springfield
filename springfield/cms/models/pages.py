@@ -94,7 +94,7 @@ from springfield.cms.blocks import (
 )
 from springfield.cms.fields import StreamField
 from springfield.cms.rich_text import RichTextBlock, RichTextField
-from springfield.cms.routing.arming import QueryParamValueArmingCondition
+from springfield.cms.routing.arming import OrganicArmingCondition, QueryParamValueArmingCondition
 from springfield.cms.routing.mixins import RoutingMixin
 from springfield.cms.utils import mark_locale_fallback_exempt
 from springfield.firefox.firefox_details import firefox_desktop
@@ -614,6 +614,11 @@ class DownloadPage(RoutingMixin, ImageAltTextMixin, UTMParamsMixin, AbstractSpri
 
     def __str__(self):
         return f"DownloadPage: {self.title} - {self.locale}"
+
+    @classmethod
+    def get_routing_trigger(cls):
+        """Every visitor is armed; rules are matched on the server."""
+        return OrganicArmingCondition()
 
     def is_routing_canonical(self):
         """Only the Android page directly under the download index hosts rules."""

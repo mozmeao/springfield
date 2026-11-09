@@ -23,7 +23,7 @@ from wagtail.admin.forms import WagtailAdminPageForm
 from wagtail.admin.panels import HelpPanel, InlinePanel, MultiFieldPanel, ObjectList, TabbedInterface
 from wagtail.utils.decorators import cached_classmethod
 
-from springfield.cms.routing.dispatch import SERVE_PREVIEW, SERVE_RESOLVER, USER_ROUTING_SWITCH, decide_routing
+from springfield.cms.routing.dispatch import SERVE_PREVIEW, SERVE_REDIRECT, SERVE_RESOLVER, USER_ROUTING_SWITCH, decide_routing
 from springfield.cms.routing.models import RoutingConfig, localized_target, rule_panels
 from springfield.cms.routing.params import LOOP_BREAKER_PARAM
 from springfield.cms.routing.signals import registry
@@ -350,9 +350,18 @@ class RoutingMixin(models.Model):
         # out of model loading; dispatch only matters when a page is actually served.
         from springfield.cms.routing.preview import get_preview_response, is_preview_admin, is_preview_request
         from springfield.cms.routing.resolver import render_resolver
+        from springfield.cms.routing.server_match import matched_target, redirect_to_target
 
-        # The three database-backed flags are passed unevaluated; decide_routing calls
-        # them only if its precedence reaches them.
+        matched = None
+
+        def has_server_match():
+            # Keeps the match so the decision and the redirect share one computation.
+            nonlocal matched
+            matched = matched_target(self, request)
+            return matched is not None
+
+        # The database-backed flags are passed unevaluated; decide_routing calls them only
+        # if its precedence reaches them.
         decision = decide_routing(
             routing_enabled=True,
             has_loop_breaker=bool(request.GET.get(LOOP_BREAKER_PARAM)),
@@ -361,8 +370,12 @@ class RoutingMixin(models.Model):
             trigger_satisfied=self._routing_trigger_satisfied(request),
             is_canonical=self.is_routing_canonical,
             has_live_rules=self._has_live_routing_rules,
+            matches_on_server=self.routing_matches_on_server(),
+            has_server_match=has_server_match,
         )
 
+        if decision == SERVE_REDIRECT:
+            return redirect_to_target(request, matched)
         if decision == SERVE_RESOLVER:
             return render_resolver(request, self)
         if decision == SERVE_PREVIEW:
