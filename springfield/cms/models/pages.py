@@ -621,9 +621,9 @@ class DownloadPage(RoutingMixin, ImageAltTextMixin, UTMParamsMixin, AbstractSpri
         return OrganicArmingCondition()
 
     def is_routing_canonical(self):
-        """Only the Android page directly under the download index hosts rules."""
+        """A download page directly under the download index hosts rules; its variants don't."""
         parent = self.get_parent() if self.pk else None
-        return bool(self.platform == "android" and parent and isinstance(parent.specific, DownloadIndexPage))
+        return bool(parent and parent.specific_class is DownloadIndexPage)
 
     def clean(self):
         super().clean()
@@ -641,8 +641,9 @@ class DownloadPage(RoutingMixin, ImageAltTextMixin, UTMParamsMixin, AbstractSpri
             "ios": "/browsers/mobile/ios",
             "chromebook": "/browsers/desktop/chromebook",
         }
-        parent = self.get_parent().specific
-        children = parent.get_children().filter(downloadpage__isnull=False).live().public().specific()
+        # A routing variant nests under another download page, so list the index's pages.
+        index = DownloadIndexPage.objects.ancestor_of(self).last() or self.get_parent()
+        children = index.get_children().filter(downloadpage__isnull=False).live().public().specific()
         for page in children:
             platform_links[page.platform] = page.get_url()
         context["platform_links"] = platform_links
