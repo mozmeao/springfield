@@ -16,7 +16,7 @@ from wagtail.models import Locale, Page, Site
 
 from springfield.cms.routing.mixins import RoutingMixin
 from springfield.cms.routing.models import RoutingCondition, RoutingRule
-from springfield.cms.routing.resolver import render_resolver, serialize_manifest, serialize_rules
+from springfield.cms.routing.resolver import fallback_url, render_resolver, serialize_manifest, serialize_rules, with_visitor_query
 from springfield.cms.tests.factories import SimpleRichTextPageFactory
 
 pytestmark = [pytest.mark.django_db]
@@ -283,6 +283,26 @@ def test_the_no_js_paths_drop_control_params_and_carry_the_loop_breaker(routed_p
         assert "routing=1" not in url
         assert "preview_rule" not in url
         assert "utm_source=update" in url
+
+
+def test_with_visitor_query_keeps_attribution_and_drops_reserved_params():
+    request = rf.get("/?utm_source=x&routing=1&routed=&preview_rule=3&preview_signal=country:CN&utm_campaign=y")
+    assert with_visitor_query("/en-US/target/", request) == "/en-US/target/?utm_source=x&utm_campaign=y"
+
+
+def test_with_visitor_query_adds_no_loop_breaker():
+    assert with_visitor_query("/en-US/target/", rf.get("/")) == "/en-US/target/"
+
+
+def test_with_visitor_query_never_duplicates_a_name_the_url_has():
+    request = rf.get("/?lang=de&utm_source=x")
+    assert with_visitor_query("/en-US/target/?lang=en", request) == "/en-US/target/?lang=en&utm_source=x"
+
+
+def test_fallback_url_adds_the_loop_breaker(routed_page):
+    request = rf.get("/?utm_source=x&routed=1")
+    url = fallback_url(routed_page.canonical, request)
+    assert url.endswith("?utm_source=x&routed=1")
 
 
 def test_resolver_response_is_cacheable(routed_page):
