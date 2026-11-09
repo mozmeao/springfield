@@ -15,6 +15,8 @@ __all__ = [
     "PDF_MAGIC",
     "STABLE_DOCUMENT_URL_PREFIX",
     "StableDocumentURL",
+    "document_file_is_a_pdf",
+    "document_is_named_a_pdf",
     "stable_url_for_document",
     "stable_url_paths_by_document_id",
 ]
@@ -112,15 +114,25 @@ class StableDocumentURL(models.Model):
         if self.document_id is None:
             return
 
-        if not self.document.filename.lower().endswith(".pdf"):
+        if not document_is_named_a_pdf(self.document):
             raise ValidationError({"document": "Only a PDF can be given a stable URL."})
 
-        with self.document.file.open("rb") as document_file:
-            if document_file.read(len(PDF_MAGIC)) != PDF_MAGIC:
-                raise ValidationError({"document": "This file is named .pdf but is not a PDF."})
+        if not document_file_is_a_pdf(self.document):
+            raise ValidationError({"document": "This file is named .pdf but is not a PDF."})
 
         if self.document.collection.get_view_restrictions().exists():
             raise ValidationError({"document": "A document in a collection with a privacy restriction cannot be given a stable URL."})
+
+
+def document_is_named_a_pdf(document) -> bool:
+    """Whether the document's filename ends in .pdf."""
+    return document.filename.lower().endswith(".pdf")
+
+
+def document_file_is_a_pdf(document) -> bool:
+    """Whether the document's file really is a PDF. Reads the first bytes from storage."""
+    with document.file.open("rb") as document_file:
+        return document_file.read(len(PDF_MAGIC)) == PDF_MAGIC
 
 
 def _stable_url_for_path(path: str) -> str:
