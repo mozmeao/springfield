@@ -1,3 +1,7 @@
+## 2026-11-09
+- Download pages directly under the download index have a User Routing tab. Rules send visitors from chosen countries to a download page nested under it; everyone else, search engines included, sees the page unchanged. Rules need at least one country condition, and the kill switch in Options pauses them. Routing stays off until the `user_routing` switch is on.
+
+
 ## 2026-11-04
 - Wagtail upgraded from 7.4 to 8.1. The page editor's Checks panel now shows the page's meta title and description, with their lengths measured against search engine limits. Moving or renaming a draft page no longer creates a redirect; live pages still do.
 

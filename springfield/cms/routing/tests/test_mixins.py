@@ -54,6 +54,14 @@ def test_arming_param_on_concrete_consumer_avoids_db_and_instantiation():
     assert WhatsNewPage2026.get_routing_arming_param() == "utm_source"
 
 
+def test_routing_matches_on_server_is_false_without_a_trigger():
+    assert RoutingMixin.routing_matches_on_server() is False
+
+
+def test_routing_matches_on_server_is_false_for_a_param_trigger():
+    assert WhatsNewPage2026.routing_matches_on_server() is False
+
+
 # ---------------------------------------------------------------------------
 # The mixin adds no database fields, so adoption produces no migration.
 # ---------------------------------------------------------------------------

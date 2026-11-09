@@ -15,7 +15,9 @@ migration**.
 
 from contextlib import contextmanager
 
+from django.conf import settings
 from django.db import models
+from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
 import waffle
@@ -23,9 +25,12 @@ from wagtail.admin.forms import WagtailAdminPageForm
 from wagtail.admin.panels import HelpPanel, InlinePanel, MultiFieldPanel, ObjectList, TabbedInterface
 from wagtail.utils.decorators import cached_classmethod
 
-from springfield.cms.routing.dispatch import SERVE_PREVIEW, SERVE_RESOLVER, USER_ROUTING_SWITCH, decide_routing
+from springfield.cms.routing.dispatch import SERVE_PREVIEW, SERVE_REDIRECT, SERVE_RESOLVER, USER_ROUTING_SWITCH, decide_routing
 from springfield.cms.routing.models import RoutingConfig, localized_target, rule_panels
 from springfield.cms.routing.params import LOOP_BREAKER_PARAM
+from springfield.cms.routing.preview import get_preview_response, is_preview_admin, is_preview_request
+from springfield.cms.routing.resolver import render_resolver, usable_rules
+from springfield.cms.routing.server_match import SERVER_SIGNALS, matched_target, redirect_to_target
 from springfield.cms.routing.signals import registry
 
 # Consumer-agnostic guidance shown at the top of the "User Routing" tab. Kept
@@ -39,6 +44,28 @@ ROUTING_TAB_HELP = _(
     "it takes effect when you <strong>publish</strong>, like every other change on this page, "
     "and reaches already-cached pages shortly after.</p>"
 )
+
+
+# Shown instead of ROUTING_TAB_HELP on pages that match their rules on the server.
+ORGANIC_ROUTING_TAB_HELP = format_lazy(
+    _(
+        "<p>This page checks its rules <strong>on the server</strong>, for every visitor. A visitor who "
+        "matches is redirected to the rule's target; everyone else, search engines included, sees this "
+        "page unchanged.</p>"
+        "<p>Rules are checked <strong>top to bottom, first match wins</strong>. Drag to reorder. Each rule "
+        "needs at least one condition, and only signals the server knows are offered.</p>"
+        "<p>Countries use two-letter ISO codes. Mainland China is CN; Hong Kong (HK), Macao (MO) and "
+        "Taiwan (TW) have their own codes.</p>"
+        "<p>The <strong>kill switch</strong> in Options pauses routing without deleting any rules. It takes "
+        "effect when you <strong>publish</strong>, and reaches cached pages within {minutes} minutes.</p>"
+    ),
+    minutes=settings.ROUTING_RESOLVER_CACHE_SECONDS // 60,
+)
+
+# Save errors on pages that match their rules on the server.
+MATCH_ALL_ON_SERVER_ERROR = _("Match all would send every visitor, including search engines, to the target. Add a condition, or use a redirect.")
+BROWSER_SIGNAL_ON_SERVER_ERROR = _("This page checks its rules on the server, which can't read “%(name)s”. Pick a signal from the list.")
+NO_CONDITION_ON_SERVER_ERROR = _("Add at least one condition.")
 
 
 class RoutingPageForm(WagtailAdminPageForm):
@@ -101,6 +128,7 @@ class RoutingPageForm(WagtailAdminPageForm):
                 self._enforce_condition_floor(rule_form)
                 self._enforce_target_scope(rule_form)
                 self._enforce_signal_scope(rule_form)
+                self._enforce_server_signals(rule_form)
         return cleaned_data
 
     def _enforce_signal_scope(self, rule_form):
@@ -124,19 +152,42 @@ class RoutingPageForm(WagtailAdminPageForm):
                 _("“%(name)s” is what triggers routing on this page, so a condition on it always matches.") % {"name": param},
             )
 
-    @staticmethod
-    def _enforce_condition_floor(rule_form):
+    def _matches_on_server(self):
+        return type(self.instance).routing_matches_on_server()
+
+    def _enforce_condition_floor(self, rule_form):
         data = getattr(rule_form, "cleaned_data", None)
-        # Skip blank extra rows, rows marked for deletion, and explicit match-all rules.
-        if not data or data.get("DELETE") or data.get("match_all"):
+        # Skip blank extra rows and rows marked for deletion.
+        if not data or data.get("DELETE"):
             return
+        if data.get("match_all"):
+            # On the server, match all would redirect every visitor, crawlers included.
+            if self._matches_on_server():
+                rule_form.add_error("match_all", MATCH_ALL_ON_SERVER_ERROR)
+            return
+        if not any(self._live_condition_forms(rule_form)):
+            if self._matches_on_server():
+                rule_form.add_error("match_all", NO_CONDITION_ON_SERVER_ERROR)
+            else:
+                rule_form.add_error("match_all", _("Add at least one condition, or enable “Match all triggered visitors”."))
+
+    def _enforce_server_signals(self, rule_form):
+        # The narrowed dropdown is presentation only; this also covers a hand-crafted POST.
+        if not self._matches_on_server():
+            return
+        data = getattr(rule_form, "cleaned_data", None)
+        if not data or data.get("DELETE"):
+            return
+        for condition_form in self._live_condition_forms(rule_form):
+            signal = condition_form.cleaned_data.get("signal")
+            if signal and signal not in SERVER_SIGNALS:
+                condition_form.add_error("signal", BROWSER_SIGNAL_ON_SERVER_ERROR % {"name": signal})
+
+    @staticmethod
+    def _live_condition_forms(rule_form):
         conditions_formset = rule_form.formsets.get("conditions")
         condition_forms = conditions_formset.forms if conditions_formset is not None else []
-        has_condition = any(
-            getattr(condition_form, "cleaned_data", None) and not condition_form.cleaned_data.get("DELETE") for condition_form in condition_forms
-        )
-        if not has_condition:
-            rule_form.add_error("match_all", _("Add at least one condition, or enable “Match all triggered visitors”."))
+        return [form for form in condition_forms if getattr(form, "cleaned_data", None) and not form.cleaned_data.get("DELETE")]
 
     def _enforce_target_scope(self, rule_form):
         # Admin-side counterpart of RoutingRule.clean()'s target guards. A rule the author is
@@ -246,6 +297,11 @@ class RoutingMixin(models.Model):
         param = getattr(trigger, "param_name", None)
         return param if param in registry else None
 
+    @classmethod
+    def routing_matches_on_server(cls):
+        """Whether this surface's rules are matched on the server rather than in the browser."""
+        return bool(getattr(cls.get_routing_trigger(), "matches_on_server", False))
+
     # -- Admin wiring: the framework-owned "User Routing" tab --
 
     # The condition-floor validation lives on the page form, not the rule
@@ -263,9 +319,10 @@ class RoutingMixin(models.Model):
     @classmethod
     def get_routing_tab(cls):
         """The "User Routing" tab: guidance, page-level options, then the rules."""
+        on_server = cls.routing_matches_on_server()
         panels = [
             # Consumer-agnostic guidance on how matching works.
-            HelpPanel(content=ROUTING_TAB_HELP),
+            HelpPanel(content=ORGANIC_ROUTING_TAB_HELP if on_server else ROUTING_TAB_HELP),
             # Page-level routing options, grouped so future per-page settings nest here.
             # For now it holds the kill switch (0-or-1 per page); its pause checkbox always
             # renders with no "Add" step because RoutingPageForm auto-adds the record
@@ -279,7 +336,11 @@ class RoutingMixin(models.Model):
             # the condition signals narrowed by the consumer's own trigger.
             InlinePanel(
                 "routing_rules",
-                panels=rule_panels(cls.routing_target_page_types, cls.get_routing_arming_param()),
+                panels=rule_panels(
+                    cls.routing_target_page_types,
+                    cls.get_routing_arming_param(),
+                    server_signals=SERVER_SIGNALS if on_server else None,
+                ),
                 label=_("Rules"),
             ),
         ]
@@ -322,10 +383,6 @@ class RoutingMixin(models.Model):
         can never let a page serve a resolver the serializer then empties — or withhold
         one whose rules resolve perfectly well in this locale.
         """
-        # Imported at call time for the same reason serve() does: keeps the resolver's
-        # l10n import chain out of model loading.
-        from springfield.cms.routing.resolver import usable_rules
-
         return bool(usable_rules(self))
 
     def serve(self, request, *args, **kwargs):
@@ -337,17 +394,20 @@ class RoutingMixin(models.Model):
         # Raw switch_is_active, deliberately not springfield.base.waffle.switch, which
         # treats a missing switch as settings.DEV — that would put every local dev on the
         # routing path. Checked here as well as in decide_routing so a dark page returns
-        # before importing the resolver chain or touching the database.
+        # before touching the database.
         if not waffle.switch_is_active(USER_ROUTING_SWITCH):
             return super().serve(request, *args, **kwargs)
 
-        # Imported here (request time) to keep the resolver/preview + l10n import chain
-        # out of model loading; dispatch only matters when a page is actually served.
-        from springfield.cms.routing.preview import get_preview_response, is_preview_admin, is_preview_request
-        from springfield.cms.routing.resolver import render_resolver
+        matched = None
 
-        # The three database-backed flags are passed unevaluated; decide_routing calls
-        # them only if its precedence reaches them.
+        def has_server_match():
+            # Keeps the match so the decision and the redirect share one computation.
+            nonlocal matched
+            matched = matched_target(self, request)
+            return matched is not None
+
+        # The database-backed flags are passed unevaluated; decide_routing calls them only
+        # if its precedence reaches them.
         decision = decide_routing(
             routing_enabled=True,
             has_loop_breaker=bool(request.GET.get(LOOP_BREAKER_PARAM)),
@@ -356,8 +416,12 @@ class RoutingMixin(models.Model):
             trigger_satisfied=self._routing_trigger_satisfied(request),
             is_canonical=self.is_routing_canonical,
             has_live_rules=self._has_live_routing_rules,
+            matches_on_server=self.routing_matches_on_server(),
+            has_server_match=has_server_match,
         )
 
+        if decision == SERVE_REDIRECT:
+            return redirect_to_target(request, matched)
         if decision == SERVE_RESOLVER:
             return render_resolver(request, self)
         if decision == SERVE_PREVIEW:

@@ -11,6 +11,7 @@ import pytest
 from springfield.cms.routing import params
 from springfield.cms.routing.arming import (
     ArmingCondition,
+    OrganicArmingCondition,
     QueryParamArmingCondition,
     QueryParamValueArmingCondition,
 )
@@ -83,6 +84,28 @@ def test_value_condition_accepts_any_of_several_values():
     assert condition.is_satisfied(rf.get("/?utm_source=update")) is True
     assert condition.is_satisfied(rf.get("/?utm_source=upgrade")) is True
     assert condition.is_satisfied(rf.get("/?utm_source=other")) is False
+
+
+# ---------------------------------------------------------------------------
+# Organic arming condition: every request, matched on the server.
+# ---------------------------------------------------------------------------
+
+
+def test_organic_condition_is_satisfied_for_any_request():
+    condition = OrganicArmingCondition()
+    assert condition.is_satisfied(rf.get("/")) is True
+    assert condition.is_satisfied(rf.get("/?utm_source=x&routing=1")) is True
+
+
+def test_organic_condition_has_no_param():
+    assert not hasattr(OrganicArmingCondition(), "param_name")
+
+
+def test_only_the_organic_condition_matches_on_the_server():
+    assert ArmingCondition.matches_on_server is False
+    assert QueryParamArmingCondition.matches_on_server is False
+    assert QueryParamValueArmingCondition.matches_on_server is False
+    assert OrganicArmingCondition.matches_on_server is True
 
 
 # ---------------------------------------------------------------------------

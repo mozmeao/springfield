@@ -94,7 +94,7 @@ from springfield.cms.blocks import (
 )
 from springfield.cms.fields import StreamField
 from springfield.cms.rich_text import RichTextBlock, RichTextField
-from springfield.cms.routing.arming import QueryParamValueArmingCondition
+from springfield.cms.routing.arming import OrganicArmingCondition, QueryParamValueArmingCondition
 from springfield.cms.routing.mixins import RoutingMixin
 from springfield.cms.utils import mark_locale_fallback_exempt
 from springfield.firefox.firefox_details import firefox_desktop
@@ -491,9 +491,11 @@ class DownloadIndexPage(AbstractSpringfieldCMSPage):
         return redirect(reverse("firefox.all"))
 
 
-class DownloadPage(ImageAltTextMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
-    parent_page_types = ["cms.DownloadIndexPage"]
+class DownloadPage(RoutingMixin, ImageAltTextMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
+    # A download page may also nest under another as a routing variant.
+    parent_page_types = ["cms.DownloadIndexPage", "cms.DownloadPage"]
     image_alt_fields = ("featured_image",)
+    routing_target_page_types = ["cms.DownloadPage"]
 
     ftl_files = [
         "cms/download",
@@ -613,6 +615,16 @@ class DownloadPage(ImageAltTextMixin, UTMParamsMixin, AbstractSpringfieldCMSPage
     def __str__(self):
         return f"DownloadPage: {self.title} - {self.locale}"
 
+    @classmethod
+    def get_routing_trigger(cls):
+        """Every visitor is armed; rules are matched on the server."""
+        return OrganicArmingCondition()
+
+    def is_routing_canonical(self):
+        """A download page directly under the download index hosts rules; its variants don't."""
+        parent = self.get_parent() if self.pk else None
+        return bool(parent and parent.specific_class is DownloadIndexPage)
+
     def clean(self):
         super().clean()
         if errors := self.clean_image_alt_text():
@@ -629,8 +641,9 @@ class DownloadPage(ImageAltTextMixin, UTMParamsMixin, AbstractSpringfieldCMSPage
             "ios": "/browsers/mobile/ios",
             "chromebook": "/browsers/desktop/chromebook",
         }
-        parent = self.get_parent().specific
-        children = parent.get_children().filter(downloadpage__isnull=False).live().public().specific()
+        # A routing variant nests under another download page, so list the index's pages.
+        index = DownloadIndexPage.objects.ancestor_of(self).last() or self.get_parent()
+        children = index.get_children().filter(downloadpage__isnull=False).live().public().specific()
         for page in children:
             platform_links[page.platform] = page.get_url()
         context["platform_links"] = platform_links
