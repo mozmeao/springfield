@@ -62,7 +62,7 @@ dependencies = [
     "wagtaildraftsharing==0.3.0",
     "Wand==0.7.2",  # For animated GIF support
     "whitenoise==6.12.0",
-    "django-pattern-library @ https://github.com/lincolnloop/django-pattern-library/releases/download/v1.5.3/django_pattern_library-1.5.3.tar.gz",
+    "django-pattern-library @ https://github.com/lincolnloop/django-pattern-library/releases/download/v1.6.0%2Bll.2/django_pattern_library-1.6.0+ll.2.tar.gz",
     "mdx_outline @ https://github.com/mozmeao/mdx_outline/archive/refs/tags/markdown-3.4-compatibility.tar.gz",
 ]
 
