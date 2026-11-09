@@ -77,11 +77,13 @@ def test_download_page_matches_on_the_server():
     assert DownloadPage.routing_matches_on_server() is True
 
 
-def test_only_the_android_page_under_the_index_is_canonical(download):
+def test_any_download_page_under_the_index_can_host_rules(download):
     windows = DownloadPageFactory(parent=download.index, slug="windows", platform="windows")
+    windows_variant = DownloadPageFactory(parent=windows, slug="variant", platform="windows")
     assert download.android.is_routing_canonical() is True
+    assert windows.is_routing_canonical() is True
     assert download.variant.is_routing_canonical() is False
-    assert windows.is_routing_canonical() is False
+    assert windows_variant.is_routing_canonical() is False
 
 
 def test_a_nested_download_page_is_a_valid_target(download):
@@ -90,6 +92,15 @@ def test_a_nested_download_page_is_a_valid_target(download):
 
 def _vary(response):
     return {name.strip().lower() for name in response.get("Vary", "").split(",") if name.strip()}
+
+
+def test_a_variant_links_to_the_same_platform_pages_as_its_canonical(client, download):
+    windows = DownloadPageFactory(parent=download.index, slug="windows", platform="windows")
+    canonical_links = client.get(download.android.get_url()).context["platform_links"]
+    variant_links = client.get(download.variant.get_url()).context["platform_links"]
+    assert canonical_links["windows"] == windows.get_url()
+    assert canonical_links["android"] == download.android.get_url()
+    assert variant_links == canonical_links
 
 
 # ---------------------------------------------------------------------------
