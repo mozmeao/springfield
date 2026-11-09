@@ -1,12 +1,16 @@
+## 2026-11-09
+
+- Generated QR codes now use rounded dots and corners with the Firefox logo in the middle, matching the designed QR images.
+- Fixed the QR Code block, which encoded the wrong value instead of its QR Code Data.
+
 ## 2026-11-04
 - Wagtail upgraded from 7.4 to 8.1. The page editor's Checks panel now shows the page's meta title and description, with their lengths measured against search engine limits. Moving or renaming a draft page no longer creates a redirect; live pages still do.
-
 
 ## 2026-11-02
 - Comparison Result label now uses Fluent-translated Yes/No/Limited text
 
-
 ## 2026-10-29
+
 - Share Firefox pages have "Show Navigation CTA" and "Show Pre-Footer" checkboxes on the Settings tab. Both are off by default.
 - The Sharing Links block has a "Show URL" checkbox in its settings. It's on by default, so existing blocks keep showing the URL above the buttons; turn it off to show only the buttons.
 

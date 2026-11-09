@@ -34,13 +34,13 @@
     <div class="fl-banner-layout">
       {% if phone_qr_bg and qr_code %}
         <div class="fl-banner-qr" role="img" aria-label="QR Code">
-          {{ qrcode(qr_code, 12) }}
+          {{ qrcode_rounded_svg(qr_code, 12) }}
         </div>
       {% elif contents.media or qr_code %}
         <div class="fl-banner-media {% if qr_code %} has-qr-code{% endif %} {% if qr_code and not contents.media %} has-large-qr-code{% endif %}">
           {% if qr_code %}
             <div class="fl-banner-qr" role="img">
-              {{ qrcode(qr_code, 12) }}
+              {{ qrcode_rounded_svg(qr_code, 12) }}
             </div>
           {% endif %}
           {{ contents.media }}
