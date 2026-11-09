@@ -5,9 +5,7 @@
 import itertools
 
 from django.contrib.auth import get_user_model
-from django.core.cache import cache
 from django.test import override_settings
-from django.utils import translation
 
 import pytest
 import wagtail_factories
@@ -40,26 +38,6 @@ def admin_client(client, db):
         )
         client.force_login(admin, backend="django.contrib.auth.backends.ModelBackend")
         yield client
-
-
-@pytest.fixture(autouse=True)
-def clear_waffle_cache():
-    """Clear waffle's cache before each test so that switch overrides created by
-    @override_switch are not shadowed by stale cache entries."""
-    cache.clear()
-    yield
-
-
-@pytest.fixture(autouse=True)
-def reset_translation():
-    """Reset Django's active language after each test.
-
-    Requests to locale-prefixed URLs (e.g. /pt-PT/...) call
-    translation.activate() inside the URL resolver. If not cleaned up, the
-    activated language leaks into subsequent tests and causes them to render
-    with the wrong locale."""
-    yield
-    translation.deactivate()
 
 
 @pytest.fixture
