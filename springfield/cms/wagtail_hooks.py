@@ -65,6 +65,7 @@ from springfield.cms.models import (
     ScrollToSeeMoreSnippet,
     SetAsDefaultSnippet,
     SmartWindowExplainerPage,
+    StableDocumentURL,
     Tag,
     WhatsNewPage2026,
 )
@@ -768,6 +769,13 @@ class PencilBannerSnippetViewSet(LocaleDefaultingSnippetViewSet):
     list_display = ["title_plain", "locale", "live"]
 
 
+class StableDocumentURLViewSet(SnippetViewSet):
+    model = StableDocumentURL
+    icon = "link"
+    list_display = ["path", "label", "document", UpdatedAtColumn()]
+    search_fields = ["path", "label"]
+
+
 class PartnerRepackViewSet(SnippetViewSet):
     model = PartnerRepack
     menu_label = "Partner downloads"
@@ -797,6 +805,7 @@ for _viewset in (
     PencilBannerSnippetViewSet,
     NavigationSnippetViewSet,
     PartnerRepackViewSet,
+    StableDocumentURLViewSet,
 ):
     register_snippet(_viewset)
 
