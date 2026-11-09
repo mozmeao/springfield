@@ -7,7 +7,8 @@
 A triggered request to a live canonical with rules gets this lightweight page instead of
 final content. It ships the rules and their signals' metadata as ``data-*`` attributes
 (CSP-clean, no inline script), plus the server-rendered country and localized strings.
-**All matching happens on the client** — the server never evaluates a rule.
+On param-triggered pages all matching happens in the browser; the server never evaluates a
+rule here. Organic pages match on the server instead (see ``server_match``).
 
 Responses are CDN-cacheable and state their own lifetime via
 ``ROUTING_RESOLVER_CACHE_SECONDS``: how long frozen target URLs, pause state and country
@@ -63,7 +64,15 @@ def fallback_url(page, request):
     to a request whose query string is the one rendered into it. If that ever stops being true,
     this has to go back to a bare canonical URL.
     """
-    url = url_in_requested_locale(page, request)
+    return with_visitor_query(url_in_requested_locale(page, request), request, extra=[(LOOP_BREAKER_PARAM, "1")])
+
+
+def with_visitor_query(url, request, extra=()):
+    """``url`` plus the visitor's query string, minus routing's own params.
+
+    A name ``url`` already carries is never added twice. Same as ``preserveQueryString`` on
+    the client.
+    """
     parts = urlsplit(url)
     kept = parse_qsl(parts.query, keep_blank_values=True)
     seen = {name for name, _value in kept}
@@ -72,7 +81,7 @@ def fallback_url(page, request):
             if name in RESERVED_ROUTING_PARAMS or name in seen:
                 continue
             kept.append((name, value))
-    kept.append((LOOP_BREAKER_PARAM, "1"))
+    kept.extend(extra)
     return urlunsplit((parts.scheme, parts.netloc, parts.path, urlencode(kept), parts.fragment))
 
 
