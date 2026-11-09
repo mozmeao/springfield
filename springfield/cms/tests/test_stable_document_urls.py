@@ -7,12 +7,19 @@ from unittest import mock
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.db.models.fields.files import FieldFile
-from django.test import Client
+from django.template.loader import render_to_string
+from django.test import Client, RequestFactory
+from django.urls import NoReverseMatch, reverse
 
 import pytest
+from bs4 import BeautifulSoup
+from wagtail.documents.models import Document
 from wagtail.models import CollectionViewRestriction
+from wagtail.rich_text import expand_db_html
 
+from springfield.cms.blocks import ArticleBlock, SpringfieldLinkBlock
 from springfield.cms.models import StableDocumentURL, stable_url_for_document
+from springfield.cms.models.pages import ContactPage
 from springfield.cms.tests.factories import SimpleRichTextPageFactory
 
 STABLE_URL_SUBPROCESSORS_DOCUMENT = "/documents/subprocessors"
@@ -270,3 +277,77 @@ def test_the_bare_prefix_is_not_rewritten_to_a_cms_page(db, client, minimal_site
 
     assert response.status_code == 404
     assert "Location" not in response
+
+
+def test_a_document_without_a_stable_url_links_to_the_wagtail_serve_view(db, pdf_document):
+    assert pdf_document.url == reverse("wagtaildocs_serve", args=[pdf_document.id, pdf_document.filename])
+
+
+def test_a_document_with_a_stable_url_links_to_it(db, assigned_document):
+    assert assigned_document.url == STABLE_URL_SUBPROCESSORS_DOCUMENT
+
+
+def test_an_unsaved_document_needs_no_database_to_report_a_url():
+    # Deliberately without the db fixture. Looking up a stable URL for a document
+    # that cannot hold one would raise pytest-django's "Database access not
+    # allowed" here, and would turn every doc.url in every test that renders a
+    # link without a database into the same error. Reaching NoReverseMatch
+    # proves the lookup was skipped.
+    # collection_id is passed because the field's default is a callable that
+    # looks the root collection up, which is a query of its own.
+    with pytest.raises(NoReverseMatch):
+        Document(title="Unsaved", collection_id=1).url
+
+
+def test_a_rich_text_document_link_renders_the_stable_url(db, assigned_document):
+    html = expand_db_html(f'<a linktype="document" id="{assigned_document.pk}">Sub-processors</a>')
+
+    assert f'href="{STABLE_URL_SUBPROCESSORS_DOCUMENT}"' in html
+
+
+def test_a_springfield_link_block_renders_the_stable_url(db, assigned_document):
+    value = SpringfieldLinkBlock().to_python({"link_to": "file", "file": assigned_document.pk})
+
+    assert value.get_url() == STABLE_URL_SUBPROCESSORS_DOCUMENT
+
+
+def test_an_article_card_link_override_renders_the_stable_url(db, assigned_document):
+    # Article cards read the upstream LinkBlock rather than SpringfieldLinkBlock,
+    # so they resolve a document through a different get_url().
+    value = ArticleBlock().to_python({"overrides": {"link": {"link_to": "file", "file": assigned_document.pk}}})
+
+    assert value.get_link_url() == STABLE_URL_SUBPROCESSORS_DOCUMENT
+
+
+def test_the_contact_page_document_download_renders_the_stable_url(db, assigned_document, minimal_site):
+    # Rendered rather than read off the model, because this template is the only
+    # place that reads a document's url directly instead of through a link block.
+    page = ContactPage(
+        title="Contact",
+        slug="contact",
+        to_email_address="test@example.com",
+        thank_you_message="<p>Thanks for reaching out.</p>",
+        document_download=assigned_document,
+        document_download_label="Download the sub-processors list",
+    )
+    minimal_site.root_page.add_child(instance=page)
+
+    html = render_to_string("cms/includes/contact-form.html", {"page": page, "form_success": True, "request": RequestFactory().get("/")})
+
+    link = BeautifulSoup(html, "html.parser").find("a", class_="contact-form-download")
+    assert link["href"] == STABLE_URL_SUBPROCESSORS_DOCUMENT
+
+
+def test_the_document_edit_page_shows_the_stable_url(admin_client, assigned_document):
+    response = admin_client.get(reverse("wagtaildocs:edit", args=[assigned_document.pk]))
+
+    assert response.status_code == 200
+    soup = BeautifulSoup(response.content, "html.parser")
+    assert soup.find("a", href=STABLE_URL_SUBPROCESSORS_DOCUMENT) is not None
+
+
+def test_the_document_chooser_returns_the_stable_url(admin_client, assigned_document):
+    response = admin_client.get(reverse("wagtaildocs_chooser:chosen", args=[assigned_document.pk]))
+
+    assert response.status_code == 200
+    assert response.json()["result"]["url"] == STABLE_URL_SUBPROCESSORS_DOCUMENT
