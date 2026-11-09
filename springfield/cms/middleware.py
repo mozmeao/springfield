@@ -11,7 +11,7 @@ from django.utils.translation.trans_real import parse_accept_lang_header
 
 from wagtail.models import Page, Site
 
-from springfield.base.i18n import normalize_language
+from springfield.base.i18n import normalize_language, path_needs_lang_code
 from springfield.cms.utils import LOCALE_FALLBACK_EXEMPT_ATTR, current_request
 from springfield.cms.views import _serve_fallback_page
 
@@ -61,6 +61,11 @@ class CMSLocaleFallbackMiddleware:
             if self._has_null_byte(request) is True:
                 # Don't bother processing URLs with null-byte content - they
                 # are fake/vuln scan requests
+                return response
+
+            if not path_needs_lang_code(request.path):
+                # The first path segment below is read as a locale, but a path
+                # listed in SUPPORTED_NONLOCALES is declared to work without one.
                 return response
 
             if getattr(request, LOCALE_FALLBACK_EXEMPT_ATTR, False):

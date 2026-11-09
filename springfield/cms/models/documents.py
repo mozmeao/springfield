@@ -11,6 +11,7 @@ from django.dispatch import receiver
 from wagtail.admin.panels import FieldPanel
 
 __all__ = [
+    "PDF_MAGIC",
     "STABLE_DOCUMENT_URL_PREFIX",
     "StableDocumentURL",
     "stable_url_for_document",
@@ -25,13 +26,13 @@ _CACHE_SECONDS = 60
 # Every PDF starts with this. Checked because the extension alone proves
 # nothing: Wagtail derives a document's content type from its filename, so a
 # file of HTML named .pdf would be served to the public as a PDF.
-_PDF_MAGIC = b"%PDF-"
+PDF_MAGIC = b"%PDF-"
 
 
 class StableDocumentURL(models.Model):
     """Holds a stable public path for one Wagtail document."""
 
-    # Tthe public URL for a document is build from this path.
+    # The public URL for the document is built from this path.
     path = models.SlugField(max_length=64, unique=True)
     # The human name for this URL, shown wherever the admin lists records.
     label = models.CharField(max_length=255)
@@ -76,7 +77,7 @@ class StableDocumentURL(models.Model):
             raise ValidationError({"document": "Only a PDF can be given a stable URL."})
 
         with self.document.file.open("rb") as document_file:
-            if document_file.read(len(_PDF_MAGIC)) != _PDF_MAGIC:
+            if document_file.read(len(PDF_MAGIC)) != PDF_MAGIC:
                 raise ValidationError({"document": "This file is named .pdf but is not a PDF."})
 
         if self.document.collection.get_view_restrictions().exists():
