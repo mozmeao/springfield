@@ -246,6 +246,11 @@ class RoutingMixin(models.Model):
         param = getattr(trigger, "param_name", None)
         return param if param in registry else None
 
+    @classmethod
+    def routing_matches_on_server(cls):
+        """Whether this surface's rules are matched on the server rather than in the browser."""
+        return bool(getattr(cls.get_routing_trigger(), "matches_on_server", False))
+
     # -- Admin wiring: the framework-owned "User Routing" tab --
 
     # The condition-floor validation lives on the page form, not the rule
