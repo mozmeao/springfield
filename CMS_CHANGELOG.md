@@ -1,3 +1,8 @@
+## 2026-11-09
+
+- Download Pages now have the "QR Code Floating Button" panel, the same as Thanks and What's New pages. Tick "Show Floating QR Code Snippet" to show the floating QR code that points people to Firefox for mobile.
+- The "QR Code Floating Button" panel on Download, Thanks, Freeform and What's New pages has a "Floating QR Code Snippet" chooser to pick a specific snippet. Leave it blank to use the live snippet for the page's locale, as before.
+
 ## 2026-11-04
 - Wagtail upgraded from 7.4 to 8.1. The page editor's Checks panel now shows the page's meta title and description, with their lengths measured against search engine limits. Moving or renaming a draft page no longer creates a redirect; live pages still do.
 

@@ -11,6 +11,7 @@ from bs4 import BeautifulSoup
 from wagtail.models import Locale
 
 from springfield.cms.fixtures.base_fixtures import get_placeholder_images
+from springfield.cms.fixtures.download_page_fixtures import get_ios_download_page
 from springfield.cms.fixtures.freeformpage import get_freeform_page_with_floating_qr_snippet
 from springfield.cms.fixtures.snippet_fixtures import get_floating_qr_code_snippet
 from springfield.cms.fixtures.thanks_page_fixtures import get_thanks_page
@@ -91,10 +92,20 @@ def _make_page(**kwargs):
     return types.SimpleNamespace(**defaults)
 
 
+def make_second_floating_snippet(heading="<p>Scan for the app</p>"):
+    """A live floating QR snippet distinct from the fixture snippet's heading."""
+    return QRCodeFloatingSnippet.objects.create(
+        locale=Locale.get_default(),
+        heading=heading,
+        url="https://example.com/selected-qr",
+    )
+
+
 PAGES_WITH_FLOATING_QR = [
     get_thanks_page,
     get_freeform_page_with_floating_qr_snippet,
     get_whats_new_page_with_floating_qr_snippet,
+    get_ios_download_page,
 ]
 
 
@@ -360,6 +371,20 @@ def test_page_clean_raises_when_open_behavior_set_but_flag_off(get_page_fn, mini
 
 
 @pytest.mark.parametrize("get_page_fn", PAGES_WITH_FLOATING_QR)
+def test_page_clean_raises_when_snippet_selected_but_flag_off(get_page_fn, minimal_site):
+    page = get_page_fn()
+    page.show_qr_code_snippet = False
+    page.show_floating_qr_code_snippet = False
+    page.floating_qr_url = ""
+    page.floating_qr_image = None
+    page.floating_qr_open_behavior = ""
+    page.floating_qr_open_delay_ms = None
+    page.floating_qr_snippet = make_second_floating_snippet()
+    with pytest.raises(ValidationError, match="can only be set"):
+        page.clean()
+
+
+@pytest.mark.parametrize("get_page_fn", PAGES_WITH_FLOATING_QR)
 def test_page_clean_passes_when_open_behavior_blank_and_flag_off(get_page_fn, minimal_site):
     page = get_page_fn()
     page.show_qr_code_snippet = False
@@ -454,6 +479,20 @@ def test_floating_snippet_delayed_renders_closed_with_data_attrs(get_page_fn, mi
     aside = _get_floating_qr_aside(soup)
     assert aside["data-open-behavior"] == "delayed"
     assert aside["data-open-delay"] == "1500"
+
+
+@pytest.mark.parametrize("get_page_fn", PAGES_WITH_FLOATING_QR)
+def test_floating_snippet_uses_page_selected_snippet(get_page_fn, minimal_site, rf):
+    """A snippet selected on the page replaces the locale's live snippet."""
+    page = get_page_fn()
+    page.show_floating_qr_code_snippet = True
+    page.floating_qr_snippet = make_second_floating_snippet()
+
+    soup = BeautifulSoup(_serve_page(page, rf).content, "html.parser")
+    aside = _get_floating_qr_aside(soup)
+    assert aside, "Floating QR code snippet <aside> should be rendered"
+    assert "Scan for the app" in aside.get_text()
+    assert "Get Firefox on your phone" not in aside.get_text()
 
 
 @pytest.mark.parametrize("get_page_fn", PAGES_WITH_FLOATING_QR)
@@ -676,6 +715,7 @@ def test_qr_mixin_override_translatable_fields_includes_slug_and_qr_fields(page_
     alongside the QR-specific synchronized fields."""
     field_names = {f.field_name for f in page_class.override_translatable_fields}
     assert "slug" in field_names
+    assert "floating_qr_snippet" in field_names
     assert "floating_qr_url" in field_names
     assert "floating_qr_image" in field_names
     assert "floating_qr_open_behavior" in field_names
@@ -693,3 +733,33 @@ def test_whatsnewpage2026_still_syncs_its_own_fields():
     field_names = {f.field_name for f in WhatsNewPage2026.override_translatable_fields}
     assert "version" in field_names
     assert "pre_footer_image" in field_names
+
+
+# ==========================================
+# Section 10: QRCodeFloatingSnippet.get_for_page
+# ==========================================
+
+
+def test_get_for_page_returns_selected_snippet(minimal_site):
+    get_floating_qr_code_snippet()
+    selected = make_second_floating_snippet()
+    page = types.SimpleNamespace(floating_qr_snippet=selected)
+    assert QRCodeFloatingSnippet.get_for_page(page, Locale.get_default()) == selected
+
+
+def test_get_for_page_falls_back_to_live_snippet_when_selection_not_live(minimal_site):
+    live_snippet = get_floating_qr_code_snippet()
+    not_live = QRCodeFloatingSnippet.objects.create(
+        locale=Locale.get_default(),
+        heading="<p>Hidden draft</p>",
+        url="https://example.com/selected-qr",
+        live=False,
+    )
+    page = types.SimpleNamespace(floating_qr_snippet=not_live)
+    assert QRCodeFloatingSnippet.get_for_page(page, Locale.get_default()) == live_snippet
+
+
+def test_get_for_page_falls_back_to_live_snippet_without_selection(minimal_site):
+    live_snippet = get_floating_qr_code_snippet()
+    page = types.SimpleNamespace(floating_qr_snippet=None)
+    assert QRCodeFloatingSnippet.get_for_page(page, Locale.get_default()) == live_snippet
