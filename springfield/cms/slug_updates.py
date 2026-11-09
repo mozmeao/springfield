@@ -8,7 +8,6 @@ from contextlib import contextmanager
 
 from django.db import transaction
 
-from wagtail.contrib.redirects.signal_handlers import autocreate_redirects_on_slug_change
 from wagtail.signals import page_slug_changed
 
 
@@ -21,6 +20,11 @@ def automatic_redirect_creation_disabled():
     only fires once the outermost atomic block exits. A context manager nested
     inside the transaction has already reconnected the receiver by then.
     """
+    # Imported inline to break an import cycle: the redirects signal handlers load the Page
+    # model on import, and this module is imported while the cms models are still being
+    # registered.
+    from wagtail.contrib.redirects.signal_handlers import autocreate_redirects_on_slug_change
+
     page_slug_changed.disconnect(autocreate_redirects_on_slug_change)
     try:
         yield
