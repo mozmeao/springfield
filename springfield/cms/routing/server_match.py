@@ -12,6 +12,7 @@ from django.conf import settings
 from django.shortcuts import redirect
 
 from springfield.base.geo import get_country_from_request
+from springfield.cms.routing.resolver import url_in_requested_locale, usable_rules, with_visitor_query
 
 # What the server can match, with its reader. The admin dropdown and save guard use this too.
 SERVER_SIGNALS = {"country": get_country_from_request}
@@ -37,9 +38,6 @@ def matched_target(page, request):
     Match-all rules and rules on a signal the server can't read are skipped. Saving either is
     blocked on organic pages; this covers the ORM/API path.
     """
-    # Imported at call time to keep the resolver's l10n import chain out of model loading.
-    from springfield.cms.routing.resolver import usable_rules
-
     values = {}
 
     def read(signal):
@@ -62,8 +60,6 @@ def redirect_to_target(request, target):
     No loop-breaker: the target is never canonical, so it can't route again. The response
     states its own cache lifetime because it freezes the target and the pause state.
     """
-    from springfield.cms.routing.resolver import url_in_requested_locale, with_visitor_query
-
     response = redirect(with_visitor_query(url_in_requested_locale(target, request), request))
     response["Cache-Control"] = f"max-age={settings.ROUTING_RESOLVER_CACHE_SECONDS}"
     return response
