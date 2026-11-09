@@ -4,7 +4,7 @@
 
 from springfield.cms.fixtures.base_fixtures import SHOW_TO_ALL, get_flare_pages_docs_page, get_or_create_page, get_placeholder_images, with_fresh_ids
 from springfield.cms.fixtures.button_fixtures import get_button_variants
-from springfield.cms.fixtures.snippet_fixtures import get_pre_footer_cta_form_snippet
+from springfield.cms.fixtures.snippet_fixtures import get_floating_qr_code_snippet, get_pre_footer_cta_form_snippet
 from springfield.cms.models import DownloadIndexPage, DownloadPage
 
 
@@ -172,6 +172,12 @@ def get_download_page(platform) -> DownloadPage:
     page.pre_footer = [get_pre_footer()]
     page.save_revision().publish()
     return page
+
+
+def get_ios_download_page() -> DownloadPage:
+    """The CMS DownloadPage behind /download/ios/."""
+    get_floating_qr_code_snippet()
+    return get_download_page("ios")
 
 
 def get_download_pages() -> dict:

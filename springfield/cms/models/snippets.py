@@ -420,6 +420,16 @@ class QRCodeFloatingSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippet
         """Return the live QRCodeFloatingSnippet for the given locale, or None."""
         return cls.objects.filter(locale=locale).live().first()
 
+    @classmethod
+    def get_for_page(cls, page, locale) -> QRCodeFloatingSnippet | None:
+        """Return the snippet selected on the page (localized for the active locale),
+        falling back to the live snippet for `locale`."""
+        selected = getattr(page, "floating_qr_snippet", None)
+        if selected:
+            if localized := selected.get_localized():
+                return localized
+        return cls.get_live(locale)
+
     def resolve_open_behavior(self, page: QRCodeFloatingSnippetMixin | None = None) -> str:
         """Resolve the starting behavior: the page override if set, otherwise the snippet's own."""
         page_behavior = getattr(page, "floating_qr_open_behavior", "")

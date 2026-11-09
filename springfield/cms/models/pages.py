@@ -324,6 +324,15 @@ class QRCodeFloatingSnippetMixin(AbstractSpringfieldCMSPage):
         verbose_name="Show Floating QR Code Snippet",
         help_text="If true, the second-generation floating QR code snippet is displayed on the page.",
     )
+    floating_qr_snippet = models.ForeignKey(
+        "cms.QRCodeFloatingSnippet",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+        verbose_name="Floating QR Code Snippet",
+        help_text="Leave blank to use the live snippet for this page's locale.",
+    )
     floating_qr_url = models.CharField(
         blank=True,
         verbose_name="Override Floating QR Code URL",
@@ -367,6 +376,7 @@ class QRCodeFloatingSnippetMixin(AbstractSpringfieldCMSPage):
         MultiFieldPanel(
             [
                 FieldPanel("show_floating_qr_code_snippet"),
+                FieldPanel("floating_qr_snippet", icon="snippet"),
                 FieldRowPanel(
                     [
                         FieldPanel("floating_qr_url"),
@@ -387,6 +397,7 @@ class QRCodeFloatingSnippetMixin(AbstractSpringfieldCMSPage):
 
     override_translatable_fields = [
         *AbstractSpringfieldCMSPage.override_translatable_fields,
+        SynchronizedField("floating_qr_snippet"),
         SynchronizedField("floating_qr_url"),
         SynchronizedField("floating_qr_image"),
         SynchronizedField("floating_qr_default_open"),
@@ -402,7 +413,7 @@ class QRCodeFloatingSnippetMixin(AbstractSpringfieldCMSPage):
 
         context = super().get_context(request, *args, **kwargs)
         if self.show_floating_qr_code_snippet:
-            snippet = QRCodeFloatingSnippet.get_live(self.locale)
+            snippet = QRCodeFloatingSnippet.get_for_page(self, self.locale)
             if snippet:
                 context["floating_qr_snippet"] = snippet.build_context(page=self, request=request)
         return context
@@ -415,6 +426,7 @@ class QRCodeFloatingSnippetMixin(AbstractSpringfieldCMSPage):
             raise ValidationError("Only one of the Floating QR Code snippets can be enabled.")
         if not self.show_floating_qr_code_snippet and any(
             [
+                self.floating_qr_snippet,
                 self.floating_qr_url,
                 self.floating_qr_image,
                 self.floating_qr_default_open,
@@ -491,7 +503,7 @@ class DownloadIndexPage(AbstractSpringfieldCMSPage):
         return redirect(reverse("firefox.all"))
 
 
-class DownloadPage(ImageAltTextMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
+class DownloadPage(ImageAltTextMixin, UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfieldCMSPage):
     parent_page_types = ["cms.DownloadIndexPage"]
     image_alt_fields = ("featured_image",)
 
@@ -593,6 +605,7 @@ class DownloadPage(ImageAltTextMixin, UTMParamsMixin, AbstractSpringfieldCMSPage
             classname="collapsed",
         ),
         FieldPanel("content"),
+        *QRCodeFloatingSnippetMixin.floating_qr_panels,
     ]
 
     settings_panels = AbstractSpringfieldCMSPage.settings_panels
@@ -603,7 +616,7 @@ class DownloadPage(ImageAltTextMixin, UTMParamsMixin, AbstractSpringfieldCMSPage
     ]
 
     override_translatable_fields = [
-        *AbstractSpringfieldCMSPage.override_translatable_fields,
+        *QRCodeFloatingSnippetMixin.override_translatable_fields,
     ]
 
     class Meta:
