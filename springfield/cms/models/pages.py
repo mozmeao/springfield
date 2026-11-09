@@ -491,9 +491,11 @@ class DownloadIndexPage(AbstractSpringfieldCMSPage):
         return redirect(reverse("firefox.all"))
 
 
-class DownloadPage(ImageAltTextMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
-    parent_page_types = ["cms.DownloadIndexPage"]
+class DownloadPage(RoutingMixin, ImageAltTextMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
+    # A download page may also nest under another as a routing variant.
+    parent_page_types = ["cms.DownloadIndexPage", "cms.DownloadPage"]
     image_alt_fields = ("featured_image",)
+    routing_target_page_types = ["cms.DownloadPage"]
 
     ftl_files = [
         "cms/download",
@@ -612,6 +614,11 @@ class DownloadPage(ImageAltTextMixin, UTMParamsMixin, AbstractSpringfieldCMSPage
 
     def __str__(self):
         return f"DownloadPage: {self.title} - {self.locale}"
+
+    def is_routing_canonical(self):
+        """Only the Android page directly under the download index hosts rules."""
+        parent = self.get_parent() if self.pk else None
+        return bool(self.platform == "android" and parent and isinstance(parent.specific, DownloadIndexPage))
 
     def clean(self):
         super().clean()
