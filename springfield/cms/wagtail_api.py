@@ -16,7 +16,7 @@ import waffle
 from wagtail.api.v3.urls import api
 from wagtail.utils.urlpatterns import decorate_urlpatterns
 
-WAGTAIL_API_SWITCH = "wagtail_api"
+WAGTAIL_API_SWITCH = "WAGTAIL_API_ENABLED"
 
 
 def require_wagtail_api_switch(view_func):
