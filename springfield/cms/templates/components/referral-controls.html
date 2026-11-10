@@ -67,7 +67,7 @@
           copy button already exposes the link, so it is hidden from a11y tools
           and described by the visible label below. #}
         <div class="fl-referral-controls-qr-code" aria-hidden="true">
-          {{ qrcode(invite_url, 8) }}
+          {{ qrcode_rounded_svg(invite_url, 8) }}
         </div>
         <p class="fl-referral-controls-qr-label">{{ qr_label }}</p>
       </content:body>

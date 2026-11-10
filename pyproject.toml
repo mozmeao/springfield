@@ -62,7 +62,7 @@ dependencies = [
     "wagtaildraftsharing==0.3.0",
     "Wand==0.7.2",  # For animated GIF support
     "whitenoise==6.12.0",
-    "django-pattern-library @ https://github.com/lincolnloop/django-pattern-library/releases/download/v1.5.3/django_pattern_library-1.5.3.tar.gz",
+    "django-pattern-library @ https://github.com/lincolnloop/django-pattern-library/releases/download/v1.6.0%2Bll.2/django_pattern_library-1.6.0+ll.2.tar.gz",
     "mdx_outline @ https://github.com/mozmeao/mdx_outline/archive/refs/tags/markdown-3.4-compatibility.tar.gz",
 ]
 
@@ -76,18 +76,18 @@ dev = [
     "py==1.11.0",
     "PyPOM==2.2.4",
     "pyquery==2.1.0",
-    "pytest==9.1.1",  # Included because we use it directly, but also a subdep of pytest-selenium's subdeps
+    "pytest==9.2.0",  # Included because we use it directly, but also a subdep of pytest-selenium's subdeps
     "pytest-cov==7.1.0",
     "pytest-datadir==1.8.0",
     "pytest-django==4.14.0",
-    "pytest-mock==3.15.1",
+    "pytest-mock==3.17.0",
     "pytest-rerunfailures==16.7",
     "pytest-selenium==4.1.0",
     "pytest-xdist==3.8.0",
     "responses==0.26.3",
     "ruff==0.16.8",
-    "selenium==4.49.0",
-    "translate-toolkit==3.20.0",
+    "selenium==4.51.0",
+    "translate-toolkit==3.20.1",
     "unicode-segmentation-rs==0.3.3",
     "wagtail-factories==4.5.0",
     # Related to moz-l10n-lint, used in CI
