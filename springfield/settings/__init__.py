@@ -164,7 +164,6 @@ if extra_csp_connect_src := config("CSP_CONNECT_SRC", default="", parser=ListOf(
 if csp_extra_frame_src := config("CSP_EXTRA_FRAME_SRC", default="", parser=ListOf(str, allow_empty=False)):  # noqa: F405
     _csp_frame_src |= set(csp_extra_frame_src)
 csp_report_uri = config("CSP_REPORT_URI", default="") or None  # noqa: F405
-csp_ro_report_uri = config("CSP_RO_REPORT_URI", default="") or None  # noqa: F405
 
 CONTENT_SECURITY_POLICY = {
     # Default report percentage to 1% just in case the env var isn't set, we don't want to bombard Sentry.
@@ -189,10 +188,8 @@ CONTENT_SECURITY_POLICY = {
 
 # Only set up report-only CSP if we have a report-uri set.
 CONTENT_SECURITY_POLICY_REPORT_ONLY = None
-if csp_ro_report_uri:
-    # Copy CSP and override report-uri for report-only.
+if csp_report_uri:
     CONTENT_SECURITY_POLICY_REPORT_ONLY = deepcopy(CONTENT_SECURITY_POLICY)
-    CONTENT_SECURITY_POLICY_REPORT_ONLY["DIRECTIVES"]["report-uri"] = csp_ro_report_uri
 
     # CSP directive updates we're testing that we hope to move to the enforced policy.
 
@@ -227,10 +224,10 @@ def _override_csp(
 
 # /cms-admin/images/ loads just-uploaded images as blobs.
 CMS_ADMIN_IMAGES_CSP = _override_csp(CONTENT_SECURITY_POLICY, append={"img-src": {"blob:"}})
-CMS_ADMIN_IMAGES_CSP_RO = csp_ro_report_uri and _override_csp(CONTENT_SECURITY_POLICY_REPORT_ONLY, append={"img-src": {"blob:"}})
+CMS_ADMIN_IMAGES_CSP_RO = csp_report_uri and _override_csp(CONTENT_SECURITY_POLICY_REPORT_ONLY, append={"img-src": {"blob:"}})
 # The CMS admin needs unsafe-inline styles for now.
 CMS_ADMIN_CSP = _override_csp(CONTENT_SECURITY_POLICY, append={"style-src": {csp.constants.UNSAFE_INLINE}})
-CMS_ADMIN_CSP_RO = csp_ro_report_uri and _override_csp(CONTENT_SECURITY_POLICY, append={"style-src": {csp.constants.UNSAFE_INLINE}})
+CMS_ADMIN_CSP_RO = csp_report_uri and _override_csp(CONTENT_SECURITY_POLICY_REPORT_ONLY, append={"style-src": {csp.constants.UNSAFE_INLINE}})
 
 CSP_PATH_OVERRIDES = {
     # Order them from most specific to least.
@@ -239,7 +236,7 @@ CSP_PATH_OVERRIDES = {
 }
 
 # Path based overrides for report-only CSP.
-if csp_ro_report_uri:
+if csp_report_uri:
     CSP_PATH_OVERRIDES_REPORT_ONLY = {
         # Order them from most specific to least.
         "/cms-admin/images/": CMS_ADMIN_IMAGES_CSP_RO,
