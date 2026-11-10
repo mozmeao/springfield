@@ -964,7 +964,10 @@ class Command(BaseCommand):
             self.out.write(self.out.warnings, {"slug": slug, "locale": self.locale.language_code, "type": kind, "warning": message})
 
     def redirect(self, *, wp_id, old_url, locale, slug, page):
-        """A redirects.csv row for a page that is there, whether this run created it or found it, so a rerun's file is complete."""
+        """A redirects.csv row for a live page, whether this run created it or found it, so a rerun's file is complete.
+        An unpublished page gets none: a redirect to it would 404, and the check asks for it to be published."""
+        if not page.live:
+            return
         self.out.write(
             self.out.redirects,
             {"wp_id": wp_id, "old_url": old_url, "locale": locale, "slug": slug, "migrated": "yes", "new_url": f"{PUBLIC_HOST}{page_path(page)}"},

@@ -1018,6 +1018,21 @@ def test_a_translation_that_failed_is_created_on_the_rerun(tmp_path, blog):
 
 
 @responses.activate
+def test_a_page_unpublished_since_the_sync_gets_no_redirect_on_the_rerun(tmp_path, blog):
+    serve_post_images()
+    mock_translation()
+    data = sync_data(sync_post(translations=[translated_post()]))
+    run_sync(tmp_path / "run", data, export_post())
+    created_page().unpublish()
+
+    rerun = run_sync(tmp_path / "rerun", data, export_post())
+
+    assert rerun.actions() == [("first-post", "en-US", "skipped"), ("first-post", "de", "skipped")]
+    assert [row["locale"] for row in rerun.rows("redirects.csv")] == ["de"]
+    assert check_results(rerun)[("en-US", "page")]["result"] == "fail"
+
+
+@responses.activate
 def test_a_different_page_with_the_slug_is_a_clash_and_left_alone(tmp_path, blog):
     serve_post_images()
     other = BlogArticlePage(title="Another post", slug="first-post", topic=BlogTopic.objects.get(slug="ai"), hero_style="text_only", content=[])
