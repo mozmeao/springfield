@@ -1,3 +1,7 @@
+## 2026-11-09
+- Added Stable URLs (Snippets → Stable URLs) for serving PDF documents from a consistent URL. Each record pairs a path with one document, and that document is served at `firefox.com/documents/<path>`. Every CMS link and button pointing at the document renders the stable URL instead of the document's own, so the address in print and in partner contracts keeps working.
+
+
 ## 2026-11-04
 - Wagtail upgraded from 7.4 to 8.1. The page editor's Checks panel now shows the page's meta title and description, with their lengths measured against search engine limits. Moving or renaming a draft page no longer creates a redirect; live pages still do.
 

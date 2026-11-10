@@ -5,11 +5,13 @@
 from django.contrib import messages
 from django.contrib.messages import get_messages
 from django.core.files.base import ContentFile
+from django.db.models import ProtectedError
 from django.urls import reverse
 
+import pytest
 from wagtail.contrib.redirects.models import Redirect
 from wagtail.documents.models import Document
-from wagtail.models import Collection, CollectionViewRestriction, ModelLogEntry
+from wagtail.models import Collection, CollectionViewRestriction, ModelLogEntry, Page
 
 from springfield.cms.models import StableDocumentURL
 
@@ -40,6 +42,10 @@ def replace_file(document, content):
 def restrict(collection):
     """Make a collection private, the way the admin's privacy modal does."""
     CollectionViewRestriction.objects.create(collection=collection, restriction_type=CollectionViewRestriction.LOGIN)
+
+
+def error_messages(response):
+    return [str(message) for message in get_messages(response.wsgi_request) if message.level == messages.ERROR]
 
 
 def test_an_editor_can_create_a_stable_url(admin_client, pdf_document):
@@ -239,3 +245,75 @@ def test_an_editor_is_told_when_their_own_change_deleted_a_record(admin_client, 
 
     warnings = [str(message) for message in get_messages(response.wsgi_request) if message.level == messages.WARNING]
     assert any(ORIGINAL_STABLE_URL in warning for warning in warnings), warnings
+
+
+def test_the_delete_confirmation_page_refuses_a_document_that_holds_a_stable_url(admin_client, assigned_document):
+    # A GET, because Wagtail serves a confirmation page here: an editor told only after
+    # confirming has been made to do the work twice.
+    response = admin_client.get(reverse("wagtaildocs:delete", args=[assigned_document.pk]), follow=True)
+
+    assert any(ORIGINAL_STABLE_URL in error for error in error_messages(response)), error_messages(response)
+
+
+def test_deleting_a_document_that_holds_a_stable_url_is_refused(admin_client, assigned_document):
+    response = admin_client.post(reverse("wagtaildocs:delete", args=[assigned_document.pk]))
+
+    # A delete that went through would land on the document listing, so the edit page is
+    # itself evidence of the refusal, and the message says what has to be undone first.
+    assert response["Location"] == reverse("wagtaildocs:edit", args=[assigned_document.pk])
+    expected_error_message = (
+        "“Sub-processors” is served at /documents/subprocessors, so it cannot "
+        "be deleted. Delete that stable URL, or point it at another document, "
+        "and then delete the document."
+    )
+    assert expected_error_message in error_messages(response)
+    assert Document.objects.filter(pk=assigned_document.pk).exists()
+
+
+def test_deleting_a_document_without_a_stable_url_still_works(admin_client, pdf_document):
+    response = admin_client.post(reverse("wagtaildocs:delete", args=[pdf_document.pk]))
+
+    assert response.status_code == 302
+    assert not Document.objects.filter(pk=pdf_document.pk).exists()
+
+
+def test_the_multiple_upload_delete_refuses_a_document_that_holds_a_stable_url(admin_client, assigned_document):
+    # This one answers the uploader's JavaScript, which has no page to be redirected, so
+    # the refusal has to arrive in the JSON body.
+    response = admin_client.post(reverse("wagtaildocs:delete_multiple", args=[assigned_document.pk]))
+
+    assert response.json()["success"] is False
+    assert ORIGINAL_STABLE_URL in response.json()["error_message"]
+    assert Document.objects.filter(pk=assigned_document.pk).exists()
+
+
+def test_bulk_deleting_a_document_that_holds_a_stable_url_is_refused(admin_client, assigned_document):
+    response = admin_client.post(f"{reverse('wagtail_bulk_action', args=['wagtaildocs', 'document', 'delete'])}?id={assigned_document.pk}")
+
+    assert response.status_code == 302
+    expected_error_message = (
+        "“Sub-processors” is served at /documents/subprocessors, so it cannot "
+        "be deleted. Delete that stable URL, or point it at another document, "
+        "and then delete the document."
+    )
+    assert expected_error_message in error_messages(response)
+    assert Document.objects.filter(pk=assigned_document.pk).exists()
+
+
+def test_bulk_deleting_a_page_works(admin_client, minimal_site, pdf_document):
+    # The pks are made to collide deliberately. The held documents are looked up with
+    # document__in=objects, which compares bare pks, so a check that did not first ask
+    # which model the action is for would refuse this page as though it were the document.
+    page = Page.objects.get(slug="test-page")
+    Document.objects.filter(pk=pdf_document.pk).update(id=page.pk)
+    StableDocumentURL.objects.create(path="subprocessors", label="Sub-processors", document=Document.objects.get(pk=page.pk))
+
+    response = admin_client.post(f"{reverse('wagtail_bulk_action', args=['wagtailcore', 'page', 'delete'])}?id={page.pk}")
+
+    assert response.status_code == 302
+    assert not Page.objects.filter(pk=page.pk).exists()
+
+
+def test_an_orm_delete_of_a_held_document_is_blocked(db, assigned_document):
+    with pytest.raises(ProtectedError):
+        assigned_document.delete()

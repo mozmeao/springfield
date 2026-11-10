@@ -12,6 +12,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import transaction
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.templatetags.static import static
 from django.urls import path, reverse
@@ -33,6 +34,7 @@ from wagtail.admin.ui.tables import LiveStatusTagColumn, UpdatedAtColumn
 from wagtail.documents import get_document_model
 from wagtail.documents.rich_text import DocumentLinkHandler
 from wagtail.documents.rich_text.contentstate import DocumentLinkElementHandler
+from wagtail.documents.views import documents as document_admin_views, multiple as multiple_document_admin_views
 from wagtail.fields import StreamField
 from wagtail.log_actions import log
 from wagtail.models import Collection, CollectionViewRestriction, Locale as WagtailLocale, TranslatableMixin
@@ -896,16 +898,95 @@ def retire_the_stable_url_of_a_document_that_cannot_be_served(sender, instance, 
         retire_stable_urls([record], reason=NOT_A_PDF_REASON)
 
 
+def message_refusing_to_delete_document_because_of_stable_url(record) -> str:
+    """The message an editor is given when they try to delete a document a stable URL names."""
+    return (
+        f"“{record.document.title}” is served at {record.url}, so it cannot be deleted. "
+        "Delete that stable URL, or point it at another document, and then delete the document."
+    )
+
+
+def refuse_delete_of_document_holding_a_stable_url(wagtail_view, document_id_kwarg: str, *, as_json: bool):
+    """
+    Wrap a Wagtail document delete view so it refuses a document that a stable URL names.
+
+    The delete would fail in the database anyway, because the record's foreign key is
+    protected; this is what turns that failure into something an editor can act on.
+    Pass ``as_json=True`` for the view the uploader calls from JavaScript, which has no
+    page of its own to be redirected.
+    """
+
+    def delete_unless_a_stable_url_names_the_document(request, *args, **kwargs):
+        document_id = kwargs[document_id_kwarg]
+        record = StableDocumentURL.objects.filter(document_id=document_id).select_related("document").first()
+        if record is None:
+            return wagtail_view(request, *args, **kwargs)
+
+        if as_json:
+            return JsonResponse({"success": False, "error_message": message_refusing_to_delete_document_because_of_stable_url(record)})
+
+        messages.error(request, message_refusing_to_delete_document_because_of_stable_url(record))
+        return redirect("wagtaildocs:edit", document_id)
+
+    return delete_unless_a_stable_url_names_the_document
+
+
+@hooks.register("register_admin_urls", order=-1)
+def register_document_delete_urls():
+    """
+    The two document delete views, wrapped so neither can delete a document a stable URL names.
+
+    Registered ahead of Wagtail's own document URLs so these paths resolve to the wrapped
+    views, while the wagtaildocs URL names still reverse to the same strings. Wrapping is
+    what there is: Wagtail fires no hook before a document is deleted, and its delete views
+    take none of their own.
+
+    The confirmation page is refused on GET as well as POST, so nobody is asked to confirm
+    a delete that was never going to happen.
+    """
+    return [
+        path(
+            "documents/delete/<int:document_id>/",
+            refuse_delete_of_document_holding_a_stable_url(document_admin_views.DeleteView.as_view(), "document_id", as_json=False),
+            name="cms_document_delete",
+        ),
+        path(
+            "documents/multiple/<int:doc_id>/delete/",
+            refuse_delete_of_document_holding_a_stable_url(multiple_document_admin_views.DeleteView.as_view(), "doc_id", as_json=True),
+            name="cms_document_delete_multiple",
+        ),
+    ]
+
+
 @hooks.register("before_bulk_action")
-def retire_stable_urls_moved_by_a_bulk_action(request, action_type, objects, action):
-    if action_type != "add_to_collection" or action.model is not get_document_model():
+def react_to_a_bulk_action_on_documents_with_stable_urls(request, action_type, objects, action):
+    """
+    Retire the stable URLs a bulk move breaks, and refuse a bulk delete of a document one names.
+
+    The listing's bulk actions have no URL of their own to wrap, and this hook is the only
+    thing either of them calls before the action runs.
+    """
+    # If the action is not on the document model, then we do nothing here.
+    if action.model is not get_document_model():
         return
 
-    destination = action.cleaned_form.cleaned_data["collection"]
-    if not destination.get_view_restrictions().exists():
+    if action_type == "add_to_collection":
+        # Read from the form rather than from the documents: this runs before the action
+        # does, and the action is a queryset update, so every document here still reports
+        # the collection it is leaving and sends no save signal when it arrives.
+        destination = action.cleaned_form.cleaned_data["collection"]
+        if destination.get_view_restrictions().exists():
+            retire_stable_urls(StableDocumentURL.objects.filter(document__in=objects), reason=RESTRICTED_COLLECTION_REASON)
         return
 
-    retire_stable_urls(StableDocumentURL.objects.filter(document__in=objects), reason=RESTRICTED_COLLECTION_REASON)
+    if action_type == "delete":
+        record = StableDocumentURL.objects.filter(document__in=objects).select_related("document").first()
+        if record is not None:
+            # Returning a response abandons the whole selection, including documents in it
+            # that no stable URL names. The message names the one in the way, so the editor
+            # knows what to take out of the selection.
+            messages.error(request, message_refusing_to_delete_document_because_of_stable_url(record))
+            return redirect("wagtaildocs:index")
 
 
 for _viewset in (
