@@ -146,8 +146,36 @@
         padding: var(--token-spacing-sm) var(--token-spacing-xl);
     }
 
-    /* The copy stack is tightened from tablet width up, where the heading is
-       large enough to carry it; phones keep the block's own spacing. */
+    /* Phones get a smaller type scale and a tighter hero, so the download
+       button lands in the first screen and section headings stay below the
+       hero heading. */
+    @media (--viewport-xs) {
+        .fl-home-body .fl-home-intro .fl-intro {
+            padding-block-start: var(--token-layout-3xs);
+        }
+
+        .fl-home-body .fl-home-intro .fl-heading {
+            font-size: var(--fl-theme-font-size-heading-lg);
+            margin-block: var(--token-spacing-lg);
+        }
+
+        .fl-home-body .fl-home-intro .fl-subheading {
+            margin-block: var(--token-spacing-lg) var(--token-spacing-2xl);
+        }
+
+        /* Lifts the 1.5em cap that images inside links get. */
+        .fl-home-body .fl-home-intro .fl-store-button img {
+            block-size: var(--token-layout-xs);
+            max-block-size: none;
+        }
+
+        .fl-home-body .fl-heading-size-2 {
+            font-size: var(--fl-theme-font-size-heading-md);
+        }
+    }
+
+    /* The copy stack is tightened further from tablet width up, where the
+       heading is large enough to carry it. */
     @media (--viewport-sm-up) {
         /* The eyebrow sits close above the heading, and the subcopy close
            below it. The heading's bottom margin and the subcopy's top margin
