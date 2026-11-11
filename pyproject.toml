@@ -85,7 +85,11 @@ dev = [
     "pytest-xdist==3.8.0",
     "responses==0.26.3",
     "ruff==0.17.3",
-    "selenium==4.52.0",
+    # Pinned: 4.52.0 rebuilt the getAttribute and isDisplayed atoms from TypeScript, and the
+    # bundle uses arrow functions, which Internet Explorer 11 cannot parse. Every smoke test in
+    # the IE SauceLabs integration job then fails with "Error executing JavaScript". Hold here
+    # until the IE job is removed or upstream ships ES5 atoms (SeleniumHQ/selenium#18175).
+    "selenium==4.51.0",
     "translate-toolkit==3.20.2",
     "wagtail-factories==4.5.0",
     # Related to moz-l10n-lint, used in CI
