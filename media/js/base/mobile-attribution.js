@@ -156,7 +156,13 @@ if (typeof window.Mozilla === 'undefined') {
             MobileAttribution.getCampaign(html, window.location.search) ||
             DEFAULT_CAMPAIGN;
 
-        var storeUrl = MobileAttribution.getStoreUrl(campaign, isAndroid);
+        var androidDownloadOptionsUrl = html.getAttribute(
+            'data-android-download-options-url'
+        );
+        var storeUrl =
+            isAndroid && androidDownloadOptionsUrl
+                ? androidDownloadOptionsUrl
+                : MobileAttribution.getStoreUrl(campaign, isAndroid);
         MobileAttribution.rewriteLinks(document, storeUrl);
     };
 

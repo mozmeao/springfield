@@ -185,3 +185,56 @@ html.ios .fl-download-firefox-button .fl-store-button.fl-store-button-ios {
         border-color: var(--token-color-purple);
     }
 }
+
+.fl-china-download-options {
+    display: grid;
+    gap: var(--token-spacing-md);
+    justify-content: center;
+}
+
+.fl-download-firefox-button .fl-china-download-options {
+    display: none;
+}
+
+html.android .fl-download-firefox-button .fl-china-download-options {
+    display: grid;
+}
+
+.fl-store-badge {
+    align-items: center;
+    background-color: var(--token-color-white);
+    border: 1px solid var(--token-color-black-4);
+    border-radius: 6px;
+    color: var(--token-color-black-4);
+    display: flex;
+    font-family: 'SF Compact', system-ui, sans-serif;
+    gap: var(--token-spacing-sm);
+    justify-content: center;
+    padding-block: var(--token-spacing-sm);
+    padding-inline: var(--token-spacing-md);
+    text-decoration: none;
+}
+
+.fl-store-badge-logo {
+    block-size: 24px;
+    inline-size: auto;
+    margin: 0;
+}
+
+.fl-store-badge-label {
+    display: flex;
+    flex-direction: column;
+    font-size: 8px;
+    line-height: 1;
+    text-align: start;
+}
+
+.fl-store-badge-label span {
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.fl-android-apk-link {
+    color: var(--fl-theme-color-text);
+    text-decoration: underline;
+}

@@ -124,5 +124,9 @@
 -brand-name-google-play = Google Play
 -brand-name-youtube = YouTube
 
+-brand-name-mi-store = Mi Store
+-brand-name-v-appstore = V-appstore
+-brand-name-github = GitHub
+
 # Enterprise program name
 -brand-name-firefox-professional-support = Firefox Professional Support
