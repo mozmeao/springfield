@@ -22,6 +22,18 @@
         padding-block: 0;
     }
 
+    .fl-mobile-subpage.has-gradient-bottom {
+        padding-block-end: var(--fl-theme-main-border-radius);
+    }
+
+    .fl-mobile-subpage .fl-section.fl-android-china-reasons {
+        padding-block-start: var(--token-layout-md);
+    }
+
+    .fl-mobile-subpage .fl-fx-logo-lockup {
+        display: inline-block;
+    }
+
     .fl-mobile-subpage .fl-split-page-upper .fl-subheading {
         font-size: var(--fl-theme-font-size-body-md);
     }
