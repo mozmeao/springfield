@@ -12,6 +12,8 @@ from django.test import override_settings
 
 import pytest
 
+from springfield import settings as springfield_settings
+from springfield.settings import base as base_settings
 from springfield.settings.base import _get_media_cdn_hostname_for_storage_backend, _normalize_gtm_server_url, lazy_langs
 
 
@@ -33,9 +35,6 @@ def test_rq_queue_names_are_test_specific():
 def test_rq_queues_are_test_specific_when_redis_is_configured():
     # RQ_QUEUES is only populated when REDIS_URL is set, so reload the settings
     # with it set, as if the tests were being run with a local Redis available
-    from springfield import settings as springfield_settings
-    from springfield.settings import base as base_settings
-
     try:
         with mock.patch.dict("os.environ", {"REDIS_URL": "redis://redis:6379"}):
             reload(base_settings)
