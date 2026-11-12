@@ -1,0 +1,1060 @@
+image_id,file,title,description,tags,is_decorative,changed_fields
+3,original_images/profiles.png,Firefox profiles - hero - WNP 144,Different Firefox profiles.,wnp-144,false,title tags
+4,original_images/google-lens.png,Google Lens - WNP - EN,A visual search for a painting.,,false,title description tags
+5,original_images/perplexity2x.png,perplexity,Perplexity in the search bar.,wnp-144,false,tags
+6,original_images/web-apps.png,Web apps in taskbar,Pinning a website to the task bar.,wnp-144,false,description tags
+7,original_images/new-tab-sections-sticker.svg,New tab sections sticker,,wnp-144,true,tags
+8,original_images/unload-tabs-sticker.svg,Unload sticker,,wnp-144,true,tags
+9,original_images/relay-sticker.svg,Relay sticker,,wnp-144,true,tags
+10,original_images/shake-to-summarize_SI7oYeL.png,Shake to summarize,A shaking phone.,wnp-144,false,tags
+12,original_images/google-lens-de.png,google-lens-lg,,"wnp-144, German",false,tags
+13,original_images/perplexity-lg.png,perplexity-lg,,"wnp-144, German",false,tags
+14,original_images/tab-wallpaper-sticker.svg,tab-wallpaper-sticker,,"wnp-144, German",false,tags
+15,original_images/perplexity-fr.png,perplexity-fr,,"wnp-144, French",false,tags
+16,original_images/google-lens-fr_o2qfVeb.png,google-lens-fr,,"wnp-144, French",false,tags
+17,original_images/WNP145-Sync.png,Sync - WNP 145,"A key ring holding your passwords, bookmarks, and other browser data.",,false,title description
+20,original_images/Icons_-_Google_Lens.png,Icons - Google Lens,,,true,is_decorative
+21,original_images/Icons_-_User_management.png,Icons - User management,"Profile avatars, with one selected and an option to add another.",,false,description
+22,original_images/Icons_-_Perplexity.png,Icons - Perplexity,,,true,is_decorative
+24,original_images/WNP145_-_Productivity_Tabs_FR.png,Productivity Tabs - FR,Un groupe d’onglets nommé « Recettes » avec une liste déroulante des onglets qu’il contient.,French,false,title description tags
+25,original_images/Productivity_Tabs.png,Productivity Tabs - EN,A tab group called Recipes with a drop-down list of the tabs it contains.,,false,title description
+26,original_images/DE_Productivity_Tabs_8VocXg6.png,DE Productivity Tabs,Illustration of tab with cursor hovering to show all tabs.,German,false,description tags
+27,original_images/DE_Productivity_Tabs-updated.png,Productivity Tabs - updated - DE,Eine Tab-Gruppe namens „Rezepte“ mit einer Dropdown-Liste der enthaltenen Tabs.,German,false,title description tags
+30,original_images/FX_-_Mobile_QR_145.png,FX - Mobile QR 145,QR Code: Scan to install Firefox.,,false,description
+33,original_images/WNP_146_-_MoFo_VFinal.png,MoFo - WNP 146 - EN,"People gathered on the floor arranging sticky notes together, with the Mozilla Foundation logo.",,false,title description
+34,original_images/Fx-Mozilla-Connect_Header_Final.png,Mozilla Connect header,Three hands pointing at a laptop showing the Firefox logo.,,false,title description
+39,original_images/Video_placeholder_thumbnail.png,Video placeholder thumbnail,,,true,is_decorative
+40,original_images/Firefox-AI-Window_.png,Firefox AI Window,"Window menu with Current Window, AI Window, and Private Window options.",,false,title description
+41,original_images/Fx-Mozilla-Connect_Header_Fina-FR.png,Mozilla Connect header - FR,Trois mains pointant vers un ordinateur portable affichant le logo Firefox.,French,false,title description tags
+42,original_images/Fx-Mozilla-Connect_Header_Fina-DE.png,Mozilla Connect header - DE,Drei Hände zeigen auf einen Laptop mit dem Firefox-Logo auf dem Bildschirm.,"German, wnp",false,title description tags
+43,original_images/WNP_146_-_MoFo_VFinal-DE.png,MoFo - WNP 146 - DE,"Eine Gruppe von Personen sitzt oder kniet auf dem Boden und arbeitet gemeinsam daran, farbige Haftnotizen zu ordnen. Die Szene wirkt aktiv und konzentriert. Das Mozilla-Foundation-Logo ist unten rechts zu sehen.","German, wnp",false,title tags
+44,original_images/WNP_146_-_MoFo_VFinal-FR.png,WNP 146 - MoFo VFinal - FR,"Un groupe de personnes est rassemblé au sol, penchées et collaborant pour organiser des notes adhésives colorées. La scène est dynamique et concentrée. Le logo de la Fondation Mozilla apparaît en bas à droite.","wnp, French",false,title tags
+45,original_images/Perplexity_9-DE.png,Perplexity DE,Ein Smartphone mit orangefarbenem Bildschirm und einem blauen Banner mit der Aufschrift „Perplexity“. Rechts daneben befindet sich ein großer schwarz-weißer QR-Code auf einem weißen quadratischen Hintergrund.,"to-be-removed, German",false,tags
+46,original_images/Perplexity_9-FR.png,Perplexity FR,Un smartphone avec un écran orange et une étiquette bleue portant la mention « Perplexity ». À droite du téléphone se trouve un grand code QR noir et blanc sur un fond carré blanc.,"to-be-removed, French",false,tags
+47,original_images/Thumbnail_1.png,2025 Firefox recap - Thumbnail,2025 Firefox recap.,wnp,false,title description tags
+48,original_images/Thumbnail_2.png,2025 Firefox recap - thumbnail,2025 Firefox recap.,,false,title description tags
+53,original_images/Perplexity_Mobile_-_US.png,Perplexity Mobile - EN,QR Code: Scan to install Firefox.,,false,title description
+54,original_images/Perplexity_Mobile_-_DE.png,Perplexity Mobile - DE,"QR-Code: Scannen, um Firefox herunterzuladen.",German,false,description tags
+55,original_images/Perplexity_Mobile_-_FR.png,Perplexity Mobile - FR,Code QR : scannez pour télécharger Firefox.,French,false,description tags
+56,original_images/ThumbnailDE.png,Firefox recap 2025 - Thumbnail - DE,Firefox-Jahresrückblick 2025.,German,false,title description tags
+57,original_images/ThumbnailFR.png,Thumbnail - FR,Rétrospective Firefox 2025.,French,false,title description tags is_decorative
+81,original_images/Settings2.png,Settings Keyring,"A key ring holding your passwords, bookmarks, and other browser data.",,false,description tags is_decorative
+92,original_images/video-EOY-147.png,EOY video - 147,2025 Firefox recap.,,false,title description
+105,original_images/2025-EOY-vid_1.png,2025 Firefox recap video,2025 Firefox recap.,,false,title description
+106,original_images/Settings_DE.png,Settings keyring - DE,"Ein Schlüsselring mit deinen Passwörtern, Lesezeichen und anderen Browserdaten.",German,false,title description tags
+107,original_images/Translation_DE.png,Translation_DE,"„Illustration, die eine mobile Webseite mit einer Übersetzungsleiste sowie einen QR-Code mit dem Firefox-Logo zeigt und auf Übersetzungs- oder Sprachzugriff auf Mobilgeräten hinweist.“",German,false,tags
+108,original_images/WNP147_-_PDF_Comments_DE_.width-1000.png,PDF Comments - WNP 147 - DE,"„Illustration des Firefox-PDF-Viewers mit sichtbaren Anmerkungswerkzeugen, ausgewähltem Kommentarwerkzeug und einem hervorgehobenen Textbereich, der bearbeitet wird.“",German,false,title tags
+109,original_images/Settings_FR_copy.png,Settings - FR,"Un porte-clés contenant vos mots de passe, vos marque-pages et d’autres données de navigation.",French,false,title description tags
+110,original_images/Translation_FR.png,Translation FR,"« Illustration montrant une page web mobile avec une barre d’outils de traduction, accompagnée d’un code QR avec le logo Firefox, suggérant l’accès à la traduction ou aux langues sur mobile. »",French,false,tags
+111,original_images/Productivity_Tabs-FR.png,Productivity_Tabs-FR,"« Illustration montrant des groupes d’onglets de navigateur intitulés « Recettes » et « Voyage à Paris », avec le groupe « Recettes » sélectionné et une liste déroulante de pages liées à l’alimentation. »",French,false,tags
+112,original_images/WNP147_-_PDF_Comments_FR_.width-1000_copy.png,PDF Comments - WNP147 - FR,"« Illustration du lecteur PDF de Firefox avec les outils d’annotation visibles, l’outil de commentaire sélectionné et une zone de texte en surbrillance en cours de modification. »",French,false,title tags
+113,original_images/Extensions_-_NA.png,Extensions - NA,"Extensions menu open from the toolbar, listing installed extensions.",,false,description
+114,original_images/Final_Translation.png,Final Translation - EN,QR Code: Scan to install Firefox.,,false,title description
+115,original_images/Final_Translation_FR.png,Final Translation - FR,Code QR : scannez pour télécharger Firefox.,French,false,title description tags
+116,original_images/Extensions_-_FR.png,Extensions - FR,"« Barre d’outils du navigateur Firefox montrant le menu Extensions ouvert depuis l’icône en forme de pièce de puzzle, avec les modules installés Blaireau de confidentialité, Couleur de barre d’onglet adaptatif et LanguageTool. »",French,false,tags
+117,original_images/Final_Translation_DE.png,Translation - DE,"QR-Code: Scannen, um Firefox herunterzuladen.",German,false,title description tags
+118,original_images/Extensions_-_DE.png,Extensions - DE,"„Symbolleiste des Firefox-Browsers mit dem über das Puzzle-Symbol geöffneten Erweiterungen-Menü, das installierte Add-ons wie Privacy Badger, Adaptive Tab Bar Color und LanguageTool anzeigt.“",German,false,tags
+119,original_images/Extensions_-_DE_QOrjXXv.png,Extensions - DE,Über die Symbolleiste geöffnetes Erweiterungsmenü mit einer Liste der installierten Erweiterungen.,German,false,description tags
+120,original_images/Extensions_-_EN_FR.png,Extensions - FR,"Menu des extensions ouvert depuis la barre d’outils, affichant les extensions installées.",French,false,description tags
+149,original_images/eyedropper.png,Eyedropper tool screenshot,"Eyedropper magnifying a spot on the page, with the color code shown below.",,false,description
+150,original_images/pinned-tabs.png,Pinned tabs screenshot,What’s App pinned to the tab bar.,,false,description
+151,original_images/pinned-tab-notification.png,Pinned tab notification screenshot,Pinned Mastodon tab with a notification dot beneath it.,,false,description tags
+152,original_images/addons.png,Firefox add-ons screenshot,"Extensions menu open from the toolbar, listing installed extensions.",,false,description tags
+153,original_images/default-themes.jpg,Default Firefox themes,"Light, dark, and Alpenglow themes on the toolbar.",,false,description
+154,original_images/custom-themes.jpg,Custom Firefox themes,"Three Firefox themes on the toolbar: purple, cherry blossom, and circuit board.",,false,description
+155,original_images/private-browsing.png,Private browsing window screenshot,New tab in a Private Window.,,false,description
+156,original_images/bookmark-manager_NpGp2E8.png,Bookmark manager screenshot,"Library window showing your bookmarks, with the Bookmarks Toolbar folder selected.",,false,description
+157,original_images/import-wizard_s7tab6R.png,Import wizard screenshot,"Import data dialogue box with bookmarks, passwords, history, and form data selected for import.",,false,description tags
+158,original_images/bookmark-toolbar_xxPu4N4.png,Bookmarks toolbar screenshot,Bookmarks toolbar with links to your favorite sites.,,false,title description
+159,original_images/sync.jpg,Firefox sync illustration,Saved passwords syncing across devices.,,false,description
+160,original_images/send-tab.png,Send tab screenshot,"Send Tab to Device in the tab context menu, listing your other devices.",,false,description
+161,original_images/password-autofill.png,Password autofill screenshot,Saved email addresses suggested beneath a form field for email address.,,false,description
+162,original_images/password-suggest.png,Password suggestion screenshot,Firefox suggesting a secure password beneath a form field for a password.,,false,description
+163,original_images/password-breach-alert.png,Password breach alert screenshot,"Firefox password manager, warning that a password was exposed in a data breach.",,false,description
+165,original_images/content-blocking.png,Enhanced Tracking Protection settings screenshot,"Browser Privacy settings for blocking trackers, with Standard blocking selected.",,false,title description
+166,original_images/content-blocking-custom.png,Enhanced Tracking Protection custom settings screenshot,"Custom Enhanced Tracking Protection settings, where you choose to block trackers, cookies, cryptominers, and fingerprinters.",,false,title description
+169,original_images/edit-pdf-text.png,PDF editor text tool screenshot,Editing color and text size in a PDF.,,false,description
+170,original_images/edit-pdf-draw.png,PDF editor draw tool screenshot,Underlining a spelling error in a PDF with the draw tool.,,false,description
+171,original_images/edit-pdf-alt-text.png,PDF editor alt text tool screenshot,A PDF with an image of a Fox and a dialogue box to add alt-text to it.,,false,description
+172,original_images/edit-pdf-highlight.png,PDF editor highlight tool screenshot,A PDF with a yellow highlight over text and a heart drawn.,,false,description
+173,original_images/edit-pdf-signature.png,PDF editor signature tool screenshot,A signature inserted into a PDF document.,,false,description
+174,original_images/edit-pdf-comment.png,PDF editor comment tool screenshot,Add a comment to a PDF.,,false,description
+175,original_images/video-poster.jpg,Picture-in-Picture video poster,The red panda live stream from the Woodland Park Zoo.,,false,description
+176,original_images/pip-lecture.svg,Picture-in-Picture lecture icon,,,true,tags
+177,original_images/pip-cook.svg,Picture-in-Picture cooking icon,,,true,tags
+178,original_images/pip-entertain.svg,Picture-in-Picture entertainment icon,,,true,tags
+179,original_images/private.png,Private browsing eye,,,true,title is_decorative
+222,original_images/Shield-mobile.svg,Shield - Mobile,,"mobile, pictogram",true,title
+230,original_images/Card_Image_4.png,Tab groups in sidebar,"Vertical tabs in the sidebar, organized into tab groups.",download,false,title description
+235,original_images/protection.png,Protection - EN,A notification showing how many tracking attempts Firefox blocked.,features-hub,false,title description
+247,original_images/Kit_Devices_Light.svg,Kit Devices - Light Mode - Desktop,"Kit peeking over the top of a laptop and mobile, with matching open tabs.","desktop, Light Mode",false,title description
+248,original_images/Kit_Devices_Dark.svg,Kit Devices - Dark Mode - Desktop,Kit peeking over the top of a laptop and mobile with matching open tabs.,"Dark Mode, desktop",false,title description
+249,original_images/Kit_Devices_Light_Mobile.svg,Kit Devices - Light Mode - Mobile,"Kit peeking over the top of a laptop and mobile, with matching open tabs.","Light Mode, mobile",false,title description
+250,original_images/Kit_Devices_Dark_Mobile.svg,Kit devices - Dark Mode - Mobile,"Kit peeking over the top of a laptop and mobile, with matching open tabs.","Dark Mode, mobile",false,title description
+251,original_images/Kit_Keyhole_Landscape_Light.svg,Kit Keyhole Landscape - Light Mode - Desktop,Kit disappearing into a keyhole.,"Light Mode, desktop",false,title description
+252,original_images/Kit_Keyhole_Landscape_Dark.svg,Kit keyhole landscape - Dark Mode - Desktop,Kit disappearing into a keyhole.,"Dark Mode, desktop",false,title description
+253,original_images/Kit_Keyhole_Landscape_Light_Mobile.svg,Kit keyhole - Landscape - Light Mode - Mobile,Kit disappearing into a keyhole.,"Light Mode, mobile",false,title description
+254,original_images/Kit_Keyhole_Landscape_Dark_Mobile.svg,Kit keyhole landscape - Dark Mode - Mobile,Kit disappearing into a keyhole.,"Dark Mode, mobile",false,title description
+256,original_images/Kit_Sparkle_LightMode.png,Kit sparkle - card - Light Mode - Desktop,Kit sitting next to two sparkles.,"Kit, Light Mode, desktop",false,title description
+257,original_images/UI_TrackingProtection_LightMode.png,Enhanced Tracking Protection - Card - Light Mode - Desktop,"Enhanced Tracking Protection weekly report, showing how many trackers were blocked each day.","Light Mode, UI, desktop, tracking protection",false,title description
+258,original_images/UI_Extensions_LightMode.png,Extensions - card - Light Mode - Desktop,"Extensions menu, opened from the toolbar.","Light Mode, UI, desktop, extensions",false,title description
+259,original_images/UI_TabGroups_LightMode.png,Side Tabs - Card - Light Mode - Desktop,"Vertical tabs in the sidebar, organized into tab groups.","Light Mode, UI, desktop, side tabs",false,title description
+260,original_images/Kit_Sparkle_DarkMode.png,Kit Sparkle - card - Dark Mode - Desktop,Kit sitting next to two sparkles.,"Dark Mode, Kit, Sparkle, desktop",false,title description
+261,original_images/UI_TrackingProtection_DarkMode.png,Enhanced Tracking Protection report - card - Dark Mode - Desktop,"Enhanced Tracking Protection weekly report, showing how many trackers were blocked each day.","Dark Mode, UI, desktop, tracking protection",false,title description
+262,original_images/UI_Extensions_DarkMode.png,Extensions - card - Dark Mode - Desktop,"Extensions menu, opened from the toolbar.","Dark Mode, UI, desktop, extensions",false,title description
+263,original_images/UI_TabGroups_DarkMode.png,Side tabs - Card - Dark Mode - Desktop,"Vertical tabs in the sidebar, organized into tab groups.","Dark Mode, UI, desktop, side tabs",false,title description
+264,original_images/UI_SideTabs_LightMode.png,Side tabs - Card - Light Mode - Mobile,"Vertical tabs in the sidebar, organized into tab groups.","Light Mode, UI, mobile, side tabs",false,title description
+265,original_images/UI_SideTabs_DarkMode.png,UI Side Tabs - Card - Dark Mode - Mobile,"Vertical tabs in the sidebar, organized into tab groups.","Dark Mode, UI, mobile, side tabs",false,title description
+266,original_images/Kit_Sparkle_LightMode_tbGlr2x.png,Kit Sparkle - Card - Light Mode - Mobile,Kit sitting next to two sparkles.,"Kit, Light Mode, Sparkle, mobile",false,title description
+267,original_images/Kit_Sparkle_DarkMode_UbsOKCD.png,Kit Sparkle - card - Dark Mode - Mobile,Kit sitting next to two sparkles.,"Dark Mode, Kit, Sparkle, mobile",false,title description
+268,original_images/Kit_Speed_LightMode_Card_Desktop.png,Kit Speed - Card - Light Mode - Desktop,"Kit running at full speed, its huge tail streaming out behind it.","Kit, Light Mode, Speed, desktop",false,title description
+269,original_images/Kit_Speed_DarkMode_Card_Desktop.png,Kit running with large tail - Dark Mode - Desktop,"Kit running at full speed, its huge tail streaming out behind it.","Dark Mode, Kit, Speed, desktop",false,title description tags
+270,original_images/Kit_Speed_LightMode_Card_Mobile.png,Kit running - Light Mode - Mobile,"Kit running at full speed, its huge tail streaming out behind it.","Kit, Light Mode, Speed, human-centered, mobile",false,title description
+271,original_images/Kit_Speed_DarkMode_Card_Mobile.png,Kit running with large tail - Dark Mode - Mobile,"Kit running at full speed, its huge tail streaming out behind it.","Dark Mode, Kit, Speed, mobile",false,title description tags
+272,original_images/UI_TrackingProtection_LightMode_Card_Mobile.png,Enhanced Tracking Protection - Light Mode - Mobile,"Enhanced Tracking Protection weekly report, showing how many trackers were blocked each day.","Light Mode, UI, human-centered, mobile, tracking protection",false,title description
+273,original_images/UI_TrackingProtection_DarkMode_Card_Mobile.png,Enhanced Tracking Protection - Dark Mode - Mobile,"Enhanced Tracking Protection weekly report, showing how many trackers were blocked each day.","Dark Mode, UI, mobile, tracking protection",false,title description tags
+274,original_images/UI_Extensions_LightMode_Card_Mobile.png,Extensions menu - Light Mode - Mobile,"Extensions menu, opened from the toolbar.","Light Mode, UI, extensions, mobile",false,title description tags
+275,original_images/UI_Extensions_DarkMode_Card_Mobile.png,UI Extensions - Dark Mode - Mobile,"Extensions menu, opened from the toolbar.","Dark Mode, UI, extensions, mobile",false,title description tags
+276,original_images/Kit_Heart_LightMode_Card_Desktop.png,Kit Heart - Light Mode - Desktop,"Kit, nose to tail, in the shape of a heart.","Heart, Kit, Light Mode, desktop",false,title description tags
+277,original_images/Kit_Heart_DarkMode_Card_Desktop.png,Kit heart - Dark Mode - Desktop,"Kit, nose to tail, in the shape of a heart.","Dark Mode, Heart, Kit, desktop",false,title description tags
+278,original_images/Kit_Heart_LightMode_Card_Mobile.png,Kit Heart - Light Mode - Mobile,"Kit, nose to tail, in the shape of a heart.","Heart, Kit, Light Mode, mobile",false,title description tags
+279,original_images/Kit_Heart_DarkMode_Card_Mobile.png,Kit Heart - Dark Mode - Mobile,"Kit, nose to tail, in the shape of a heart.","Dark Mode, Heart, Kit, mobile",false,title description tags
+280,original_images/Kit_Mobile_LightMode_Card_Desktop.png,Kit behind phone - Light Mode - Desktop,Kit peeking over the top of a mobile device.,"Kit, Light Mode, Mobile Wrapped, desktop",false,title description tags
+281,original_images/Kit_Mobile_DarkMode_Card_Desktop.png,Kit behind a phone - Dark Mode - Desktop,Kit peeking over the top of a mobile device.,"Dark Mode, Kit, Mobile Wrapped, desktop",false,title description tags
+282,original_images/Kit_Mobile_LightMode_Card_Mobile.png,Kit behind mobile device - Light Mode - Mobile,Kit peeking over the top of a mobile device.,"Kit, Light Mode, Mobile Wrapped, mobile",false,title description tags
+283,original_images/Kit_Mobile_DarkMode_Card_Mobile.png,Kit behind a phone - Dark Mode - Mobile,Kit peeking over the top of a mobile device.,"Dark Mode, Kit, Mobile Wrapped, mobile",false,title description tags
+284,original_images/Kit_Home_LightMod_Card_Desktop.png,Kit in house - Light Mode - Desktop,Kit peeking out of a little house.,"Kit, Light Mode, desktop, house",false,title description tags
+285,original_images/Kit_Home_DarkMode_Card_Desktop.png,Kit in house - Dark Mode - Desktop,Kit peeking out of a little house.,"Dark Mode, Kit, desktop, house",false,title description tags
+286,original_images/Kit_Home_LightMode_Card_Mobile.png,Kit in house - Light Mode - Mobile,Kit peeking out of a little house.,"Kit, Light Mode, house, mobile",false,title description tags
+287,original_images/Kit_Home_DarkMode_Card_Mobile.png,Kit in house - Dark Mode - Mobile,Kit peeking out of a little house.,"Dark Mode, Kit, house, mobile",false,title description tags
+288,original_images/Kit_ReaderMode_LightMode_Card_Desktop.png,Kit and phone - Light Mode - Desktop,Kit peeking out from behind a mobile device.,"Kit, Light Mode, Reader Mode, desktop",false,title description tags
+289,original_images/Kit_ReaderMode_DarkMode_Card_Desktop.png,Kit and phone - Dark Mode - Desktop,Kit peeking out from behind a mobile device.,"Dark Mode, Kit, Reader Mode, desktop, human-centered",false,title description
+290,original_images/Kit_ReaderMode_LightMode_Card_Mobile.png,Kit and phone - Light Mode - Mobile,Kit peeking out from behind a mobile device.,"Kit, Light Mode, Reader Mode, mobile",false,title description tags
+291,original_images/Kit_ReaderMode_DarkMode_Card_Mobile.png,Kit and Phone - Dark Mode - Mobile,Kit peeking out from behind a mobile device.,"Dark Mode, Kit, Reader Mode, mobile",false,title description tags
+292,original_images/Private_Browser.png,Private Browser,,"pictogram, privacy",true,tags
+293,original_images/Privacy_Article_Desktop.png,Firefox Desktop Dark,,"desktop, privacy",true,tags
+294,original_images/Speed_Article_Desktop.png,Kit running over hill,Kit with a large tail running over a hill.,desktop,false,description tags
+295,original_images/Tab_Group.png,Tab Group,,pictogram,true,tags
+296,original_images/Puzzle.png,Puzzle,,pictogram,true,tags
+297,original_images/Pencil_1.png,Pencil with squiggly line,,pictogram,true,title tags
+298,original_images/Pencil_2.png,Violet and Purple-Colored Pencil,,pictogram,true,tags
+308,original_images/Protection_LightMode_Desktop.png,Protection - Light Mode - Desktop,"Site information panel, where you can check protections and clear cookies and site data.","Light Mode, UI, desktop, protection",false,title description
+309,original_images/Protection_DarkMode_Desktop.png,Protection - Dark Mode - Desktop,"Site information panel, where you can check protections and clear cookies and site data.","Dark Mode, UI, desktop, protection",false,title description
+310,original_images/Protection_LightMode_Mobile.png,Protection - Light Mode - Mobile,"Site information panel, where you can manage cookies, permissions, and site data.","Light Mode, mobile, protection",false,title description
+311,original_images/Protection_DarkMode_Mobile.png,Protection - Dark Mode - Mobile,"Site information panel, where you can manage cookies, permissions, and site data.","Dark Mode, UI, mobile, protection",false,title description
+312,original_images/UI_Notification_LightMode_Card_Desktop.png,Tracking blocked notification - Light Mode - Desktop,Firefox notification showing how many tracking attempts it blocked.,"Light Mode, UI, desktop, notification",false,title description
+313,original_images/UI_Notification_DarkMode_Card_Desktop.png,Blocked trackers notification - Dark Mode - Desktop,Firefox notification showing how many tracking attempts it blocked.,"Dark Mode, UI, desktop, notification",false,title description
+314,original_images/UI_Notification_LightMode_Card_Mobile.png,Notification - card - Light Mode - Mobile,Firefox notification showing how many tracking attempts it blocked.,"Light Mode, UI, mobile, notification",false,title description
+315,original_images/UI_Notification_DarkMode_Card_Mobile.png,Notification - Card - Dark Mode - Mobile,Firefox notification showing how many tracking attempts it blocked.,"Dark Mode, UI, mobile, notification",false,title description
+316,original_images/Kit_Keyhole_LightMode_Card_Desktop.png,Kit Keyhole - card - Light Mode - Desktop,Kit disappearing into a keyhole.,"Kit, Light Mode, desktop, keyhole",false,title description
+317,original_images/Kit_Keyhole_DarkMode_Card_Desktop.png,Kit keyhole - card - Dark Mode - Desktop,Kit disappearing into a keyhole.,"Dark Mode, Kit, desktop, keyhole",false,title description
+318,original_images/Kit_Keyhole_LightMode_Card_Mobile.png,Kit keyhole - Light Mode - Mobile,Kit disappearing into a keyhole.,"Kit, Light Mode, keyhole, mobile",false,title description
+319,original_images/Kit_Keyhole_DarkMode_Card_Mobile.png,Kit Keyhole - Card - Dark Mode - Mobile,Kit disappearing into a keyhole.,"Dark Mode, Kit, keyhole, mobile",false,title description
+320,original_images/Control_LightMode_Desktop.png,Control - Light Mode - Desktop,Firefox with AI features set to Block and a video playing in Picture-in-Picture.,"Light Mode, UI, control, desktop",false,title description
+321,original_images/Control_DarkMode_Desktop.png,Control - Dark Mode - Desktop,Firefox with AI features set to Block and a video playing in Picture-in-Picture.,"Dark Mode, UI, control, desktop",false,title description
+322,original_images/Control_LightMode_Mobile.png,Control - Light Mode - Mobile,Firefox with AI features set to Block and a video playing in Picture-in-Picture.,"Light Mode, UI, control, mobile",false,title description
+323,original_images/Control_DarkMode_Mobile.png,Control - Dark Mode - Mobile,Firefox with AI features set to Block and a video playing in Picture-in-Picture.,"Dark Mode, UI, control, mobile",false,title description
+324,original_images/UI_Customization_LightMode_Card_Desktop.png,New tab background choices,4 background options for the new tab page.,"Light Mode, UI, customize, desktop",false,title description
+325,original_images/UI_Customization_LightMode_Card_Mobile.png,UI Customization - card - Light Mode - Mobile,4 background options for the new tab page.,"Light Mode, UI, customize, mobile",false,title description
+326,original_images/Focus_LightMode_Desktop.png,Focus - Light Mode - Desktop,Kit meditating on a cloud beside an open browser.,"Light Mode, UI, desktop, focus",false,title description
+327,original_images/Focus_DarkMode_Desktop.png,Focus - Dark Mode - Desktop,Kit meditating on a cloud beside an open browser.,"Dark Mode, UI, desktop, focus",false,title description
+328,original_images/Focus_LightMode_Mobile.png,Focus - Light Mode - Mobile,Kit meditating on a cloud beside an open browser.,"Light Mode, UI, focus, mobile",false,title description
+329,original_images/Focus_DarkMode_Mobile.png,Focus - Dark Mode - Mobile,Kit meditating on a cloud beside an open browser.,"Dark Mode, UI, focus, mobile",false,title description
+330,original_images/Kit_ReaderMode_LightMode_Purple_Card_Desktop.png,Kit Reader View - Purple - Card - Light Mode - Desktop,Kit peeking out from behind a page in Reader View.,"Kit, Light Mode, Reader Mode, desktop, purple",false,title description
+331,original_images/Kit_ReaderMode_DarkMode_Purple_Card_Desktop.png,Kit Reader View - Purple - card - Dark Mode - Desktop,Kit peeking out from behind a page in Reader View.,"Dark Mode, Reader Mode, UI, desktop, purple",false,title description
+332,original_images/Kit_ReaderMode_LightMode_Purple_Card_Mobile.png,Kit Reader View - Purple - Card - Light Mode - Mobile,Kit peeking out from behind a page in Reader View.,"Light Mode, Reader Mode, UI, mobile, purple",false,title description
+333,original_images/Kit_ReaderMode_DarkMode_Purple_Card_Mobile.png,Kit Reader View - purple - card - Dark Mode - Mobile,Kit peeking out from behind a page in Reader View.,"Dark Mode, Reader Mode, UI, mobile, purple",false,title description
+334,original_images/UI_TabGroups_LightMode_Card_Desktop.png,Tab groups - card - Light Mode - Desktop,Collapsed tab groups next to an open tab in the tab strip.,"Light Mode, UI, desktop, tab groups",false,title description
+335,original_images/UI_TabGroups_DarkMode_Card_Desktop.png,Tab groups - Card - Dark Mode - Desktop,Collapsed tab groups next to an open tab in the tab strip.,"Dark Mode, UI, desktop, tab groups",false,title description
+336,original_images/UI_TabGroups_LightMode_Card_Mobile.png,Tab groups - Card - Light Mode - Mobile,Collapsed tab groups next to an open tab in the tab strip.,"Light Mode, UI, mobile, tab groups",false,title description
+337,original_images/UI_TabGroups_DarkMode_Card_Mobile.png,UI Tab Groups - Card - Dark Mode - Mobile,Collapsed tab groups next to an open tab in the tab strip.,"Dark Mode, UI, mobile, tab groups",false,title description
+338,original_images/UI_Picture-in-picture_LightMode_Card_Desktop.png,Picture-in-Picture - Card - Light Mode - Desktop,"Video playing in Picture-in-Picture, floating over another browser window.","Light Mode, UI, desktop, picture-in-picture",false,title description
+339,original_images/UI_Picture-in-picture_DarkMode_Card_Desktop.png,Picture-in-picture - card - Dark Mode - Desktop,"Video playing in Picture-in-Picture, floating over another browser window.","Dark Mode, UI, desktop, picture-in-picture",false,title description
+340,original_images/UI_Picture-in-picture_LightMode_Card_Mobile.png,Picture-in-Picture - card - Light Mode - Mobile,"Video playing in Picture-in-Picture, floating over another browser window.","Light Mode, UI, mobile, picture-in-picture",false,title description
+341,original_images/UI_Picture-in-picture_DarkMode_Card_Mobile.png,Picture-in-Picture - Card - Dark Mode - Mobile,"Video playing in Picture-in-Picture, floating over another browser window.","Dark Mode, UI, mobile, picture-in-picture",false,title description
+343,original_images/1_LightMode_Desktop_Windows_QDmOLi9.png,Step 1 Firefox installer - Windows - Light Mode - Desktop,The Firefox Installer.exe file icon.,"Light Mode, desktop, thanks, windows",false,title description
+344,original_images/1_DarkMode_Desktop_Windows_c0u5GzL.png,Install step 1 - Windows - Dark Mode - Desktop,The Firefox Installer.exe file icon.,"Dark Mode, desktop, thanks, windows",false,title description
+345,original_images/2_LightMode_Desktop_Windows.png,Step 2 progress bar - Windows - Light Mode - Desktop,"Progress bar, partly filled.","Light Mode, desktop, progress bar, thanks",false,title description
+346,original_images/2_DarkMode_Desktop_Windows.png,Progress bar 2 - Windows - Dark Mode - Desktop,"Progress bar, partly filled.","Dark Mode, desktop, progress bar, thanks",false,title description
+347,original_images/3_LightMode_Desktop_Windows.png,Step 3 Firefox logo - Windows - Light Mode - Desktop,,"Light Mode, cursor, desktop, thanks",true,title is_decorative
+348,original_images/3_DarkMode_Desktop_Windows_3LlB8Dq.png,Step 3 Firefox logo - Windows - Dark Mode - Desktop,Firefox icon.,"Dark Mode, cursor, desktop, thanks",false,title description
+349,original_images/1_LightMode_Desktop_Mac.png,Firefox dmg - step 1 - Mac - Light Mode - Desktop,Firefox.dmg file icon.,"Light Mode, desktop, mac, thanks",false,title description
+350,original_images/1_DarkMode_Desktop_Mac.png,Step 1 - Mac - Dark Mode - Desktop,Firefox.dmg file icon.,"Dark Mode, desktop, mac, thanks",false,title description
+351,original_images/2_LightMode_Desktop_Mac.png,Step 2 drag to Applications - Mac - Light Mode - Desktop,Dragging Firefox into the Applications folder.,"Light Mode, applications folder, desktop, thanks",false,title description
+352,original_images/2_DarkMode_Desktop_Mac.png,Install step 2 - Mac - Dark Mode - Desktop,Dragging Firefox into the Applications folder.,"Dark Mode, applications folder, desktop, thanks",false,title description
+353,original_images/3_LightMode_Desktop_Mac.png,Step 3 Dock - Mac - Light Mode - Desktop,"Firefox in the Dock, between Finder and Messages.","Light Mode, desktop, dock, thanks",false,title description
+354,original_images/3_DarkMode_Desktop_Mac.png,Mac 3 - Dark Mode - Desktop,"Firefox in the Dock, between Finder and Messages.","Dark Mode, desktop, dock, thanks",false,title description
+357,original_images/2_LightMode_Mobile_Windows.png,Progress bar 2 - Light Mode - Mobile - Windows,"Progress bar, partly filled.","Light Mode, mobile, progress bar, thanks",false,title description
+358,original_images/2_DarkMode_Mobile_Windows.png,Step 2 progress bar - Windows - Dark Mode - Mobile,"Progress bar, partly filled.","Dark Mode, mobile, progress bar, thanks",false,title description
+359,original_images/3_LightMode_Mobile_Windows.png,Step 3 Firefox logo - Windows - Light Mode - Mobile,,"Light Mode, cursor, mobile, thanks",true,title is_decorative
+360,original_images/3_DarkMode_Mobile_Windows.png,Firefox icon - step 3 - Windows - Dark Mode - Mobile,Firefox icon.,"Dark Mode, cursor, mobile, thanks",false,title description
+361,original_images/1_LightMode_Mobile_Mac.png,Step 1 - Mac - Light Mode - Mobile,Firefox.dmg file icon.,"Light Mode, mac, mobile, thanks",false,title description
+362,original_images/1_DarkMode_Mobile_Mac.png,Step 1 Firefox disk image - Mac - Dark Mode - Mobile,Firefox.dmg file icon.,"Dark Mode, mac, mobile, thanks",false,title description
+363,original_images/2_LightMode_Mobile_Mac.png,Install step 2 - Mac - Light Mode - Mobile,Dragging Firefox into the Applications folder.,"Light Mode, applications folder, mobile, thanks",false,title description
+364,original_images/2_DarkMode_Mobile_Mac.png,Step 2 Applications folder - Mac - Dark Mode - Mobile,Dragging Firefox into the Applications folder.,"Dark Mode, applications folder, mobile, thanks",false,title description
+365,original_images/3_LightMode_Mobile_Mac.png,Mac 3 - Light Mode - Mobile,"Firefox in the Dock, between Finder and Messages.","Light Mode, dock, mobile, thanks",false,title description
+366,original_images/3_DarkMode_Mobile_Mac.png,Step 3 Dock - Mac - Dark Mode - Mobile,"Firefox in the Dock, between Finder and Messages.","Dark Mode, dock, mobile, thanks",false,title description
+370,original_images/Distilled-Header-AI-Controls-1024x576.jpg,Firefox AI controls illustration with logo,"AI controls, where you can block AI enhancements or choose which AI features to use.",,false,description
+376,original_images/Kit-mobile-v1.png,Kit mobile v1,QR Code: Scan to install Firefox.,,false,title description
+378,original_images/temp-kit-2_FR.png,temp-kit-2 FR,Illustration abstraite de la queue orange du renard Firefox sur fond clair.,French,false,tags
+379,original_images/temp-kit-1_FR.png,temp-kit-1 FR,"Illustration du corps du renard Firefox en mouvement, avec des dégradés orange et rose.",French,false,tags
+380,original_images/Kit3_-_FR.png,Kit3 - FR,Illustration du renard Firefox courant vers l’avant sur fond clair.,French,false,tags
+381,original_images/Kit-mobile-v2_FR.png,Kit-mobile-v2 FR,"Illustration d’un smartphone affichant un écran sur le thème de Firefox avec un fond violet et une icône de drapeau, à côté d’un code QR avec le logo Firefox.",French,false,tags
+382,original_images/Kit-mobile-v2_DE.png,Kit-mobile-v2 DE,"Illustration eines Smartphones mit einem Firefox-Bildschirm mit violettem Hintergrund und einer Flaggen-Grafik, daneben ein QR-Code mit dem Firefox-Logo.",German,false,tags
+383,original_images/Kit3_-_DE.png,Kit3 - DE,"Illustration des Firefox-Fuchses, der nach vorn läuft, vor hellem Hintergrund.",German,false,tags
+384,original_images/temp-kit-1_DE.png,temp-kit-1 DE,Illustration des Firefox-Fuchskörpers in Bewegung mit orange- und rosafarbenen Verläufen.,German,false,tags
+385,original_images/temp-kit-2_DE.png,temp-kit-2 DE,Abstrakte Illustration des orangefarbenen Firefox-Fuchsschwanzes vor hellem Hintergrund.,German,false,tags
+386,original_images/Kit-mobile-FR.png,Kit mobile - FR,Code QR : scannez pour installer Firefox.,French,false,title description tags
+387,original_images/Kit-mobile-DE.png,Kit mobile - DE,"QR-Code: Scannen, um Firefox zu installieren.",German,false,title description tags
+390,original_images/FF_WNP_148_AI-Controls_Final.png,AI controls - WNP 148 - EN,The phrase “AI control” transforms into a toggle and then is switched off.,,false,title description
+394,original_images/Were_picking_up_speed_2_DE.png,We’re picking up speed 2 DE,Illustration des Firefox-Fuchskörpers in Bewegung mit orange- und rosafarbenen Verläufen.,German,false,title tags
+395,original_images/Were_picking_up_speed_3_DE.png,We’re picking up speed 3 DE,"Illustration des Firefox-Fuchses, der nach vorn läuft, vor hellem Hintergrund.",German,false,title tags
+396,original_images/Were_picking_up_speed_3_DE_RZxCFAH.png,We’re picking up - Archive,,German,false,title tags
+397,original_images/Were_picking_up_speed_DE.png,We’re picking up speed DE,Abstrakte Illustration des orangefarbenen Firefox-Fuchsschwanzes vor hellem Hintergrund.,German,false,title tags
+398,original_images/FF_WNP_148_AI-Controls_Final_DE.png,AI controls - WNP 148 - DE,"Der Text „AI controls“ verwandelt sich in einen Schalter, der anschließend ausgeschaltet wird.",German,false,title description tags
+399,original_images/Were_picking_up_speed_3_FR.png,We’re picking up speed 3 FR,Illustration du renard Firefox courant vers l’avant sur fond clair.,French,false,title tags
+400,original_images/Were_picking_up_speed_2_FR_copy.png,We’re picking up speed 2 FR copy,"Illustration du corps du renard Firefox en mouvement, avec des dégradés orange et rose.",French,false,title tags
+401,original_images/Were_picking_up_speed_3_FR_kka2z3t.png,We’re picking up speed 3 FR,Illustration du renard Firefox courant vers l’avant sur fond clair.,French,false,title tags
+402,original_images/Were_picking_up_speed_FR.png,We’re picking up speed FR,Illustration abstraite de la queue orange du renard Firefox sur fond clair.,French,false,title tags
+403,original_images/FF_WNP_148_AI-Controls_Final_FR.png,AI controls - WNP 148 - FR,"Le texte « AI controls » se transforme en interrupteur, qui est ensuite désactivé.",French,false,title description tags
+411,original_images/Were_picking_up_speed_DE_Dzd9srf.png,We’re picking up speed DE,Abstrakte Illustration des orangefarbenen Firefox-Fuchsschwanzes vor hellem Hintergrund.,German,false,title tags
+412,original_images/Were_picking_up_speed_3_DE_T3odJlL.png,We’re picking up speed 3 DE,"Illustration des Firefox-Fuchses, der nach vorn läuft, vor hellem Hintergrund.",German,false,title tags
+413,original_images/Were_picking_up_speed_21_bNTWoPR.png,We’re picking up speed DE,Illustration des Firefox-Fuchskörpers in Bewegung mit orange- und rosafarbenen Verläufen.,German,false,title tags
+414,original_images/Were_picking_up_speed_FR_SnFkfXW.png,We’re picking up speed FR,Illustration du renard Firefox courant vers l’avant sur fond clair.,French,false,title tags
+415,original_images/Were_picking_up_speed_FR_copy.png,We’re picking up speed FR copy,Illustration abstraite de la queue orange du renard Firefox sur fond clair.,French,false,title tags
+416,original_images/Were_picking_up_speed_FRpng.png,We’re picking up speed FRpng,"Illustration du corps du renard Firefox en mouvement, avec des dégradés orange et rose.",French,false,title tags
+421,original_images/Desktop_Desktop_LighttMode.png,Firefox for desktop - Light Mode - Desktop,,"Light Mode, desktop, feature image",true,title is_decorative
+422,original_images/Desktop_Desktop_DarktMode.png,Desktop browser window - Dark Mode - Desktop,,"Dark Mode, desktop, feature image",true,title is_decorative
+423,original_images/Desktop_Mobile_LightMode_PtIjsAY.png,Firefox for mobile address bar - Light Mode - Desktop,,"Light Mode, feature image, mobile",true,title is_decorative
+424,original_images/Desktop_Mobile_DarkMode_28lcRvK.png,Firefox for mobile - Dark Mode - Desktop,,,true,title is_decorative
+425,original_images/Mobile_Desktop_LightMode_iSdC2n5.png,Firefox window - Light Mode - Mobile,,,true,title is_decorative
+426,original_images/Mobile_Desktop_DarkMode.png,Firefox window - Dark Mode - Mobile,,,true,title is_decorative
+427,original_images/Mobile_Mobile_LightMode_1kMEOaK.png,Firefox for mobile - Light Mode - Mobile,,,true,title is_decorative
+428,original_images/Mobile_Mobile_DarkMode_MDFnX6Z.png,Phone with firefox.com - Dark Mode - Mobile,,,true,title is_decorative
+430,original_images/Desktop_Kit_Meditating.png,Kit Meditating - Desktop,"Kit sitting calmly on a cloud, eyes closed.",,false,title description
+431,original_images/Mobile_Kit_Meditating.png,Kit meditating - Mobile,,,true,title is_decorative
+432,original_images/Cropped_UI_Desktop_Light.png,Tab groups - cropped - Light Mode - Desktop,Collapsed tab groups next to an open tab in the tab strip.,,false,title description
+433,original_images/Cropped_UI_Desktop_Dark.png,Cropped UI - Dark Mode - Desktop,Collapsed tab groups next to an open tab in the tab strip.,,false,title description
+434,original_images/Cropped_UI_Mobile_Light.png,Tab groups cropped - Light Mode - Mobile,Collapsed tab groups next to an open tab in the tab strip.,,false,title description
+435,original_images/Cropped_UI_Mobile_Dark.png,Cropped UI - Dark Mode - Mobile,Collapsed tab groups next to an open tab in the tab strip.,,false,title description
+436,original_images/Were_picking_up_speed_4tvFmps.png,We’re picking up speed - EN,,,true,title description is_decorative
+437,original_images/Were_picking_up_speed_21_xSiGyOg.png,We’re picking up speed - EN,,,true,title description is_decorative
+438,original_images/Were_picking_up_speed_3_XEDEwvR.png,We’re picking up speed 3 - EN,,,true,title description is_decorative
+439,original_images/Were_picking_up_speed_2_FR.png,We’re picking up speed 2 - FR,,French,true,title description tags is_decorative
+440,original_images/Were_picking_up_speed_FR_L8QvDzC.png,We’re picking up speed - FR,,French,true,title description tags is_decorative
+441,original_images/Were_picking_up_speed_3_FR_bGr0WhH.png,We’re picking up speed 3 FR,,French,true,title description tags is_decorative
+442,original_images/Were_picking_up_speed_2_DE_GFNwKHM.png,We’re picking up speed 2 - DE,,German,true,title description tags is_decorative
+443,original_images/Were_picking_up_speed_DE_1z9psd4.png,We’re picking up speed - DE,,German,true,title description tags is_decorative
+444,original_images/Were_picking_up_speed_3_FR_bbyCO2d.png,We’re picking up speed 3 FR,"Illustration des Firefox-Fuchses, der nach vorn läuft, vor hellem Hintergrund.",French,false,title tags
+445,original_images/Were_picking_up_speed_3_DE_wgrQOZZ.png,We’re picking up speed 3 - DE,,German,true,title description tags is_decorative
+447,original_images/Mac_-_1_-_Desktop_-_Light_ZV1iXkU.png,Mac 1 - Light Mode - Desktop,Firefox logo beside a download icon.,,false,title description
+448,original_images/Mac_-_1_-_Desktop_-_Dark.png,Mac step 1 download - Dark Mode - Desktop,Firefox logo next to a download button.,,false,title description
+449,original_images/Mobile_-_1_-_Light.png,Mobile - 1 - Light,Extensions in Firefox for mobile.,,false,description
+450,original_images/Mobile_1_-_Dark.png,Mobile 1 - Dark,Extensions in Firefox for mobile.,,false,description
+451,original_images/Mac_-_2_-_Desktop_-_Light_j5USjiV.png,Mac - 2 - Light Mode - Desktop,"Import your data menu with saved passwords, bookmarks, browsing history, and form autofill data selected.",,false,title description
+452,original_images/Mac_-_2_-_Desktop_-_Dark.png,Import data - Mac - 2 - Dark Mode - Desktop,"Import your data menu with saved passwords, bookmarks, browsing history, and form autofill data selected.",,false,title description
+453,original_images/Mobile_-_2_-_Light_CJAFlyq.png,Mobile - 2 - Light,Firefox with light and dark themes.,,false,description
+455,original_images/Mobile_2_-_Dark.png,Mobile 2 - Dark,Firefox with light and dark themes.,,false,description
+456,original_images/Mac_-_3_-_Desktop_-_Light.png,Mac 3 - Light Mode - Desktop,"Data import complete notification, with saved passwords, bookmarks, browsing history, and form autofill data brought over.",,false,title description
+457,original_images/Mac_-_3_-_Desktop_-_Dark.png,Mac step 3 data import - Dark Mode - Desktop,"Data import complete notification, with saved passwords, bookmarks, browsing history, and form autofill data brought over.",,false,title description
+458,original_images/Mobile_-_3_-_Light.png,Mobile - 3 - Light,"Edit PDFs in Firefox for mobile: add text, add an image with alt text, or create a signature.",,false,description
+459,original_images/Mobile_3_-_Dark.png,Mobile 3 - Dark,"Edit PDFs in Firefox for mobile: add text, add images with alt text, and create signatures.",,false,description
+466,original_images/Screenshot_2026-03-03_at_7.21.12AM.png,Dark purple bg,,,true,is_decorative
+478,original_images/firefox-for-mobile_hero.png,Firefox for mobile hero - Light Mode - Mobile,,mobile-page,true,title description is_decorative
+479,original_images/kit-in-mirror.png,Kit in mirror,Kit sitting nose to nose with its reflection in a mirror.,mobile-page,false,title description
+500,original_images/AI_EN.png,AI - EN,,,true,title is_decorative
+501,original_images/Shortcuts_EN_QCpdEMX.png,Shortcuts - EN,,,true,title is_decorative
+502,original_images/Protection_DE_E9nKtuo.png,Protection - EN,,,true,title is_decorative
+503,original_images/VPN_FINAL_DE_ZQXiN9T.png,VPN FINAL - EN,Built-in VPN turned on in the toolbar.,,false,title description
+504,original_images/Shortcuts_DE.png,Shortcuts - DE,,German,true,title description tags is_decorative
+505,original_images/VPN_FINAL_DE.png,VPN FINAL DE,"Firefox-Browseroberfläche mit aktiviertem VPN, dargestellt mit einem Schildsymbol für Schutz.",German,false,description tags
+506,original_images/AI_DE.png,AI - DE,,German,true,title description tags is_decorative
+507,original_images/Protection_DE.png,Protection DE,"Schildsymbol im Farbverlauf, das Datenschutz und Schutz darstellt.",German,false,description tags
+508,original_images/AI_FR.png,AI - FR,,French,true,title description tags is_decorative
+509,original_images/Protection_FR.png,Protection - FR,,French,true,title description tags is_decorative
+510,original_images/Shortcuts_FR.png,Shortcuts - FR,,French,true,title description tags is_decorative
+511,original_images/VPN_FINAL_FR.png,VPN FINAL - FR,VPN intégré activé dans la barre d’outils.,French,false,title description tags
+512,original_images/Split_View._Final_EN.png,Split view - EN,"Split view, with a menu to choose a website, video, or article for the second side.",,false,title description
+513,original_images/Split_View._Final_FR.png,Split View. Final FR,"Navigateur Firefox avec la vue fractionnée activée, affichant deux pages web côte à côte dont une vidéo.",French,false,description tags
+514,original_images/Split_View._Final_DE.png,Split View. Final DE,"Firefox-Browser mit aktivierter geteilten Ansicht, der zwei Webseiten nebeneinander zeigt, darunter ein Video.",German,false,description tags
+517,original_images/Split_View_uxx9Boo._Final_FR.png,Split View. Final FR,"Illustration d’une fenêtre du navigateur Firefox en mode écran partagé. À gauche, une page d’accueil Firefox avec le logo et une barre de recherche sur fond violet. À droite, un panneau invite à choisir un type de contenu (site web, vidéo ou article) pour.",French,false,description tags
+518,original_images/Firefox_Mobile_FR_FINAL.png,Firefox Mobile FR FINAL,"Illustration d’un code QR avec le logo Firefox, à côté d’écrans montrant Firefox sur mobile et ordinateur. Sur les deux appareils, une page web avec des personnes allongées dans l’herbe est affichée, avec des icônes représentant des fonctionnalités comme.",French,false,description tags
+519,original_images/Split_View_9aegO78._Final_DE.png,Split View. Final DE,"Illustration eines Firefox-Browserfensters im geteilten Bildschirmmodus. Links ist die Firefox-Startseite mit Logo und Suchleiste auf violettem Hintergrund zu sehen. Rechts erscheint ein Panel, das dazu auffordert, einen Inhaltstyp (Website, Video oder Ar.",German,false,description tags
+520,original_images/Firefox_Mobile_DE-FINAL.png,Firefox Mobile DE-FINAL,"Illustration eines QR-Codes mit Firefox-Logo neben Darstellungen von Firefox auf Mobilgerät und Desktop. Auf beiden Geräten ist eine Webseite mit Personen, die im Gras liegen, zu sehen, ergänzt durch Symbole für Funktionen wie Bezahlen, Sicherheit und Les.",German,false,description tags
+521,original_images/Tab_Notes_FINAL_-_EN.png,Tab Notes FINAL - EN,"Add note dialogue box, to save a note about an open tab.",,false,description
+522,original_images/Screenshot_2026-03-23_at_11.11.45AM.png,Purple bg card,,,true,is_decorative
+523,original_images/Tab_Notes_FR.png,Tab Notes - FR,Boîte de dialogue d’ajout de note permettant d’enregistrer une note sur un onglet ouvert.,French,false,title description tags
+524,original_images/Tab_Notes_DE.png,Tab Notes - DE,Dialogfeld zum Hinzufügen einer Notiz zu einem geöffneten Tab.,German,false,title description tags
+525,original_images/Split_View_DE_Thumbnail_3x.png,Split view - thumbnail - DE,"Geteilte Ansicht mit einem Menü zur Auswahl einer Website, eines Videos oder eines Artikels für die zweite Seite.",German,false,title description tags
+526,original_images/Split_View_FR_Thumbnail_3x.png,Split View - thumbnail - FR,"Vue scindée avec un menu permettant de choisir un site web, une vidéo ou un article pour le second volet.",French,false,title description tags
+527,original_images/Firefox_Mobile_FR_3x_.png,Firefox for mobile - FR,Code QR : scannez pour télécharger Firefox.,French,false,title description tags
+528,original_images/Firefox_Mobile_DE_3x.png,Firefox for mobile - DE,"QR-Code: Scannen, um Firefox herunterzuladen.",German,false,title description tags
+529,original_images/Firefox_Mobile_EN_3x.png,Firefox for mobile 3x - EN,QR Code: Scan to install Firefox.,,false,title description
+533,original_images/ChatGPT_Image_Mar_30_2026_11_03_29_AM.png,temp - concept for pin to taskbar,Firefox pinned to the Windows taskbar.,,false,description
+534,original_images/Frame_2147229236.png,Kit in the mirror,Kit sitting nose to nose with its reflection in a mirror.,,false,description
+536,original_images/Screenshot_2026-03-31_at_3.10.27PM.png,White BG,,,true,is_decorative
+537,original_images/Screenshot_2026-03-31_at_3.10.18PM.png,Landscape White BG,,,true,is_decorative
+538,original_images/Screenshot_2026-03-31_at_3.30.12PM.png,White BG2,,,true,is_decorative
+546,original_images/VPN-secure-2.png,VPN secure 2,,,true,title is_decorative
+547,original_images/VPN-privacy-2.png,VPN privacy 2,,,true,title is_decorative
+548,original_images/VPN-free-2.png,VPN free 2,,,true,title is_decorative
+549,original_images/VPN-HERO-EN.png,VPN hero - EN,Built-in VPN turned on in the toolbar.,,false,title description
+558,original_images/Higher_security_3x.png,Higher security 3x - EN,Location hidden.,,false,description
+560,original_images/Double_productivity1.png,Double productivity - EN,Kit sitting nose to nose with its reflection in a mirror.,,false,title description
+561,original_images/VPN_thumbnail.png,VPN thumbnail,Built-in VPN turned on in the toolbar.,,false,title description
+562,original_images/More_privacy.png,More privacy,"“Use VPN for this site” switch, turned on.",,false,description
+563,original_images/No_extra_cost.png,No extra cost,"“50 GB free left this month,” with a progress bar.",,false,description
+564,original_images/Notes.png,Notes,Popup dialog to add note a note to remember why you opened a tab.,,false,description
+565,original_images/Protection_made_simple.png,Protection made simple,Enhanced Tracking Protection is on for the website in your address bar.,,false,description
+566,original_images/PDF_1.png,PDF 1,"PDF document with a pencil, for editing.",,false,description
+567,original_images/VPN_DE_1.png,VPN DE 1,"Schalter für „VPN für diese Website verwenden“ auf violettem Hintergrund, aktiviert dargestellt.",German,false,tags
+568,original_images/VPN_DE_2.png,VPN data left - DE,"„Diesen Monat noch 50 GB kostenlos verfügbar“, mit einem Fortschrittsbalken.",German,false,title description tags
+569,original_images/VPN_DE_1_E5LBESZ.png,VPN 1 - DE,Schalter für „VPN für diese Website verwenden“.,German,false,title description tags
+570,original_images/VPN_DE.png,VPN - DE,Symbol für „Standort verborgen“ auf violettem Hintergrund.,German,false,title tags
+571,original_images/Tracking_Protection_DE.png,Enhanced Tracking Protection - DE,Adressleiste mit „www.firefox.com“ und Hinweis „Verbesserter Tracking-Schutz ist aktiviert“ mit aktivem Schalter.,German,false,title tags
+572,original_images/Tab_Notes_DE_GcV5ozd.png,Tab Notes DE,Dialog „Add note“ mit Eingabefeld für Notizen sowie den Schaltflächen „Abbrechen“ und „Speichern“.,German,false,tags
+573,original_images/PDF_asset_x3.png,PDF asset x3 - EN,"PDF document with a pencil, for editing.",,false,description
+574,original_images/PDF_asset_x3_DE.png,PDF asset x3 - DE,"Symbol für ein PDF-Dokument mit Stift, das Bearbeiten oder Kommentieren darstellt.",German,false,title tags
+575,original_images/PDF_asset_x3_FR.png,PDF asset x3 - FR,"Icône de document PDF avec un crayon, indiquant la modification ou l’annotation.",French,false,title tags
+576,original_images/Firefox_mobile_3x_DE.png,Firefox mobile 3x DE,QR-Code mit Firefox-Logo neben Desktop- und mobilen Browseransichten mit firefox.com.,German,false,tags
+577,original_images/Firefox_mobile_3x_FR.png,Firefox mobile 3x FR,Code QR avec le logo Firefox à côté d’écrans de navigateur sur ordinateur et mobile affichant firefox.com.,French,false,tags
+578,original_images/Firefox_mobile_3x_DE_vhJsotV.png,Firefox for mobile 3x - DE,"QR-Code: Scannen, um Firefox herunterzuladen.",German,false,title description tags
+579,original_images/Firefox_mobile_3x_FR_cZHaKLe.png,Firefox for mobile - FR,Code QR : scannez pour télécharger Firefox.,French,false,title description tags
+580,original_images/VPN-HERO-DE.png,VPN hero - DE,VPN-Anzeige mit Häkchen-Symbol in der Browserleiste.,German,false,title tags
+581,original_images/VPN-HERO-FRpng.png,VPN hero - FR,Indicateur VPN avec une coche dans la barre du navigateur.,French,false,title tags
+582,original_images/Double_productivity-DE.png,Double productivity - DE,Firefox-Fuchs schaut in einen Spiegel und sieht sein Spiegelbild.,German,false,title tags
+583,original_images/Double_productivity-FR.png,Double productivity - FR,Le renard Firefox regardant son reflet dans un miroir.,French,false,title tags
+584,original_images/VPN_FR_1.png,VPN 1 - FR,Interrupteur pour « Activer le VPN pour ce site ».,French,false,title description tags
+585,original_images/VPN_FR_2.png,VPN FR 2,Indication de données restantes : « 50 GB restants pour ce mois-ci » avec une barre de progression.,French,false,tags
+586,original_images/VPN_FR.png,VPN - FR,Icône indiquant « Localisation cachée ».,French,false,title description tags
+587,original_images/Tab_Notes_FR_TPRjQhk.png,Tab Notes - FR,Boîte de dialogue d’ajout de note permettant d’enregistrer une note sur un onglet ouvert.,French,false,title description tags
+588,original_images/Tracking_protection_FR.png,Enhanced Tracking Protection - FR,Barre d’adresse et indication « La protection renforcée contre le pistage est activée » avec interrupteur activé.,French,false,title description tags
+589,original_images/smart-window-hero.png,Smart Window - hero,Fenêtre intelligente avec la barre de recherche Firefox.,smart-window,false,title description
+590,original_images/smart-window-carousel-fallback-1_w031H6n.png,Smart Window carousel - fallback 1,Smart Window: My Dad’s birthday is tomorrow. Need ideas.,smart-window,false,title description
+591,original_images/chat-instead-of-search.original.webp,Chat instead of search,Asking smart window “What’s the superbowl” with results in chat or web search.,smart-window,false,title description
+592,original_images/SmartWindow_WindowSwitching2x.png,Smart Window button,Switch between Classic Window and Smart Window from the toolbar.,smart-window,false,title description
+593,original_images/model-selection.png,Smart Window model selection,"Smart Window models: Fast, Flexible, or Personal.",smart-window,false,title description
+594,original_images/learn-topic-1_3x.png,Learn topic 1,Smart Window: Compare the ingredients in these products. Websites attached.,smart-window,false,title description
+595,original_images/learn-topic-2_3x.png,Learn topic 2,Smart Window: responding to a question about browsing history.,smart-window,false,title description
+596,original_images/learn-topic-3_3x.png,Learn topic 3,Smart window: showing memories it saved.,smart-window,false,title description
+597,original_images/Tab_Notes_DE_EZYqGRt.png,Tab Notes - DE,Dialogfeld zum Hinzufügen einer Notiz zu einem geöffneten Tab.,German,false,title description tags
+598,original_images/summarize-poster.png,Summarize - poster,Smart Window: “I’m making dinner for 10 tonight and I don’t know what to cook. Help!”,smart-window,false,title description
+599,original_images/plan-poster.png,Plan - poster,Smart Window: Just got invited to a wedding in New Orleans next week.,smart-window,false,title description
+601,original_images/VPN_FR_2_copy.png,VPN data left - FR,Indication de données restantes : « 50 GB restants pour ce mois-ci » avec une barre de progression.,French,false,title tags
+602,original_images/ChatGPT_Image_Apr_21_2026_10_17_42_AM.png,new bg purple,,,true,is_decorative
+603,original_images/Qq4kmLAaeEzmCzp__Firefox__Private_Web_Browser_App_-_App_Store1.svg,Firefox App Store QR code,QR Code: Scan to install Firefox.,,false,title description
+604,original_images/Qq4miW5ZQHqFFQ5__Firefox__Private_Web_Browser_App_-_App_Store.svg,Get Firefox for mobile QR Code,QR Code: Scan to install Firefox.,,false,title description
+605,original_images/user-privacy-hero.png,User privacy hero,,,true,title description is_decorative
+606,original_images/user-privacy-bottom-banner.png,User privacy - bottom banner,,pictogram,true,title description tags is_decorative
+612,original_images/Qq4ukFmJozzpNzy_Untitled_2026-04-30.png,QR Code - Thanks,QR Code: Scan to install Firefox.,,false,description
+614,original_images/Frame1.png,Pin tab,Wikipedia pinned to the tab strip.,,false,title description
+620,original_images/mdn-wordmark-white--offset-from-border.svg,MDN Wordmark,MDN logo.,mdn,false,description
+623,original_images/ChatGPT_Image_May_6_2026_04_52_45_PM.png,AI enhancements OFF,,,true,is_decorative
+624,original_images/ChatGPT_Image_May_6_2026_04_53_32_PM.png,AI enhancements ON,,,true,is_decorative
+625,original_images/firefox-developer-wordmark_YffUGTp.svg,Firefox Developer wordmark,Firefox Developer Edition logo.,,false,description
+626,original_images/firefox-nightly-wordmark_u9IzOpK.svg,Firefox Nightly wordmark,Firefox Nightly logo.,,false,description
+636,original_images/Combine_tabs_3x.png,Combine tabs - EN,"Split view menu, with options to separate tabs, reverse tabs, or close both tabs.",,false,description
+637,original_images/Organize_tabs_3x.png,Organize tabs - EN,A tab group named “Bars in Paris” expanded to show its tabs.,,false,description
+638,original_images/Pin_tabs_3x.png,Pin tabs - EN,Wikipedia pinned to the tab bar.,,false,description
+639,original_images/Lost_in_translation3x.png,Lost in translation - EN,Translate a page from English to Spanish.,,false,description
+640,original_images/AI_Controls_for_Mobile_3x.png,AI Controls for Mobile - EN,QR Code: Scan to install Firefox.,,false,title description
+648,original_images/Shake_to_summarize_4sW2mdQ.png,Shake to summarize - FR,Un téléphone qui tremble.,French,false,description tags
+649,original_images/Shake_to_summarize_liMX8Vg.png,Shake to summarize - DE,"Ein Telefon, das wackelt.",German,false,description tags
+651,original_images/Scan_QR_Code.png,Scan QR Code - FR,"Code QR avec le logo Firefox au centre, sur un fond clair.",French,false,tags
+653,original_images/Security_3x_fvIuPNr.png,Security - FR,Illustration d’une icône de bouclier violet avec un léger dégradé sur un fond violet clair.,French,false,tags
+654,original_images/Firefox_3x_RyRUs9c.png,Firefox - FR,"Illustration d’une sphère violette avec un petit drapeau orange attaché à une fine tige, sur un fond violet clair.",French,false,tags
+655,original_images/Scan_QR_Code_ki87s0x.png,Scan QR Code - DE,Illustration eines QR-Codes mit dem Firefox-Logo in der Mitte vor hellem Hintergrund.,German,false,tags
+656,original_images/PDFs_3x_736vp8c.png,PDF’s - DE,Illustration von drei verbundenen violetten Würfeln in einer dreieckigen Anordnung vor einem hellvioletten Hintergrund.,German,false,title tags
+657,original_images/Security_3x_JMKhZ8n.png,Security - DE,Illustration eines violetten Schildsymbols mit einem dezenten Farbverlauf vor einem hellvioletten Hintergrund.,German,false,tags
+658,original_images/Firefox_3x_qVpSZS6.png,Firefox - DE,Illustration einer violetten Kugel mit einer kleinen orangefarbenen Flagge an einer dünnen Stange vor einem hellvioletten Hintergrund.,German,false,tags
+659,original_images/VPN_Location.png,VPN Location - EN,VPN location menu showing Germany selected from a list of countries.,,false,description
+660,original_images/Qq5bk16dm7nBNj1__Firefox__Private_Web_Browser_App_-_App_Store.svg,WNP 151 floating QR code,QR Code: Scan to install Firefox.,,false,description
+661,original_images/vpn-hero.png,VPN hero,,vpn,true,title is_decorative
+664,original_images/firefox-tail-browser.png,Firefox tail browser,"Kit running across the new tab page, trailing its long fiery tail.",vpn,false,title description
+666,original_images/fox-working-2.jpg,Kit pressing a switch,Kit pressing down a big lever with both front paws.,,false,title description
+676,original_images/Lost_in_translation_DE_3x.png,Lost in translation 3x - DE,Übersetzungsoberfläche mit der Übersetzung von „Hello world!“ aus dem Englischen ins Spanische.,German,false,title description tags
+677,original_images/Pin_tabs_DE_3x.png,Pin tabs - DE,Wikipedia an der Tableiste angeheftet.,German,false,title description tags
+678,original_images/Organize_tabs_DE_3x.png,Organize tabs - DE,Browseroberfläche mit organisierten Tabs und vorgeschlagenen Orten in Firefox.,German,false,title description tags
+679,original_images/Combine_tabs_DE_3x.png,Combine tabs 3x - DE,Browseroberfläche mit Optionen zum Kombinieren und Verwalten von Tabs in Firefox.,German,false,title description tags
+680,original_images/Lost_in_translation_FR_3x.png,Lost in translation - FR,Illustration d’une interface de traduction traduisant « Hello world! » de l’anglais vers l’espagnol.,French,false,title tags
+681,original_images/Pin_tabs_FR_3x.png,Pin tabs 3x - FR,Wikipédia épinglé à la barre d’onglets.,French,false,title description tags
+682,original_images/Organize_tabs_FR_3x.png,Organize tabs 3x - FR,Une interface de navigateur avec des onglets organisés et des lieux suggérés dans Firefox.,French,false,title description tags
+683,original_images/Combine_tabs_FR_3x.png,Combine tabs - 3x - FR,Une interface de navigateur avec des options pour gérer des onglets dans Firefox.,French,false,title description tags
+685,original_images/WNP151_-_on_page.png,QR code - WNP151 - on page,QR Code: Scan to install Firefox.,,false,title description
+687,original_images/Protection_3x.png,Protection 3x - EN,Kit’s tail curling through a keyhole.,,false,title description
+688,original_images/Protection_3x_FR.png,Protection 3x - FR,Kit disparaît dans un trou de serrure.,French,false,title description tags
+689,original_images/Protection_3x_DE.png,Protection 3x - DE,Kit verschwindet in einem Schlüsselloch.,German,false,title description tags
+690,original_images/AI_on_your_terms_DE_3x.png,AI on your terms - 3x - DE,Illustration eines Schalters für KI-Einstellungen mit der deutschen Beschriftung „KI-Einstellungen“.,German,false,title description tags
+691,original_images/AI_on_your_terms_FR_3x.png,AI on your terms - FR,Illustration d’un bouton de contrôle de l’IA avec le libellé « Contrôles de l’IA ».,French,false,title description tags
+697,original_images/Card_Image2.png,Tab groups - Card,Collapsed tab groups next to an open tab in the tab strip.,,false,title description
+699,original_images/Unlimited_VPN_2.png,Unlimited VPN (2),VPN with unlimited data and its location set to Great Britain.,,false,description
+718,original_images/WC_TabGroups_Static_Dark.png,WC Tab Groups - Static - Dark,"Tab groups for World Cup fixtures, player stats, standings, and venues in the sidebar.","Dark Mode, tab groups, world-cup",false,title description
+721,original_images/kit-soccer-static.png,Kit soccer static,Kit sitting beside a soccer ball.,world-cup,false,title description
+724,original_images/TNWPxFirefox.jpg,Trevor Noah World Cup Watch Party,"Trevor Noah with the text “Trevor Noah’s World Cup Watch Party, presented by Firefox.”",,false,description
+725,original_images/WC_KeepTabs_Static_Transparent_IpqgZbe.png,WC Keep Tabs (Transparent),Firefox widget showing upcoming World Cup matches.,,false,description
+726,original_images/WC_Wallpapers_Static_Transparent_cXMhH5g.png,WC Wallpapers (transparent),Stack of Firefox World Cup wallpapers featuring Kit playing soccer.,,false,description
+727,original_images/WC_PiP_Static_Dark_v74A4hh.png,Picture-in-Picture soccer video,A soccer video playing in Picture-in-Picture over a league stats page.,,false,title description
+728,original_images/WC_SplitView_Static_z5imBZ4.png,WC Split View,Split view with World Cup widgets beside a sports article.,,false,description
+729,original_images/WC_TabGroups_Static_Dark_lF2A69I.png,Tab Groups,"Tab groups for World Cup fixtures, player stats, standings, and venues in the sidebar.",,false,description
+730,original_images/kit-balancing-1200-static-2.png,Kit balancing soccer ball - static 2,Kit balancing a soccer ball on its nose.,,false,title description
+731,original_images/Social_Share_5.png,Try Firefox,Kit balancing a soccer ball on its nose.,,false,description
+733,original_images/Smart_Window_-_Dark.png,Smart Window - Dark,"Smart Window new tab page, where you can ask, search, or type a URL.",,false,description
+734,original_images/Shake_to_summarize_2.png,Shake to summarize (Android),Shake to summarize in Firefox for mobile. QR Code: Scan to install Firefox.,,false,description
+735,original_images/WNP_151_-_AI_Controls_for_Mobile_-_Alt_1_1.png,WNP 152 - AI Controls for Mobile,QR Code: Scan to install Firefox.,,false,description
+736,original_images/1_frame.png,1 frame - 152 ROW,,,true,is_decorative
+737,original_images/2_frame.png,2 frame - 152 ROW,"Firefox for mobile menu with settings, search, and AI options.",,false,description
+738,original_images/3_frame.png,3 frame - 152 ROW,Firefox for mobile with Reader Mode and Picture-In-Picture.,,false,description
+739,original_images/Qq6anOLLErU6Ixq__Firefox__Private_Web_Browser_App_-_App_Store.svg,QR code - footer - WNP 152,QR Code: Scan to install Firefox.,,false,title description
+740,original_images/image5.png,What’s next,What’s next. Kit leaping past a browser window with Split View open.,,false,title description
+741,original_images/Video_Poster_-_FR.png,Video Poster - FR,Et ensuite ? Kit bondit devant une fenêtre de navigateur en vue scindée.,French,false,description tags
+742,original_images/Video_Poster_-_DE.png,Video Poster - DE,Was kommt als Nächstes? Kit springt an einem Browserfenster mit geöffneter geteilter Ansicht vorbei.,German,false,description tags
+747,original_images/Graph_Mobile.png,Graph Mobile,,,true,tags
+748,original_images/image_64.png,What’s new - FR,,"to-be-removed, French",true,title tags
+749,original_images/Desktop_Dark.png,Enterprise - Desktop - Dark,,"enterprise, UI",true,title description is_decorative
+750,original_images/Unlimited_VPN_-_FR.png,Unlimited VPN - FR,VPN avec données illimitées et localisation définie sur la Grande-Bretagne.,French,false,description tags
+751,original_images/WNP_152_-_AI_Controls_for_Mobile_-_FR.png,WNP 152 - AI Controls for Mobile - FR,Code QR : scannez pour installer Firefox.,French,false,description tags
+752,original_images/Unlimited_VPN_-_DEpng.png,Unlimited VPN - DE,VPN mit unbegrenztem Datenvolumen und Standort Großbritannien.,German,false,title description tags
+753,original_images/WNP_152_-_AI_Controls_-_DE.png,WNP 152 - AI Controls - DE,"QR-Code: Scannen, um Firefox zu installieren.",German,false,description tags
+754,original_images/card-browse-vpn.png,VPN is on,Built-in VPN turned on in the toolbar.,,false,description tags
+755,original_images/Group_2147229188.png,VPN is On,Kit hiding in a bush beside a notification that VPN is on.,,false,description tags
+756,original_images/Group_2147229140.png,VPN is On with Kit,Built-in VPN turned on in the toolbar.,,false,description tags
+757,original_images/Screenshot_2026-06-18_at_11.23.08AM.png,Airport Wi-Fi placeholder,"Person waiting in an airport, using a VPN.",,false,title description tags
+766,original_images/ChatGPT_Image_Jun_23_2026_09_10_29_PM.png,Temp - merch,"Kit on a shirt, socks, and water bottle, plus a cap that reads “Give a fox.”",,false,description tags
+771,original_images/Vacation_with_VPN.png,Vacation with VPN,Person relaxing in a hotel room with VPN on.,,false,description tags
+772,original_images/Airport.png,Airport,"Person waiting in an airport, using a VPN.",,false,description tags
+773,original_images/Travel_Pricing.png,Travel Pricing,Person escaping high ticket prices with a VPN.,,false,description tags
+777,original_images/ChatGPT_Image_Jun_29_2026_03_02_47_PM.png,Temp - clear session,A private window with the “clear private session” icon in the toolbar.,,false,description tags
+779,original_images/Option_1.png,Temp - pin to taskbar,Firefox in the Windows taskbar.,,false,description tags
+780,original_images/Option_261.png,Temp - QR share,"Share a tab as a QR code you can scan, save, or copy.",,false,description tags
+789,original_images/faq-wide.png,faq,,,true,tags
+790,original_images/update-browser_VSqqUBD.jpg,update browser,,,true,tags
+791,original_images/incognito-browser_x6ZvWJq.jpg,incognito browser,,,true,tags
+792,original_images/browser-history_9Cbc2zQ.jpg,Boarding a Subway,,,true,tags
+793,original_images/what-is-a-browser_9909mMG.jpg,Person reading history of the web,,,true,title tags
+794,original_images/firefox-64-bit_FJ78qqz.jpg,Firefox 64 vs 32 comparison,"More security and fewer crashes with 64-bit Firefox, compared to 32-bit.",,false,tags
+797,original_images/hero-pattern-fixed-size.png,Floating browser windows,,,true,tags
+804,original_images/Pin_to_Windows.png,Pin to Windows,Firefox in the Windows taskbar.,,false,description tags
+805,original_images/Pin_to_Mac_yaDTwWi.png,Pin to Mac - EN,Firefox in the macOS Dock.,,false,title tags
+806,original_images/Clear_the_history.png,Clear the history,A private window with the “clear private session” icon highlighted in the toolbar.,,false,description tags
+813,original_images/Pin_to_Windows_DE.png,Pin to Windows - DE,Firefox in der Windows-Taskleiste.,German,false,title description tags
+814,original_images/Pin_to_Windows_FR.png,Pin to Windows FR,Firefox épinglé à la barre des tâches de Windows pour un accès rapide.,French,false,tags
+815,original_images/Clear_the_history_DE.png,Clear the history - DE,Ein privates Fenster mit hervorgehobenem Symbol „Private Sitzung löschen“ in der Symbolleiste.,German,false,title description tags
+816,original_images/Clear_the_history_FR.png,Clear the history - FR,Une fenêtre de navigation privée avec l’icône « Effacer la session privée » mise en évidence dans la barre d’outils.,French,false,title description tags
+817,original_images/Pin_to_Mac_DE.png,Pin to Mac - DE,Firefox im macOS-Dock.,German,false,title description tags
+818,original_images/Pin_to_Mac_FR.png,Pin to Mac FR,Icône Firefox dans le Dock de macOS.,French,false,tags
+819,original_images/Merch_-_DE.png,Merch - DE,"Firefox-Artikel mit einer Kappe, einem T-Shirt, Socken und einer Trinkflasche.",German,false,tags
+820,original_images/Merch_-_FR.png,Merch - FR,"Articles Firefox comprenant une casquette, un t-shirt, des chaussettes et une gourde.",French,false,tags
+822,original_images/VPN_DE_KlFJbs6.png,VPN DE,Firefox-Fenster mit dem Menü von Mozilla VPN und der Option „Unbegrenztes Datenvolumen“.,German,false,tags
+823,original_images/VPN_FR_UYhWIGa.png,VPN - FR,Panneau du VPN intégré avec l’option « Données illimitées ».,French,false,title description tags
+825,original_images/Tab_Groups_FR.png,Tab Groups - FR,Navigateur Firefox affichant des groupes d’onglets contenant plusieurs pages web.,French,false,title description tags
+826,original_images/Tab_Groups_DE.png,Tab Groups - DE,"Firefox-Browser mit Tab-Gruppen, die mehrere gruppierte Webseiten anzeigen.",German,false,title description tags
+827,original_images/Shake_to_summarize_DE.png,Shake to summarize - DE,Mobiler Bildschirm mit einer KI-generierten Zusammenfassung des Inhalts einer Webseite.,German,false,title tags
+828,original_images/Shake_to_summarize_FR_copy.png,Shake to summarize - FR,Écran de téléphone affichant un résumé du contenu d’une page web généré par l’IA.,French,false,title tags
+830,original_images/VPN_DE_xvOgEE2.png,VPN - DE,Bereich für das integrierte VPN mit der Option „Unbegrenztes Datenvolumen“.,German,false,title description tags
+832,original_images/QR_code_DE.png,QR code DE,Firefox-Browser mit einem QR-Code zum Teilen der aktuellen Webseite.,German,false,tags
+833,original_images/QR_code_FR.png,QR code FR,Navigateur Firefox affichant un code QR permettant de partager la page web actuelle.,French,false,tags
+834,original_images/Unlimited_data_VPN.png,Unlimited data VPN,Built-in VPN panel with the Unlimited data option.,,false,description
+845,original_images/Thumbnail.png,Thumbnail - EN,A tab group of websites focused on organization.,human-centered,false,title
+847,original_images/Thumbnail_FR.png,Thumbnail - FR,Un groupe d’onglets axé sur l’organisation.,French,false,title tags
+848,original_images/Thumbnail_DE.png,Thumbnail - DE,Eine auf Organisation ausgerichtete Tab-Gruppe.,German,false,title tags
+849,original_images/Option_9.png,Option 9,Shield with a check mark on a mobile device.,,false,description
+850,original_images/Option_1_ppmfQiv.png,Calm,Kit meditating.,,false,tags
+863,original_images/FloatWNP153.svg,Float QR Code - WNP153,QR Code: Scan to install Firefox.,,false,description tags
+864,original_images/icon-data-privacy.14ccc10e4d33.svg,icon data-privacy,,icon,true,tags
+865,original_images/icon-deploy.9a40bec49a01.svg,icon deploy,,icon,true,tags
+866,original_images/icon-release.2c98a5768cb7.svg,icon release,,icons,true,tags
+868,original_images/ENG.png,Share QR - EN,"Share any page with a QR code you can scan, save, or copy.",,false,description
+869,original_images/DE.png,Share QR - DE,"eile jede beliebige Seite mit einem QR-Code, den du scannen, speichern oder kopieren kannst.",German,false,title description tags
+870,original_images/FR.png,Share QR - FR,"Partagez n’importe quelle page à l’aide d’un code QR que vous pouvez scanner, enregistrer ou copier.",French,false,description tags
+875,original_images/Frame_2147229259_2.png,Store - EN,"Kit on a shirt, socks, and water bottle, plus a cap that reads “Give a fox.”",,false,title description tags
+876,original_images/Screenshot_2026-07-22_at_8.14.12PM.png,Dark BG,,background,true,tags
+877,original_images/Screenshot_2026-10-01_at_9.45.04PM.png,Vertical Black Background (Placeholder),,background,true,tags
+878,original_images/wrexhamafcxfirefox.png,Wrexham AFC x Firefox,Wrexham AFC crest next to the Firefox logo.,,false,title description
+879,original_images/wrexhamafc-away-kit.png,Wrexham AFC away kit,Wrexham AFC away shirt with the Firefox logo on the front.,,false,title description
+880,original_images/browser-football.png,Browser football,,,true,title is_decorative
+881,original_images/Clear-browsing.png,Clear browsing,A private window with the “clear private session” icon highlighted in the toolbar.,,false,title description
+882,original_images/QRshare.png,QR code - share page,Share a page as a QR code you can save or copy.,,false,title description
+898,original_images/firefox-enterprise-light.svg,Firefox Enterprise Logo,Firefox Enterprise.,enterprise,false,description
+899,original_images/kit-purple-round-circle-4-3.png,Kit - purple round background,Kit peeking out of a hole.,,false,title description
+904,original_images/mozilla-foundation-video-cover.png,Mozilla Foundation video cover,"Room full of retro computers, with an On Air sign glowing on the wall.",,false,title description
+918,original_images/Firefox_Nightly.png,Firefox Nightly,Firefox windows with different themes and layouts.,,false,description
+920,original_images/Youtube_Playback_2.png,Youtube Playback 2,Kit flying on a magic carpet.,,false,description
+921,original_images/Startpage.png,Startpage DE,Illustration von Firefox mit geöffnetem Suchmenü und Startpage als Suchoption.,German,false,tags
+923,original_images/VPN1.png,VPN on mobile,Kit hiding in a bush beside the toggle for the built-in VPN in Firefox for mobile.,,false,title description
+927,original_images/Startpage_copy.png,Startpage FR,Illustration de Firefox affichant le menu de recherche avec Startpage comme option de recherche.,French,false,tags
+929,original_images/firefox.svg,Firefox logo,Firefox logo.,,false,title tags
+930,original_images/chrome-24.svg,chrome,Chrome logo.,,false,tags
+931,original_images/edge.svg,Edge logo,Edge logo.,,false,title tags
+932,original_images/safari.svg,safari,Safari logo.,,false,tags
+933,original_images/brave.svg,brave,Brave logo.,,false,tags
+934,original_images/opera.svg,opera,Opera logo.,,false,tags
+936,original_images/Property_1Simple.png,Smart Window,"Smart Window new tab page, where you can ask, search, or type a URL.",,false,description
+937,original_images/QRCode_-_Firefox_154_footer.svg,QRCode - Firefox 154 footer,QR Code: Scan to install Firefox.,,false,description
+938,original_images/Devices_DE.png,Devices - DE,,German,true,title description tags is_decorative
+939,original_images/Devices_EN.png,Devices - EN,,pictogram,true,title description tags is_decorative
+940,original_images/Devices_FR.png,Devices - FR,,French,true,title description tags is_decorative
+941,original_images/Android_VPN_DE.png,Android_VPN_DE,"Illustration von aktiviertem Mozilla VPN auf einem Android-Smartphone, mit dem Firefox-Fuchs im Vordergrund.",German,false,tags
+942,original_images/Android_VPN_EN.png,Android VPN - EN,Kit se cache dans un buisson à côté de l’interrupteur du VPN intégré à Firefox pour mobile.,,false,title description
+943,original_images/Android_VPN_FR.png,Android_VPN_FR,"Illustration de Mozilla VPN activé sur un téléphone Android, avec le renard de Firefox au premier plan.",French,false,tags
+944,original_images/GeForce_DE.png,GeForce DE,"Collage mit Motiven aus den Videospielen Cyberpunk 2077, Moonlighter und Dead Cells.",German,false,tags
+945,original_images/GeForce_FR.png,GeForce FR,"Collage présentant des illustrations des jeux vidéo Cyberpunk 2077, Moonlighter et Dead Cells.",French,false,tags
+946,original_images/Firefox_Nightly_FR_DE.png,Firefox Nightly - DE,Firefox-Fenster mit verschiedenen Themes und Layouts.,German,false,title description tags
+947,original_images/Firefox_Nightly_FR.png,Firefox Nightly - FR,Fenêtres Firefox avec différents thèmes et agencements.,French,false,title description tags
+948,original_images/GroupTabs_DE.png,GroupTabs_DE,Illustration eines Android-Mobilgeräts mit dem Android-Logo.,German,false,tags
+949,original_images/GroupTabs_EN.png,Android Group Tabs - EN,,pictogram,true,title description tags is_decorative
+950,original_images/GroupTabs_FR.png,Group Tabs - FR,,French,true,title description tags is_decorative
+954,original_images/Startpage_FR.png,Startpage FR,Illustration de Firefox affichant le menu de recherche avec Startpage comme option de recherche.,French,false,tags
+955,original_images/Startpage_DE.png,Startpage DE,Illustration von Firefox mit geöffnetem Suchmenü und Startpage als Suchoption.,German,false,tags
+956,original_images/Android_VPN_-_DE.png,Android VPN - DE,"Illustration von aktiviertem Mozilla VPN auf einem Android-Smartphone, mit dem Firefox-Fuchs im Vordergrund.",German,false,tags
+957,original_images/Nvidia_GeForce_DE.png,Nvidia GeForce - DE,Cloud-Gaming mit NVIDIA GeForce NOW in Firefox.,German,false,title description tags
+958,original_images/Nvidia_GeForce_FR.png,Nvidia GeForce - FR,Jeu dans le cloud avec NVIDIA GeForce NOW dans Firefox.,French,false,title description tags
+959,original_images/Nvidia_GeForce.png,Nvidia GeForce,NVIDIA GeForce NOW cloud gaming in Firefox.,,false,description
+960,original_images/Startpage_-_DE.png,Startpage - DE,Illustration von Firefox mit geöffnetem Suchmenü und Startpage als Suchoption.,German,false,tags
+961,original_images/Startpage_-_FR.png,Startpage - FR,Illustration de Firefox affichant le menu de recherche avec Startpage comme option de recherche.,French,false,tags
+962,original_images/Android_VPN_-_DE_3JC3tbB.png,Android VPN - DE,Kit versteckt sich in einem Busch neben dem Schalter für das integrierte VPN in Firefox für Mobilgeräte.,German,false,description tags
+963,original_images/Android_VPN_-_FR_copy.png,Android VPN - FR,"Illustration de Mozilla VPN activé sur un téléphone Android, avec le renard de Firefox au premier plan.",French,false,tags
+966,original_images/card1-play-a.png,Card Play - A,GeForce NOW game streaming in Firefox.,,false,description
+967,original_images/card2-bring-a.png,Card 2 Bring - A,"Game art for 007 First Light, Crimson Desert, and Pragmata.",,false,description
+968,original_images/card3-make-a.png,Card 3 Make - A,,,true,is_decorative
+969,original_images/everything-a.png,Everything - A,Split view with GeForce NOW in one tab and game tips in the other.,,false,description
+971,original_images/Android_VPN_-_FR_copy_2.png,Android VPN - FR,Kit se cache dans un buisson à côté de l’interrupteur du VPN intégré à Firefox pour mobile.,French,false,description tags
+972,original_images/YourChatsStayPrivate.original.webp,Private chats,,smart-window,true,title description is_decorative
+974,original_images/MemoriesOff.png,Memories off,,,true,title is_decorative
+976,original_images/kitfinal.png,Kit playing a game,"Kit wearing a gaming headset, gripping a controller in its paws.",,false,description
+977,original_images/Firefox_x_Nvidia_static_Purpl_BG.png,Kit Playing a Game V3,"Kit wearing a gaming headset, gripping a controller in its paws.",,false,description
+978,original_images/Qq8phShHw4IDtEJ__WNP_155_ROW.svg,WNP 155 (ROW) - QR-F,QR Code: Scan to install Firefox.,,false,description
+984,original_images/Hero_asset_-_3.png,Hero asset - Kit flying on paper airplane,Kit riding a paper airplane.,,false,description
+991,original_images/GeForceDE.png,GeForceDE,Illustration von NVIDIA GeForce NOW in Firefox mit einem Actionspiel und zwei gepanzerten Figuren.,German,false,tags
+992,original_images/GeForceFR.png,GeForceFR,"Illustration de NVIDIA GeForce NOW dans Firefox, affichant un jeu d’action avec deux personnages en armure.",French,false,tags
+993,original_images/Hero_-_Kit_-_DE.png,Hero - Kit - DE,Kit fliegt auf einem Papierflieger.,German,false,description tags
+994,original_images/Hero_-_Kit_-_FR.png,Hero - Kit - FR,Kit sur un avion en papier.,French,false,description tags
+996,original_images/Qq8qj72NXkGIlDm_WNP_155_Core_Floating_QR.svg,WNP 155 (Core) Floating QR,QR Code: Scan to install Firefox.,,false,description
+997,original_images/GeForce.png,GeForce - EN,NVIDIA GeForce NOW cloud gaming in Firefox.,,false,title description
+998,original_images/Playback.png,Playback - EN,YouTube playback bar being scrubbed super fast.,,false,description
+999,original_images/Android_VPN_-_FR.png,Android VPN - FR,"VPN activé sur un téléphone Android, avec une limite mensuelle de données de 50 Go.",French,false,tags
+1000,original_images/Android_VPN_-_DE_luAYYgP.png,Android VPN - DE,Aktiviertes VPN auf einem Android-Smartphone mit einem monatlichen Datenlimit von 50 GB.,German,false,tags
+1001,original_images/GeForceDEpng.png,GeForce NOW - DE,,German,true,title description tags is_decorative
+1002,original_images/GeForce_FR_pBbnw1w.png,GeForce - FR,Jeu dans le cloud avec NVIDIA GeForce NOW dans Firefox.,French,false,title description tags
+1003,original_images/10x-DE.png,10x - DE,Sehr schnelles Verschieben der Abspielposition auf der YouTube-Wiedergabeleiste.,German,false,title description tags
+1004,original_images/10x-FR.png,10x - FR,Déplacement très rapide du curseur sur la barre de lecture YouTube.,French,false,title description tags
+1006,original_images/Card_Image7.png,SW - EN,Switch between Classic Window and Smart Window from the toolbar.,,false,description
+1029,original_images/magazine-psd-mockup-8-5-x-11-g.webp,Blank magazine mockup,,,true,title is_decorative
+1030,original_images/Frame_2147229148_3.png,Stat and quote placeholder,,,true,title is_decorative
+1031,original_images/Frame_2147229148_2.png,Accordion placeholder,,,true,title is_decorative
+1036,original_images/Firefox_mobile_c7iOleX.png,Firefox for mobile,QR Code: Scan to install Firefox.,,false,title description
+1037,original_images/Qq43hUuaDRdiaWU_WNP150_on_page_-_WNP_156ROW.svg,QR Code - WNP 150 - on page - WNP 156 ROW,QR Code: Scan to install Firefox.,,false,title description
+1044,original_images/Community.png,Community,"People on computers, each using Firefox.",,false,description
+1050,original_images/Merch_2.png,Merch 2,Person wearing a purple hat that says: Give a fox.,,false,description
+1054,original_images/Read_aloud.png,Read aloud,Kit happily listening through headphones.,,false,description
+1056,original_images/Stylus.png,Stylus,,,true,is_decorative
+1057,original_images/Mistral_Partnership_DPicj24.png,Firefox x Mistral - FR,Logos de Firefox et de Mistral côte à côte.,French,false,title description tags
+1061,original_images/creators-temp.png,Creators temp,,,true,title is_decorative
+1063,original_images/behindscenes-temp.png,Behind the scenes - temp,,,true,title is_decorative
+1064,original_images/Billboard-temp-3.png,Billboard temp 3,Firefox billboard: “The internet. As it should be. Fewer tracking. More you. Good internet things happen.”,,false,title description
+1066,original_images/Billboard-vote.png,Billboard vote,"Firefox billboards in New York, London, Paris, and Berlin.",,false,title description
+1069,original_images/WNP_156_Core_Floating_QR.svg,WNP 156 (Core) Floating QR,QR Code: Scan to install Firefox.,,false,description
+1072,original_images/FR_Pick_the_model_that_fits.png,Pick the model that fits - FR,"Modèles de Smart Window : Rapide, Personnel, Flexible.","mistral, smart-window, French",false,title description tags
+1073,original_images/FR_Use_chat_or_search.png,Use chat or search - FR,"La question « Qu’est-ce que le Super Bowl ? » est posée à la fenêtre intelligente, qui affiche les résultats dans le chat ou via une recherche web.","French, smart-window",false,title description
+1074,original_images/FR_Your_chats_stay_private.png,Your chats stay private - FR,,"lock, smart-window, French",true,title description tags is_decorative
+1075,original_images/Share_5_wS2fWzs.png,Share FR,,French,false,tags
+1076,original_images/FR_There_when_you_need_it.png,There when you need it - FR,Passez de la fenêtre classique à la fenêtre intelligente depuis la barre d’outils.,"French, smart-window",false,title description
+1077,original_images/SmartWindow_CompareTabs2x.png,Smart Window Compare Tabs - FR,Fenêtre intelligente : comparez les ingrédients de ces produits. Sites web joints.,"smart-window, French",false,title description tags
+1078,original_images/SmartWindow_FasterRecall2x.png,Smart Window faster recall - FR,Fenêtre intelligente : réponse à une question sur l’historique de navigation.,"smart-window, French",false,title description tags
+1079,original_images/SmartWindow_Memories2x.png,Smart Window Memories - FR,Fenêtre intelligente : affichage des souvenirs enregistrés.,"smart-window, French",false,title description tags
+1080,original_images/New_Wallpaper_Asset_-_RRR.png,Wrexham AFC Wallpaper and Theme,Wrexham AFC wallpaper and theme in Firefox.,,false,description
+1081,original_images/Smart_Window_FR.png,Smart Window FR,Menu Firefox permettant de choisir entre une fenêtre classique et une fenêtre intelligente.,French,false,tags
+1082,original_images/FR_Hero_Thumbnail_Fallback.png,Smart Window - Hero Thumbnail Fallback - FR,Fenêtre intelligente avec la barre de recherche Firefox.,"Hero, smart-window, French",false,title description tags
+1083,original_images/FR_Memories_Off_Thumbnail_Fallback.png,Memories off - Thumbnail - Fallback - FR,,"memories, smart-window, French",true,title description tags is_decorative
+1084,original_images/FR_Research_Thumbnail_Fallback.png,Smart Window research - thumbnail fallback - FR,Smart Window: L’anniversaire de mon père est demain. J’ai besoin d’idées.,"research, smart-window, French",false,title description tags
+1085,original_images/FR_Plan_Thumbnail_Fallback.png,Plan Thumbnail Fallback - FR,Smart Window: On vient juste de m’inviter à un mariage à la Nouvelle-Orléans la semaine prochaine.,"plan, smart-window, French",false,title description tags
+1086,original_images/Share_FR.png,Share FR,,French,false,tags
+1087,original_images/Share_DE.png,Share DE,,German,false,tags
+1088,original_images/Merch_DE.png,Merch - DE,Person mit einem lila Hut mit der Aufschrift „Give a fox“.,German,false,title description tags
+1089,original_images/Merch_FR.png,Merch - FR,Personne portant un chapeau violet avec l’inscription « Give a fox ».,French,false,title description tags
+1090,original_images/Privacy_badger-DE.png,Privacy badger - DE,,German,true,title description tags is_decorative
+1091,original_images/Privacy_badger-FR.png,Privacy Badger - FR,,French,true,title description tags is_decorative
+1092,original_images/Readalound-DE.png,Read aloud - DE,Kit hört glücklich und entspannt über Kopfhörer zu.,German,false,title description tags
+1093,original_images/Readalound-FR.png,Read aloud - FR,"Kit écoute avec bonheur, un casque sur les oreilles.",French,false,title description tags
+1094,original_images/stylus-DE.png,Stylus - DE,,German,true,title description tags is_decorative
+1095,original_images/stylus-FR.png,Stylus - FR,,French,true,title description tags is_decorative
+1096,original_images/iOS-AdBlocker.png,iOS ad blocker - EN,Kit knocking an ad off a recipe page and into a hole.,,false,title description
+1097,original_images/Privacy_badger-EN.png,Privacy Badger - EN,,wnp,true,title
+1098,original_images/21.png,Nova - EN,"Color picker to customize Firefox, next to vertical tabs organized into colored tab groups.",,false,description
+1099,original_images/DE_po08QvN.png,Nova - DE,"Farbauswahl zum Anpassen von Firefox neben vertikalen Tabs, die in farbigen Tab-Gruppen organisiert sind.",German,false,title description tags
+1100,original_images/FR_h9wI9nK.png,Customize colors - FR,"Sélecteur de couleurs pour personnaliser Firefox, à côté d’onglets verticaux organisés en groupes colorés.",French,false,title description tags
+1101,original_images/iOS-AdBlocker_Thumbnail_FR.png,iOS Ad Blocker - Thumbnail - FR,"Illustration du renard Firefox écartant une publicité d’une page de recette affichée sur un iPhone, pour illustrer le blocage des publicités.",French,false,title tags
+1104,original_images/welcome-en.jpg,Private browsing page,Firefox browsing in a private window.,,false,title description
+1106,original_images/index.png,DevTools Challenger in Firefox Developer Edition,"The DevTools Challenger site open in Firefox Developer Edition, with the Animations panel showing a timeline.",,false,description
+1107,original_images/firefox-focus-hero-crop.jpg,Firefox Focus start screen - cropped,,,true,title description is_decorative
+1108,original_images/FireFox-Focus-Screenshot-1-1-300x533.png,Firefox Focus,,,true,description is_decorative
+1109,original_images/image-300x112.png,Firefox Focus Erase Button,Erase button next to the address bar in Firefox Focus.,,false,description
+1110,original_images/iOS-Focus_AppStore-iPhonePlus-300x436.png,Firefox Focus settings on iPhone,"Firefox Focus settings on iPhone, with Block ad trackers circled and the analytics and social tracker switches on.",,false,description
+1111,original_images/Disconnect-Header.jpg,Disconnect Header,,,true,description is_decorative
+1112,original_images/Disconnect-Study-Blog-Post-Graph-01-1-300x150.jpg,Chart: average page load time per browser,Bar chart of average page load time showing Firefox Private Window loads 4.5s faster than Chrome.,,false,description
+1113,original_images/Disconnect-Study-Blog-Post-Graph-02-300x150.jpg,Chart: pages loaded within 6 seconds,Bar chart: 70% of pages loaded within 6 seconds in Chrome Incognito and 95% in Firefox Private Browsing.,,false,description
+1114,original_images/Screenshot-2017-11-16-Comparing-Page-Load-Time-Firefox-Private-Browsing-vs.png,"Firefox Tracking Protection settings, 2017",Tracking Protection settings set to “always”.,,false,description
+1115,original_images/SP_FX_Monitor_blogheader_01.jpg,Firefox Monitor logo,,,true,title description is_decorative
+1117,original_images/Monitor-1000x542.jpg,"Firefox Monitor homepage, 2018",Firefox Monitor homepage with a form to enter an email address to scan for breachs.,,false,description
+1118,original_images/FX_Blog_EPT_Dave_Camp_1200x660.jpg,Enhanced Tracking Protection shield,,,true,description is_decorative
+1119,original_images/ETP_EN_Custom_PC_Cropped-600x508.jpg,Firefox Enhanced Tracking Protection settings - 2019,"Browser Privacy settings for blocking trackers, with Custom blocking selected.",,false,title description
+1120,original_images/FBC_EN-600x360.jpg,Facebook Container blocked share button,Notice on a site’s share buttons: Facebook Container has disabled this button and blocked Facebook from tracking your visit to this page.,,false,description
+1122,original_images/Monitor_MobileDash_EN-600x806.jpg,Firefox Monitor breach summary on mobile,"Firefox Monitor breach summary on mobile, showing monitored email addresses, data breaches, and exposed passwords.",,false,description
+1123,original_images/Fx_69_ETP_1200x660.jpg,Pink shield illustration,,,true,description is_decorative
+1124,original_images/Screen-Shot-2019-09-03-at-13.51.17-600x74.png,Shield icon in the Firefox address bar,The Enhanced Tracking Protection shield next to the padlock in the Address bar for reddit.com.,,false,description
+1125,original_images/ETP-Blocking-Cookies-300x264.png,"Firefox Content Blocking panel, 2019",Site information panel for nytimes.com with Content Blocking set to Blocking Tracking Cookies.,,false,description
+1126,original_images/ETP-Blocked-Cookies-300x472.png,"Firefox blocked tracking cookies list, 2019","Cookies list for nytimes.com: the site’s own cookies, then tracking cookies from DoubleClick, google-analytics and others marked as Blocked.",,false,description
+1127,original_images/ff-blog-header-doh-1_2.jpg,Encrypted DNS header illustration,,,true,description is_decorative
+1128,original_images/DoH-Selection.png,"Firefox DNS over HTTPS settings, 2020","Firefox Connection Settings with Enable DNS over HTTPS ticked and a provider menu showing Cloudflare (Default), NextDNS and Custom.",,false,description
+1129,original_images/1-U9MM2AJ7tlXR_1BDvEcdoQ.jpeg,Still from the film Sneakers,four people gathered around computer monitors from the 1992 film Sneakers.,,false,description
+1130,original_images/oKprr3tEBew-hqdefault.jpg,Sneakers scene video poster,Ben Kingsley in the movie Sneakers.,,false,description
+1134,original_images/zdA__2tKoIU-hqdefault.jpg,A Christmas Story decoder scene video poster,Ralphie from A Christmas Story flipping through papers.,,false,description
+1135,original_images/mozilla_blog-post_visuals_grayscale_header.png,Grayscale brain illustration,Vintage anatomical drawing of a human brain on a pixelated gray background.,,false,description
+1136,original_images/mozilla_blog-post_visuals_grayscale_cycle.png,Grayscale cycling video still,"Grayscale still of road cyclists racing on a TV broadcast, with a play button over it.",,false,description
+1137,original_images/mozilla_blog-post_visuals_grayscale_phone.png,Phone home screen in grayscale,iPhone Home screen with all the apps shown in grayscale.,,false,description
+1138,original_images/Containers_Blog.gif,Multi-Account Containers illustration,Animation of cartoon tabs with different personalities.,,false,description
+1139,original_images/container-tour-1.png,Multi-Account Containers toolbar icon,Select the Multi-Account Containers icon in the toolbar to use or manage containers.,,false,title description
+1140,original_images/container-tour-2-copy.png,Multi-Account Containers menu,Opening a new Container from the tab bar.,,false,title description
+1141,original_images/fx_blog_header_extensions_writing.png,Extensions puzzle piece illustration,The add-ons logo surrounded by sparkles.,,false,description
+1143,original_images/moz_blog_multiple-tabs.jpg,Browser windows with tabs illustration,,,true,description is_decorative
+1144,original_images/What_Version_Are_You_On.jpg,Firefox version illustration,,,true,description is_decorative
+1145,original_images/moz_blog_web-extensions_code-love.jpg,Add-ons coding illustration,,,true,description is_decorative
+1146,original_images/Screen-Shot-2018-03-28-at-12.30.31-PM-300x213.png,"Firefox Tools menu, Add-ons, 2018",Firefox Tools menu with Add-ons highlighted.,,false,description
+1147,original_images/Screen-Shot-2018-03-28-at-1.20.45-PM.png,about:addons in the Firefox address bar,,,true,description is_decorative
+1148,original_images/Screen-Shot-2018-03-28-at-1.32.33-PM-300x533.png,"Firefox menu, Add-ons, 2018","Firefox application menu, with Add-ons highlighted.",,false,description
+1149,original_images/firefox-logo.png,"Firefox logo, 2017",,,true,description is_decorative
+1150,original_images/FF58_Moz.org_FacebookContainerExtension_blog-header-v1-02.jpg,Facebook Container header,Facebook Container logo.,,false,description
+1151,original_images/no-bubble.png,Facebook in a container tab,Facebook open with a blue Facebook container label in the address bar.,,false,description
+1152,original_images/crossistebloggraphic.jpg,Cross-site tracking illustration,,,true,description is_decorative
+1153,original_images/Screen-Shot-2018-04-12-at-11.59.54-AM.png,Social share buttons on a website,Row of social sharing icons.,,false,description
+1154,original_images/SP_Mozorg_BlogHeader_GamingBrowser-04.png,Browser gaming illustration,,,true,description is_decorative
+1155,original_images/moz_blog_slow-spinning-wheel_windows-01.jpg,Hijacked browser illustration,Browser window with a large loading spinner over a blank page.,,false,description
+1156,original_images/Fx_for_iPad_Blog_1200x660.jpg,Firefox for iPad banner,,,true,description is_decorative
+1158,original_images/lockbox-firefox.png,Firefox Lockbox and Firefox split screen on iPad,iPad split screen with the Firefox Lockbox list of saved logins on the left and a webpage with a form on the right.,,false,description
+1159,original_images/Screen-Shot-2019-03-21-at-2.40.31-PM.png,Firefox for iPad keyboard shortcuts,Firefox for iPad keyboard shortcuts cheat sheet.,,false,description
+1160,original_images/private_browsing_2.png,Passwords in private browsing illustration,Password field in front of a private browsing window.,,false,title description
+1161,original_images/image1.png,"Run in Private Windows add-on setting, 2019","Add-on setting Run in Private Windows set to Don’t Allow, with a note that allowed extensions can see your private browsing activity.",,false,description
+1162,original_images/Fx67-Addon_EN.png,"Add-on installed in Firefox prompt, 2019",Prompt saying Facebook Container has been added to Firefox.,,false,description
+1163,original_images/FX_Track_This_Blog_1200x660.jpg,Track THIS header illustration,,,true,description is_decorative
+1164,original_images/Screenshot_2019-06-25-Track-This-A-new-kind-of-Incognito.png,Track This site,"Track This, a new kind of incognito: choose an alter ego, Hypebeast, Filthy Rich, Doomsday, or Influencer, and it opens 100 tabs to fool trackers.",,false,title description
+1165,original_images/auto_block_v2.png,Block autoplay illustration,"A play button, crossed out.",,false,description
+1166,original_images/autoplay_screen1.png,"Firefox Autoplay permission settings, 2019","Firefox settings, with an arrow pointing to the Autoplay Settings button under Permissions.",,false,description
+1167,original_images/autoplay_screen2-bbc.png,"Firefox site Autoplay menu, 2019",Site information panel for bbc.com with the Autoplay menu open and Block Audio and Video selected.,,false,description
+1168,original_images/header_privacy_strong-passwords.png,Password brain illustration,"Brain drawn in dots, with a password field in the middle.",,false,description
+1170,original_images/monitor-shot-embed.png,"Firefox Monitor breach check, 2019","Firefox Monitor site, where you can see if you’ve been part of an online data breach.",,false,description
+1171,original_images/featured_extension_header.png,"Extension spotlight header, purple",,,true,description is_decorative
+1172,original_images/featured-extension-header_image-search.png,"Extension spotlight header, red",,,true,description is_decorative
+1173,original_images/header_block-notifications.png,Blocked notifications icon,,,true,description is_decorative
+1175,original_images/firefox-browser-logo.png,Firefox logo,,,true,title description is_decorative
+1176,original_images/featured-extension-header_privacybadger.png,"Extension spotlight header, orange",,,true,description is_decorative
+1177,original_images/PrivacyBadgerLogo.svg,Privacy Badger logo,Privacy Badger logo.,,false,description
+1179,original_images/windows-default-bookmarkes-menu-300x383.png,Import Personal Data,File menu with Import from Another Browser selected.,,false,description
+1180,original_images/skyline-peace-of-mind-full_EN.png,Banner: blocking 10 billion trackers a day,You keep your peace of mind. We’ll keep blocking 10 billion trackers a day.,,false,description
+1181,original_images/fx_blog_header_extensions_productivity.png,Productivity extensions header,"Browser window with the add-ons icon, surrounded by check marks and sparkles.",,false,description
+1182,original_images/fx_blog_header_extensions_streaming-1024x576.png,"Streaming extensions header, small",,,true,description is_decorative
+1183,original_images/fx_blog_header_extensions_streaming.png,Streaming extensions header,,,true,description is_decorative
+1184,original_images/turn-off-the-lights-screen-dim-600x455.png,Turn Off the Lights extension in use,"Web page dimmed around a YouTube video, so only the video stays bright.",,false,description
+1185,original_images/fx_blog_header_extensions_productivity-1024x576.png,"Productivity extensions header, small","Browser window with a the add-ons icon, surrounded by check marks and sparkles.",,false,description
+1186,original_images/fx_blog-header_fx-android_collections-EN.png,Firefox for Android Collections header,"Firefox for mobile home screen with Collections for recipes, shopping, and gardening.",,false,description
+1187,original_images/ottolenghi-blur-300x514.png,Firefox for Android Save to collection menu,"Firefox for mobile menu open over a recipe page, with Save to collection circled.",,false,description
+1188,original_images/android-collections2-e1598472000890-600x576.png,Firefox for Android Collections list,"Collections list: School stuff, Road trip ideas, Get in my belly, Should I get a dog, Green thumb.",,false,description
+1189,original_images/collections-cta-1.png,Get Firefox for Android banner,Firefox new tab page with collections on it.,,false,description
+1190,original_images/fx_blog-header_screenshots_1920x1080.png,Firefox Screenshots header,"Selection tool around a mountain picture on a web page, with buttons to save or copy.",,false,description
+1191,original_images/new-context-menus-1024x729.png,Take Screenshot in context menu,Take Screenshot option in the context menu.,,false,title description
+1192,original_images/Ctt6SarPJKRg9cO3LbazNG_eEYSWylHcCEKm6jnGdgphX7ttOsWQvth_7Rndgojj4tKVwpXhIC6VS8,Firefox Screenshot toolbar button,The screenshot icon is scissors cutting a dotted outline.,,false,description
+1193,original_images/Visual-Guidelines.png,Visual Guidelines,,,true,description is_decorative
+1195,original_images/CD111,Felipe Pantone artwork,,,true,description is_decorative
+1196,original_images/fx-focus_feature-image_delete-history.png,Firefox Focus erase history header,The trash can erase button highlighted in the Firefox Focus menu bar.,,false,description
+1197,original_images/image1-473x1024.png,Firefox Focus Enhanced Tracking Protection settings,"Firefox Focus Enhanced Tracking Protection settings, blocking advertising, analytics, and social trackers.",,false,title description
+1198,original_images/TR-blog-partnership_1200x800.jpg,Firefox x Pixar Turning Red,"The characters from Disney and Pixar’s Turning Red, posing together.",,false,title description
+1200,original_images/fx_colorcalibration_blogheader_1280x720-1.jpg,Firefox logo on a laptop,,,true,description is_decorative
+1201,original_images/Ra84Vc24WI03nvoObKN5So671AzO2SPk6T2LPxWSJ1XmDx7qNMaClBUH4gpnnCpqT8PWxid02JOoBs,Application menu button icon,The menu button icon is 3 horizontal bars.,,false,title description
+1202,original_images/moz_blog_distilled_header_fx-account_1920x1080.jpg,Mozilla account features illustration,Firefox syncing passwords from desktop to mobile.,,false,title description
+1203,original_images/moz_blog_distilled_header_fx-account_1920x1080-1024x576.jpg,Sync and passwords illustration,Saved passwords syncing across devices.,,false,title description
+1204,original_images/2021-12-12-11-18-56-85e55f.png,Choose what to sync,"Choose what to sync menu, with options like bookmarks, history, open tabs, and logins and passwords.",,false,title description
+1205,original_images/2021-04-26-18-07-16-06f848.png,Pocket button in toolbar,"Pocket button in the toolbar, next to the address bar.",,false,title description
+1206,original_images/firefox-portability-compared-1-1024x523.png,Browser portability comparison table,Table comparing how well Firefox and other browsers work across devices. Firefox supports all five portabiliy features.,,false,title description
+1207,original_images/fx_blog_header_privacy_008_1920x1080.jpg,Padlock and password cloud illustration,,,true,description is_decorative
+1209,original_images/fx_blog_header_extensions_peace-of-mind-02.png,"Extensions header, blue",The add-ons logo surrounded by sparkles.,,false,description
+1211,original_images/google-docs-firefox_header.jpg,Firefox logo on a Google Docs page,A Google Doc’s text document with text and the Firefox logo.,,false,description
+1212,original_images/google-meet-2-1024x442.png,Google Meet visual effects,"Google Meet waiting room, where you can select visual effects.",,false,title description
+1213,original_images/image1-1024x568.png,Google Meet visual effects menu,Google Meet call with Apply visual effects selected in the menu.,,false,title description
+1214,original_images/moz_distilled_firefox-ECH_browser-lock-shield.png,Encrypted Client Hello header,,,true,description is_decorative
+1215,original_images/ech-blog-diagram-final-first-TM-1200-1-1024x567.png,Diagram: connection without ECH,"Diagram: Firefox on example.com sends a first message to a server, shown in red, above a green encrypted tunnel.",,false,description
+1216,original_images/ech-blog-diagram-final-second-TM-1200-1024x566.png,Diagram: connection with ECH,"Diagram: Firefox on example.com connects to a server through two encrypted tunnels, blue for the first message and green for the rest.",,false,description
+1217,original_images/fx_website_meta-image_tips-tricks_alt-04.png,Firefox,,,true,description is_decorative
+1218,original_images/fx_website_meta-image_tips-tricks_alt-04-1024x683.png,Firefox logo on blue-green background,,,true,description is_decorative
+1219,original_images/fx_blog_header_announcements_001_1920x1080.jpg,Speech bubble illustration,,,true,description is_decorative
+1220,original_images/were-the-firefox-leadership-team-at-mozilla-ama-live-v0-nqnndnsrc56d1-102.webp,Firefox leadership team AMA signs,Members of the Firefox leadership team holding signs announcing their June 13 AMA on r/firefox.,,false,title description
+1221,original_images/Firefox-tips-and-tricks-for-maximalists_2X.png,Firefox tab maximalist illustration,,,true,description is_decorative
+1222,original_images/Firefox-tips-and-tricks-for-maximalists_2X-1024x683.png,Tab maximalists illustration,,,true,title description is_decorative
+1223,original_images/pinned-tabs_y7f6TM6.png,Pinned Gmail tab,Browser window with a Gmail tab pinned to the Tabs Toolbar.,,false,title description
+1224,original_images/search-tabs.png,Search Tabs menu,Tab context menu with the Search Tabs option highlighted.,,false,title description
+1225,original_images/save-to-pocket.png,Saved to Pocket pop-up,Pocket extension pop-up confirming a page was saved to Pocket.,,false,title description
+1226,original_images/close-duplicate-tabs-1024x493.png,Tab context menu,"Tab context menu with options including Close Duplicate Tabs, Bookmark, and Share.",,false,title description
+1227,original_images/container-1024x73.png,Many open tabs,Browser window with multiple tabs open.,,false,title description
+1228,original_images/2.jpg,Firefox logo on colorful shapes,,,true,description is_decorative
+1229,original_images/containers-1-1024x436.png,New container tab menu,"New container tab menu, with containers for personal, work, banking, and shopping.",,false,title description
+1230,original_images/Firefox-anniversary-banner-1-purple-backfrop.png,Firefox anniversary - banner 1 (purple backdrop),Firefox 20th anniversary logo.,,false,description
+1232,original_images/nyt_ad_large_2004-600x484.png,"Firefox 1.0 New York Times ad, 2004","Two-page ad. Left: Firefox logo made of supporters’ names, “Are you fed up with your web browser?” Right: “Introducing Mozilla Firefox 1.0.”",,false,description
+1233,original_images/2006_crop_circle.jpg,Firefox logo crop circle,A crop circle of the Firefox logo.,,false,title
+1235,original_images/2010_pocketfox.jpg,"Pocketfox design, 2010","A blue denim pocket with an orange, flame-like tail sticking out of the top.",,false,description
+1236,original_images/LogoTagline-1024x563.png,The new Firefox - Fast for Good,The new Firefox. Fast for Good.,,false,title description
+1237,original_images/image.png,"Firefox team photo, 2004","About 20 people posing in a conference room, with laptops and cables across the tables in front of them.",,false,description
+1238,original_images/D27145-2851-1024x683.jpg,"Mozillians in Dublin, 2024","Hundreds of people cheering with raised arms in a large hall, with someone in a Firefox costume at the front.",,false,description
+1239,original_images/Firefox-anniversary-banner-2-anniversary-video.png,Firefox anniversary - banner 2 (anniversary video),A collage of photos from the first 20 years of Firefox’s history.,,false,description
+1241,original_images/ff_blog_header_PIP_red-panda.png,Red panda Picture-in-Picture header,A red panda video playing in Picture-in-Picture.,,false,description
+1242,original_images/ff_blog_header_PIP_red-panda-1024x576.png,Red panda in Picture-in-Picture,A red panda video playing in Picture-in-Picture.,,false,title description
+1243,original_images/image-1.png,Picture-in-Picture icon,Picture-in-Picture button.,,false,title description
+1244,original_images/8S2wH42o0cc-hqdefault.jpg,Firefox 20 red panda cams,,,true,title description is_decorative
+1245,original_images/Screenshot-2025-01-21-at-15.11.11.png,Firefox sail in a Great Wave scene,Woodblock-style art of a sailor steering a boat with a Firefox logo sail through towering waves.,,false,description
+1246,original_images/fox-1.png,Firefox running across a field of CPUs,A fiery red animal with a flaming tail running across a field of computer chips.,,false,description
+1247,original_images/Figure_1-1-1024x601.png,Inference time by number of threads chart,"Bar chart of inference time by number of threads. 8 threads is fastest, at about 0.8 seconds.",,false,title description
+1248,original_images/fx_website_meta-image_tips-tricks_alt-04-1.webp,Firefox logo on blue-green background,,,true,description is_decorative
+1249,original_images/fx_website_meta-image_tips-tricks_alt-04-1-1024x683.webp,"Firefox logo on blue-green background, small",,,true,description is_decorative
+1250,original_images/pocketFIrefox-blog-header.jpg,"Person typing on a laptop, pink tint",,,true,description is_decorative
+1251,original_images/Making-Mozilla-VPN-more-flexible_-A-new-extension-for-Windows.png,Mozilla VPN extension illustration,Browser window connected by a dotted line to a VPN extension.,,false,description
+1252,original_images/Making-Mozilla-VPN-more-flexible_-A-new-extension-for-Windows-1024x576.png,VPN extension illustration,Browser window connected by a dotted line to a VPN extension.,,false,title description
+1253,original_images/Explo-1.png,Accessibility extensions illustration,Extension puzzle piece orbited by accessibility tools.,,false,title description
+1254,original_images/Explo-1-1024x576.png,Accessibility extensions illustration,Extension puzzle piece orbited by accessibility tools.,,false,title description
+1255,original_images/dark-reader-1024x541.png,Dark Reader settings panel,Extension settings for Dark Reader. Open on a Google Doc.,,false,title description
+1256,original_images/extensions.png,Extensions webpage with bolded word beginnings,Three paragraphs from a webpage formatted to put the first part of every word in bold text.,,false,title description
+1257,original_images/read-aloud.png,Read aloud text-to-speech,"Text-to-speech tool reading The Old Man and the Sea aloud, with playback controls.",,false,title description
+1258,original_images/Fx-Mozilla-Connect_Header.png,Hands pointing at a laptop with the Firefox logo,Three hands pointing at a laptop showing the Firefox logo.,,false,description
+1259,original_images/Fx-Mozilla-Connect_Header-1024x576.png,Mozilla Connect,Three hands pointing at a laptop showing the Firefox logo.,,false,title description
+1260,original_images/tab-groups-1024x719.png,Create tab group pop-up,,,true,title description is_decorative
+1261,original_images/Create-Tab-Group-Panel.gif,Tab group collapsing - Mozilla,Animation of two tabs being grouped.,,false,title description
+1262,original_images/Create-Tab-Group-Panel.png,Manage tab group panel,,,true,title description is_decorative
+1263,original_images/Drag-Tabs.gif,Tab dragged into tab group,Animation of a tab being dragged into the a tab group.,,false,title description
+1264,original_images/Manage-Tab-Group-Panel.png,Manage tab group panel,,,true,title description is_decorative
+1265,original_images/Collapse-groups.gif,Expand tab groups animation,Animation showing tab groups being collapsed in the tab bar.,,false,title description
+1266,original_images/TOM-Menu.png,Recent tab groups menu,,,true,title description is_decorative
+1267,original_images/Fx-Labs-.jpg,Firefox Labs,,,true,title description is_decorative
+1268,original_images/Labs-CustomWallpapers-1024x626.png,"Firefox Labs settings, 2025",Firefox Labs settings with an arrow from the Firefox Labs menu item to the ticked custom wallpaper or color option.,,false,description
+1269,original_images/WallpapersColors.png,Firefox New Tab solid color picker,Solid colors picker with 14 color swatches and an arrow pointing to the Choose a color option.,,false,description
+1270,original_images/profiles-screenshot.png,profiles screenshot,"Choose a Firefox profile window, with options to pick a work or personal profile, or create a new one.",,false,description
+1271,original_images/WIP-1024x576.jpg,Accessibility features illustration,"Accessibility feature icons: voice input, text size, touch, and visual settings.",,false,title description
+1272,original_images/profiles-screenshot-1024x882.png,Choose a Firefox profile window,"Choose a Firefox profile window, with options to pick a work or personal profile, or create a new one.",,false,title description
+1273,original_images/fx-sync.png,fx sync,Syncing data between a laptop and phone.,,false,description
+1274,original_images/fx-sync-1024x572.png,Sync between browser and mobile device,Syncing data between a laptop and phone.,,false,title description
+1275,original_images/firefox-pdf-add-text.png,PDF editor text tool,"PDF editor text tool, with options for text color and size.",,false,title description
+1276,original_images/mozilla-vpn-windows-extension-1024x640.png,Mozilla VPN website location settings,VPN menu showing a list of countries.,,false,title description
+1277,original_images/Header-17.png,Translations - Header,"Browser window with translation icons, surrounded by greetings like “hi,” “hola,” and “ciao.”",,false,title description
+1278,original_images/PXL_20250607_173058216-1024x771.jpg,People around a restaurant table,Volunteer localizers sharing a meal around a long restaurant table.,,false,title description
+1279,original_images/vonecia-carswell-0aMMMUjiiEQ-unsplash-scaled.jpg,Four friends arm in arm,"Four people standing arm in arm, joining together for Daily Defiance.",,false,description
+1280,original_images/vonecia-carswell-0aMMMUjiiEQ-unsplash-1024x683.jpg,Four people arm in arm - Daily Defiance,"Four people standing arm in arm, joining together for Daily Defiance.",,false,title description
+1281,original_images/Firefox-native-onnx.png,Firefox native onnx,Firefox logo next to an ONNX chip.,,false,description
+1282,original_images/image_iPF8knb.png,Topic model chart - WASM vs ONNX,"Bar chart of topic model latency: WASM is much faster than ONNX native at cold start, 532 ms versus 1,921 ms, and slightly faster when warm.",,false,title description
+1283,original_images/profiles-1.png,profiles,"Choose a Firefox profile window, with options to pick a work or personal profile, or create a new one.",,false,description
+1284,original_images/firefox-profiles-1024x576.png,Firefox profiles setup,Setup screen for creating and customizing browser profiles.,,false,title description
+1285,original_images/profiles-1-1024x533.png,Firefox Profile Manager,"Choose a Firefox profile window, with options to pick a work or personal profile, or create a new one.",,false,title description
+1286,original_images/image_viW5ElK.png,"Firefox visual search context menu, 2025",Context menu open on an image. Search Image with Google Lens is circled.,,false,description
+1291,original_images/poster-7-at-6.5s.png,ODin Turning logo - static,Spinning Odin logo.,,false,description
+1292,original_images/ajit_varma_website.width-400-150x150.png,Ajit Varma headshot,Ajit Varma.,blog,false,description
+1293,original_images/a75a18983be643c76d3219fb2ffc9aa7.png,Tarek Ziadé headshot,Tarek Ziadé.,blog,false,description
+1294,original_images/fx_blog_switch-edge-firefox_single_frame.png,Switching from Edge to Firefox,The Firefox logo in front of a blurred Microsoft Edge logo.,blog,false,description
+1295,original_images/block-notifcations-1.png,Spotting the notifications control,URL bar with “https” circled.,,false,description
+1296,original_images/block-notifcations-2.png,Blocking notifications from a website,Firefox prompt showing a prompt to allow or deny notifications from www.cnet.com.,,false,description
+1306,original_images/AI-controls-DE.png,AI controls - DE,Ein großer Schalter zum Ein- oder Ausschalten von KI.,"nova launch, German",false,title description tags
+1307,original_images/AI-controls-EN.png,AI controls - EN,A large switch to toggle AI on or off.,nova launch,false,title description
+1308,original_images/AI-controls-FR.png,AI controls - FR,Un grand interrupteur pour activer ou désactiver l’IA.,"nova launch, French",false,title description tags
+1309,original_images/Built-in-vpn-DE.png,Built-in VPN - DE,,"nova launch, German",true,title description tags is_decorative
+1310,original_images/Built-in-vpn-EN.png,Built-in VPN - EN,,nova launch,true,title description is_decorative
+1311,original_images/Built-in-vpn-FR.png,Built-in VPN - FR,,"nova launch, French",true,title description tags is_decorative
+1312,original_images/Customize-DE.png,Customize - DE,,"nova launch, German",true,title description tags is_decorative
+1313,original_images/Customize-EN.png,Customize - EN,Firefox window with a custom new tab page background.,nova launch,false,title description
+1314,original_images/Customize-FR.png,Customize - FR,,"nova launch, French",true,title description tags is_decorative
+1315,original_images/Import-DE.png,Import-DE,"„Ein Klick“, umgeben von Illustrationen für Lesezeichen, Einstellungen, Ordner und weitere Browserinhalte.","nova launch, German",false,tags
+1316,original_images/Import-EN.png,Import - EN,"“One little click” brings over your bookmarks, passwords, and history.",nova launch,false,title description
+1317,original_images/Import-FR.png,Import - FR,"« Un seul clic », entouré d’illustrations de favoris, de paramètres, de dossiers et d’autres contenus du navigateur.","nova launch, French",false,title tags
+1318,original_images/Kit-hero-DE.png,Kit hero - DE,"Kit, das Firefox-Maskottchen, von vorne.","nova launch, German",false,title description tags
+1319,original_images/Kit-hero-EN.png,Kit - hero - EN,,nova launch,true,title description is_decorative
+1320,original_images/Kit-hero-FR.png,Kit hero - FR,"Kit, la mascotte de Firefox, de face.","nova launch, French",false,title description tags
+1321,original_images/Make-it-yours-2-DE.png,Make it yours 2 - DE,,"nova launch, German",true,title description tags is_decorative
+1322,original_images/Make-it-yours-2-EN.png,Make it yours 2 - EN,A collage of Firefox windows with different colors and backgrounds.,nova launch,false,title description
+1323,original_images/Make-it-yours-2-FR.png,Make it yours 2 - FR,,"nova launch, French",true,title description tags is_decorative
+1324,original_images/Make-it-yours-DE.png,Make it yours - DE,,"nova launch, German",true,title description tags is_decorative
+1325,original_images/Make-it-yours-EN.png,Make it yours - EN,"Browser windows, folders, and padlocks floating in space.",nova launch,false,title description
+1326,original_images/Make-it-yours-FR.png,Make it yours - FR,,"nova launch, French",true,title description tags is_decorative
+1327,original_images/Refined-DE.png,Refined - DE,"Tab-Menü zum Hinzufügen eines neuen Tabs zur Seitenleiste, zu einer Tab-Gruppe oder zur geteilten Ansicht.","nova launch, German",false,title description tags
+1328,original_images/Refined-EN.png,Refined - EN,"Tab menu to add new tab to sidebar, to group, or split view.",nova launch,false,title description
+1329,original_images/Refined-FR.png,Refined - FR,"Menu d’onglet permettant d’ajouter un nouvel onglet à la barre latérale, à un groupe ou à une vue scindée.","nova launch, French",false,title description tags
+1330,original_images/Refined-general.png,Refined general,Kit peeking out from behind the toolbar.,nova launch,false,title description
+1331,original_images/Speed-DE.png,Speed - DE,Kit fliegt auf einem Papierflieger an verschwommenen Browserfenstern vorbei.,"nova launch, German",false,title description tags
+1332,original_images/Speed-EN.png,Speed - EN,Kit riding a paper airplane past a blur of browser windows.,nova launch,false,title description
+1333,original_images/Speed-FR.png,Speed - FR,"Kit sur un avion en papier, passant devant des fenêtres de navigateur floues.","nova launch, French",false,title description tags
+1334,original_images/Control-DE.png,Control-DE,"Kit, the Firefox mascot, leaps over a large toggle switch toward a browser window on a purple background.","nova launch, German",false,tags
+1335,original_images/Control-EN.png,Control - EN,Kit leaping off a large toggle switch toward a browser window.,nova launch,false,title description
+1336,original_images/Control-FR.png,Control-FR,"Kit, la mascotte de Firefox, bondit au-dessus d’un grand interrupteur vers une fenêtre de navigateur, sur un fond violet.","nova launch, French",false,tags
+1343,original_images/Firefox_Enterprise_Icon.png,Enterprise Icon,,enterprise,true,description is_decorative
+1344,original_images/firefox-logo_NE1Ng1N.png,Firefox Icon,,enterprise,true,description is_decorative
+1348,original_images/Enterprise-Download-Hero.png,Enterprise download hero,,enterprise,true,description is_decorative
+1349,original_images/Data_Control_-_Hero.png,Data Control hero,"The Enterprise admin console shows active policies, users, and groups.",enterprise,false,description
+1350,original_images/AI_Governance_-_Hero_static.png,Enterprise AI Governance hero,Turning on an AI policy in the admin console sends an “AI policy updated” notice.,enterprise,false,description
+1352,original_images/VDI__RBI_-_Hero.png,VDI & RBI reduction,Firefox Enterprise new tab page.,enterprise,false,title description
+1354,original_images/Image2_QjamlX1.png,compact mode,Firefox in compact mode.,nova launch,false,description
+1355,original_images/Compact_mode_DE.png,Compact mode nova,"Illustration von Firefox mit einer vertikalen Tableiste und einer „Neuer Tab“-Seite mit Schnellzugriffen sowie Widgets für Wetter, Timer, Weltzeituhr und Checkliste.","nova launch, German",false,tags
+1356,original_images/Compact_mode_FR.png,Compact mode nova FR,"Illustration de Firefox avec une barre latérale d’onglets et une page de nouvel onglet affichant des raccourcis et des widgets météo, minuteur, horloge mondiale et liste de tâches.","nova launch, French",false,tags
+1357,original_images/Compact_mode.png,Compact mode nova DE,"Illustration of Firefox with a vertical tab sidebar and a new tab page showing shortcuts, weather, a timer, a world clock, and a checklist.","nova launch, German",false,tags
+1358,original_images/Tabs_FR.png,Tabs Nova - FR,Barre latérale avec des groupes d’onglets et des onglets ouverts.,"nova launch, French",false,title description tags
+1359,original_images/Tabs.png,Tabs Nova - EN,Sidebar with tab groups and open tabs.,nova launch,false,title description
+1360,original_images/Tabs_DE.png,Tabs Nova - DE,Seitenleiste mit Tab-Gruppen und geöffneten Tabs.,"nova launch, German",false,title description tags
+1361,original_images/Compact_mode_1_DE.png,Compact mode 1 Nova - DE,Firefox im Kompaktmodus.,"nova launch, German",false,title description tags
+1362,original_images/Compact_mode_1_FR.png,Compact mode 1 Nova - FR,Firefox en mode compact.,"nova launch, French",false,title description tags
+1363,original_images/Easy_import_1_DE.png,Easy import - Nova - DE,"Mit „einem einzigen Klick“ importierst du deine Lesezeichen, Passwörter und deinen Browserverlauf.","nova launch, German",false,title description tags
+1364,original_images/Easy_Import_1_FR.png,Easy Import nova - FR,"« Un simple clic » suffit pour importer vos marque-pages, mots de passe et historique de navigation.","nova launch, French",false,title description tags
+1365,original_images/Easy_Import_1.png,Easy Import Nova - EN,"“One little click” brings over your bookmarks, passwords, and history.",nova launch,false,title description
+1366,original_images/VPN_DE_FKiOw0z.png,VPN eyes nova - DE,,"nova launch, German",true,title description tags is_decorative
+1367,original_images/VPN_FR_kfOQTdZ.png,VPN eyes nova - FR,,"nova launch, French",true,title description tags is_decorative
+1368,original_images/VPN1_QcZTnVI.png,VPN eyes nova - EN,,nova launch,true,title description is_decorative
+1369,original_images/WNP_157_Active_Core_Floating_QR.svg,WNP 157 Active (Core) Floating QR code,QR Code: Scan to install Firefox.,QR code,false,description
+1370,original_images/WNP_157_Welcome_Core_Floating_QR.svg,WNP 157 Welcome (Core) QR code,QR Code: Scan to install Firefox.,QR code,false,description
+1371,original_images/WNP_157_ROW_-_Active.svg,QR Code - WNP 157 - Active - ROW,QR Code: Scan to install Firefox.,QR code,false,title description
+1372,original_images/WNP_157_ROW_-_Welcome_Back.svg,WNP 157 Welcome Back (ROW),QR Code: Scan to install Firefox.,QR code,false,description
+1374,original_images/Hero_157_-_EN.png,Hero 157 - EN,,nova launch,true,title description is_decorative
+1375,original_images/Hero_157_-_FR.png,Hero 157 - FR,,"nova launch, French",true,title description tags is_decorative
+1376,original_images/Hero_157_-DE.png,Hero 157 - DE,,"nova launch, German",true,title description tags is_decorative
+1377,original_images/Desktop_1200x300_4-1_AspectRatio_X2.png,Kit and Firefox - Light Mode - Desktop,,nova launch,true,title description is_decorative
+1378,original_images/Mobile_300x200_3-2_AspectRatio_X2.png,Kit and Firefox for mobile - Light Mode - Mobile,,,true,title description is_decorative
+1379,original_images/Desktop_1200x300_4-1_AspectRatio_GER_X2.png,Kit and Firefox - Light Mode - Desktop - DE,,"nova launch, German",true,title description tags is_decorative
+1380,original_images/Desktop_1200x300_4-1_AspectRatio_FR_X2.png,Kit and Firefox - Light Mode - Desktop - FR,,"nova launch, French",true,title description tags is_decorative
+1381,original_images/Homepage_-_Thunderbird.png,Thunderbird logo,Thunderbird logo.,enterprise,false,description
+1382,original_images/ChatGPT_Image_Sep_29_2026_01_47_23_PM.png,Numa Numa Guy - Temp,"The Numa Numa guy celebrating with both fists in the air, next to a still from his original video.",global-brand-campaign,false,description
+1383,original_images/ChatGPT_Image_Sep_29_2026_01_59_57_PM.png,overly attached girlfriend temp,Overly Attached Girlfriend next to a still from one of her original videos.,global-brand-campaign,false,description
+1384,original_images/ChatGPT_Image_Sep_29_2026_02_11_27_PM.png,Orange global brand campaign - temporary,Annoying Orange next to a still from one of the original videos.,global-brand-campaign,false,description
+1385,original_images/ChatGPT_Image_Sep_29_2026_02_17_54_PM.png,Kelly shoes - Global Brand Campaign (Temp),Kelly Shoes next to a still from one of her original videos.,global-brand-campaign,false,description
+1388,original_images/ColorThemeMotionTest_v3_frame.png,New Colorways for Firefox 94,Pick your pallet settings with orange selected.,"UI, blog",false,description
+1389,original_images/Moz_BlogPostSeries_IntroHeader_1200x800_2x_E91jQ2M.png,Firefox hacks for everyone,,"illustration, blog",true,description is_decorative
+1390,original_images/fx-window-8.24.41_PM-1024x746.png,Minimalist Firefox browser window,A minimal new tab page with just a search bar.,"UI, blog",false,description
+1391,original_images/ai-chatbot-1-1024x640_0QLyNqK.png,AI chatbot in sidebar,"Customize sidebar panel, with the AI chatbot turned on under Firefox tools.","UI, blog",false,description
+1392,original_images/vertical-tabs-1024x637_4kHO4Jt.png,Vertical tabs with TripAdvisor,"A browser window open to a TripAdvisor page about Milan, Italy. The sidebar on the left shows other open tabs related to Milan travel.","UI, blog",false,description
+1393,original_images/LocalisationBlogHeader1_wpUkfXq.png,Localization phones,"Firefox for mobile showing greetings in Chinese, Japanese, and Korean next to their English equivalents.","illustration, blog",false,description
+1394,original_images/Firefox-ProfileManagement-1920x1080-Static-v1_7Vy8RZ2.3-Dark2.png,Visual search,"Use visual search to search with an image, like a floral painting.","illustration, UI, blog",false,description
+1395,original_images/tab-groups-screenshot_eh6hKnB.png,Tab groups screenshot,"Create a tab group, give it a name, and pick a color.","UI, blog",false,description
+1396,original_images/TAB_GROUPS_ANIMATION_frame1.png,Tab groups video poster,Tab groups appear next to open tabs in the tab strip.,"UI, blog",false,description
+1397,original_images/ColorThemeMotionTest_v3_15fps_frame1.png,Colorways,"Colorway picker, with the default (gray) colorway selected.","UI, blog",false,description
+1404,original_images/shield-lock.svg,Trust pictogram,,pictogram,true,tags
+1407,original_images/Android_VPN_-_EN_txb2hRL.png,Private Window - EN,Private browsing window icon.,wnp,false,title description
+1408,original_images/Option_114.jpg,Quick Answers asset,Ask anything.,wnp,false,description
+1414,original_images/passwords-sidebar.png,Passwords sidebar - EN,Passwords in the sidebar.,wnp-158,false,title description
+1415,original_images/quick-answers.png,quick answers,"Ask about the weather, travel cameras, and activities.",wnp-158,false,description
+1418,original_images/one_click_import.png,One click import,"“One little click” brings over your bookmarks, passwords, and history.",wnp-158,false,description
+1419,original_images/Kit_nova_asset.png,Kit Nova launch asset,,wnp-158,true,description is_decorative
+1422,original_images/Compact_mode_9d9HoH3.png,Kit pushing button,Kit pressing a button with its paw.,wnp-158,false,description
+1424,original_images/Data_Governance.png,Data Governance pictogram,,"enterprise, pictogram",true,title
+1426,original_images/Hero_FR.png,One click import - FR,"« Un seul clic » suffit pour importer vos marque-pages, mots de passe et historique de navigation.","wnp-158, French",false,description tags
+1427,original_images/Hero_DE.png,One-click import - DE,"Mit „einem einzigen Klick“ importierst du deine Lesezeichen, Passwörter und deinen Browserverlauf.","wnp-158, German",false,title description tags
+1428,original_images/WNP_158_ROW_-_Active.svg,WNP 158 (ROW) - Active,QR Code: Scan to install Firefox.,wnp-158,false,description
+1429,original_images/WNP_158_ROW_-_Welcome.svg,WNP 158 (ROW) - Welcome,QR Code: Scan to install Firefox.,wnp-158,false,description
+1430,original_images/Qqad4cJGejTWdJR_WNP_158_CORE_-_ACTIVE.svg,QR Code - WNP 158 - Active,QR Code: Scan to install Firefox.,wnp-158,false,title description
+1431,original_images/Qqad4dbRRdwJ82s_WNP_158_CORE_-_WELCOME.svg,WNP 158 QR CODE - WELCOME,QR Code: Scan to install Firefox.,wnp-158,false,description
+1432,original_images/Android_VPN_-_EN_1.png,Smart Window Purple Asset,,wnp-158,true,description is_decorative
+1433,original_images/Image3_HIUJlvj.png,Add-ons image,"Extensions menu showing Privacy Badger, Stylus, and Read Aloud installed.",wnp-158,false,description
+1436,original_images/FR_Kit_NOva.png,Nova Kit asset - FR,,"wnp-158, French",true,description tags is_decorative
+1437,original_images/Kit_pushing_button_-_FR.png,Kit pushing button - FR,Kit appuie sur un bouton avec sa patte.,"wnp-158, French",false,description tags
+1438,original_images/passwords-sidebar_FR.png,Passwords - Sidebar,"Illustration de la barre latérale de Firefox, avec l’icône des mots de passe sélectionnée et un champ de mot de passe masqué.","wnp-158, French",false,tags
+1439,original_images/passwords-sidebar_FR_geeKCX1.png,Passwords in Sidebar - FR,Mots de passe dans la barre latérale.,"wnp-158, French",false,description tags
+1440,original_images/smart_window_purple_FR.png,Smart Window - Purple - FR,,"wnp-158, French",true,description tags is_decorative
+1441,original_images/andrew-neel-A9Msi-vUNKg-unsplash-r-scaled.jpg,Person browsing on a laptop on a wooden floor,,,true,description is_decorative
+1442,original_images/2-607x1024.png,Fox Recap intro card,Let’s dive into the digital depths of your browser activity today.,,false,title description
+1443,original_images/1-607x1024.png,Fox Recap stat card - most clicked category,"Your most clicked category was Technology, you racked up 37 visits. Consistent much?",,false,title description
+1444,original_images/firefox_recap_2025-1024x768.jpg,Firefox Recap project team at CSU Monterey Bay,"Four people standing in front of a Firefox Recap project display at California State University, Monterey Bay. From left to right: Taimur Hasan, Mozilla community manager Matt Cool, Kate Sawtell, and Diego Valdez.",,false,title
+1445,original_images/categories-1.gif,Fox Recap browsing categories chart,"Animated radar chart of browsing time by category. Technology, work and education are the highest categories.",,false,description
+1446,original_images/Press_Firefox_Brand_800x800_2.png,Firefox logo close-up,,,true,description is_decorative
+1447,original_images/Press_Firefox_Brand_1920x1080_2-1024x576.png,Firefox logo close-up,,,true,description is_decorative
+1448,original_images/Distilled-Header_AI-Tabs.png,Firefox Create tab group dialog,Create tab group menu with a button to suggest adding more of your open tabs to the group.,,false,description
+1449,original_images/Distilled-Header_AI-Tabs-1024x576.png,Create tab group menu - AI suggestions,Create tab group menu with a button to suggest adding more of your open tabs to the group.,,false,title description
+1450,original_images/1-1024x220.png,Tab grouping AI diagram,"Diagram showing Firefox tab information processed by a generative AI model to generate a label for the tab group, in this case the label Boston Travel.",,false,title description
+1451,original_images/2-248x300.png,Suggested tabs pop-up - Boston,Browser pop-up suggesting related tabs for a Boston trip using AI-based grouping.,,false,title description
+1452,original_images/5-1024x81.png,Tab group suggestion formula,Mathematical formula showing conditional probability using weighted similarity and sigmoid function.,,false,title description
+1453,original_images/3_goLHMFA.png,DBScan vs Logistic Regression chart,"Bar chart comparing DBScan and Logistic Regression: Logistic Regression has higher precision and F1, DBScan higher recall.",,false,title description
+1454,original_images/4.png,KMeans vs Logistic Regression chart,"Bar chart comparing KMeans and Logistic Regression using percentile metrics p50, p95, and p99.",,false,title description
+1455,original_images/ss1-1024x310.png,Search suggestions in address bar,Search suggestions appear in the address bar as you type.,,false,title description
+1456,original_images/ss2-1024x394.png,Flight status search suggestion,Type a flight number in the address bar to see the flight’s times and status as the top result.,,false,title description
+1457,original_images/ss3-1024x394.png,MDN search suggestions,"Typing “mdn” in the address bar shows MDN Web Docs as the top result, with search suggestions.",,false,title description
+1458,original_images/ss4-1024x394.png,Google search suggestions in Firefox,"A Google search for “bike repair Boston” in the address bar, with “Ballantine Bike Shop” in Boston in the search suggestions drop-down.",,false,title description
+1459,original_images/ss5-1024x131.png,Firefox Relay Mozilla diagram,Diagram: Your Firefox data and Mozilla’s servers are separated by a Relay operated by Fastly.,,false,title description
+1460,original_images/Distilled_Fx-Privacy-Protections_1920x1080.png,Padlock over a browser window,,,true,description is_decorative
+1461,original_images/image-32-1024x633.png,Chart - people unique to fingerprinters,"Bar chart: about 64% of people appear unique to fingerprinters with no protections, 35% with Phase 1 and 20% with Phase 2 protections.",,false,title description
+1462,original_images/Fingerprinting-protections.png,Firefox fingerprinting protection layers,"Shield with three layers labeled Canvas Randomization, Font & Hardware Protections and Script Blocking.",,false,description
+1463,original_images/Press_Firefox_Brand_1200x800_1.png,Trail of Firefox logos,,,true,description is_decorative
+1464,original_images/Press_Firefox_Brand_1200x800_1-1024x683.png,Firefox logos trail,,,true,title description is_decorative
+1465,original_images/tab-group.png,tab group,A tab group called Recipes with a drop-down list of the tabs it contains.,,false,description
+1466,original_images/blog-post-large-1024x546.png,Tab groups - Recipes drop-down,A tab group called Recipes with a drop-down list of the tabs it contains.,,false,title description
+1467,original_images/Firefox-AI-Window-1920x1080-2.png,Firefox AI Window menu illustration,"Window menu with Current Window, AI Window, and Private Window options.",,false,description
+1468,original_images/Firefox-AI-Window-1920x1080-2-1024x576.png,AI Window menu illustration,"Window menu with Current Window, AI Window, and Private Window options.",,false,title description
+1469,original_images/Header-4.png,Billionaire Blast Off’s Data War game,"Billionaire Blast Off, powered by Firefox.",,false,title description
+1470,original_images/In-Blog-1-1024x576.png,Data War players at TwitchCon,People laughing around a table as they play the Data War card game.,,false,description
+1471,original_images/In-Blog-2.png,Data War online cards: Launch AI Platform,"Three Data War cards: Cross Site Stalker, Hostile Takeover, and Launch AI Platform to Parent Your Kids.",,false,description
+1472,original_images/In-Blog-3-2-1024x664.png,Data War online cards: One Way Ticket to Space,"Three Data War cards: Open What You Want, a One Way Ticket to Space, and Tracking Protection.",,false,description
+1474,original_images/Blog-Header_16x9-1.png,Fast Company Brands That Matter 2025 badge,Fast Company Brands That Matter 2025. Honoree: Firefox.,,false,description
+1475,original_images/Blog-Header_16x9-2-1024x576.png,"Fast Company Brands That Matter 2025 badge, body copy",Fast Company Brands That Matter 2025. Honoree: Firefox.,,false,description
+1476,original_images/Image-31.png,Q&A with the creator of Momo,"Q&A with the creator of Momo, next to the Momo app icon.",,false,title description
+1477,original_images/Android-Compact-Silver-Thumbnail-481x1024.png,Momo app icon on an Android home screen,The Momo Firefox app icon on a phone home screen.,,false,description
+1478,original_images/Android-Compact-Silver-Thumbnail-2-481x1024.png,Firefox for Android app icon settings,"App icon settings in Firefox for mobile, with icons like Retro 2004, Pixelated, Pride, and Momo.",,false,description
+1479,original_images/image-2.png,"Firefox for iOS translation settings, 2025","Translation settings in Firefox for mobile, with options to offer, always, or never translate.",,false,description
+1480,original_images/Distilled_WNP146-New-Features-1024x576.png,Translation and app icons illustration,"Three symbols icons: translation, Firefox logo, and Perplexity logo, floating in front of a mobile phone.",,false,title description
+1481,original_images/IMG_9504-1-471x1024.png,"Firefox for iOS translation prompt, 2025",Firefox for mobile offering to translate a German webpage.,,false,description
+1482,original_images/Android-Compact-Black-Thumbail2-481x1024.png,Firefox for Android app icon settings,"App icon settings in Firefox for mobile, with icons like Retro 2004, Pixelated, Pride, and Momo.",,false,description
+1483,original_images/Recap-Blog-Post-Thumbnail-EN-1-1.png,Recap blog post thumbnail - EN,2025 Firefox recap.,,false,title description
+1485,original_images/OWYW-Recap_In-Blog-2.png,Open What You Want event scenes,"Three scenes from Firefox events: a card game booth, a collectable card, and a coffee stand.",,false,description
+1486,original_images/OWYW-highlights-1024x384.png,Open What You Want event highlights,"Three scenes from Firefox events: a card game booth, a collectable card, and a coffee stand.",,false,title description
+1487,original_images/survey-1024x576.jpg,Big Tech frustrations bar chart,"Bar chart of top frustrations with Big Tech in the US, UK, Germany, and France, including data tracking, targeted content, and AI training.",,false,title description
+1488,original_images/Distilled_AIControls_A-1-scaled.jpg,Firefox AI controls illustration,"AI controls, where you can block AI enhancements or choose which AI features to use.",,false,description
+1490,original_images/Blocking-AI-enhanced-features-in-Firefox-AI-controls-Cropped-1024x576.jpg,AI controls - block AI enhancements,"Firefox AI controls, where you can block AI enhancements or choose which AI features to allow.",,false,title description
+1491,original_images/shake-to-summarize-summaries.png,Shake to Summarize on iPhone,Shake to summarize turning an article into a short summary in Firefox for mobile.,,false,description
+1492,original_images/shake-to-summarize-summaries-1024x610.png,Shake to summarize steps,Shake to summarize turning an article into a short summary in Firefox for mobile.,,false,title description
+1493,original_images/overall-performance2-2-1024x575.png,Chart: overall summary quality by context length,Line chart of overall performance: five models score about 4.6 to 4.8 on short pages and fall to about 3.5 to 3.7 beyond 8k tokens.,,false,description
+1494,original_images/latency-2-1024x575.png,Chart: latency by context length,"Line chart of latency: Gemini 2.0 Flash is fastest, about 1.5 to 4.6 seconds, and Jamba 1.5 Mini slowest, rising to about 13.7 seconds.",,false,description
+1495,original_images/tks_context-2-1024x575.png,Chart: tokens per second by context length,"Line chart of tokens per second: Mistral Small and Gemini 2.0 Flash reach about 140 to 165, the other models about 65 to 95.",,false,description
+1496,original_images/Distilled_FeatureLaunch_VPN_02-scaled.jpg,Firefox built-in VPN illustration,Built-in VPN switched on in the toolbar.,,false,description
+1497,original_images/Distilled_FeatureLaunch_Header_VPN_01-1024x576.jpg,"Firefox AI controls, VPN and Smart Window graphic","Kit surrounded by options to configure AI, VPN, and other Firefox features.",,false,description
+1498,original_images/Distilled_FeatureLaunch_VPN_02-1024x576.jpg,Firefox built-in VPN graphic,Built-in VPN turned on in the toolbar.,,false,description
+1499,original_images/Mozilla_Illustrations_Pixelgram_Lock_Square_Orange.png,"Pixel art padlock, orange",,,true,description is_decorative
+1500,original_images/Mozilla_Illustrations_Pixelgram_Lock_Square_Orange-1024x1024.png,Pixel lock,,,true,title description is_decorative
+1501,original_images/Outside-the-Fox-Ep044-Thumbnail-4x3-1.jpg,Outside the Fox episode 44 thumbnail,Outside the Fox hosts interviewing Ajit Varma on a video call.,,false,description
+1503,original_images/Cursor_Green_1920x1080-scaled.jpeg,Cursor arrows on green,,,true,description is_decorative
+1504,original_images/Cursor_Green_1920x1080-1024x576.jpeg,Cursors - green,,,true,title description is_decorative
+1505,original_images/6.-JKR_Firefox_Kit_Face-scaled.jpg,Kit close-up,"Close-up of Kit’s face, orange with yellow cheeks and purple eyes.",,false,description
+1507,original_images/9.-JKR_Firefox_Facial_Expressions-1024x576.jpg,Kit facial expressions and sketches,"Kit’s face in four poses, turning from front to side view, with matching sketches below.",,false,description
+1508,original_images/Tab-Notes-FINAL-EN.png,Tab Notes FINAL - EN,"Add note dialogue box, to save a note about an open tab.",,false,description
+1509,original_images/Tab-Notes-FINAL-EN-1024x676.png,Tab notes - Add note,"Add note pop-up, where you can save a note about an open tab.",,false,title description
+1510,original_images/HoverPreview-TabNotes-1.gif,Hover preview - Tab Notes,Hover over a tab to preview the page open in it.,,false,title description
+1511,original_images/TabNotesBlog-Labs-1024x742.png,Firefox Labs settings - Dark Mode,Firefox Labs settings with Tab notes turned on.,,false,title description
+1512,original_images/TabNotesBlog-Linzer-1024x742.png,Tab note on recipe page,"Add a note to any tab, like a reminder to print a recipe.",,false,title description
+1513,original_images/Media_AIEnabled_D.png,Firefox Split View illustration,"Split view: choose a website, video, or article to open next to your current tab.",,false,description
+1514,original_images/Media_AIEnabled_D-1024x576.png,Split view - London travel page,"Split view: choose a website, video, or article to open next to your current tab.",,false,title description
+1515,original_images/EN-dark-theme-horizontal-1024x784.png,Split view - Dark Mode,"Two tabs side by side in split view, with the tab selection menu open.",,false,title description
+1516,original_images/EN-planning-and-comparing-second-UI-screenshot-1024x656.png,Split View - campsite reservations and map,Firefox split screen comparing campsite reservations with map for planning a trip.,,false,title
+1517,original_images/EN-note-taking-third-UI-screenshot-1024x821.png,Split View - PDF and email,Split View with a PDF on the left and an email draft on the right.,,false,title description
+1518,original_images/Distilled_FeatureLaunch_VPN_Header_01-1.png,Firefox built-in VPN header,Kit hiding in a bush beside a notification that VPN is on.,,false,description
+1519,original_images/Distilled_FeatureLaunch_VPN_Header_01-1-1024x576.png,Firefox VPN is on graphic,Kit hiding in a bush beside a notification that VPN is on.,,false,description
+1520,original_images/Distilled_FeatureLaunch_VPN_Inline_01-1024x576.png,Firefox VPN on in a browser window,Kit hiding in a bush beside a notification that VPN is on.,,false,description
+1521,original_images/Cursor_Orange_1920x1080-scaled.jpeg,Cursor arrows on orange,,,true,description is_decorative
+1522,original_images/Cursor_Orange_1920x1080-1024x576.jpeg,Cursors - orange,,,true,title description is_decorative
+1523,original_images/Distilled_MobileInnovation_C.png,Firefox for mobile updates illustration,"A phone surrounded by Firefox mobile features: VPN, AI controls, tab groups, an AI summary, and the Firefox mascot.",,false,title description
+1524,original_images/Distilled_MobileInnovation_C-1024x576.png,Firefox for mobile updates illustration,"A phone surrounded by Firefox mobile features: VPN, AI controls, tab groups, an AI summary, and the Firefox mascot.",,false,title description
+1525,original_images/Firefox_ShaketoSummarize_Collage_Landscape-1024x576.png,Shake to Summarize on a recipe page,Firefox for mobile summarizing a recipe.,,false,description
+1527,original_images/Firefox_ShaketoSummarize_Collage_Landscape.png,Shake to Summarize on a recipe page,Firefox for mobile summarizing a recipe.,,false,description
+1529,original_images/Distilled_AIControls_Mobile_A.png,Firefox mobile AI controls,"AI controls in Firefox for mobile, with AI enhancements blocked.",,false,description
+1530,original_images/Distilled_AIControls_Mobile_A-1024x576.png,AI controls - Firefox for mobile,"AI controls in Firefox for mobile, with AI enhancements blocked.",,false,title description
+1531,original_images/Distilled_MobileFeatures-scaled.jpg,Firefox 151 mobile features,"Firefox for mobile summarizing a recipe, with AI controls and VPN on.",,false,description
+1532,original_images/Distilled_MobileFeatures-1024x576.jpg,Firefox for mobile features,"Firefox for mobile summarizing a recipe, with AI controls and VPN on.",,false,title description
+1533,original_images/VPN-Location-2X-1024x575.png,VPN location menu,VPN location menu showing Germany selected from a list of countries.,,false,title description
+1534,original_images/Firefox_ShaketoSummarize_Landscape-1024x576.png,Shake to Summarize graphic,Firefox for mobile summarizing a recipe.,,false,description
+1535,original_images/Distilled_ClearPrivateSession-1024x576.jpg,Clear private session,Clear your data and start a fresh private session without closing your Private Window.,,false,title description
+1536,original_images/distilled_nova_header_generic_thumbnail.png,Firefox new design with travel tabs,Firefox’s new design in light and dark mode.,,false,description
+1537,original_images/distilled_nova_header_generic-1024x576.png,Nova,Firefox’s new design in light and dark mode.,,false,title description
+1538,original_images/distilled_nova_privacy_settings2x-1024x975.png,Privacy and security settings,"Privacy and security settings, with Enhanced Tracking Protection and the built-in VPN.",,false,title description
+1539,original_images/distilled_nova_compact2x-1024x576.png,New tab with starry theme,Firefox browser new tab with purple starry theme and VPN enabled.,,false,title description
+1540,original_images/distilled_nova_tabs_icons-1024x566.png,Firefox design system,"Firefox design elements: toolbar icons, tab styles, and a purple and orange color palette.",,false,title description
+1541,original_images/distilled_nova_mobile_generic2x-1024x576.png,Firefox for mobile tab overview on two phones,"Tab overview in Firefox for mobile, shown in light and dark mode.",,false,title description
+1542,original_images/Distilled_Adafruit_Header-scaled.jpg,Web Serial in Firefox illustration,Kit plugging a purple connector into a small device beside a triangle and a switch.,,false,description
+1543,original_images/Distilled_Adafruit_Text-1024x576.jpg,Firefox and Adafruit Web Serial graphic,"Build it all from Firefox. Adafruit recommends Firefox to connect, code, and control hardware directly from your browser.",,false,description
+1544,original_images/VPN-1920x1080-1.png,Unlimited VPN data in Firefox,VPN with unlimited data and its location set to Great Britain.,,false,description
+1545,original_images/VPN-1920x1080-1-1024x576.png,Firefox VPN with unlimited data,VPN with unlimited data and its location set to Great Britain.,,false,description
+1546,original_images/Distilled_FxWC_Header-scaled.jpg,Firefox World Cup - header,Kit balancing a soccer ball beside a live World Cup score widget.,,false,title description
+1548,original_images/Distilled_FxWC_Widget-1024x576.jpg,World Cup widget,"World Cup widget in Firefox for mobile, with a countdown to kickoff and teams to follow.",,false,title description
+1549,original_images/Distilled_FxWC_SplitView-1024x576.jpg,Split view World Cup,Split view with World Cup widgets beside a sports article.,,false,title description
+1550,original_images/Distilled_FxWC_TabGroups-1024x576.jpg,World Cup tab groups,"Firefox tab groups organize World Cup fixtures, player stats and soccer resources.",,false,title
+1551,original_images/Firefox_Distilled_Roadmap.png,Firefox roadmap - header,Firefox roadmap. Kit leaping across a browser window with the split view menu open.,,false,title description
+1552,original_images/Firefox_Distilled_Roadmap-1024x576.png,Firefox roadmap header,"Firefox roadmap. Kit leaping across a browser window with a split view menu offering Website, Video and Article.",,false,description
+1553,original_images/Browser-Dark-1024x576.png,"Firefox roadmap page, 2026",,,true,description is_decorative
+1555,original_images/SRD-Distilled_Hero.png,Redesigned Firefox settings,"Redesigned Firefox settings for privacy, layout, languages, contrast, and search engines.",,false,title description
+1556,original_images/SRD-Distilled_Hero-1024x576.png,Firefox settings redesign,"Redesigned Firefox settings for privacy, layout, languages, contrast, and search engines.",,false,title description
+1557,original_images/SRD-Distilled-Passwords-1024x576.png,Password settings before and after,Firefox password and autofill settings shown before and after a redesigned interface.,,false,title
+1558,original_images/SRD-Distilled-Languages-2-1024x576.png,Languages settings,"Firefox Languages settings page with website language, translation, and spell check options.",,false,title description
+1559,original_images/Browsing_1920x1080.jpeg,Hand at a keyboard with cursors,,,true,description is_decorative
+1560,original_images/WXM_Partner_FireFox_FINAL_ARTBOARDS_BLOG-DISTILLED.png,Wrexham AFC and Firefox logos,Wrexham AFC crest next to the Firefox logo.,,false,description
+1561,original_images/WXM_Partner_FireFox_FINAL_ARTBOARDS_BLOG-DISTILLED-1024x576.png,Wrexham AFC and Firefox logos,Wrexham AFC crest next to the Firefox logo.,,false,title description
+1562,original_images/Media_AIEnabled_D_I8ZA06C.png,Shake to Summarize Recipes,Shake to Summarize turning a cluttered recipe page into a clear summary of ingredients and steps.,,false,description
+1563,original_images/Distilled_TabGroupsAndroid_Header-scaled.jpg,Firefox tab groups on Android,Firefox’s tab grid on a phone showing open tabs and a tab group.,,false,description
+1564,original_images/Distilled_TabGroupsAndroid_Inline01.gif,Tab groups on Android - animation,"Animation showing related tabs being grouped together in Firefox, then displayed as a single labeled tab group in the tab tray.",,false,title description
+1565,original_images/Distilled_TabGroupsAndroid_Inline02-1024x576.jpg,Mobile tab groups,"Tabs being grouped, named and color-coded, then displayed together in a single organized group.",,false,title description
+1566,original_images/Option-1.png,Firefox Quick Answers on iOS,Quick Answers responding to a question about fun things to do in Lisbon in April.,,false,description
+1567,original_images/Firefox_SmartWindow_Distilled_Exa_Header-scaled.jpg,Firefox and Exa logos,Firefox and Exa logos side by side.,,false,description
+1568,original_images/Firefox_SmartWindow_Distilled_Exa_Inline-1024x576.jpg,Smart Window answer using Exa search,"Smart Window answers how to train for a 10K after searching the web with Exa, listing beginner plans and source links.",smart-window,false,description tags
+1569,original_images/Fx-GEFORCENOW-Lockup-1.png,Fx + GEFORCENOW Lockup,Firefox and NVIDIA GeForce NOW logos.,,false,description
+1570,original_images/Kit_Gamer_Purple-BG.gif,Kit gaming with a headset,Kit playing a video game.,,false,description
+1571,original_images/Firefox_Startpage_Header-scaled.jpg,Firefox and Startpage logos,Firefox and Startpage logos side by side.,,false,description
+1572,original_images/Firefox_SmartWindow_Distilled_Header_01.png,Smart Window - header,,,true,title description is_decorative
+1573,original_images/Browsing_Green_1920x1080-scaled.jpeg,Hand at a keyboard with cursors,,,true,description is_decorative
+1574,original_images/Firefox_Distilled_AI-Controls-1.png,AI controls and window choice in Firefox,"Firefox window with the AI controls panel blocking tab group suggestions, beside a menu to choose Classic or Smart Window.",,false,description
+1575,original_images/Block-AI-enhancements-1024x576.jpg,Firefox Block AI enhancements setting,"Firefox AI controls, where you can block AI enhancements or choose which AI features to allow.",,false,description
+1576,original_images/Firefox_SmartWindow_Distilled_Header_03-1024x576.png,Firefox window type menu,Switch between Classic Window and Smart Window from the toolbar.,smart-window,false,description tags
+1577,original_images/iOS-AdBlocker-1.png,Ad Blocker for Firefox on iOS,"Kit, the Firefox mascot, removes an ad from a recipe page displayed on an iPhone.",,false,description
+1578,original_images/Firefox-Smart-Window-1920x1080-1.png,Firefox window types menu,"Menu to open a Classic Window, Smart Window, or Private Window.","UI, features",false,description tags
+1579,original_images/Firefox_SmartWindow_Distilled_Header_022-1024x576.png,Smart Window new tab,"Smart Window new tab page, where you can ask, search, or type a URL.","UI, features",false,description tags
+1580,original_images/Android-TabGroups2.png,Kit meditating on a Firefox phone screen,,Kit,true,tags
+1581,original_images/iOS-AdBlocker-1024x576.jpg,Ad Blocker for Firefox on iOS,,Kit,true,tags
+1582,original_images/Distilled-Nova-Header.png,Distilled Nova Header,,Kit,true,tags
+1583,original_images/l7tQ1v4TCeY-hqdefault.jpg,More modern. More flexible. Still Firefox.,More modern. More flexible. Still Firefox.,,false,tags
+1584,original_images/Nova-Compact-Mode-ENG-1024x576.png,Firefox Compact Mode,Firefox Compact Mode with a slim toolbar and a vertical tabs sidebar.,features,false,description tags
+1585,original_images/In-Line-New-Style-1024x576.png,Firefox themes and wallpapers,Showcase of Firefox with different themes and wallpapers.,features,false,description tags
+1586,original_images/Firefox_Distilled_Nova_PinnedShortcut_01-1024x523.png,Pinned shortcuts on Firefox new tab,Dragging a shortcut into the pinned area on the new tab page.,"UI, features-hub",false,title description tags
+1587,original_images/Firefox_Distilled_AEG_Header-1-scaled.jpg,Firefox and AEG logos,Firefox and AEG logos side by side.,,false,description tags
+1588,original_images/2026-Firefox-InsGluck-Uber_T635353-highres_-Holger-Talinski-1-1024x576.jpg,Kit Fast Lane opening - Berlin,Kit opens the Firefox Fast Lane in Berlin.,Kit,false,title description tags
+1589,original_images/Cybersecurity-Header-1.png,Cybersecurity Header,,,true,description is_decorative
+1590,original_images/Password-Manager-1024x576.png,Firefox password generator,Firefox suggesting a securely generated password for a password field.,"UI, features",false,description tags
+1591,original_images/VPN-1024x576.png,Firefox built-in VPN panel,"Firefox VPN panel, showing the VPN is on.","UI, vpn",false,description tags
+1592,original_images/Relay-1024x576.png,Firefox Relay email masks,"Firefox Relay menu, offering to use an email mask.","UI, features",false,description tags
+1593,original_images/Enterprise-Distilled-Thumbnail1.png,Firefox Enterprise logo,,,true,description tags is_decorative
+1594,original_images/Enterprise-Distilled-Thumbnail1-1-1024x576.png,Firefox Enterprise logo,Firefox Enterprise logo,,false,tags
+1595,original_images/Data-Control-Hero1-1024x576.png,Firefox Enterprise admin console,"The Enterprise admin console shows active policies, users, and groups.","enterprise, UI",false,description tags
+1596,original_images/Screenshot_2026-10-15_at_2.14.37PM.png,A demo of Firefox Enterprise,Admin panel for Firefox Enterprise,"enterprise, UI",false,tags
+1597,original_images/maxresdefault.jpg,Brand New Firefox video poster,Brand New Firefox. Kit walking over customized browser windows.,,false,description tags
+1598,original_images/firefox-roadmap-152--h6-JU1otK7o.jpg,Firefox keeps getting better video poster,What’s next? Kit leaps into the browser window in split view.,"UI, features",false,description tags
+1599,original_images/firefox-world-cup--oDEHcUgCt5U.jpg,Firefox World Cup sidekick video poster,Kit balancing a soccer ball beside a live World Cup score widget.,,false,description tags
+1600,original_images/shake-to-summarize-expansion--OZ2GdRjVd1c.jpg,Shake to Summarize on Android video poster,Firefox for mobile summarizing a recipe.,features,false,description tags
+1601,original_images/mobile-updates--pJb-2vnorQU.jpg,Shake to Summarize Firefox Tips video poster,Firefox Tips: Shake to summarize.,features,false,description tags
+1602,original_images/meet-kit--AtuzapfqF1M.jpg,Meet Kit video poster,"Kit, the Firefox mascot, standing next to its name.",Kit,false,description tags
+1603,original_images/outside-the-fox-ai-controls--KS5dcvZXuUg.jpg,Why Firefox is letting you turn off AI video poster,"Outside the Fox, Episode 44: Big tech would never do this.",,false,description tags
+1604,original_images/ai-controls--iD4LspntEmI.jpg,Introducing AI controls video poster,Firefox’s AI Controls settings menu. The first item is a large toggle to block AI Enhancements.,,false,description tags
+1605,original_images/firefox-2025-updates--OGhXcNV7m-k.jpg,Firefox 2025 highlights video poster,"A stack of browser windows, showing Firefox 2025 highlights.",,false,description tags
+1606,original_images/bbo-data-war-digital-game--YMh5jK5MIgM.jpg,Billionaire Blast Off TwitchCon video poster,"Billionaire Blast Off, Powered by Firefox.",,false,description tags
+1607,original_images/qxrVsN9kkog-maxresdefault.jpg,What’s new in Firefox video poster,"Nick Nguyen, VP, Firefox.",,false,title description tags
+1608,original_images/rL53twJ-JJI-maxresdefault.jpg,Introducing Firefox Monitor video poster,"Cindy Hsiang, Product Manager for Firefox Monitor.",,false,description
+1609,original_images/8VoheBpsLoY-maxresdefault.jpg,Meet Firefox Lockwise video poster,Firefox Lockwise logo.,,false,description
+1610,original_images/F_HKGZRUroE-maxresdefault.jpg,The Da Vinci Code clip video poster,A silhouetted figure faces the Mona Lisa in The Da Vinci Code.,,false,description
+1611,original_images/aApTVqeGJMw-hqdefault-16x9.jpg,Skyfall “He Hacked Us” scene poster,Skyfall “He hacked us” scene.,,false,title description
+1612,original_images/NlYtYJcY0R0-maxresdefault.jpg,The Imitation Game interview clip video poster,Benedict Cumberbatch as Alan Turing in The Imitation Game.,,false,description
+1613,original_images/2CT-zB6AO6k-maxresdefault.jpg,Must-have add-ons video poster,Ask Firefox: Best browser hacks.,,false,description
+1614,original_images/_l8vdYC_bLo-sddefault-16x9.jpg,Firefox for iPad video poster,,,true,description is_decorative
+1615,original_images/-0ZFZnq_v0g-maxresdefault.jpg,Password hacks video poster,Ask Firefox: All about passwords.,,false,description
+1616,original_images/kT86zqVzqOo-maxresdefault.jpg,Firefox 94 Colorways video poster,"Colorway picker, with the Graffiti (purple) colorway selected.",,false,description
+1617,original_images/eILW72MxJmU-maxresdefault.jpg,Firefox and Turning Red video poster,A giant red panda dances in a crowd. Release your inner red panda!,,false,description
+1618,original_images/TKVYu5Sm5tw-maxresdefault.jpg,Firefox add-ons you didn’t know about video poster,Ask Firefox: Firefox add-ons.,,false,title description
+1619,original_images/pnm8AD8oWwc-maxresdefault.jpg,Firefox turns 20 with Mike Kaply video poster,Episode 6: Born to browse.,,false,description
+1620,original_images/JEX-N6Wp4pM-maxresdefault.jpg,scoobidiver contributor story video poster,scoobidiver speaking on stage.,,false,description
+1621,original_images/-Mz8xJW4CNE-maxresdefault.jpg,Celebrating 20 years of Firefox video poster,A collage of photos from the first 20 years of Firefox’s history.,,false,description
+1624,original_images/Card_Image7_qB4eow2.png,Passwords - Sidebar - EN,Passwords in the sidebar.,wnp-159,false,description
+1626,original_images/Card_Image7_copy_2.png,Private Window - EN,Private browsing window icon.,wnp-159,false,description
+1627,original_images/Image4_bntJhAp.png,Smart Window - Watch a page - EN,Smart Window notification: Nike Sneakers price below $70.,wnp-159,false,description
+1628,original_images/Image4_copy_Uu2Kuu8.png,Temp - Smart Window - Fill out forms,Smart Window filling out a job application form with details from open tabs.,wnp-159,false,description
+1629,original_images/Image4_copy_2.png,Kit curiosity - EN,"Kit poking its nose into a hole, curious as ever.",wnp-159,false,title description
+1633,original_images/Firefox_QR_mzl.la-4jvolgA_v2.png,WNP 159 - Floating QR Code - Active - Final,QR Code: Scan to install Firefox.,wnp-159,false,description
+1637,original_images/Image4_copy_4.png,QR code - on page - WNP 159 - FR,Code QR : scannez pour installer Firefox.,"wnp-159, French",false,title description tags
+1638,original_images/Card_Image7_copy_n3yDVCb.png,Nova asset - WNP 159,"Several Firefox windows each customized with a different theme, wallpaper, and tab bar position.",wnp-159,false,title description
+1639,original_images/Image4_copy_5.png,WNP 159 QR code - ON PAGE - Active,QR Code: Scan to install Firefox.,wnp-159,false,description
+1640,original_images/Copy_Clean_Link_-_EN.png,Copy clean link - Poster - EN,Firefox address bar context menu with “Copy Clean Link” highlighted beneath the cursor.,wnp-159,false,title
+1641,original_images/Keep_in_Dock_-_DE.png,Keep in Dock - DE,Firefox im macOS-Dock.,"Pin, German",false,description tags
+1643,original_images/Keep_in_Dock_-_FR.png,Keep in Dock - FR,Firefox dans le Dock de macOS.,"Pin, French",false,description tags
+1644,original_images/Pin-firefox-DE.png,Pin Firefox - DE,Firefox in der Windows-Taskleiste.,"Pin, German",false,title description tags
+1646,original_images/Pin-firefox-FR.png,Pin Firefox - FR,Firefox dans la barre des tâches de Windows.,"Pin, French",false,description tags
+1647,original_images/WNP_159_QR_code_-_ON_Page_-_FR.png,WNP 159 QR code - on page - FR,Code QR pour télécharger Firefox pour mobile.,"wnp-159, French",false,tags
+1648,original_images/WNP_159_QR_code_-_ON_Page_-_DE.png,WNP 159 QR code - on page - DE,"QR-Code: Scannen, um Firefox zu installieren.","wnp-159, German",false,description tags
+1649,original_images/Nova-vertical-DE.png,Nova vertical - DE,Ein orangefarbener Fuchs vor mehreren überlappenden Firefox-Fenstern mit verschiedenen Designs und Seitenleisten auf violettem Hintergrund.,"wnp-159, German",false,tags
+1650,original_images/Nova-vertical-FR.png,Nova vertical - FR,"Un renard orange devant plusieurs fenêtres Firefox superposées, avec différents thèmes et barres latérales, sur un fond violet.","wnp-159, French",false,tags
+1651,original_images/Private_browsing_-_FR.png,Private browsing - FR,Icône de fenêtre de navigation privée.,"wnp-159, French",false,description tags
+1652,original_images/Private_browsing_-_DE.png,Private browsing - DE,Symbol für ein privates Fenster.,"wnp-159, German",false,description tags
+1653,original_images/Passwords_-_DE.png,Passwords - DE,Passwörter in der Seitenleiste.,"wnp-159, German",false,description tags
+1654,original_images/Passwords_-_FR.png,Passwords - FR,Mots de passe dans la barre latérale.,"wnp-159, French",false,description tags
+1655,original_images/Card_Image7_copy_3.png,Nova - FR,"Plusieurs fenêtres Firefox, chacune personnalisée avec un thème, un fond d’écran et une position de la barre d’onglets différents.","wnp-159, French",false,description tags
+1656,original_images/Card_Image7_copy_3_SIXlm98.png,Nova - DE,"Mehrere Firefox-Fenster, jeweils mit einem anderen Theme, Hintergrundbild und einer anderen Position der Tableiste angepasst.","wnp-159, German",false,description tags
+1657,original_images/Kit_-exploring_-FR.png,Kit - whats next - FR,"Kit met son museau dans un trou, toujours aussi curieux.","wnp-159, French",false,description tags
+1658,original_images/Kit_-exploring_-_DE.png,Kit - What’s next - DE,"Kit steckt seine Nase in ein Loch, neugierig wie immer.","wnp-159, German",false,title description tags
+1659,original_images/Clean_Link_FR_thumbnail1.png,Copy clean link - poster - Temp - FR,,"wnp-159, French",true,title description tags is_decorative
+1660,original_images/Firefox_QR_dense_mzl.la-4zaUBKX.png,Firefox QR code - WNP 159 - Welcome,QR Code: Scan to install Firefox.,wnp-159,false,description
+1661,original_images/Copy_Clean_Link_DE_Thumbnail.png,Copy clean link - poster - DE,,"wnp-159, German",true,description tags is_decorative
+1662,original_images/Post_-_16x9_-_1920__1080_copy.jpg,GBC - Come back to Firefox - EN,Internet icons celebrating. Come back to Firefox.,GBC,false,description
+1668,original_images/FR_-_A_test_-_YouTube_thumbnail_-_1280__726.jpg,Come Back to Firefox - FR,Des icônes d’Internet font la fête. Revenez sur Firefox.,French,false,title description tags
+1669,original_images/DE_-_A_test_-_YouTube_thumbnail_-_1280__725.jpg,Come Back to Firefox - DE,Internet-Symbole feiern. Komm zurück zu Firefox.,German,false,title description tags
