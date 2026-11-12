@@ -119,6 +119,16 @@
     font-size: var(--fl-theme-font-size-heading-2xs);
 }
 
+/* On phones an H1 given a section or banner size keeps the H1 size, so it
+   stays above the page's H2s. */
+@media (--viewport-xs) {
+    h1.fl-heading-size-2,
+    h1.fl-heading-lg,
+    h1.fl-heading-md {
+        font-size: var(--fl-theme-font-size-heading-xl);
+    }
+}
+
 /* Body size classes */
 .fl-body-lg {
     font-size: var(--fl-theme-font-size-body-lg);
