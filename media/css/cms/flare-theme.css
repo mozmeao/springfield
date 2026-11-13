@@ -48,6 +48,13 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-font-size-heading-xs: 1.125rem; /* 18px */
     --fl-theme-font-size-heading-2xs: 1rem; /* 16px */
 
+    /* Heading level sizes; each follows its named size at every width */
+    --fl-h1: var(--fl-theme-font-size-heading-xl);
+    --fl-h1-small: var(--fl-theme-font-size-heading-xl);
+    --fl-h2: var(--fl-theme-font-size-heading-lg);
+    --fl-h3: var(--fl-theme-font-size-heading-sm);
+    --fl-h4: var(--fl-theme-font-size-heading-xs);
+
     /* TODO: refactor these away. Subheading font size variables */
     --fl-theme-font-size-subheading-md: 1rem; /* 16px */
     --fl-theme-font-size-subheading-sm: 0.875rem; /* 14px */
