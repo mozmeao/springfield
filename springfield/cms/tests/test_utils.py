@@ -7,7 +7,7 @@ from django.test import override_settings
 
 import pytest
 from wagtail.coreutils import get_dummy_request
-from wagtail.models import Locale, Page, Site
+from wagtail.models import Locale, Page, PageViewRestriction, Site
 
 from springfield.cms.tests.factories import LocaleFactory
 from springfield.cms.utils import (
@@ -63,6 +63,18 @@ def test_get_locales_for_cms_page__ensure_draft_pages_are_excluded(tiny_localize
     fr_test_page = fr_homepage.get_children()[0]
 
     fr_test_page.unpublish()
+
+    assert sorted(get_locales_for_cms_page(en_us_test_page)) == ["en-US", "pt-BR"]
+
+
+@override_settings(FALLBACK_LOCALES={})
+def test_get_locales_for_cms_page__ensure_private_pages_are_excluded(tiny_localized_site):
+    en_us_homepage = Page.objects.get(locale__language_code="en-US", slug="home")
+    en_us_test_page = en_us_homepage.get_children()[0]
+    fr_homepage = Page.objects.get(locale__language_code="fr", slug="home-fr")
+    fr_test_page = fr_homepage.get_children()[0]
+
+    PageViewRestriction.objects.create(page=fr_test_page, restriction_type=PageViewRestriction.LOGIN)
 
     assert sorted(get_locales_for_cms_page(en_us_test_page)) == ["en-US", "pt-BR"]
 
