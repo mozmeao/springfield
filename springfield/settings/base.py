@@ -1435,6 +1435,8 @@ if WAGTAIL_ENABLE_ADMIN:
         "django.contrib.admin",
         # wagtail_localize_smartling > 0.10 needs django.contrib.humanize
         "django.contrib.humanize",
+        # Wagtail's v3 API and its "API tokens" admin screen; the API itself is served only while the `wagtail_api` switch is on
+        "wagtail.api.v3",
     ]
 
     for midddleware_spec in [
@@ -1453,8 +1455,12 @@ if WAGTAIL_ENABLE_ADMIN:
             "oidc",
             "_internal_draft_preview",
             "intentional-blanks",  # wagtail-localize-intentional-blanks
+            "api",  # Wagtail v3 API
         ]
     )
+
+    # The v3 API's /docs/ and /openapi.json pages are public, so they stay off unless asked for
+    WAGTAILAPI_DOCS_ENABLED = config("WAGTAILAPI_DOCS_ENABLED", default="false", parser=bool)
 
     # Increase the number of form fields allowed to be submitted in one GET/POST,
     # but only for deployments where the CMS is enabled. This is needed to support

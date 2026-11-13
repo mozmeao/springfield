@@ -66,6 +66,7 @@ if settings.WAGTAIL_ENABLE_ADMIN:
         path("django-rq/", include("django_rq.urls")),  # task queue management
         path("_internal_draft_preview/", include(wagtaildraftsharing_urls)),  # ONLY available in CMS mode
         path("intentional-blanks/", include("wagtail_localize_intentional_blanks.urls")),
+        path("api/v3-preview/", include("springfield.cms.wagtail_api")),
     )
 
 if settings.ENABLE_DJANGO_SILK:

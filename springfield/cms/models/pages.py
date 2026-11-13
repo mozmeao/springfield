@@ -33,6 +33,7 @@ from modelcluster.fields import ParentalKey
 from sentry_sdk import capture_message, new_scope
 from wagtail.admin.forms import WagtailAdminPageForm
 from wagtail.admin.panels import FieldPanel, FieldRowPanel, InlinePanel, MultiFieldPanel, TitleFieldPanel
+from wagtail.api import APIField
 from wagtail.models import Orderable, Page as WagtailBasePage
 from wagtail.rich_text import RichText
 from wagtail.search import index
@@ -1197,6 +1198,10 @@ class PencilBannerPlacement(Orderable):
         FieldPanel("snippet"),
     ]
 
+    api_fields = [
+        APIField("snippet", writable=True),
+    ]
+
     def __str__(self):
         return self.page.title + " -> " + self.snippet.title
 
@@ -1296,6 +1301,13 @@ class FreeFormPage2026(
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("upper_content"),
         FieldPanel("content"),
+    ]
+
+    api_fields = [
+        APIField("upper_content", writable=True),
+        APIField("content", writable=True),
+        APIField("show_pre_footer", writable=True),
+        APIField("pencil_banner_placements", writable=True),
     ]
 
     promote_panels = UTMParamsMixin.promote_panels + [
