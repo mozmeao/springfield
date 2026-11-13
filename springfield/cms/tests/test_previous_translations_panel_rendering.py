@@ -2,6 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from datetime import timedelta
+
 from django.urls import reverse
 
 import pytest
@@ -233,6 +235,20 @@ def test_one_list_item_per_entry(admin_client, drifted_page):
     # However many strings the field holds now, the previous translation is an entry's last value.
     assert [item.select("dd")[-1].get_text(strip=True) for item in items] == ["Essayez Firefox", "La barre latérale"]
     assert [item.select_one("h3").get_text(strip=True) for item in items] == ["Title", "Content"]
+
+
+def test_a_field_with_two_leftovers_shows_one_item_each(admin_client, drifted_page):
+    """Both translations an edit left behind are offered, each as its own candidate."""
+    set_rich_text(drifted_page, "<p>Alpha</p><p>Beta</p>")
+    latest = get_orphan_stringtranslation(drifted_page, "Beta old", "Beta FR")
+    older = get_orphan_stringtranslation(drifted_page, "Alpha old", "Alpha FR")
+    StringTranslation.objects.filter(pk=older.pk).update(updated_at=latest.updated_at - timedelta(days=1))
+
+    items = get_soup_for_panel(editor_html(admin_client, drifted_page)).select("li")
+
+    assert [item.select("dd")[-1].get_text(strip=True) for item in items] == ["Beta FR", "Alpha FR"]
+    assert [item.select_one("h3").get_text(strip=True) for item in items] == ["Content", "Content"]
+    assert all(item.select_one("[data-inexact-pairing]") for item in items)
 
 
 def test_stored_html_renders_as_plain_text(admin_client, drifted_page):

@@ -41,16 +41,16 @@ class PreviousTranslation:
     translated_by: str
 
     @classmethod
-    def from_pair(cls, untranslated: Sequence[StringSegment], stale: StringTranslation, is_exact: bool, field_label: str) -> Self:
+    def from_leftover(cls, leftover: StringTranslation, current_sources: tuple[str, ...], is_exact: bool, field_label: str) -> Self:
         """Build an entry, turning the HTML fragments wagtail-localize stores into plain text."""
-        user = stale.last_translated_by
+        user = leftover.last_translated_by
         return cls(
             field_label=field_label,
-            previous_source=StringValue(stale.translation_of.data).render_text(),
-            current_sources=tuple(StringValue(segment.string.data).render_text() for segment in untranslated),
-            translation=StringValue(stale.data).render_text(),
+            previous_source=StringValue(leftover.translation_of.data).render_text(),
+            current_sources=current_sources,
+            translation=StringValue(leftover.data).render_text(),
             is_exact=is_exact,
-            comment=stale.get_comment(),
+            comment=leftover.get_comment(),
             translated_by=(user.get_full_name() or user.get_username()) if user else "",
         )
 
@@ -71,34 +71,41 @@ def get_previous_translations(translation: Translation) -> list[PreviousTranslat
 
     entries = []
     for context_id, segments in segments_by_context.items():
-        pair = find_stale_pair(segments, translations_by_context[context_id])
-        if pair:
+        pairing = find_stale_pairing(segments, translations_by_context[context_id])
+        if pairing is not None:
+            untranslated, leftovers, is_exact = pairing
+            # Every leftover at a context is offered against the same untranslated text, so
+            # that text is read once rather than once per entry.
+            current_sources = tuple(StringValue(segment.string.data).render_text() for segment in untranslated)
             label = get_field_label(source_instance, tab_helper, segments[0].context)
-            entries.append(PreviousTranslation.from_pair(*pair, field_label=label))
+            entries.extend(
+                PreviousTranslation.from_leftover(leftover, current_sources=current_sources, is_exact=is_exact, field_label=label)
+                for leftover in leftovers
+            )
     return entries
 
 
-def find_stale_pair(
+def find_stale_pairing(
     segments: Sequence[StringSegment], string_translations: Sequence[StringTranslation]
-) -> tuple[list[StringSegment], StringTranslation, bool] | None:
+) -> tuple[list[StringSegment], list[StringTranslation], bool] | None:
     """
-    Pair the untranslated segments of a context with the translation left over
+    Pair the untranslated segments of a context with the translations left over
     from text the source no longer has, and say whether the pairing is certain.
 
     Rich text paragraphs share a context, and an edited paragraph cannot be told
-    apart from one added beside it, so every untranslated segment goes in the pair.
-    wagtail-localize keeps every earlier translation, so a field edited twice holds
-    two leftovers and the one written most recently is the one to offer. Rows written
-    in the same moment, as an import writes them, are separated by the one added
-    last (by pk).
+    apart from one added beside it, so every untranslated segment goes in the pairing.
+    wagtail-localize keeps every earlier translation, so leftovers build up over a
+    field's life. At most one leftover is offered per untranslated segment, taking the
+    ones written most recently. Rows written in the same moment, as an import writes
+    them, are separated by the one added last (by pk).
 
-    When there is one leftover segment and one untranslated segment, this is a match.
-    Otherwise, the entry is a guess and is flagged as not exact. A segment with nothing
-    to translate counts towards neither.
+    When there is one leftover and one untranslated segment, this is a match.
+    Otherwise, each leftover is a guess and is flagged as not exact. A segment with
+    nothing to translate counts towards neither.
     """
     current_string_ids = {segment.string_id for segment in segments}
-    stale = [row for row in string_translations if row.translation_of_id not in current_string_ids and row.data and not is_do_not_translate(row)]
-    if not stale:
+    leftovers = [row for row in string_translations if row.translation_of_id not in current_string_ids and row.data and not is_do_not_translate(row)]
+    if not leftovers:
         return None
 
     # Most fields have no leftover to offer, and reading a segment's text means parsing
@@ -107,10 +114,9 @@ def find_stale_pair(
     untranslated = [segment for segment in segments if segment.string_id not in translated_string_ids and has_visible_text(segment)]
     if not untranslated:
         return None
-    if len(untranslated) > 1 and len(stale) > 1:
-        return None
-    is_exact = len(untranslated) == 1 and len(stale) == 1
-    return untranslated, max(stale, key=lambda row: (row.updated_at, row.pk)), is_exact
+    is_exact = len(untranslated) == 1 and len(leftovers) == 1
+    newest_first = sorted(leftovers, key=lambda row: (row.updated_at, row.pk), reverse=True)
+    return untranslated, newest_first[: len(untranslated)], is_exact
 
 
 def has_visible_text(segment: StringSegment) -> bool:

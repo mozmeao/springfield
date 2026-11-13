@@ -156,10 +156,10 @@ def test_field_edited_twice_offers_its_latest_translation(translated_page):
 
 def test_a_field_edited_and_translated_twice_still_offers_a_previous_translation(translated_page):
     """
-    The panel shows the previous translation, not all of the previous translations.
+    A field with one untranslated string offers only the most recent of its leftovers.
 
-    Each edit leaves another translation behind, so a field edited twice has
-    two of them, but the panel should only show the most recent one.
+    Each edit leaves another translation behind, so a field edited twice has two of
+    them, and only one string for either of them to stand in for.
     """
     source = translated_page.translation.source
     set_rich_text(translated_page, "<p>Get Firefox</p>")
@@ -190,14 +190,57 @@ def test_orphan_stringtranslations_written_at_the_same_moment_offer_the_later_ro
     assert entries[0].translation == later.data
 
 
-def test_several_untranslated_paragraphs_and_several_orphan_stringtranslations_offer_nothing(three_paragraph_page):
+def test_several_untranslated_paragraphs_and_several_orphan_stringtranslations_are_all_offered(three_paragraph_page):
+    """
+    Editing two paragraphs of one field leaves two translations behind, and neither can
+    be told apart from the other, so both are offered as guesses rather than withheld.
+    """
     context = content_context(three_paragraph_page)
     segments = list(StringSegment.objects.filter(source=three_paragraph_page.translation.source, context=context).order_by("order"))
     translate_segment(three_paragraph_page, segments[0], "Alpha FR")
-    orphan_stringtranslation(three_paragraph_page, context, "Beta old", "Beta FR")
-    orphan_stringtranslation(three_paragraph_page, context, "Gamma old", "Gamma FR")
+    latest = orphan_stringtranslation(three_paragraph_page, context, "Gamma old", "Gamma FR")
+    older = orphan_stringtranslation(three_paragraph_page, context, "Beta old", "Beta FR")
+    StringTranslation.objects.filter(pk=older.pk).update(updated_at=latest.updated_at - timedelta(days=1))
 
-    assert get_previous_translations(three_paragraph_page.translation) == []
+    entries = get_previous_translations(three_paragraph_page.translation)
+
+    assert [entry.previous_source for entry in entries] == ["Gamma old", "Beta old"]
+    assert [entry.translation for entry in entries] == ["Gamma FR", "Beta FR"]
+    assert all(entry.current_sources == ("Beta", "Gamma") for entry in entries)
+    assert not any(entry.is_exact for entry in entries)
+
+
+def test_orphan_stringtranslations_beyond_the_untranslated_paragraphs_are_left_out(three_paragraph_page):
+    """
+    Leftovers build up over a field's life, and only as many as there are paragraphs to
+    fill can be reused, so the oldest are left out.
+    """
+    context = content_context(three_paragraph_page)
+    segments = list(StringSegment.objects.filter(source=three_paragraph_page.translation.source, context=context).order_by("order"))
+    translate_segment(three_paragraph_page, segments[0], "Alpha FR")
+    latest = orphan_stringtranslation(three_paragraph_page, context, "Gamma old", "Gamma FR")
+    older = orphan_stringtranslation(three_paragraph_page, context, "Beta old", "Beta FR")
+    oldest = orphan_stringtranslation(three_paragraph_page, context, "Beta oldest", "Beta FR ancien")
+    StringTranslation.objects.filter(pk=older.pk).update(updated_at=latest.updated_at - timedelta(days=1))
+    StringTranslation.objects.filter(pk=oldest.pk).update(updated_at=latest.updated_at - timedelta(days=2))
+
+    entries = get_previous_translations(three_paragraph_page.translation)
+
+    assert [entry.previous_source for entry in entries] == ["Gamma old", "Beta old"]
+
+
+def test_fewer_orphan_stringtranslations_than_untranslated_paragraphs_are_all_offered(three_paragraph_page):
+    """Three paragraphs stand where two translations used to apply, so both are offered."""
+    context = content_context(three_paragraph_page)
+    latest = orphan_stringtranslation(three_paragraph_page, context, "Gamma old", "Gamma FR")
+    older = orphan_stringtranslation(three_paragraph_page, context, "Beta old", "Beta FR")
+    StringTranslation.objects.filter(pk=older.pk).update(updated_at=latest.updated_at - timedelta(days=1))
+
+    entries = get_previous_translations(three_paragraph_page.translation)
+
+    assert [entry.previous_source for entry in entries] == ["Gamma old", "Beta old"]
+    assert all(entry.current_sources == ("Alpha", "Beta", "Gamma") for entry in entries)
+    assert not any(entry.is_exact for entry in entries)
 
 
 def test_one_untranslated_paragraph_with_two_orphan_stringtranslations_offers_the_latest(three_paragraph_page):
@@ -455,6 +498,18 @@ def test_query_count_does_not_grow_with_the_number_of_segments(three_paragraph_p
     count_for_many_strings = count_queries(three_paragraph_page)
 
     assert count_for_many_strings == count_for_a_few_strings
+
+
+def test_query_count_does_not_grow_with_the_number_of_entries_at_one_context(three_paragraph_page):
+    context = content_context(three_paragraph_page)
+    orphan_stringtranslation(three_paragraph_page, context, "Beta old", "Beta FR")
+    count_for_one_entry = count_queries(three_paragraph_page)
+
+    orphan_stringtranslation(three_paragraph_page, context, "Gamma old", "Gamma FR")
+    count_for_several_entries = count_queries(three_paragraph_page)
+
+    assert len(get_previous_translations(three_paragraph_page.translation)) == 2
+    assert count_for_several_entries == count_for_one_entry
 
 
 def test_query_count_does_not_grow_with_the_number_of_contexts_and_candidates(translated_page):
