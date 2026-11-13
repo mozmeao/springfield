@@ -26,10 +26,12 @@ import {
 /**
  * Filter out non-useful / non-actionable errors.
  */
-const options = {
+export const eventFilterOptions = {
     ignoreErrors: [
         '$ is not defined',
+        // Dispatched by extensions and third-party scripts, with no rejection reason
         'Event `Event` (type=unhandledrejection) captured as promise rejection',
+        'Event `CustomEvent` (type=unhandledrejection) captured as promise rejection',
         'NS_ERROR_ABORT', // https://mozilla.sentry.io/share/issue/3a480856d1784ecdb3d8bbd647df0a7b/
         'NS_ERROR_FAILURE', // https://mozilla.sentry.io/share/issue/6361b063ea0d4528ac0ef07e181fbb96/
         'NetworkError when attempting to fetch resource',
@@ -60,7 +62,7 @@ const SentryConsent = {
                 dedupeIntegration(),
                 globalHandlersIntegration(),
                 httpContextIntegration(),
-                eventFiltersIntegration(options)
+                eventFiltersIntegration(eventFilterOptions)
             ],
             beforeSend(event) {
                 const values =
