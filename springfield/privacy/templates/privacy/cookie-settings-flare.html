@@ -11,7 +11,7 @@
     <content:heading>
     <include:heading
           level="h1"
-          heading_size="fl-heading-xl"
+          heading_size="fl-heading-size-1"
           heading_text="{{ ftl('cookie-settings-page-title') }}"
         />
       </content:heading>
@@ -26,11 +26,11 @@
   <section class="fl-section">
     <div class="fl-section-container is-narrow">
       <form class="cookie-consent-form">
-        <h2 class="fl-heading-md">{{ ftl('cookie-settings-how-mozilla-heading') }}</h2>
+        <h2 class="fl-heading-size-2">{{ ftl('cookie-settings-how-mozilla-heading') }}</h2>
 
         <ul>
           <li class="cookie-category">
-            <h3 class="fl-heading-sm cookie-category-title">
+            <h3 class="cookie-category-title">
               {{ ftl('cookie-settings-category-necessary-heading') }}
             </h3>
 
@@ -59,7 +59,7 @@
             </details>
           </li>
           <li class="cookie-category">
-            <h3 class="fl-heading-sm cookie-category-title">
+            <h3 class="cookie-category-title">
               {{ ftl('cookie-settings-category-preference-heading') }}
             </h3>
 
@@ -92,7 +92,7 @@
             </details>
           </li>
           <li class="cookie-category" data-testid="cookie-consent-analytics">
-            <h3 class="fl-heading-sm cookie-category-title">
+            <h3 class="cookie-category-title">
               {{ ftl('cookie-settings-category-analytics-heading') }}
             </h3>
 

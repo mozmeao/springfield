@@ -165,7 +165,7 @@
                 {% set call_out_desc = 'Release Notes tell you what\'s new in %(product)s. As always, we welcome your <a href="%(feedback)s">feedback</a>. You can also <a href="%(bugzilla)s">file a bug in Bugzilla</a> or see the <a href="%(check)s">system requirements</a> of this release.'|format(product=product_name, feedback=feedback_url, bugzilla=bugzilla_url, check=check_url) %}
                 <include:heading
                   level="h1"
-                  heading_size="fl-heading-xl fl-heading-condensed"
+                  heading_size="fl-heading-size-1"
                   heading_text="{{ primary_heading }}"
                   subheading_text="{{ call_out_desc | safe }}"
                 />
@@ -200,7 +200,7 @@
                     <div class="c-release-first-title fl-heading fl-heading-xs fl-u-font-semibold">Version {{ release.version }}, first offered to {{ release.channel }} channel users on {{ release.release_date|l10n_format_date }}</div>
                     <div class="c-release-first-text">{{ release.text|safe }}</div>
                   {% else %}
-                    <h2 class="c-release-draft-title fl-heading fl-heading-xs">We're still preparing the notes for this release, and will post them here when they are ready. Please check back later.</h2>
+                    <h2 class="c-release-draft-title fl-heading">We're still preparing the notes for this release, and will post them here when they are ready. Please check back later.</h2>
                     {% block flare_extra_draft_description %}{% endblock %}
                   {% endif %}
                 </div>
@@ -232,7 +232,6 @@
                         {% endset %}
                         <include:heading
                           level="h3"
-                          heading_size="fl-heading-xs"
                           heading_text="{{ tag_heading | safe }}"
                         />
                       </div>
@@ -262,7 +261,6 @@
                         {% endset %}
                         <include:heading
                           level="h3"
-                          heading_size="fl-heading-xs"
                           heading_text="{{ tag_heading | safe }}"
                         />
                       </div>
@@ -292,7 +290,6 @@
                         {% endset %}
                         <include:heading
                           level="h3"
-                          heading_size="fl-heading-xs"
                           heading_text="{{ tag_heading | safe }}"
                         />
                       </div>
@@ -322,7 +319,6 @@
                         {% endset %}
                         <include:heading
                           level="h3"
-                          heading_size="fl-heading-xs"
                           heading_text="{{ tag_heading | safe }}"
                         />
                       </div>
@@ -352,7 +348,6 @@
                         {% endset %}
                         <include:heading
                           level="h3"
-                          heading_size="fl-heading-xs"
                           heading_text="{{ tag_heading | safe }}"
                         />
                       </div>
@@ -389,7 +384,6 @@
                         {% endset %}
                         <include:heading
                           level="h3"
-                          heading_size="fl-heading-xs"
                           heading_text="{{ tag_heading | safe }}"
                         />
                       </div>
@@ -419,7 +413,6 @@
                         {% endset %}
                         <include:heading
                           level="h3"
-                          heading_size="fl-heading-xs"
                           heading_text="{{ tag_heading | safe }}"
                         />
                       </div>
@@ -449,7 +442,6 @@
                         {% endset %}
                         <include:heading
                           level="h3"
-                          heading_size="fl-heading-xs"
                           heading_text="{{ tag_heading | safe }}"
                         />
                       </div>
@@ -493,7 +485,6 @@
                         {% endset %}
                         <include:heading
                           level="h3"
-                          heading_size="fl-heading-xs"
                           heading_text="{{ tag_heading | safe }}"
                         />
                       </div>
@@ -523,7 +514,6 @@
                         {% endset %}
                         <include:heading
                           level="h3"
-                          heading_size="fl-heading-xs"
                           heading_text="{{ tag_heading | safe }}"
                         />
                       </div>
@@ -554,7 +544,7 @@
         <include:section>
           <content:heading>
             <include:heading
-              heading_size="fl-heading-md"
+              heading_size="fl-heading-size-2"
               heading_text="{{ download_title }}"
               alignment_class="text-center"
             />
@@ -576,36 +566,36 @@
         <div class="fl-l-release-notes-wrapper fl-l-release-notes-pre-footer-columns">
           {% if release.product == 'Firefox Enterprise' %}
             <div class="c-release-footer-col">
-              <h2 class="fl-heading fl-heading-xs">Need help or want to leave feedback?</h2>
+              <h2 class="fl-heading">Need help or want to leave feedback?</h2>
               <a href="/{{ LANG }}/enterprise/firefox-professional-support/">Firefox Professional Support</a>
               <a rel="external" href="{{ feedback_url }}">Leave feedback</a>
               <a rel="external" href="{{ bugzilla_url }}">File a bug</a>
             </div>
             <div class="c-release-footer-col">
-              <h2 class="fl-heading fl-heading-xs">Documentation</h2>
+              <h2 class="fl-heading">Documentation</h2>
               <a rel="external" href="https://firefox-admin-docs.mozilla.org/reference/policies/">Enterprise policy reference</a>
               <a rel="external" href="https://support.mozilla.org/products/firefox-enterprise">Firefox Enterprise support articles</a>
               <a rel="external" href="https://developer.mozilla.org/docs/Mozilla/Firefox/Releases/{{ release.major_version }}">Firefox release notes for developers</a>
             </div>
             <div class="c-release-footer-col">
-              <h2 class="fl-heading fl-heading-xs">Explore Firefox Enterprise</h2>
+              <h2 class="fl-heading">Explore Firefox Enterprise</h2>
               <a href="/{{ LANG }}/enterprise/contact/">Request a demo</a>
               <a href="/{{ LANG }}/enterprise/trust-center/">Firefox Enterprise Trust Center</a>
               <a href="/{{ LANG }}/enterprise/download-firefox/">Download</a>
             </div>
           {% else %}
             <div class="c-release-footer-col">
-              <h2 class="fl-heading fl-heading-xs">Need help or want to leave feedback?</h2>
+              <h2 class="fl-heading">Need help or want to leave feedback?</h2>
               <a rel="external" href="{{ bugzilla_url }}">File a bug</a>
               <a rel="external" href="{{ feedback_url }}">Leave feedback</a>
             </div>
             <div class="c-release-footer-col">
-              <h2 class="fl-heading fl-heading-xs">Get Involved</h2>
+              <h2 class="fl-heading">Get Involved</h2>
               <p>Did you know that most of the content in Firefox Support was written by volunteers?</p>
               <a rel="external" href="https://support.mozilla.org/get-involved">Find out more</a>
             </div>
             <div class="c-release-footer-col">
-              <h2 class="fl-heading fl-heading-xs">Other Resources</h2>
+              <h2 class="fl-heading">Other Resources</h2>
               {% block flare_extra_resources %}{% endblock %}
               <a rel="external" href="https://developer.mozilla.org/docs/Mozilla/Firefox/Releases/{{ release.major_version }}">Developer Information</a>
               <a rel="external"  href="{{ release.get_bug_search_url() }}">Complete list of changes for this release</a>
