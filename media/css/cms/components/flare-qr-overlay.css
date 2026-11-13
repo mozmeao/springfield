@@ -41,6 +41,10 @@
     position: absolute;
 }
 
+.fl-qr-code-snippet .fl-qr-code-snippet-heading {
+    font-size: var(--fl-theme-font-size-heading-sm);
+}
+
 .fl-qr-code-snippet-text {
     padding: var(--token-spacing-2xl);
 }

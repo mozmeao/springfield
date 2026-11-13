@@ -17,6 +17,10 @@
     z-index: 5;
 }
 
+.fl-consent-banner .fl-consent-banner-heading {
+    font-size: var(--fl-theme-font-size-heading-sm);
+}
+
 .fl-consent-banner p {
     margin: 0;
 }
