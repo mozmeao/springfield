@@ -404,10 +404,12 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 }
 
 .fl-wnp-footer-social-links {
+    border-block-end: 2px solid var(--token-color-soft-purple);
     display: grid;
     gap: var(--token-spacing-xl);
     list-style: none;
     margin-inline-start: 0;
+    padding-block-end: var(--token-spacing-xl);
 }
 
 .fl-wnp-footer-social-links,
@@ -417,6 +419,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 @media (--viewport-sm-up) {
     .fl-wnp-footer-social-links {
+        align-items: baseline;
         display: flex;
         flex-wrap: wrap;
         gap: 0 var(--token-spacing-lg);
@@ -434,10 +437,6 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     .fl-wnp-footer-social nav {
         row-gap: var(--token-spacing-xl);
     }
-}
-
-.fl-wnp-footer-divider {
-    margin-block: 0;
 }
 
 /* Mozilla */

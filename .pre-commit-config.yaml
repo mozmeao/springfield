@@ -70,9 +70,9 @@ repos:
           - --comment-style
           - "|#|"
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.16.8
+    rev: v0.17.3
     hooks:
-      - id: ruff
+      - id: ruff-check
       - id: ruff-format
   - repo: https://github.com/mozilla-l10n/moz-fluent-linter
     rev: v0.4.9
