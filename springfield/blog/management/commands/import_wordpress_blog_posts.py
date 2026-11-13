@@ -262,6 +262,9 @@ def youtube_watch_url(video_id):
     return f"https://www.youtube.com/watch?v={video_id}"
 
 
+YOUTUBE_POSTER_SIZES = ("maxresdefault", "hqdefault")
+
+
 def youtube_poster_url(video_id, size):
     """Build the URL of one of YouTube's thumbnails for a video, used as its block's poster image."""
     return f"https://img.youtube.com/vi/{video_id}/{size}.jpg"
@@ -434,14 +437,19 @@ def relink_imported_posts(text_html, new_paths):
     soup = BeautifulSoup(text_html, "html.parser")
     changed = False
     for anchor in soup.find_all("a", href=True):
-        parsed = urlparse(anchor["href"])
-        if not parsed.netloc.lower().endswith("blog.mozilla.org"):
-            continue
-        path = new_paths.get(parsed.path.rstrip("/").rsplit("/", 1)[-1])
-        if path:
-            anchor["href"] = path
+        href = relinked_href(anchor["href"], new_paths)
+        if href != anchor["href"]:
+            anchor["href"] = href
             changed = True
     return str(soup) if changed else text_html
+
+
+def relinked_href(href, new_paths):
+    """The path on this site of the imported post that `href` points at on blog.mozilla.org, else `href` as it is."""
+    parsed = urlparse(href)
+    if not parsed.netloc.lower().endswith("blog.mozilla.org"):
+        return href
+    return new_paths.get(parsed.path.rstrip("/").rsplit("/", 1)[-1]) or href
 
 
 def unwrap_media_file_links(soup):
@@ -496,10 +504,11 @@ class ContentParser:
     Call `parse_content` rather than using this class directly.
     """
 
-    def __init__(self):
+    def __init__(self, video_blocks=False):
         self.specs = []
         self.warnings = []
         self.text_buffer = []
+        self.video_blocks = video_blocks
 
     def parse(self, raw_html):
         rewritten = rewrite_embed_shortcodes(rewrite_caption_shortcodes(raw_html))
@@ -527,7 +536,7 @@ class ContentParser:
             elif name == "iframe":
                 self.add_video(node.get("src", ""), alt="")
             elif name == "video":
-                self.keep_video_as_text(node)
+                self.add_video_file(node)
             elif name == "pre":
                 self.flush_text()
                 self.specs.append(("code", {"code": node.get_text()}))
@@ -589,6 +598,18 @@ class ContentParser:
         )
         self.text_buffer.append(node)
 
+    def add_video_file(self, node):
+        """Add a ("video_file", {"src", "caption"}) spec when asked to, else keep the video as text."""
+        if not self.video_blocks:
+            self.keep_video_as_text(node)
+            return
+        video = node if node.name == "video" else node.find("video")
+        source = video.find("source")
+        figcaption = node.find("figcaption") if node.name == "figure" else None
+        self.flush_text()
+        src = video.get("src") or (source.get("src", "") if source else "")
+        self.specs.append(("video_file", {"src": src, "caption": caption_html(figcaption) if figcaption else ""}))
+
     def add_video(self, url, alt):
         """Add a video block spec for a YouTube URL, or a labelled link for any other provider.
 
@@ -608,7 +629,7 @@ class ContentParser:
         """Map a figure onto whichever block fits: a gallery, one image, a video, or plain text."""
         if figure.find("video") is not None:
             # The figure's caption travels inline with the video, so it needs no separate warning.
-            self.keep_video_as_text(figure)
+            self.add_video_file(figure)
             return
 
         if figure.find("figure") is not None:
@@ -668,14 +689,15 @@ class ContentParser:
             self.warn(WARNING_CAPTION, f"caption {text!r} describes a gallery of {len(produced)} images - dropped")
 
 
-def parse_content(raw_html):
+def parse_content(raw_html, video_blocks=False):
     """Convert a post's WordPress HTML body into ordered block specs, plus any warnings.
 
     Specs are ("text", html), ("image", {"src", "alt", "caption"}), ("video", {"url", "alt"}) or
     ("code", {"code": ...}); warnings are (kind, message) pairs so the caller can group them.
     Only the markup this export actually uses is recognised; everything else stays as rich text.
+    `video_blocks` turns a self-hosted video into ("video_file", {"src", "caption"}) instead.
     """
-    return ContentParser().parse(raw_html)
+    return ContentParser(video_blocks=video_blocks).parse(raw_html)
 
 
 # ---------------------------------------------------------------------------
@@ -728,10 +750,6 @@ class Command(BaseCommand):
         if not xml_path.exists():
             raise CommandError(f"File not found: {xml_path}")
 
-        self.dry_run = options["dry_run"]
-        self.image_cache = {}
-        self.unavailable_image_urls = {}
-
         locale = Locale.objects.filter(language_code=options["locale"]).first()
         if locale is None:
             raise CommandError(f"No Locale found for language code {options['locale']!r}")
@@ -744,9 +762,10 @@ class Command(BaseCommand):
         self.stdout.write(f"Found {len(posts)} posts in {xml_path}")
 
         # Built before importing anything, so a post can link to one that comes later in the file.
-        self.new_paths = {
-            element_text(post, "Slug"): f"{index_page.url}{element_text(post, 'Slug')}/" for post in posts if element_text(post, "Slug")
-        }
+        self.start_run(
+            dry_run=options["dry_run"],
+            new_paths={element_text(post, "Slug"): f"{index_page.url}{element_text(post, 'Slug')}/" for post in posts if element_text(post, "Slug")},
+        )
 
         # Built before importing anything, so a byline on one post can be named by another's
         # owner record.
@@ -779,16 +798,12 @@ class Command(BaseCommand):
 
                 # Reset here rather than inside import_post, so a post that fails early cannot
                 # inherit the previous post's warnings.
-                self.post_warnings = []
-                self.images_without_alt = 0
-                self.urls_cached_by_post = []
+                self.start_post()
                 try:
                     url_map_row = self.import_post(post, index_page, locale)
                 except Exception as exc:
                     self.stderr.write(f"    ! failed to import {slug!r}: {exc}")
-                    # Clean up cached URLs from images rolled back by the transaction
-                    for cached_url in self.urls_cached_by_post:
-                        self.image_cache.pop(cached_url, None)
+                    self.forget_post_images()
                     # A failed post has no page to inspect, so the CSV is the only record of
                     # what went wrong.
                     self.record_warnings(post, new_url="", failure=(WARNING_FAILURE, f"post failed to import: {exc}"))
@@ -820,6 +835,24 @@ class Command(BaseCommand):
 
         counted = f"{imported} would be imported" if self.dry_run else f"{imported} imported"
         self.stdout.write(f"Done. {counted}, {skipped} skipped, {failed} failed.")
+
+    def start_run(self, dry_run, new_paths):
+        """Set the state a run shares across posts; `new_paths` maps slug -> path on this site."""
+        self.dry_run = dry_run
+        self.image_cache = {}
+        self.unavailable_image_urls = {}
+        self.new_paths = new_paths
+
+    def start_post(self):
+        """Clear the state one post's import collects."""
+        self.post_warnings = []
+        self.images_without_alt = 0
+        self.urls_cached_by_post = []
+
+    def forget_post_images(self):
+        """Drop cached images the failed post created, since its transaction rolled them back."""
+        for cached_url in self.urls_cached_by_post:
+            self.image_cache.pop(cached_url, None)
 
     @transaction.atomic
     def import_post(self, post, index_page, locale):
@@ -1050,9 +1083,10 @@ class Command(BaseCommand):
         Prefers the 16:9 maxresdefault, which older videos lack, over the 4:3 hqdefault that every
         upload has, which shows a widescreen video inside black bars.
         """
+        widescreen, fallback = YOUTUBE_POSTER_SIZES
         return self.get_or_create_image(
-            youtube_poster_url(video_id, "maxresdefault"), alt, description=alt, warn_on_failure=False
-        ) or self.get_or_create_image(youtube_poster_url(video_id, "hqdefault"), alt, description=alt)
+            youtube_poster_url(video_id, widescreen), alt, description=alt, warn_on_failure=False
+        ) or self.get_or_create_image(youtube_poster_url(video_id, fallback), alt, description=alt)
 
     def get_or_create_image(self, url, title, description="", warn_on_failure=True):
         """Download `url` into an image, reusing one the library already holds.
