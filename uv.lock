@@ -1608,14 +1608,14 @@ wheels = [
 
 [[package]]
 name = "pytest-datadir"
-version = "1.8.0"
+version = "1.9.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "pytest" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/b4/46/db060b291999ca048edd06d6fa9ee95945d088edc38b1172c59eeb46ec45/pytest_datadir-1.8.0.tar.gz", hash = "sha256:7a15faed76cebe87cc91941dd1920a9a38eba56a09c11e9ddf1434d28a0f78eb", size = 11848, upload-time = "2025-07-30T13:52:12.518Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/b6/8b/0f3460b1223d3053d355347445bc6d1a85cdc50f1fe80b17bb2b25b2e854/pytest_datadir-1.9.0.tar.gz", hash = "sha256:1e81f37069571fe283b58d8c14386898b62e54543654b6b5335d74313c16b1af", size = 13081, upload-time = "2026-11-03T14:28:15.899Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/8f/7a/33895863aec26ac3bb5068a73583f935680d6ab6af2a9567d409430c3ee1/pytest_datadir-1.8.0-py3-none-any.whl", hash = "sha256:5c677bc097d907ac71ca418109adc3abe34cf0bddfe6cf78aecfbabd96a15cf0", size = 6512, upload-time = "2025-07-30T13:52:11.525Z" },
+    { url = "https://files.pythonhosted.org/packages/35/5d/042a244ff485e2956e1bd548eb9a8ee186a1a9fd4dfc44a3683b62f1bf01/pytest_datadir-1.9.0-py3-none-any.whl", hash = "sha256:e8b071cc486deee3cc5d8fc24c41735396d1ced2e75bbb85d15b6e67b8b41acb", size = 6463, upload-time = "2026-11-03T14:28:14.747Z" },
 ]
 
 [[package]]
@@ -2120,7 +2120,7 @@ dev = [
     { name = "pyquery", specifier = "==2.1.0" },
     { name = "pytest", specifier = "==9.2.0" },
     { name = "pytest-cov", specifier = "==7.1.0" },
-    { name = "pytest-datadir", specifier = "==1.8.0" },
+    { name = "pytest-datadir", specifier = "==1.9.0" },
     { name = "pytest-django", specifier = "==4.14.0" },
     { name = "pytest-mock", specifier = "==3.17.0" },
     { name = "pytest-rerunfailures", specifier = "==16.7" },
@@ -2129,7 +2129,7 @@ dev = [
     { name = "responses", specifier = "==0.26.3" },
     { name = "ruff", specifier = "==0.17.3" },
     { name = "selenium", specifier = "==4.51.0" },
-    { name = "translate-toolkit", specifier = "==3.20.2" },
+    { name = "translate-toolkit", specifier = "==3.20.3" },
     { name = "wagtail-factories", specifier = "==4.5.0" },
 ]
 
@@ -2197,15 +2197,15 @@ wheels = [
 
 [[package]]
 name = "translate-toolkit"
-version = "3.20.2"
+version = "3.20.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "lxml" },
     { name = "unicode-segmentation-rs" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/7b/36/618e11497e18b74a8f2807594d17711ebe9a674aacf7c19624f17c8f3709/translate_toolkit-3.20.2.tar.gz", hash = "sha256:786ed210b262b0a94388f3bc824fa5b586b141d99cdd7db293e02c44ba146e7a", size = 646823, upload-time = "2026-11-01T13:03:04.157Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/f8/9a/060d7b777e3c76ffb0e5c41f7040ae597e3f9ddec739be61c35d095d9699/translate_toolkit-3.20.3.tar.gz", hash = "sha256:b14b1c92418ec2945296eb19d711f228519ed606e63f4a8801f6bcdfe4f5a6b2", size = 648217, upload-time = "2026-11-03T12:24:55.712Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/c1/7b/71c67852517c593a6b220633a811c6d37de71483bb732225fcea3c692a36/translate_toolkit-3.20.2-py3-none-any.whl", hash = "sha256:162242febb61fd1bf59c818617fc839598c873ba119f7852a56d271378d2aa50", size = 871515, upload-time = "2026-11-01T13:03:02.201Z" },
+    { url = "https://files.pythonhosted.org/packages/c9/9e/e0aee03b74bd7a3acccd9e67e6c54ab96a2bc04aae2105c1b6ac58674e26/translate_toolkit-3.20.3-py3-none-any.whl", hash = "sha256:49c114b189804e893fa07fafd5abf33db2e7ad0fea11bf82816e28744c6f8dda", size = 873522, upload-time = "2026-11-03T12:24:53.955Z" },
 ]
 
 [[package]]
