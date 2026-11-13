@@ -9,6 +9,7 @@ from django.conf import settings
 from pattern_library import register_context_modifier
 
 from lib.l10n_utils import fluent_l10n, get_locale
+from springfield.base.context_processors import i18n
 from springfield.cms.blocks import icon_display_label
 from springfield.cms.icon_utils import icon_value_fn
 
@@ -16,14 +17,13 @@ ICON_DIR = settings.ROOT_PATH / "media/img/firefox/flare/icons"
 
 
 @register_context_modifier
-def add_fluent_context(context, request):
-    """Add Fluent localization context to pattern library rendering context
-    for CMS pages.
-    This ensures that Fluent strings render correctly in pattern library
-    previews of CMS pages.
+def add_l10n_context(context, request):
+    """Add the locale variables and Fluent strings a real page gets, so patterns
+    render localized URLs (e.g. `/{{ LANG }}/features/`) and Fluent strings correctly.
     """
     locale = get_locale(request)
 
+    context.update(i18n(request))
     context["fluent_l10n"] = fluent_l10n([locale, "en"], settings.FLUENT_DEFAULT_FILES)
     return context
 
@@ -50,7 +50,7 @@ def add_icon_groups(context, request):
 
 
 def pattern_library_l10n_context(request):
-    """Add localization context to pattern library requests. The `add_fluent_context` modifier
+    """Add localization context to pattern library requests. The `add_l10n_context` modifier
     only applies to the context used for the pattern rendering, not the surrounding page context.
     """
 
