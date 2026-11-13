@@ -39,11 +39,6 @@
     margin-block-start: var(--token-layout-md);
 }
 
-/* override default font sizes for headings on article pages */
-.fl-rich-text h2 {
-    font-size: var(--fl-theme-font-size-heading-sm);
-}
-
 .fl-article-main .fl-heading {
     margin-block-end: var(--token-spacing-3xl);
     text-align: center;

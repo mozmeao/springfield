@@ -283,6 +283,13 @@ class PageThemeMixin(models.Model):
         abstract = True
 
 
+TYPE_SCALE_REGULAR = "regular"
+TYPE_SCALE_COMPACT = "compact"
+TYPE_SCALE_CHOICES = [
+    (TYPE_SCALE_REGULAR, "Regular"),
+    (TYPE_SCALE_COMPACT, "Compact"),
+]
+
 PRE_FOOTER_IMAGE_KIT = "kit"
 PRE_FOOTER_IMAGE_GLOBE = "globe"
 PRE_FOOTER_IMAGE_NONE = "none"
@@ -1284,6 +1291,17 @@ class FreeFormPage2026(
         verbose_name="Show Navigation",
         help_text="If true, the navigation menu will be displayed on this page's header bar.",
     )
+    type_scale = models.CharField(
+        max_length=20,
+        choices=TYPE_SCALE_CHOICES,
+        default=TYPE_SCALE_REGULAR,
+        verbose_name="Type scale",
+        help_text=(
+            "Compact gives tighter headings: for pages that are mostly text sections (privacy, policy, explainers), "
+            "or any page that should feel compact. Regular is for landing pages. "
+            "Ignored on the Enterprise theme, which always uses Compact."
+        ),
+    )
     docs = RichTextField(
         blank=True,
         features=settings.WAGTAIL_RICHTEXT_FEATURES_FULL,
@@ -1306,6 +1324,7 @@ class FreeFormPage2026(
         MultiFieldPanel(
             [
                 *PageThemeMixin.theme_panels,
+                FieldPanel("type_scale"),
             ],
             heading="Appearance",
         ),
@@ -1330,6 +1349,7 @@ class FreeFormPage2026(
     override_translatable_fields = [
         *QRCodeFloatingSnippetMixin.override_translatable_fields,
         SynchronizedField("pre_footer_image"),
+        SynchronizedField("type_scale"),
     ]
 
     search_fields = AbstractSpringfieldCMSPage.search_fields + [

@@ -31,6 +31,13 @@
     margin-block-end: var(--token-spacing-lg);
 }
 
+/* Headings take the scale's H3 size at any level */
+.fl-mediacontent-content .fl-heading {
+    font-size: var(--fl-h3);
+    font-variation-settings: unset;
+    line-height: 1.2;
+}
+
 .fl-mediacontent-content .fl-superheading {
     color: var(--fl-theme-color-brand-text);
     font-size: var(--fl-theme-label-caps-sm);

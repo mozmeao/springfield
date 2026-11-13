@@ -18,13 +18,6 @@
         padding: var(--token-layout-sm) var(--token-spacing-lg);
     }
 
-    .fl-share-firefox-page
-        .fl-split-page-upper
-        .fl-showcase
-        .fl-showcase-heading {
-        font-size: var(--fl-theme-font-size-heading-md);
-    }
-
     .fl-share-firefox-page .fl-split-page-upper .fl-showcase-description {
         margin-inline: auto;
     }
