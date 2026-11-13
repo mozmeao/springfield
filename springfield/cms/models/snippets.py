@@ -13,6 +13,7 @@ if TYPE_CHECKING:
 
     from springfield.cms.models.pages import QRCodeFloatingSnippetMixin
 
+from django import forms
 from django.conf import settings
 from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
 from django.db import models
@@ -649,6 +650,11 @@ class PartnerRepackLinkLabel(models.TextChoices):
     LEARN_MORE = "learn_more", "Learn more"
 
 
+class PartnerRepackFallbackMode(models.TextChoices):
+    MESSAGE = "message", "Show a message, then let them download Firefox"
+    IMMEDIATE = "immediate", "Download Firefox straight away"
+
+
 class PartnerRepack(DraftStateMixin, RevisionMixin, models.Model):
     """A partner's Firefox builds, offered to visitors who follow the partner's download link."""
 
@@ -662,6 +668,17 @@ class PartnerRepack(DraftStateMixin, RevisionMixin, models.Model):
         max_length=60,
         unique=True,
         help_text="Used in the link firefox.com/get/?p=<link name>. Changing it breaks links already shared.",
+    )
+    fallback_mode = models.CharField(
+        "When there's no build for the visitor",
+        max_length=20,
+        choices=PartnerRepackFallbackMode,
+        default=PartnerRepackFallbackMode.MESSAGE,
+        help_text=(
+            "For visitors whose system or language isn't listed below. "
+            "Choose 'straight away' when this build is only for attribution. "
+            "Phones go straight to the app store. Visitors already using Firefox always see a message."
+        ),
     )
     windows64_url = models.URLField(
         "Windows 64-bit link",
@@ -732,6 +749,7 @@ class PartnerRepack(DraftStateMixin, RevisionMixin, models.Model):
     panels = [
         FieldPanel("name"),
         FieldPanel("slug"),
+        FieldPanel("fallback_mode", widget=forms.RadioSelect),
         MultiFieldPanel([FieldPanel("windows64_url"), FieldPanel("windows32_url"), FieldPanel("windows_languages")], heading="Windows"),
         MultiFieldPanel([FieldPanel("mac_url"), FieldPanel("mac_languages")], heading="Mac"),
         MultiFieldPanel([FieldPanel("linux_url"), FieldPanel("linux_languages")], heading="Linux"),

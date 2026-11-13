@@ -568,6 +568,7 @@ describe('TrackProductDownload partner fields', function () {
 
     afterEach(function () {
         document.documentElement.removeAttribute('data-download-partner');
+        document.documentElement.removeAttribute('data-download-partner-mode');
     });
 
     it('should leave the partner build event unchanged by itself', function () {
@@ -587,10 +588,12 @@ describe('TrackProductDownload partner fields', function () {
         for (const event of pushedEvents()) {
             expect(event.partner).toBeUndefined();
             expect(event.partner_download).toBeUndefined();
+            expect(event.partner_mode).toBeUndefined();
         }
         const props = Plausible.trackEvent.calls.mostRecent().args[1];
         expect(props.partner).toBeUndefined();
         expect(props.partner_download).toBeUndefined();
+        expect(props.partner_mode).toBeUndefined();
     });
 
     it('should mark a partner build download as a repack', function () {
@@ -630,5 +633,28 @@ describe('TrackProductDownload partner fields', function () {
             'fallback'
         ]);
         expect(events.map((event) => event.partner)).toEqual(['acme', 'acme']);
+    });
+
+    it('should record the partner mode on every partner download', function () {
+        document.documentElement.setAttribute('data-download-partner', 'acme');
+        document.documentElement.setAttribute(
+            'data-download-partner-mode',
+            'immediate'
+        );
+
+        TrackProductDownload.sendEventFromURL(partnerURL);
+        TrackProductDownload.sendEventFromURL(regularURL);
+
+        expect(pushedEvents().map((event) => event.partner_mode)).toEqual([
+            'immediate',
+            'immediate',
+            'immediate',
+            'immediate'
+        ]);
+        expect(
+            Plausible.trackEvent.calls
+                .allArgs()
+                .map(([, props]) => props.partner_mode)
+        ).toEqual(['immediate', 'immediate']);
     });
 });
