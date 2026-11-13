@@ -162,6 +162,8 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
       html-{{ DIR }}
       {% block body_class %}{% if page and page.body_class %}{{ page.body_class }}{% endif %}{% endblock %}
       {% if page and page.theme %}fl-theme-{{ page.theme }}{% endif %}
+      {# Compact page types set fl-scale-compact here; Regular is the default #}
+      {% block type_scale %}{% endblock %}
     "
     {% block body_attrs %}{% endblock %}
   >

@@ -6,6 +6,8 @@
 
 {% extends "cms/base-flare.html" %}
 
+{% block type_scale %}fl-scale-compact{% endblock %}
+
 {# product_name is the product and channel together. Example: Firefox for Android Beta. #}
 {# product_name may be over-ridden with more appropriate content to avoid bad names like: Firefox Release Release #}
 {% set product_name = product_name|default(release.product + ' ' + release.channel) %}
