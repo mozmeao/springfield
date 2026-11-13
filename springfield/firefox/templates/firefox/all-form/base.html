@@ -1,0 +1,262 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% extends "cms/base-flare.html" %}
+
+{% set campaign = "firefox-all" %}
+
+{% block page_css %}{{ css_bundle('firefox_all_form') }}{% endblock %}
+
+{% block page_title %}Firefox download options{% endblock %}
+
+{% block content %}
+
+<div class="fl-main">
+  <div class="fl-section c-page">
+    <h1 id="firefox-download-options" class="fl-heading c-page-title">Download Firefox</h1>
+
+    {% if has_errors %}
+    <include:notification icon="error" color="red">
+      <p role="alert">There were issues with your selection. <a href="#release">Jump to issue</a></p>
+    </include:notification>
+    {% endif %}
+
+    {#
+      No selection state on the element: the script sets `data-os` and friends
+      once it is running, and until then the only true statement about the
+      selection is whatever the selects themselves say. Anything CSS needs before
+      the upgrade it reads off the selects with `:has()`.
+    #}
+    <firefox-download-form>
+      <form class="c-form" aria-labelledby="firefox-download-options" name="download" method="get" action="{{ result_url }}">
+        <div class="c-choices">
+          <div class="fl-field-wrap">
+            <div class="fl-label c-label">
+              <label for="os">Operating System</label>
+              <button type="button" data-target-id="os-help" class="fl-tiny-icon-button fl-dialog-trigger">
+                <include:icon icon_name="help" hidden />
+                <span class="visually-hidden">Help for Operating System</span>
+              </button>
+            </div>
+            <include:dialog id="os-help">
+              <content:heading>
+                <include:heading
+                  level="h1"
+                  heading_size="fl-heading-size-3"
+                  heading_text="What version to pick?"
+                />
+              </content:heading>
+              <content:body>
+                <h2 class="fl-heading-size-4">{{ ftl('firefox-all-64-bit-installers') }}</h2>
+                <p>{{ ftl('firefox-all-choose-a-64-bit-installer') }}</p>
+                <h2 class="fl-heading-size-4">{{ ftl('firefox-all-32-bit-installers') }}</h2>
+                <p>{{ ftl('firefox-all-choose-a-32-bit-installer', url='https://support.mozilla.org/kb/choosing-firefox-cpu-architecture-windows-os') }}</p>
+                <h2 class="fl-heading-size-4">{{ ftl('firefox-all-msi-installers') }}</h2>
+                <p>{{ ftl('firefox-all-windows-installers-for') }}</p>
+                <h2 class="fl-heading-size-4">{{ ftl('firefox-all-arm64-installers') }}</h2>
+                <p>{{ ftl('firefox-all-arm64-installers-optimized-v2') }}</p>
+                {% if ftl_has_messages('firefox-all-choose-a-microsoft-store-installer') %}
+                <h2 class="fl-heading-size-4">{{ ftl('firefox-all-microsoft-store-installers') }}</h2>
+                <p>{{ ftl('firefox-all-choose-a-microsoft-store-installer') }}</p>
+                {% endif %}
+              </content:body>
+            </include:dialog>
+            <select id="os" name="os" required class="fl-field">
+              <option value="" hidden></option>
+              {% for group, choices in os_groups %}
+              <optgroup label="{{ group }}">
+                {% for value, label in choices %}
+                <option name="{{ value }}" value="{{ value }}"{{ ' selected' if value == selected_os }}>{{ label }}</option>
+                {% endfor %}
+              </optgroup>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="fl-field-wrap">
+            <div class="fl-label c-label">
+              <label for="release">Release Type</label>
+              <button type="button" data-target-id="release-help" class="fl-tiny-icon-button fl-dialog-trigger">
+                <include:icon icon_name="help" hidden />
+                <span class="visually-hidden">Help for Release Type</span>
+              </button>
+            </div>
+            <include:dialog id="release-help">
+              <content:heading>
+                <include:heading
+                  level="h1"
+                  heading_size="fl-heading-size-3"
+                  heading_text="{{ ftl('firefox-all-learn-about-firefox') }}"
+                />
+              </content:heading>
+              <content:body>
+                <h2 class="fl-heading-size-4"><a href="{{ url('firefox') }}">Firefox</a></h2>
+                <p>{{ ftl('firefox-all-the-standard-firefox') }}</p>
+                <h2 class="fl-heading-size-4"><a href="/{{ LANG }}/enterprise/">Firefox ESR</a></h2>
+                <p>{{ ftl('firefox-all-count-on-stability-and') }}</p>
+                <h2 class="fl-heading-size-4"><a href="{{ url('firefox.channel.desktop') }}#beta">Firefox Beta</a></h2>
+                <p>{{ ftl('firefox-all-get-a-sneak-peek-at') }}</p>
+                <h2 class="fl-heading-size-4"><a href="{{ url('firefox.developer.index') }}">Firefox Developer Edition</a></h2>
+                <p>{{ ftl('firefox-all-test-your-sites-against') }}</p>
+                <h2 class="fl-heading-size-4"><a href="{{ url('firefox.channel.desktop') }}#nightly">Firefox Nightly</a></h2>
+                <p>{{ ftl('firefox-all-the-pre-alpha-version') }}</p>
+              </content:body>
+            </include:dialog>
+            {#
+              Without JS the release select keeps every option, so these say which
+              ones the chosen platform actually has. The `:has()` rules that show
+              them live in all-form.css, under `.no-js`.
+            #}
+            <div id="release-no-js-hint" class="c-field-description">
+              <p data-hint-for="ios" hidden>Only Firefox and Firefox Beta are available for iOS.</p>
+              <p data-hint-for="android" hidden>Only Firefox, Firefox Beta, and Firefox Nightly are available for Android.</p>
+              <p data-hint-for="linux" hidden>Only Firefox ESR is available for Linux 32-bit.</p>
+            </div>
+            <select id="release" name="release" required class="fl-field" aria-describedby="{{ 'server-release-error ' if release_error }}release-no-js-hint">
+              {% for value, label in release_choices %}<option name="{{ value }}" value="{{ value }}"{{ ' selected' if value == selected_release }}>{{ label }}</option>{% endfor %}
+            </select>
+
+            {% if has_errors %}
+              <div id="server-release-error">
+                <div class="fl-field-error-message"><include:icon icon_name="warning" hidden /> {{ release_error }}</div>
+              </div>
+            {% endif %}
+          </div>
+          <div class="fl-field-wrap">
+            <div class="fl-label c-label">
+              <label for="language">Language</label>
+            </div>
+            <select id="language" name="language" required class="fl-field">
+              {% for value, label in language_choices %}<option name="{{ value }}" value="{{ value }}"{{ ' selected' if value == selected_language }}>{{ label }}</option>{% endfor %}
+            </select>
+            {#
+              Hidden until something says otherwise, so it can never describe a
+              platform the visitor has moved away from. With JS the script shows
+              it for store apps; without, the `.no-js` `:has()` rule in
+              all-form.css does, straight off the OS select.
+
+              The select itself is left enabled without JS: the server ignores the
+              language for a store app anyway, and disabling it here would strand
+              a no-JS visitor who switches back to a desktop platform.
+            #}
+            <p class="c-language-message" hidden>{{ copy.languageIgnored }}</p>
+          </div>
+        </div>
+
+        {#
+          Detection runs here rather than in the head: the three selects are
+          parsed by this point, so it can set their values directly instead of
+          watching the document for them to appear — one less MutationObserver
+          over every insertion on the page, which is the sort of thing that hurts
+          on slow hardware. It stays a blocking inline script so it runs before
+          this region is painted, and it only changes select values, so there is
+          no layout to shift either way.
+        #}
+        <script>
+          {
+            // Detection fills in what the visitor hasn't asked for. A query param
+            // is an explicit request and always wins — overriding it is how
+            // ?os=ios would end up showing macOS. Gated per field, so ?release=esr
+            // on its own still gets both an OS and a language detected.
+            const form = document.currentScript.closest('form');
+            const params = new URLSearchParams(window.location.search);
+
+            if (!params.has('os')) {
+              // It would be good to use `Sec-CH-UA-Platform` for this, but it
+              // doesn't seem to be making any progress in standards.
+              const platform = window.site.getPlatform();
+              const is64Bit = window.site.getArchSize() === 64;
+              let detected = platform;
+              if (platform === 'windows') {
+                detected = is64Bit ? 'win64' : 'win';
+              } else if (platform === 'linux') {
+                const ua = navigator.userAgent + ' ' + navigator.platform;
+                detected = /aarch64|arm64/i.test(ua)
+                  ? 'linux64-aarch64'
+                  : is64Bit ? 'linux64' : 'linux';
+              }
+              const option = detected && form.elements.os.namedItem(detected);
+              if (option) {
+                option.selected = true;
+                // Read back by the script's provenance machine, and by CSS, which
+                // reserves room for the options pane it is about to replace.
+                form.dataset.autoDetectedOs = detected;
+              }
+            }
+
+            if (!params.has('language')) {
+              // TODO: is this list ordered by preference?
+              // TODO: We already have this information on the server via
+              // `Accept-Language`, we could vary the request and use it during
+              // rendering.
+              const languages = form.elements.language;
+              for (const language of navigator.languages) {
+                const option =
+                  languages.namedItem(language) ||
+                  languages.namedItem(language.split('-')[0]);
+                if (option) {
+                  option.selected = true;
+                  break;
+                }
+              }
+            }
+          }
+        </script>
+
+        <div class="c-results">
+
+          {#
+            All four, with CSS picking the one matching the release select. Which
+            means it stays right when the select changes, with or without JS, and
+            switching costs no network fetch.
+          #}
+          <div class="c-results-logos">
+            <img class="c-no-download-image" src="{{ static("img/firefox/flare/fox-brand-confused.svg") }}" alt="" width="353" height="160">
+            <div class="c-platform-logo"></div>
+            <div class="c-release-logo"></div>
+          </div>
+
+          {#
+            Always the submit button, never a rendered option list — even when the
+            request named a platform. A list here would describe the selection the
+            page loaded with, and this is the page where the visitor can change it;
+            with no JS to keep it current it would go quietly wrong. Submitting is
+            how a selection becomes downloads, and the result page renders them.
+
+            The script replaces this once it is running, and reserves room for
+            what it is about to put here — see the reservation rules in
+            all-form.css.
+          #}
+          <div class="c-download-options">
+            <div class="c-download-option" data-download-option="fallback">
+              <button type="submit" class="fl-button" data-primary-action>{{ copy.fallback }}</button>
+            </div>
+          </div>
+
+          {# JS-only: without it, an unusable pair is reported by the inline error
+             on the release field, which is about the submission rather than about
+             where the selects have since been moved to. #}
+          <div class="c-incompatible-choices" hidden>
+            <p>{{ copy.conflict }}</p>
+          </div>
+
+        </div>
+      </form>
+    </firefox-download-form>
+    <div class="c-need-help">
+      {% set campaign = "firefox-all" %}
+      {% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=' + campaign %}
+      <a href="https://support.mozilla.org/products/{{ params }}&utm_content=need-help-link">{{ ftl('firefox-all-need-help') }}</a>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block js %}
+  <script type="application/json" id="allFormData">{{ client_data_json | safe }}</script>
+  {{ js_bundle('firefox_all_form') }}
+{% endblock %}

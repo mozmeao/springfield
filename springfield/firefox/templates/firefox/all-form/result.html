@@ -1,0 +1,48 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% extends "cms/base-flare.html" %}
+
+{% block page_css %}{{ css_bundle('firefox_all_form') }}{% endblock %}
+
+{% block page_title %}Download {{ release_label }} for {{ os_label }}{% endblock %}
+
+{% block content %}
+<div class="fl-main">
+  <div class="fl-section c-section">
+    <div class="c-result">
+      <h1 class="fl-heading fl-text-align-center">{{ release_label }} for {{ os_label }}</h1>
+
+      {# One logo: this page has no controls, so there is nothing to swap to. #}
+      <img class="c-result-logo" src="{{ static(logo.file) }}" alt="{{ logo.alt }}" width="100" height="100">
+
+      <p class="c-result-summary">
+        {%- if is_mobile -%}
+          Installed from the store, in every language Firefox supports.
+        {%- else -%}
+          {{ language_label }}
+        {%- endif -%}
+      </p>
+
+      <div class="c-download-options">
+        {% include "firefox/all-form/_download-options.html" %}
+      </div>
+
+      <div class="c-support-links">
+        {%- for link in support_links %}
+        <a href="{{ link.href }}">{{ link.label }}</a>
+        {%- endfor %}
+      </div>
+
+      <include:button
+        theme_class="button-link"
+        link="{{ form_url }}"
+        label="Change selection"
+      />
+    </div>
+  </div>
+</div>
+{% endblock %}

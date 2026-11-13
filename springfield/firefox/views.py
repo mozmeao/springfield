@@ -24,6 +24,7 @@ from springfield.base import metrics, waffle
 from springfield.base.urlresolvers import reverse
 from springfield.cms.models import PartnerRepack
 from springfield.cms.models.pages import WhatsNewPage2026
+from springfield.firefox import all_form
 from springfield.firefox.firefox_details import (
     firefox_android,
     firefox_desktop,
@@ -422,6 +423,34 @@ def firefox_all(request, product_slug=None, platform=None, locale=None):
         )
 
     return l10n_utils.render(request, template_name, context, ftl_files=ftl_files)
+
+
+@require_safe
+def firefox_all_form(request):
+    # Temporary, switch-gated URL for the new "all-form" download page iteration.
+    # Hidden (404) until the `all-form` switch is enabled.
+    #
+    # This view must never redirect: it is where the result view sends invalid
+    # submissions, so redirecting from here would loop.
+    if not waffle.switch("all-form"):
+        raise Http404()
+    selection = all_form.parse_selection(request.GET, all_form.default_language(request.locale))
+    return l10n_utils.render(request, "firefox/all-form/base.html", all_form.get_form_context(selection), ftl_files="firefox/all")
+
+
+@require_safe
+def firefox_all_form_result(request):
+    # Temporary, switch-gated results page for the new "all-form" download form.
+    # Hidden (404) until the `all-form` switch is enabled.
+    if not waffle.switch("all-form"):
+        raise Http404()
+    selection = all_form.parse_selection(request.GET, all_form.default_language(request.locale))
+    if not selection.is_valid:
+        # No session state: bounce back to the form, which revalidates the same
+        # query string and renders the error inline. The whole query string is
+        # preserved so campaign params survive too.
+        return HttpResponseRedirect(all_form.form_url(request.GET), status=303)
+    return l10n_utils.render(request, "firefox/all-form/result.html", all_form.get_download_options(selection))
 
 
 class DownloadThanksView(L10nTemplateView):

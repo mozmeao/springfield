@@ -1,0 +1,31 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+ The download options for a selection, from all_form.get_download_option_list().
+
+ Used by the result page only. The form page never renders a list — see the
+ comment on the download options pane in base.html — so this is always describing
+ a submitted selection that cannot change under it.
+
+ Hand-written rather than using the shared button component, so this matches the
+ structure all-form.js builds on the form page: one set of styles then covers
+ both, instead of the same list needing two shapes of CSS depending on which side
+ rendered it.
+
+ (The component's tag name is spelled out nowhere here on purpose — the component
+ preprocessor runs over the raw file, before Jinja strips comments, so naming it
+ even in a comment would register an unclosed tag.)
+#}
+{% for option in download_options %}
+  {% if option.group == "download" and loop.previtem and loop.previtem.group == "download" %}
+  <div class="c-or-divider">{{ copy.divider }}</div>
+  {% endif %}
+  <div class="c-download-option" data-download-option="{{ option.key }}">
+    <a class="fl-button {{ option.classes|join(' ') }}" href="{{ option.href }}">{{ option.label }}<span aria-hidden="true" class="fl-icon fl-icon-{{ option.icon }}"></span></a>
+    {%- if option.recommendation %}
+    <p class="c-recommendation">{{ option.recommendation }}</p>
+    {%- endif %}
+  </div>
+{% endfor %}

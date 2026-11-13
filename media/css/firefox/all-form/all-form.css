@@ -1,0 +1,278 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+/* Required for postcss-custom-media to resolve @custom-media variables in standalone bundles */
+@import 'variables/flare-media-query-tokens.css';
+
+@layer page {
+    .c-page {
+        /* One measure for the heading and the form, so they line up. */
+        --c-measure: 56rem;
+        --c-choices-inline-size: 20rem;
+        --c-column-gap: 48px;
+        --c-option-gap: 12px;
+    }
+
+    .c-page-title {
+        margin-inline: auto;
+        max-inline-size: var(--c-measure);
+        text-align: center;
+    }
+
+    .c-need-help {
+        margin-block-start: var(--token-spacing-xl);
+        text-align: center;
+    }
+
+    /*
+     * Choices on one side, results on the other, top-aligned so the logo starts
+     * level with the first field label rather than floating against nothing.
+     */
+    .c-form {
+        block-size: 32rem;
+        align-items: center;
+        display: grid;
+        gap: var(--c-column-gap);
+        grid-template-columns: var(--c-choices-inline-size) minmax(0, 1fr);
+        margin-block-start: var(--token-spacing-xl, 48px);
+        margin-inline: auto;
+        max-inline-size: var(--c-measure);
+    }
+
+    @media (--viewport-below-md) {
+        .c-form {
+            block-size: unset;
+            gap: var(--token-spacing-2xl, 32px);
+            grid-template-columns: minmax(0, 1fr);
+            max-inline-size: var(--c-choices-inline-size);
+        }
+    }
+
+    .c-choices {
+        display: grid;
+        row-gap: var(--token-spacing-md, 16px);
+    }
+
+    /* Fill the column rather than sitting ragged inside it. */
+    .c-choices .fl-field {
+        inline-size: 100%;
+    }
+
+    .c-label {
+        align-items: center;
+        display: flex;
+        gap: 4px;
+    }
+
+    .c-field-description p {
+        font-size: var(--fl-theme-label-sm);
+        margin-block: 0;
+    }
+
+    .c-language-message {
+        font-size: var(--fl-theme-label-sm);
+        font-style: italic;
+        margin-block: 0;
+    }
+
+    /* --- Results ---------------------------------------------------------- */
+
+    .c-results {
+        align-content: start;
+        display: grid;
+        gap: var(--token-spacing-md, 16px);
+        justify-items: center;
+    }
+
+    .c-results-logos {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        margin-block-end: var(--token-spacing-md);
+    }
+
+    .c-form:valid .c-no-download-image { display: none; }
+
+    .c-form:invalid .c-no-download-image {
+        display: block;
+        block-size: 150px;
+        margin-block: 0;
+    }
+
+    .c-form:invalid :is(.c-release-logo, .c-platform-logo) {
+        display: none;
+    }
+
+    .c-release-logo,
+    .c-platform-logo {
+        aspect-ratio: 1;
+        block-size: 80px;
+        background-repeat: no-repeat;
+        background-size: contain;
+        background-position: center;
+    }
+
+    .c-platform-logo {
+        background-image: var(--c-platform-logo);
+
+        .c-form:invalid & {
+            display: none;
+        }
+
+        /* Adjustments since the logo files aren’t great */
+        .c-form:has(
+            option:is(
+                [value^="win"],
+                [value^="osx"],
+                [value="ios"],
+                [value="android"]
+            ):checked
+        ) & { filter: brightness(100); }
+
+        .c-form:has(option[value^="linux"]:checked) & { filter: invert(1); }
+    }
+
+    .c-release-logo {
+        background-image: var(--c-release-logo);
+    }
+
+    .c-form:valid {
+        /* Firefox release logos */
+        &:has(option:is([value='stable'], [value='esr']):checked) { --c-release-logo: url('../img/logos/firefox/firefox-logo.svg'); }
+
+        &:has(option[value='beta']:checked) { --c-release-logo: url('../img/logos/firefox/firefox-logo-beta.svg'); }
+
+        &:has(option[value='dev']:checked) { --c-release-logo: url('../img/logos/firefox/firefox-logo-developer.svg'); }
+
+        &:has(option[value='nightly']:checked) { --c-release-logo: url('../img/logos/firefox/firefox-logo-nightly.svg'); }
+
+        /* Platform logos */
+        &:has(option[value^='win']:checked) { --c-platform-logo: url('../img/firefox/download/all-form/windows.svg'); }
+
+        &:has(option:is([value^='osx'], [value='ios']):checked) { --c-platform-logo: url('../img/firefox/download/all-form/apple.svg'); }
+
+        &:has(option[value^='linux']:checked) { --c-platform-logo: url('../img/firefox/download/all-form/linux.svg'); }
+
+        &:has(option[value='android']:checked) { --c-platform-logo: url('../img/firefox/download/all-form/android.svg'); }
+    }
+
+    .c-download-options:not([hidden]) {
+        display: grid;
+        gap: var(--c-option-gap);
+        justify-items: center;
+    }
+
+    .c-download-option {
+        display: grid;
+        justify-items: center;
+        row-gap: 8px;
+    }
+
+    .c-recommendation {
+        font-size: var(--fl-theme-font-size-body-xs);
+        margin-block: 0;
+        text-align: center;
+    }
+
+    .c-or-divider {
+        align-items: center;
+        color: var(--token-color-grey-4);
+        display: flex;
+        font-size: var(--fl-theme-font-size-body-xs);
+        gap: var(--token-spacing-xs);
+
+        /* Sit between two options rather than adding a third gap's worth of space. */
+        margin-block: calc(var(--c-option-gap) / -2);
+    }
+
+    .c-or-divider::before,
+    .c-or-divider::after {
+        border-top: 1px solid var(--fl-subtle-border-color);
+        content: '';
+        width: 3rem;
+    }
+
+    .c-support-links:not([hidden]) {
+        display: flex;
+        flex-wrap: wrap;
+        font-size: var(--fl-theme-font-size-body-xs);
+        gap: 4px var(--token-spacing-md, 16px);
+        justify-content: center;
+    }
+
+    .c-incompatible-choices {
+        max-inline-size: 32ch;
+        text-align: center;
+    }
+
+    /* --- Result page ------------------------------------------------------ */
+
+    .c-result {
+        display: grid;
+        gap: var(--token-spacing-md, 16px);
+        justify-items: center;
+        margin-inline: auto;
+        max-inline-size: var(--c-measure);
+        text-align: center;
+    }
+
+    .c-result-logo {
+        block-size: 100px;
+        inline-size: 100px;
+    }
+
+    .c-result-summary {
+        margin-block: 0;
+    }
+
+    /* --- Progressive enhancement ------------------------------------------ */
+
+    firefox-download-form {
+        display: block;
+
+        :target {
+            scroll-margin-block-start: 1rem;
+        }
+
+        /*
+         * The language select is disabled for store apps, where the choice does
+         * not apply. Hiding it outright rather than showing a dead control; the
+         * message beside it explains why it went.
+         */
+        select:disabled {
+            display: none;
+        }
+    }
+
+    /*
+     * Without JS the release select keeps every option, so the hint under it
+     * says which ones the chosen platform actually has. These are the only rules
+     * here that need `.no-js`: everything else the server rendered is already
+     * correct for the selection it rendered.
+     */
+    .no-js {
+        &:has(option[value='ios']:checked) [data-hint-for='ios'],
+        &:has(option[value='android']:checked) [data-hint-for='android'],
+        &:has(option[value='linux']:checked) [data-hint-for='linux'],
+        /*
+         * Same idea for the note that the language does not apply to a store
+         * app. With JS the script shows and hides it; without, this does, and
+         * follows the select rather than whatever was selected at load.
+         */
+        &:has(#os option:where([value='ios'], [value='android']):checked) .c-language-message {
+            display: revert;
+        }
+
+        /*
+         * Hide the serialized error messages once the form is dirty.
+         */
+        &:has([name='release']:where(:user-invalid, :user-valid)) :is(
+            .fl-notification-wrapper,
+            #server-release-error
+        ) {
+            display: none;
+        }
+    }
+}
