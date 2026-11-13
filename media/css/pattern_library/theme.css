@@ -183,7 +183,6 @@ body {
 
 .iframe {
     border-color: var(--border-color);
-    height: 50vh;
 }
 
 .wrapper--pattern-header {

@@ -57,6 +57,8 @@ redirectpatterns = (
     redirect(r"^landing/(tech|education|gaming)/?$", "/", permanent=True),
     # Retired Windows 10 end-of-service landing page, linked from in-product toasts
     redirect(r"^landing/win-new-features/?$", "firefox.features.index", permanent=True),
+    # Retired Windows campaign landing page
+    redirect(r"^landing/windows/?$", "/", permanent=True),
     # bug 1299947, 1326383
     redirect(r"^channel/?$", firefox_channel(), cache_timeout=0, permanent=False),
     # https://github.com/mozilla/bedrock/issues/14172

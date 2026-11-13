@@ -17,9 +17,9 @@ from taggit.models import Tag
 from wagtail.admin.ui.tables import BaseColumn
 from wagtail.admin.widgets import AdminTagWidget
 from wagtail.images import get_image_model
-from wagtail.images.permissions import permission_policy
 from wagtail.images.views.images import ImagesFilterSet, IndexView
 from wagtail.log_actions import log
+from wagtail.permissions import policy_registry
 
 from springfield.cms.images.forms import InlineImageForm
 from springfield.cms.images.usage import NO_USAGE, get_image_usages
@@ -32,7 +32,8 @@ def inline_edit_image(request, image_id):
     when the form is invalid.
     """
     image = get_object_or_404(get_image_model(), pk=image_id)
-    if not permission_policy.user_has_permission_for_instance(request.user, "change", image):
+    image_permission_policy = policy_registry.get_by_type(get_image_model())
+    if not image_permission_policy.user_has_permission_for_instance(request.user, "change", image):
         raise PermissionDenied
 
     form = InlineImageForm(request.POST, instance=image)

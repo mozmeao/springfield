@@ -9,8 +9,7 @@ const MozAllowList = [
     // Marketing landing pages
     '/landing/get/',
     '/landing/set-as-default/',
-    '/landing/set-as-default/thanks/',
-    '/landing/windows/'
+    '/landing/set-as-default/thanks/'
 ];
 
 export default MozAllowList;
