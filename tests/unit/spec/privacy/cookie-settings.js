@@ -164,7 +164,7 @@ describe('CookieSettingsForm', function () {
                 '{"preference":true,"analytics":true}',
                 jasmine.any(String),
                 '/',
-                null,
+                undefined,
                 false,
                 'lax'
             );
@@ -184,7 +184,7 @@ describe('CookieSettingsForm', function () {
                 '{"preference":false,"analytics":true}',
                 jasmine.any(String),
                 '/',
-                null,
+                undefined,
                 false,
                 'lax'
             );

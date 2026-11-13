@@ -98,7 +98,7 @@ describe('marketing-opt-out.es6.js', function () {
                 '{"analytics":false,"preference":true}',
                 jasmine.any(String),
                 '/',
-                null,
+                undefined,
                 false,
                 'lax'
             );
@@ -142,7 +142,7 @@ describe('marketing-opt-out.es6.js', function () {
                 '{"analytics":true,"preference":true}',
                 jasmine.any(String),
                 '/',
-                null,
+                undefined,
                 false,
                 'lax'
             );
@@ -191,7 +191,7 @@ describe('marketing-opt-out.es6.js', function () {
                 '{"analytics":false,"preference":false}',
                 jasmine.any(String),
                 '/',
-                null,
+                undefined,
                 false,
                 'lax'
             );

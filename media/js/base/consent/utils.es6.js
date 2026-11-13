@@ -102,32 +102,6 @@ function dntEnabled() {
 }
 
 /**
- * Determines the hostname to set the consent cookie on.
- * Typically, this is either .mozilla.org or .allizom.org.
- * But otherwise, it returns null so the cookie will apply
- * to the current domain.
- * @param {String} hostname - The hostname of the current page.
- * @returns {String|null} - Returns the domain or null.
- */
-function getHostName(hostname) {
-    let domain = null;
-
-    if (typeof hostname !== 'string') {
-        return domain;
-    }
-
-    if (hostname.indexOf('.allizom.org') !== -1) {
-        domain = '.allizom.org';
-    }
-
-    if (hostname.indexOf('.mozilla.org') !== -1) {
-        domain = '.mozilla.org';
-    }
-
-    return domain;
-}
-
-/**
  * Determines if the consent cookie exists.
  * @returns {Boolean}
  */
@@ -170,7 +144,7 @@ function setConsentCookie(data) {
             JSON.stringify(data),
             expires,
             '/',
-            getHostName(window.location.hostname),
+            undefined, // no domain, so the cookie stays on the host that set it
             false,
             'lax'
         );
@@ -313,7 +287,6 @@ export {
     dntEnabled,
     getConsentCookie,
     getConsentState,
-    getHostName,
     gpcEnabled,
     hasConsentCookie,
     isFirefoxDownloadThanks,
