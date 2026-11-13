@@ -22,9 +22,10 @@ def get_featured_image_section_variants() -> list[dict]:
             "type": "featured_image_section",
             "value": {
                 "heading": {
-                    "superheading_text": '<p data-block-key="fis1s">Featured</p>',
+                    "superheading_text": '<p data-block-key="fis1s">Featured Image</p>',
                     "heading_text": '<p data-block-key="fis1h">Featured Image Section with Cards</p>',
-                    "subheading_text": '<p data-block-key="fis1sub">A featured image section with a card list below.</p>',
+                    "subheading_text": '<p data-block-key="fis1sub">A large featured image pairs with a heading and any content '
+                    "blocks. Here a list of cards sits below the image.</p>",
                 },
                 "media": [
                     {
@@ -98,14 +99,14 @@ def get_featured_image_section_test_page() -> FreeFormPage2026:
     page.upper_content = [featured_image_section]
     page.content = [
         section(
-            heading_text="Something before the block",
-            subheading_text="This shows how the Featured Image block adds the rounded corners to the bottom of the previous block.",
+            heading_text="Block before the Featured Image",
+            subheading_text="The Featured Image block rounds the corners at the bottom of the block that comes before it.",
             section_id="fis00003-0000-0000-0000-000000000001",
         ),
         {**featured_image_section, "id": "fis00003-0000-0000-0000-000000000002"},
         section(
-            heading_text="Something after the block",
-            subheading_text="Another block under the featured image creates this alternating effect on the page layout.",
+            heading_text="Block after the Featured Image",
+            subheading_text="A block beneath the Featured Image creates the alternating, rounded-corner rhythm down the page.",
             section_id="fis00003-0000-0000-0000-000000000003",
         ),
     ]
