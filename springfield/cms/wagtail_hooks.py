@@ -52,6 +52,7 @@ from springfield.cms.images.tags import ImageTagViewSet
 from springfield.cms.images.views import SpringfieldImageIndexView, inline_edit_image
 from springfield.cms.models import (
     AbstractSpringfieldCMSPage,
+    ArticleDetailPage,
     BannerSnippet,
     FreeFormPage2026,
     NavigationSnippet,
@@ -880,7 +881,11 @@ def leading_conditional_blocks(page):
     the page's only h1 and every heading block after it drops to h2.
     """
     leading = []
-    blocks = list(page.upper_content) + list(page.content)
+    if isinstance(page, ArticleDetailPage):
+        # Landing content and article text never take an h1, so only the hero can lead.
+        blocks = list(page.hero or [])
+    else:
+        blocks = list(page.upper_content) + list(page.content)
     for block in blocks:
         if not block_renders_a_heading(block):
             continue
@@ -899,7 +904,7 @@ def warn_about_leading_conditional_blocks(request, page):
     one h1 and gaps leave a visitor with none. The check cannot tell the two apart, so
     it flags the shape and leaves the judgement to the editor.
     """
-    if not isinstance(page, FREEFORM_H1_PAGE_TYPES):
+    if not isinstance(page, (*FREEFORM_H1_PAGE_TYPES, ArticleDetailPage)):
         return
 
     count = len(leading_conditional_blocks(page))

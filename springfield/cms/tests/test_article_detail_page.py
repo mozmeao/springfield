@@ -5,6 +5,8 @@
 
 import json
 
+from django.contrib import messages
+from django.contrib.messages import get_messages
 from django.core.exceptions import ValidationError
 
 import pytest
@@ -17,6 +19,8 @@ from springfield.cms.fixtures.snippet_fixtures import get_pre_footer_cta_form_sn
 from springfield.cms.models import ArticleDetailPage, FreeFormPage2026
 from springfield.cms.models.pages import PRE_FOOTER_IMAGE_GLOBE, PRE_FOOTER_IMAGE_KIT
 from springfield.cms.tests.factories import ArticleDetailPageFactory
+from springfield.cms.tests.test_pages import build_page_save_request
+from springfield.cms.wagtail_hooks import warn_about_leading_conditional_blocks
 
 pytestmark = [pytest.mark.django_db]
 
@@ -56,7 +60,7 @@ def article_index(minimal_site):
 
 @pytest.fixture
 def article(article_index):
-    """A published article with title and text only, as every article page is today."""
+    """A published article with a title and text only."""
     page = ArticleDetailPageFactory(
         parent=article_index,
         title="Firefox VPN",
@@ -74,7 +78,7 @@ def render(client, page):
     return BeautifulSoup(response.content, "html.parser")
 
 
-def test_new_fields_default_to_todays_page():
+def test_new_fields_default_to_a_title_and_text_page():
     page = ArticleDetailPage(title="x", slug="x")
 
     assert page.show_pre_footer is True
@@ -183,7 +187,7 @@ def pre_footer_snippets():
     get_pre_footer_cta_form_snippet()
 
 
-def test_article_without_new_fields_renders_as_today(client, article, pre_footer_snippets, placeholder_images):
+def test_article_without_new_fields_renders_title_and_text(client, article, pre_footer_snippets, placeholder_images):
     image, *_ = placeholder_images
     article.image = image
     soup = render(client, article)
@@ -303,3 +307,24 @@ def test_index_card_is_the_same_with_a_hero(client, article, article_index):
 
     assert article.url in str(after)
     assert str(after) == str(before)
+
+
+@pytest.mark.parametrize(
+    ("hero", "warning_count"),
+    [
+        ([intro_block(heading_text, platforms) for _, heading_text, platforms in PLATFORM_HEROES], 1),
+        ([intro_block("Browse privately with Firefox VPN")], 0),
+    ],
+    ids=["conditional_heroes", "hero_for_everyone"],
+)
+def test_editor_is_warned_when_heroes_are_all_conditional(article, rf, hero, warning_count):
+    article.hero = hero
+    article.save_revision().publish()
+
+    request = build_page_save_request(rf, article)
+    warn_about_leading_conditional_blocks(request, article)
+    warnings = [str(message) for message in get_messages(request) if message.level == messages.WARNING]
+
+    assert len(warnings) == warning_count
+    if warnings:
+        assert "leads with 2 conditional blocks" in warnings[0]
