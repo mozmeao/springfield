@@ -6,6 +6,8 @@
 
 {% extends "cms/base-flare.html" %}
 
+{% block type_scale %}fl-scale-compact{% endblock %}
+
 {% block flare_header %}
   {% set hide_nav_cta = true %}
   {% set theme = "light" if page.theme == "enterprise" else "" %}
