@@ -20,6 +20,15 @@
     padding-block-start: 0;
 }
 
+.fl-article-page .fl-split-page-upper:has(+ .fl-article-landing) {
+    z-index: 1;
+}
+
+.fl-article-landing {
+    margin-block-start: calc(var(--fl-theme-main-border-radius) * -1);
+    padding-block-start: var(--fl-theme-main-border-radius);
+}
+
 .fl-article-header {
     margin-block-end: var(--token-layout-md);
 }
