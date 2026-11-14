@@ -810,7 +810,7 @@ class ArticleIndexPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         return context
 
 
-# Blocks offered in an article page's landing content, between the hero and the article text.
+# Blocks offered in an article page's landing content.
 ARTICLE_LANDING_BLOCKS = [
     ("intro", IntroBlock(allow_uitour=True, group="Intro")),
     ("section", SectionBlock(allow_uitour=True, group="Main")),

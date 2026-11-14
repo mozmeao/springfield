@@ -5,12 +5,8 @@
 #}
 
 {#
-  The hero and landing content at the top of an article page with a hero. Each sits in its
-  own dark upper area, the landing one tucked under the hero's, so a rounded edge marks
-  where the landing content starts and another where the article text starts. The first hero
-  is H1, and so is every hero in a leading run of heroes with display conditions, since a
-  visitor sees only one of them. Landing content headings are H2, so a block without a
-  heading of its own, such as a cards list, renders its card headings at H2.
+  Hero and landing content, each in its own dark area with a rounded bottom edge.
+  Every hero in a leading run of conditional heroes is H1; landing headings are H2.
 #}
 {% set ns = namespace(headings=0, leading_conditional_run=True) %}
 
