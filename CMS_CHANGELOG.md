@@ -1,3 +1,9 @@
+## 2026-11-14
+
+- Article pages (features, compare and more) have a Landing tab. Add a Hero to replace the page title and article image with an intro, then optional Landing content sections between the hero and the article text. Landing content needs a hero.
+- Article pages have an optional Closing CTA (one Banner or Kit Banner) after the article text, and a Pre-footer group on the Settings tab to hide the pre-footer or change its image.
+- Article text uses larger body text and smaller H3s, and in dark mode sits in a darker section.
+
 ## 2026-11-09
 
 - Generated QR codes now use rounded dots and corners with the Firefox logo in the middle, matching the designed QR images.

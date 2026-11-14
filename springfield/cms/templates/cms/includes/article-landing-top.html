@@ -1,0 +1,40 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{#
+  Hero and landing content, each in its own dark area with a rounded bottom edge.
+  Every hero in a leading run of conditional heroes is H1; landing headings are H2.
+#}
+{% set ns = namespace(headings=0, leading_conditional_run=True) %}
+
+<div class="fl-split-page-upper has-gradient-bottom no-gap">
+  {% for block in page.hero %}
+    {% set block_position = "hero-block-" ~ loop.index ~ "-" ~ block.block_type %}
+    {% set block_level = 1 %}
+
+    {% if block.value.heading and block.value.heading.heading_text %}
+      {% set show_to = block.value.settings and block.value.settings.show_to %}
+      {% set block_has_display_conditions = show_to and show_to.has_conditions %}
+      {% set block_level = 1 if ns.headings == 0 or (ns.leading_conditional_run and block_has_display_conditions) else 2 %}
+      {% set ns.headings = ns.headings + 1 %}
+      {% if not block_has_display_conditions %}
+        {% set ns.leading_conditional_run = False %}
+      {% endif %}
+    {% endif %}
+
+    {% include_block block %}
+  {% endfor %}
+</div>
+
+{% if page.landing_content %}
+  <div class="fl-split-page-upper has-gradient-bottom no-gap fl-article-landing">
+    {% for block in page.landing_content %}
+      {% set block_position = "landing-block-" ~ loop.index ~ "-" ~ block.block_type %}
+      {% set block_level = 2 if (block.value.heading and block.value.heading.heading_text) or block.value.headline else 1 %}
+      {% include_block block %}
+    {% endfor %}
+  </div>
+{% endif %}

@@ -16,6 +16,19 @@
     padding-block-start: var(--token-layout-md);
 }
 
+.fl-article-page .fl-main:has(> .fl-split-page-upper) {
+    padding-block-start: 0;
+}
+
+.fl-article-page .fl-split-page-upper:has(+ .fl-article-landing) {
+    z-index: 1;
+}
+
+.fl-article-landing {
+    margin-block-start: calc(var(--fl-theme-main-border-radius) * -1);
+    padding-block-start: var(--fl-theme-main-border-radius);
+}
+
 .fl-article-header {
     margin-block-end: var(--token-layout-md);
 }
@@ -23,6 +36,10 @@
 .fl-article-header img {
     border-radius: var(--token-spacing-lg);
     margin-block-end: var(--token-layout-xs);
+}
+
+.fl-article-closing-cta {
+    padding-block: var(--fl-section-v-padding);
 }
 
 .fl-article-main {
@@ -42,6 +59,22 @@
 /* override default font sizes for headings on article pages */
 .fl-rich-text h2 {
     font-size: var(--fl-theme-font-size-heading-sm);
+}
+
+.fl-article-page .fl-article-main .fl-rich-text {
+    font-size: var(--token-font-size-lg);
+}
+
+.fl-article-page .fl-article-main .fl-rich-text :is(h2, h3, h4, h5, h6) {
+    margin-block-start: var(--token-layout-xs);
+}
+
+.fl-article-page .fl-article-main .fl-rich-text h3 {
+    font-size: var(--fl-theme-font-size-heading-xs);
+}
+
+.fl-article-page .fl-article-main .fl-rich-text :is(h4, h5, h6) {
+    font-size: var(--token-font-size-lg);
 }
 
 .fl-article-main .fl-heading {
@@ -244,4 +277,10 @@ Related articles
 
 .fl-article-main .fl-buttons {
     margin-block: var(--token-layout-xs);
+}
+
+@media (prefers-color-scheme: dark) {
+    .fl-article-page {
+        --fl-theme-background: var(--token-color-dark-purple-3);
+    }
 }

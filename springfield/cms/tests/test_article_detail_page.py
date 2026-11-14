@@ -1,0 +1,343 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+"""Tests for ArticleDetailPage with an optional hero, landing content and closing CTA."""
+
+import json
+
+from django.contrib import messages
+from django.contrib.messages import get_messages
+from django.core.exceptions import ValidationError
+
+import pytest
+from bs4 import BeautifulSoup
+from wagtail_localize.fields import SynchronizedField
+from wagtail_localize.segments.extract import extract_segments
+
+from springfield.cms.fixtures.base_fixtures import get_article_index_test_page
+from springfield.cms.fixtures.homepage_fixtures import get_cards_list
+from springfield.cms.fixtures.snippet_fixtures import get_pre_footer_cta_form_snippet, get_pre_footer_cta_snippet
+from springfield.cms.models import ArticleDetailPage, FreeFormPage2026
+from springfield.cms.models.pages import PRE_FOOTER_IMAGE_GLOBE, PRE_FOOTER_IMAGE_KIT
+from springfield.cms.tests.factories import ArticleDetailPageFactory
+from springfield.cms.tests.test_pages import build_page_save_request
+from springfield.cms.wagtail_hooks import warn_about_leading_conditional_blocks
+
+pytestmark = [pytest.mark.django_db]
+
+
+def intro_block(heading_text, platforms=None):
+    """Intro block carrying only a heading, shown to `platforms` if given and to everyone otherwise."""
+    return {
+        "type": "intro",
+        "value": {
+            "settings": {"anchor_id": "", "show_to": {"platforms": platforms or []}},
+            "heading": {"heading_text": f"<p>{heading_text}</p>"},
+        },
+    }
+
+
+def section_block(heading_text):
+    return {"type": "section", "value": {"settings": {"anchor_id": ""}, "heading": {"heading_text": f"<p>{heading_text}</p>"}}}
+
+
+def banner_block(heading_text):
+    return {"type": "banner", "value": {"heading": {"heading_text": f"<p>{heading_text}</p>"}}}
+
+
+def stream_block(page_model, field_name):
+    return page_model._meta.get_field(field_name).stream_block
+
+
+def showcase_media_blocks(page_model, field_name):
+    showcase = stream_block(page_model, field_name).child_blocks["showcase"]
+    return showcase.child_blocks["media"].child_blocks
+
+
+@pytest.fixture
+def article_index(minimal_site):
+    return get_article_index_test_page()
+
+
+@pytest.fixture
+def article(article_index):
+    """A published article with a title and text only."""
+    page = ArticleDetailPageFactory(
+        parent=article_index,
+        title="Firefox VPN",
+        slug="vpn",
+        content=[{"type": "text", "value": "<h2>Why use a VPN</h2><p>Article text.</p>"}],
+    )
+    page.save_revision().publish()
+    return page
+
+
+def render(client, page):
+    page.save_revision().publish()
+    response = client.get(page.url)
+    assert response.status_code == 200
+    return BeautifulSoup(response.content, "html.parser")
+
+
+def test_new_fields_default_to_a_title_and_text_page():
+    page = ArticleDetailPage(title="x", slug="x")
+
+    assert page.show_pre_footer is True
+    assert page.pre_footer_image == PRE_FOOTER_IMAGE_KIT
+    assert not page.hero
+    assert not page.landing_content
+    assert not page.closing_cta
+
+
+def test_hero_offers_intro_only():
+    assert list(stream_block(ArticleDetailPage, "hero").child_blocks) == ["intro"]
+
+
+def test_landing_content_offers_article_landing_blocks():
+    assert list(stream_block(ArticleDetailPage, "landing_content").child_blocks) == [
+        "intro",
+        "section",
+        "showcase",
+        "carousel",
+        "card_gallery",
+        "media_content",
+        "cards_list",
+        "featured_image_section",
+        "banner",
+        "kit_banner",
+        "line_cards",
+        "topic_list",
+        "button_row",
+        "comparison_table",
+        "browser_comparison_table",
+        "image_caption",
+        "rich_text",
+    ]
+
+
+def test_landing_content_showcase_offers_comparison_tabs():
+    assert "tabs" in showcase_media_blocks(ArticleDetailPage, "landing_content")
+    assert "tabs" not in showcase_media_blocks(FreeFormPage2026, "content")
+    assert "tabs" not in showcase_media_blocks(FreeFormPage2026, "upper_content")
+
+
+def test_closing_cta_offers_one_banner():
+    closing_cta = stream_block(ArticleDetailPage, "closing_cta")
+    assert list(closing_cta.child_blocks) == ["banner", "kit_banner"]
+
+    two_banners = closing_cta.to_python([banner_block("One"), banner_block("Two")])
+    with pytest.raises(ValidationError):
+        closing_cta.clean(two_banners)
+
+
+def test_hero_and_landing_content_sit_on_their_own_tab():
+    tabs = {
+        tab.heading: [panel.field_name for panel in tab.children if hasattr(panel, "field_name")]
+        for tab in ArticleDetailPage.get_edit_handler().children
+    }
+
+    assert list(tabs) == ["Content", "Landing", "Promote", "Settings"]
+    assert tabs["Landing"] == ["hero", "landing_content"]
+    assert "closing_cta" in tabs["Content"]
+
+
+def test_landing_content_needs_a_hero(article):
+    article.landing_content = [section_block("What you get")]
+
+    with pytest.raises(ValidationError) as error:
+        article.full_clean()
+
+    assert error.value.message_dict["hero"] == ["Add a hero to use landing content."]
+
+
+@pytest.mark.parametrize(
+    ("hero", "landing_content"),
+    [([], []), ([intro_block("Firefox VPN")], []), ([intro_block("Firefox VPN")], [section_block("What you get")])],
+    ids=["neither", "hero_only", "both"],
+)
+def test_hero_and_landing_content_pass_validation(article, hero, landing_content):
+    article.hero = hero
+    article.landing_content = landing_content
+
+    article.full_clean()
+
+
+def test_hero_and_landing_strings_are_translatable(article):
+    article.hero = [intro_block("Firefox VPN")]
+    article.landing_content = [section_block("What you get")]
+    article.save()
+
+    strings = {segment.string.data for segment in extract_segments(article) if hasattr(segment, "string")}
+
+    assert "Firefox VPN" in strings
+    assert "What you get" in strings
+
+
+def test_pre_footer_image_is_synchronised():
+    by_name = {field.field_name: field for field in ArticleDetailPage.override_translatable_fields}
+
+    assert isinstance(by_name["pre_footer_image"], SynchronizedField)
+
+
+# Rendering
+
+
+@pytest.fixture
+def pre_footer_snippets():
+    get_pre_footer_cta_snippet()
+    get_pre_footer_cta_form_snippet()
+
+
+def test_article_without_new_fields_renders_title_and_text(client, article, pre_footer_snippets, placeholder_images):
+    image, *_ = placeholder_images
+    article.image = image
+    soup = render(client, article)
+
+    assert "fl-force-dark-theme" not in soup.select_one("header.fl-header")["class"]
+    assert [h1.get_text(strip=True) for h1 in soup.find_all("h1")] == ["Firefox VPN"]
+    assert soup.select_one(".fl-article-header .article-featured-image img") is not None
+    assert soup.select_one(".fl-rich-text h2").get_text(strip=True) == "Why use a VPN"
+    assert soup.select_one(".fl-pre-footer-cta") is not None
+    assert "flare/kit-on-rock.png" in soup.select_one(".fl-newsletterform-illustration img")["src"]
+
+
+def test_closing_cta_renders_after_the_article_as_h2(client, article):
+    article.closing_cta = [banner_block("Get Firefox now")]
+    soup = render(client, article)
+
+    page = soup.select_one(".fl-article-page")
+    assert [child.get("class", [])[0] for child in page.find_all(recursive=False)] == ["fl-main", "fl-article-closing-cta"]
+    heading = page.select_one(".fl-article-closing-cta .fl-banner-container .fl-heading")
+    assert (heading.name, heading.get_text(strip=True)) == ("h2", "Get Firefox now")
+
+
+def test_pre_footer_can_be_turned_off(client, article, pre_footer_snippets):
+    article.show_pre_footer = False
+    soup = render(client, article)
+
+    assert soup.select_one(".fl-pre-footer-cta") is None
+    assert soup.select_one(".fl-newsletterform-cta") is None
+
+
+def test_pre_footer_image_choice_is_shown(client, article, pre_footer_snippets):
+    article.pre_footer_image = PRE_FOOTER_IMAGE_GLOBE
+    soup = render(client, article)
+
+    assert "flare/globe.png" in soup.select_one(".fl-newsletterform-illustration img")["src"]
+
+
+# Hero and landing content
+
+PLATFORM_HEROES = [
+    ("condition-windows", "Firefox for Windows", ["windows"]),
+    ("condition-osx", "Firefox for macOS", ["osx"]),
+]
+
+
+def headings(element):
+    return [(heading.name, heading.get_text(strip=True)) for heading in element.find_all(class_="fl-heading")]
+
+
+def test_hero_replaces_the_article_header(client, article, placeholder_images):
+    article.image = placeholder_images[0]
+    article.hero = [intro_block("Browse privately with Firefox VPN")]
+    soup = render(client, article)
+
+    assert "fl-force-dark-theme" in soup.select_one("header.fl-header")["class"]
+    assert [h1.get_text(strip=True) for h1 in soup.find_all("h1")] == ["Browse privately with Firefox VPN"]
+    assert soup.select_one(".fl-article-header") is None
+    assert soup.select_one(".article-featured-image") is None
+    assert soup.select_one(".fl-rich-text h2").get_text(strip=True) == "Why use a VPN"
+
+
+def test_hero_landing_content_and_text_render_in_order(client, article):
+    article.hero = [intro_block("Browse privately with Firefox VPN")]
+    article.landing_content = [section_block("What you get"), banner_block("Try it free")]
+    article.closing_cta = [banner_block("Get Firefox now")]
+    soup = render(client, article)
+
+    main = soup.select_one(".fl-main")
+    hero, landing, text = main.find_all(recursive=False)
+    assert "fl-split-page-upper" in hero["class"]
+    assert {"fl-split-page-upper", "fl-article-landing"} <= set(landing["class"])
+    assert "fl-article-main" in text["class"]
+    assert headings(hero) == [("h1", "Browse privately with Firefox VPN")]
+    assert headings(landing) == [("h2", "What you get"), ("h2", "Try it free")]
+
+
+def test_landing_block_without_a_heading_renders_its_items_at_h2(client, article, placeholder_images):
+    cards_list = get_cards_list()
+    article.hero = [intro_block("Browse privately with Firefox VPN")]
+    article.landing_content = [cards_list]
+    soup = render(client, article)
+
+    card_headings = soup.select(".fl-article-landing .fl-card .fl-heading")
+    assert len(card_headings) == len(cards_list["value"]["cards"])
+    assert {heading.name for heading in card_headings} == {"h2"}
+
+
+def test_conditional_heroes_are_all_h1(client, article):
+    article.hero = [intro_block(heading_text, platforms) for _, heading_text, platforms in PLATFORM_HEROES]
+    article.landing_content = [section_block("What you get")]
+    soup = render(client, article)
+
+    for condition_class, heading_text, _ in PLATFORM_HEROES:
+        heading = soup.select_one(f".fl-split-page-upper .{condition_class} .fl-heading")
+        assert (heading.name, heading.get_text(strip=True)) == ("h1", heading_text)
+    section_heading = soup.select_one(".fl-article-landing .fl-section .fl-heading")
+    assert (section_heading.name, section_heading.get_text(strip=True)) == ("h2", "What you get")
+
+
+def test_landing_content_without_a_hero_is_ignored(client, article):
+    # Written straight to the database, since validation stops editors saving it.
+    ArticleDetailPage.objects.filter(pk=article.pk).update(landing_content=[section_block("What you get")])
+    assert ArticleDetailPage.objects.get(pk=article.pk).landing_content
+    soup = BeautifulSoup(client.get(article.url).content, "html.parser")
+
+    assert soup.select_one(".fl-split-page-upper") is None
+    assert "What you get" not in soup.get_text()
+    assert [h1.get_text(strip=True) for h1 in soup.find_all("h1")] == ["Firefox VPN"]
+
+
+def test_page_title_and_breadcrumb_keep_the_page_title(client, article):
+    article.hero = [intro_block("Browse privately with Firefox VPN")]
+    soup = render(client, article)
+
+    assert soup.title.get_text().startswith("Firefox VPN")
+    breadcrumb = next(
+        json.loads(script.string) for script in soup.find_all("script", type="application/ld+json") if '"BreadcrumbList"' in script.string
+    )
+    assert breadcrumb["itemListElement"][-1]["name"] == "Firefox VPN"
+
+
+def test_index_card_is_the_same_with_a_hero(client, article, article_index):
+    before = BeautifulSoup(client.get(article_index.url).content, "html.parser").select_one("main")
+
+    article.hero = [intro_block("Browse privately with Firefox VPN")]
+    article.landing_content = [section_block("What you get")]
+    article.save_revision().publish()
+    after = BeautifulSoup(client.get(article_index.url).content, "html.parser").select_one("main")
+
+    assert article.url in str(after)
+    assert str(after) == str(before)
+
+
+@pytest.mark.parametrize(
+    ("hero", "warning_count"),
+    [
+        ([intro_block(heading_text, platforms) for _, heading_text, platforms in PLATFORM_HEROES], 1),
+        ([intro_block("Browse privately with Firefox VPN")], 0),
+    ],
+    ids=["conditional_heroes", "hero_for_everyone"],
+)
+def test_editor_is_warned_when_heroes_are_all_conditional(article, rf, hero, warning_count):
+    article.hero = hero
+    article.save_revision().publish()
+
+    request = build_page_save_request(rf, article)
+    warn_about_leading_conditional_blocks(request, article)
+    warnings = [str(message) for message in get_messages(request) if message.level == messages.WARNING]
+
+    assert len(warnings) == warning_count
+    if warnings:
+        assert "leads with 2 conditional blocks" in warnings[0]

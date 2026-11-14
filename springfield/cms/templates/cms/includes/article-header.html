@@ -1,0 +1,64 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{# The article page's title and image, shown when the page has no hero. #}
+<header class="fl-article-header">
+  <include:heading
+      level="h1"
+      heading_size="fl-heading-xl fl-heading-condensed"
+      heading_text="{{ page.title }}"
+  />
+  {% if page.image %}
+  <div class="article-featured-image">
+    {% set classes = image_variant_classes(page.image_dark_mode, page.image_mobile, page.image_dark_mode_mobile) %}
+    {% set image_alt = alt_text(page.image_alt, page.image) %}
+    <div class="image-variants-display">
+      {{ srcset_image(
+          page.image,
+          "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
+          sizes="(min-width: 1440px) 680px, (min-width: 768px) 50vw, 100vw",
+          width=page.image.width,
+          loading="lazy",
+          alt=image_alt,
+          class=classes.primary,
+      ) }}
+      {% if page.image_mobile %}
+        {{ srcset_image(
+            page.image_mobile,
+            "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
+            sizes="(min-width: 1440px) 680px, (min-width: 768px) 50vw, 100vw",
+            width=page.image_mobile.width,
+            loading="lazy",
+            alt=image_alt,
+            class=classes.mobile,
+        ) }}
+      {% endif %}
+      {% if page.image_dark_mode_mobile %}
+        {{ srcset_image(
+            page.image_dark_mode_mobile,
+            "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
+            sizes="(min-width: 1440px) 680px, (min-width: 768px) 50vw, 100vw",
+            width=page.image_dark_mode_mobile.width,
+            loading="lazy",
+            alt=image_alt,
+            class=classes.dark_mode_mobile,
+        ) }}
+      {% endif %}
+      {% if page.image_dark_mode %}
+        {{ srcset_image(
+            page.image_dark_mode,
+            "width-{200,400,600,800,1000,1200,1400,1600,1800,2000}",
+            sizes="(min-width: 1440px) 680px, (min-width: 768px) 50vw, 100vw",
+            width=page.image_dark_mode.width,
+            loading="lazy",
+            alt=image_alt,
+            class=classes.dark_mode,
+        ) }}
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+</header>
