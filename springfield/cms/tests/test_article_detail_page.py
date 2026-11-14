@@ -260,8 +260,12 @@ def test_hero_landing_content_and_text_render_in_order(client, article):
 
     main = soup.select_one(".fl-main")
     zones = [child.get("class", [])[0] for child in main.find_all(recursive=False)]
-    assert zones == ["fl-split-page-upper", "fl-split-page-lower", "fl-article-main", "fl-banner-container"]
-    assert headings(main.select_one(".fl-split-page-lower")) == [("h2", "What you get"), ("h2", "Try it free")]
+    assert zones == ["fl-split-page-upper", "fl-article-main", "fl-banner-container"]
+    assert headings(main.select_one(".fl-split-page-upper")) == [
+        ("h1", "Browse privately with Firefox VPN"),
+        ("h2", "What you get"),
+        ("h2", "Try it free"),
+    ]
 
 
 def test_conditional_heroes_are_all_h1(client, article):
@@ -272,7 +276,8 @@ def test_conditional_heroes_are_all_h1(client, article):
     for condition_class, heading_text, _ in PLATFORM_HEROES:
         heading = soup.select_one(f".fl-split-page-upper .{condition_class} .fl-heading")
         assert (heading.name, heading.get_text(strip=True)) == ("h1", heading_text)
-    assert headings(soup.select_one(".fl-split-page-lower")) == [("h2", "What you get")]
+    section_heading = soup.select_one(".fl-split-page-upper .fl-section .fl-heading")
+    assert (section_heading.name, section_heading.get_text(strip=True)) == ("h2", "What you get")
 
 
 def test_landing_content_without_a_hero_is_ignored(client, article):
@@ -281,7 +286,7 @@ def test_landing_content_without_a_hero_is_ignored(client, article):
     assert ArticleDetailPage.objects.get(pk=article.pk).landing_content
     soup = BeautifulSoup(client.get(article.url).content, "html.parser")
 
-    assert soup.select_one(".fl-split-page-lower") is None
+    assert soup.select_one(".fl-split-page-upper") is None
     assert "What you get" not in soup.get_text()
     assert [h1.get_text(strip=True) for h1 in soup.find_all("h1")] == ["Firefox VPN"]
 
