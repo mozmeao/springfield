@@ -200,17 +200,14 @@ def test_article_without_new_fields_renders_title_and_text(client, article, pre_
     assert "flare/kit-on-rock.png" in soup.select_one(".fl-newsletterform-illustration img")["src"]
 
 
-def test_closing_cta_renders_last_as_h2(client, article):
+def test_closing_cta_renders_after_the_article_as_h2(client, article):
     article.closing_cta = [banner_block("Get Firefox now")]
     soup = render(client, article)
 
-    main = soup.select_one(".fl-main")
-    closing_cta = main.select_one(".fl-banner-container")
-    assert closing_cta.find(class_="fl-heading").name == "h2"
-    assert closing_cta.find(class_="fl-heading").get_text(strip=True) == "Get Firefox now"
-    assert closing_cta.find_previous(class_="fl-rich-text") is not None
-    assert closing_cta.find_next(class_="fl-rich-text") is None
-    assert main.find_all(recursive=False)[-1] is closing_cta
+    page = soup.select_one(".fl-article-page")
+    assert [child.get("class", [])[0] for child in page.find_all(recursive=False)] == ["fl-main", "fl-article-closing-cta"]
+    heading = page.select_one(".fl-article-closing-cta .fl-banner-container .fl-heading")
+    assert (heading.name, heading.get_text(strip=True)) == ("h2", "Get Firefox now")
 
 
 def test_pre_footer_can_be_turned_off(client, article, pre_footer_snippets):
@@ -260,7 +257,7 @@ def test_hero_landing_content_and_text_render_in_order(client, article):
 
     main = soup.select_one(".fl-main")
     zones = [child.get("class", [])[0] for child in main.find_all(recursive=False)]
-    assert zones == ["fl-split-page-upper", "fl-article-main", "fl-banner-container"]
+    assert zones == ["fl-split-page-upper", "fl-article-main"]
     assert headings(main.select_one(".fl-split-page-upper")) == [
         ("h1", "Browse privately with Firefox VPN"),
         ("h2", "What you get"),
