@@ -29,6 +29,10 @@
     margin-block-end: var(--token-layout-xs);
 }
 
+.fl-article-closing-cta {
+    padding-block: var(--fl-section-v-padding);
+}
+
 .fl-article-main {
     margin: 0 auto;
     max-inline-size: var(--token-width-desktop-content);
@@ -46,6 +50,18 @@
 /* override default font sizes for headings on article pages */
 .fl-rich-text h2 {
     font-size: var(--fl-theme-font-size-heading-sm);
+}
+
+.fl-article-page .fl-rich-text {
+    font-size: var(--token-font-size-lg);
+}
+
+.fl-article-page .fl-rich-text :is(h2, h3, h4, h5, h6) {
+    margin-block-start: var(--token-layout-xs);
+}
+
+.fl-article-page .fl-rich-text h3 {
+    font-size: var(--fl-theme-font-size-heading-xs);
 }
 
 .fl-article-main .fl-heading {
@@ -248,4 +264,10 @@ Related articles
 
 .fl-article-main .fl-buttons {
     margin-block: var(--token-layout-xs);
+}
+
+@media (prefers-color-scheme: dark) {
+    .fl-article-page {
+        --fl-theme-background: var(--token-color-dark-purple-3);
+    }
 }

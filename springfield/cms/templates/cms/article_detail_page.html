@@ -21,7 +21,7 @@
 
 {% block content %}
 <div class="fl-page fl-article-page">
-  <div class="fl-main{% if page.hero %} has-gradient-bottom{% endif %}">
+  <div class="fl-main">
     {% if page.hero %}
       {% include "cms/includes/article-landing-top.html" %}
     {% endif %}
@@ -46,14 +46,17 @@
       {% endfor %}
     {% endif %}
 
-    {% if page.closing_cta %}
+  </div>
+
+  {% if page.closing_cta %}
+    <div class="fl-article-closing-cta">
       {% set block_level = 2 %}
       {% for block in page.closing_cta %}
         {% set block_position = "closing-cta-" ~ block.block_type %}
         {% include_block block %}
       {% endfor %}
-    {% endif %}
-  </div>
+    </div>
+  {% endif %}
 </div>
 {% endblock %}
 
