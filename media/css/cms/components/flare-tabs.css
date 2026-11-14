@@ -84,6 +84,10 @@
     }
 }
 
+.fl-tab .fl-tab-heading {
+    font-size: var(--fl-theme-font-size-heading-sm);
+}
+
 .fl-tab-panel-media {
     display: flex;
     justify-content: center;
