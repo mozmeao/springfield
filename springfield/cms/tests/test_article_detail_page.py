@@ -257,13 +257,12 @@ def test_hero_landing_content_and_text_render_in_order(client, article):
     soup = render(client, article)
 
     main = soup.select_one(".fl-main")
-    zones = [child.get("class", [])[0] for child in main.find_all(recursive=False)]
-    assert zones == ["fl-split-page-upper", "fl-article-main"]
-    assert headings(main.select_one(".fl-split-page-upper")) == [
-        ("h1", "Browse privately with Firefox VPN"),
-        ("h2", "What you get"),
-        ("h2", "Try it free"),
-    ]
+    hero, landing, text = main.find_all(recursive=False)
+    assert "fl-split-page-upper" in hero["class"]
+    assert {"fl-split-page-upper", "fl-article-landing"} <= set(landing["class"])
+    assert "fl-article-main" in text["class"]
+    assert headings(hero) == [("h1", "Browse privately with Firefox VPN")]
+    assert headings(landing) == [("h2", "What you get"), ("h2", "Try it free")]
 
 
 def test_landing_block_without_a_heading_renders_its_items_at_h2(client, article, placeholder_images):
@@ -272,7 +271,7 @@ def test_landing_block_without_a_heading_renders_its_items_at_h2(client, article
     article.landing_content = [cards_list]
     soup = render(client, article)
 
-    card_headings = soup.select(".fl-split-page-upper .fl-card .fl-heading")
+    card_headings = soup.select(".fl-article-landing .fl-card .fl-heading")
     assert len(card_headings) == len(cards_list["value"]["cards"])
     assert {heading.name for heading in card_headings} == {"h2"}
 
@@ -285,7 +284,7 @@ def test_conditional_heroes_are_all_h1(client, article):
     for condition_class, heading_text, _ in PLATFORM_HEROES:
         heading = soup.select_one(f".fl-split-page-upper .{condition_class} .fl-heading")
         assert (heading.name, heading.get_text(strip=True)) == ("h1", heading_text)
-    section_heading = soup.select_one(".fl-split-page-upper .fl-section .fl-heading")
+    section_heading = soup.select_one(".fl-article-landing .fl-section .fl-heading")
     assert (section_heading.name, section_heading.get_text(strip=True)) == ("h2", "What you get")
 
 

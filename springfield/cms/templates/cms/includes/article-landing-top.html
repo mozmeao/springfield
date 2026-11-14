@@ -5,8 +5,9 @@
 #}
 
 {#
-  The hero and landing content at the top of an article page with a hero, together in the
-  dark upper area so its rounded edge marks where the article text starts. The first hero
+  The hero and landing content at the top of an article page with a hero. Each sits in its
+  own dark upper area, the landing one tucked under the hero's, so a rounded edge marks
+  where the landing content starts and another where the article text starts. The first hero
   is H1, and so is every hero in a leading run of heroes with display conditions, since a
   visitor sees only one of them. Landing content headings are H2, so a block without a
   heading of its own, such as a cards list, renders its card headings at H2.
@@ -30,10 +31,14 @@
 
     {% include_block block %}
   {% endfor %}
-
-  {% for block in page.landing_content %}
-    {% set block_position = "landing-block-" ~ loop.index ~ "-" ~ block.block_type %}
-    {% set block_level = 2 if (block.value.heading and block.value.heading.heading_text) or block.value.headline else 1 %}
-    {% include_block block %}
-  {% endfor %}
 </div>
+
+{% if page.landing_content %}
+  <div class="fl-split-page-upper has-gradient-bottom no-gap fl-article-landing">
+    {% for block in page.landing_content %}
+      {% set block_position = "landing-block-" ~ loop.index ~ "-" ~ block.block_type %}
+      {% set block_level = 2 if (block.value.heading and block.value.heading.heading_text) or block.value.headline else 1 %}
+      {% include_block block %}
+    {% endfor %}
+  </div>
+{% endif %}
