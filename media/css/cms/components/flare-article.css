@@ -16,6 +16,10 @@
     padding-block-start: var(--token-layout-md);
 }
 
+.fl-article-page .fl-main:has(> .fl-split-page-upper) {
+    padding-block-start: 0;
+}
+
 .fl-article-header {
     margin-block-end: var(--token-layout-md);
 }
