@@ -500,6 +500,7 @@ SUPPORTED_NONLOCALES = [
     "csrf_403",
     "pattern-library",
     "_documents",
+    "documents",  # stable URLs for Wagtail documents
     "school",  # short vanity URL that always redirects to /en-US/landing/school/
 ]
 

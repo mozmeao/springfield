@@ -5,13 +5,98 @@
 import logging
 
 from django.conf import settings
-from django.http import Http404, HttpResponseRedirect
+from django.http import FileResponse, Http404, HttpResponseRedirect
+from django.shortcuts import redirect
+from django.views.decorators.http import etag
 
 from wagtail.models import Locale as WagtailLocale, Site
 
+from springfield.base.views import page_not_found_view
+from springfield.cms.models.documents import PDF_MAGIC, StableDocumentURL
 from springfield.cms.utils import find_fallback_page_for_locale, mark_locale_fallback_exempt
 
 logger = logging.getLogger(__name__)
+
+
+def stable_document_not_found(request):
+    """Render the 404 page for a ``/documents/`` path, marked never to be cached."""
+    response = page_not_found_view(request)
+    response["Cache-Control"] = "no-store"
+    return response
+
+
+def serve_stable_document(request, stable_path):
+    """
+    Stream the PDF of the document assigned to ``/documents/<stable_path>``.
+
+    Unlike Wagtail's own ``/_documents/`` route, this runs no
+    ``before_serve_document`` hooks and sends no ``document_served`` signal.
+
+    A refusal returns ``stable_document_not_found`` rather than raising
+    ``Http404``, so that the response carries the ``no-store`` header a miss
+    needs. Raising would hand the response to ``handler404``, which builds a
+    fresh one and would discard any header set here.
+    """
+    if stable_path != stable_path.lower():
+        # Paths are stored lowercased, but Django's slug converter accepts
+        # uppercase, so /documents/Subprocessors reaches this view. Lowercasing
+        # the lookup instead would publish one document at two URLs. The redirect
+        # is not permanent because the pattern matches any slug, including ones
+        # no record holds.
+        return redirect("stable_document", stable_path=stable_path.lower())
+
+    record = StableDocumentURL.objects.filter(path=stable_path).select_related("document", "document__collection").first()
+    if record is None:
+        return stable_document_not_found(request)
+
+    document = record.document
+    if not document.filename.lower().endswith(".pdf"):
+        return stable_document_not_found(request)
+    if document.collection.get_view_restrictions().exists():
+        return stable_document_not_found(request)
+
+    # The stored file_hash is read rather than get_file_hash() called, because
+    # get_file_hash() saves the document when the hash is empty
+    # (wagtail/documents/models.py), which would be a database write on an
+    # anonymous GET.
+    @etag(lambda request: document.file_hash or None)
+    def serve_pdf(request):
+        try:
+            content_length = document.file.size
+            document_file = document.file.open("rb")
+            leading_bytes = document_file.read(len(PDF_MAGIC))
+            # FileResponse measures the body from the handle's current position
+            # to EOF, so an unrewound sniff ships a body short by those bytes
+            # behind a Content-Length claiming the whole file.
+            document_file.seek(0)
+        except OSError:
+            # Deliberately not turned into a 404: an unreadable file is an
+            # outage, and a 404 on this URL reads as a record retired on purpose.
+            logger.exception(
+                "Cannot read the file of document %s (%s), held by /documents/%s",
+                document.pk,
+                document.file.name,
+                stable_path,
+            )
+            raise
+
+        if leading_bytes != PDF_MAGIC:
+            document_file.close()
+            # The last line of defence, for a record written straight through the
+            # ORM. The editor-facing gate is the record's own clean().
+            return stable_document_not_found(request)
+
+        response = FileResponse(document_file, content_type=document.content_type)
+        response["Content-Disposition"] = document.content_disposition
+        response["Content-Length"] = content_length
+        # CacheMiddleware returns early on a streaming response, so the cache
+        # lifetime this whole feature rests on has to be set here.
+        response["Cache-Control"] = "max-age=600, public"
+        response["Content-Security-Policy"] = "default-src 'none'"
+        response["X-Content-Type-Options"] = "nosniff"
+        return response
+
+    return serve_pdf(request)
 
 
 def wagtail_serve(request, path):

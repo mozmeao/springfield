@@ -205,6 +205,7 @@ python manage.py dumpdata \
     cms.HomePagePencilBannerPlacement \
     cms.ArticleThemePagePencilBannerPlacement \
     cms.ArticleDetailPagePencilBannerPlacement \
+    cms.StableDocumentURL \
     newsletter.Newsletter \
     releasenotes.ProductRelease \
     utils.GitRepoState \

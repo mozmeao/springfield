@@ -148,6 +148,11 @@ class SpringfieldLocaleMiddleware(DjangoLocaleMiddleware):
             # Skip using Django's LocaleMiddleware on the response cycle too
             return response
 
+        if not path_needs_lang_code(request.path):
+            # If we know that this path does not need the language code, then
+            # just return the response.
+            return response
+
         with normalized_get_language():
             with simplified_check_for_language():
                 return super().process_response(request, response)

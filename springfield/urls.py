@@ -5,8 +5,9 @@
 from django.apps import apps
 from django.conf import settings
 from django.contrib import admin
-from django.urls import include, path
+from django.urls import include, path, re_path
 from django.utils.module_loading import import_string
+from django.views.generic import RedirectView
 
 import wagtaildraftsharing.urls as wagtaildraftsharing_urls
 from wagtail.admin import urls as wagtailadmin_urls
@@ -15,7 +16,7 @@ from watchman import views as watchman_views
 
 from springfield.base import views as base_views
 from springfield.base.i18n import springfield_i18n_patterns
-from springfield.cms import wagtail_urls
+from springfield.cms import views as cms_views, wagtail_urls
 
 # The default django 404 and 500 handler doesn't run the ContextProcessors,
 # which breaks the base template page. So we replace them with views that do!
@@ -40,6 +41,14 @@ urlpatterns += (
     path("readiness/", watchman_views.status, name="watchman.status"),
     path("healthz-cron/", base_views.cron_health_check),
     path("_documents/", include(wagtaildocs_urls)),
+    path("documents/<slug:stable_path>", cms_views.serve_stable_document, name="stable_document"),
+    # The canonical stable URL has no trailing slash, so we redirect a path with
+    # a trailing slash to the stable_document view.
+    path(
+        "documents/<slug:stable_path>/",
+        RedirectView.as_view(pattern_name="stable_document", permanent=False, query_string=True),
+    ),
+    re_path(r"^documents(?:/.*)?$", cms_views.stable_document_not_found),
 )
 
 if settings.DEV:
@@ -73,7 +82,6 @@ if settings.ENABLE_DJANGO_SILK:
 
 if settings.STORAGES["default"]["BACKEND"] == "django.core.files.storage.FileSystemStorage":
     # Serve media files from Django itself - production won't use this
-    from django.urls import re_path
     from django.views.static import serve
 
     urlpatterns += (
