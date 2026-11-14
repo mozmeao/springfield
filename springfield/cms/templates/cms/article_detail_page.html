@@ -86,6 +86,20 @@
         {% include_block block %}
       {% endfor %}
     {% endif %}
+
+    {% if page.closing_cta %}
+      {% set block_level = 2 %}
+      {% for block in page.closing_cta %}
+        {% set block_position = "closing-cta-" ~ block.block_type %}
+        {% include_block block %}
+      {% endfor %}
+    {% endif %}
   </div>
 </div>
 {% endblock %}
+
+{% block pre_footer %}
+  {% if page.show_pre_footer %}
+    {{ super() }}
+  {% endif %}
+{% endblock pre_footer %}

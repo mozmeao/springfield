@@ -6,12 +6,14 @@
 from django.core.exceptions import ValidationError
 
 import pytest
+from bs4 import BeautifulSoup
 from wagtail_localize.fields import SynchronizedField
 from wagtail_localize.segments.extract import extract_segments
 
 from springfield.cms.fixtures.base_fixtures import get_article_index_test_page
+from springfield.cms.fixtures.snippet_fixtures import get_pre_footer_cta_form_snippet, get_pre_footer_cta_snippet
 from springfield.cms.models import ArticleDetailPage, FreeFormPage2026
-from springfield.cms.models.pages import PRE_FOOTER_IMAGE_KIT
+from springfield.cms.models.pages import PRE_FOOTER_IMAGE_GLOBE, PRE_FOOTER_IMAGE_KIT
 from springfield.cms.tests.factories import ArticleDetailPageFactory
 
 pytestmark = [pytest.mark.django_db]
@@ -61,6 +63,13 @@ def article(article_index):
     )
     page.save_revision().publish()
     return page
+
+
+def render(client, page):
+    page.save_revision().publish()
+    response = client.get(page.url)
+    assert response.status_code == 200
+    return BeautifulSoup(response.content, "html.parser")
 
 
 def test_new_fields_default_to_todays_page():
@@ -161,3 +170,53 @@ def test_pre_footer_image_is_synchronised():
     by_name = {field.field_name: field for field in ArticleDetailPage.override_translatable_fields}
 
     assert isinstance(by_name["pre_footer_image"], SynchronizedField)
+
+
+# Rendering
+
+
+@pytest.fixture
+def pre_footer_snippets():
+    get_pre_footer_cta_snippet()
+    get_pre_footer_cta_form_snippet()
+
+
+def test_article_without_new_fields_renders_as_today(client, article, pre_footer_snippets, placeholder_images):
+    image, *_ = placeholder_images
+    article.image = image
+    soup = render(client, article)
+
+    assert "fl-force-dark-theme" not in soup.select_one("header.fl-header")["class"]
+    assert [h1.get_text(strip=True) for h1 in soup.find_all("h1")] == ["Firefox VPN"]
+    assert soup.select_one(".fl-article-header .article-featured-image img") is not None
+    assert soup.select_one(".fl-rich-text h2").get_text(strip=True) == "Why use a VPN"
+    assert soup.select_one(".fl-pre-footer-cta") is not None
+    assert "flare/kit-on-rock.png" in soup.select_one(".fl-newsletterform-illustration img")["src"]
+
+
+def test_closing_cta_renders_last_as_h2(client, article):
+    article.closing_cta = [banner_block("Get Firefox now")]
+    soup = render(client, article)
+
+    main = soup.select_one(".fl-main")
+    closing_cta = main.select_one(".fl-banner-container")
+    assert closing_cta.find(class_="fl-heading").name == "h2"
+    assert closing_cta.find(class_="fl-heading").get_text(strip=True) == "Get Firefox now"
+    assert closing_cta.find_previous(class_="fl-rich-text") is not None
+    assert closing_cta.find_next(class_="fl-rich-text") is None
+    assert main.find_all(recursive=False)[-1] is closing_cta
+
+
+def test_pre_footer_can_be_turned_off(client, article, pre_footer_snippets):
+    article.show_pre_footer = False
+    soup = render(client, article)
+
+    assert soup.select_one(".fl-pre-footer-cta") is None
+    assert soup.select_one(".fl-newsletterform-cta") is None
+
+
+def test_pre_footer_image_choice_is_shown(client, article, pre_footer_snippets):
+    article.pre_footer_image = PRE_FOOTER_IMAGE_GLOBE
+    soup = render(client, article)
+
+    assert "flare/globe.png" in soup.select_one(".fl-newsletterform-illustration img")["src"]
