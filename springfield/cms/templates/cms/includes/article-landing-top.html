@@ -1,0 +1,41 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{#
+  The hero and landing content at the top of an article page with a hero. The first hero
+  is H1, and so is every hero in a leading run of heroes with display conditions, since a
+  visitor sees only one of them. Landing content headings are H2.
+#}
+{% set ns = namespace(headings=0, leading_conditional_run=True) %}
+
+<div class="fl-split-page-upper has-gradient-bottom no-gap">
+  {% for block in page.hero %}
+    {% set block_position = "hero-block-" ~ loop.index ~ "-" ~ block.block_type %}
+    {% set block_level = 1 %}
+
+    {% if block.value.heading and block.value.heading.heading_text %}
+      {% set show_to = block.value.settings and block.value.settings.show_to %}
+      {% set block_has_display_conditions = show_to and show_to.has_conditions %}
+      {% set block_level = 1 if ns.headings == 0 or (ns.leading_conditional_run and block_has_display_conditions) else 2 %}
+      {% set ns.headings = ns.headings + 1 %}
+      {% if not block_has_display_conditions %}
+        {% set ns.leading_conditional_run = False %}
+      {% endif %}
+    {% endif %}
+
+    {% include_block block %}
+  {% endfor %}
+</div>
+
+{% if page.landing_content %}
+  <div class="fl-split-page-lower no-gap">
+    {% set block_level = 2 %}
+    {% for block in page.landing_content %}
+      {% set block_position = "landing-block-" ~ loop.index ~ "-" ~ block.block_type %}
+      {% include_block block %}
+    {% endfor %}
+  </div>
+{% endif %}

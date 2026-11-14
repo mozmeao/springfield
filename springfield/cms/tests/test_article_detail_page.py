@@ -3,6 +3,8 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 """Tests for ArticleDetailPage with an optional hero, landing content and closing CTA."""
 
+import json
+
 from django.core.exceptions import ValidationError
 
 import pytest
@@ -220,3 +222,84 @@ def test_pre_footer_image_choice_is_shown(client, article, pre_footer_snippets):
     soup = render(client, article)
 
     assert "flare/globe.png" in soup.select_one(".fl-newsletterform-illustration img")["src"]
+
+
+# Hero and landing content
+
+PLATFORM_HEROES = [
+    ("condition-windows", "Firefox for Windows", ["windows"]),
+    ("condition-osx", "Firefox for macOS", ["osx"]),
+]
+
+
+def headings(element):
+    return [(heading.name, heading.get_text(strip=True)) for heading in element.find_all(class_="fl-heading")]
+
+
+def test_hero_replaces_the_article_header(client, article, placeholder_images):
+    article.image = placeholder_images[0]
+    article.hero = [intro_block("Browse privately with Firefox VPN")]
+    soup = render(client, article)
+
+    assert "fl-force-dark-theme" in soup.select_one("header.fl-header")["class"]
+    assert [h1.get_text(strip=True) for h1 in soup.find_all("h1")] == ["Browse privately with Firefox VPN"]
+    assert soup.select_one(".fl-article-header") is None
+    assert soup.select_one(".article-featured-image") is None
+    assert soup.select_one(".fl-rich-text h2").get_text(strip=True) == "Why use a VPN"
+
+
+def test_hero_landing_content_and_text_render_in_order(client, article):
+    article.hero = [intro_block("Browse privately with Firefox VPN")]
+    article.landing_content = [section_block("What you get"), banner_block("Try it free")]
+    article.closing_cta = [banner_block("Get Firefox now")]
+    soup = render(client, article)
+
+    main = soup.select_one(".fl-main")
+    zones = [child.get("class", [])[0] for child in main.find_all(recursive=False)]
+    assert zones == ["fl-split-page-upper", "fl-split-page-lower", "fl-article-main", "fl-banner-container"]
+    assert headings(main.select_one(".fl-split-page-lower")) == [("h2", "What you get"), ("h2", "Try it free")]
+
+
+def test_conditional_heroes_are_all_h1(client, article):
+    article.hero = [intro_block(heading_text, platforms) for _, heading_text, platforms in PLATFORM_HEROES]
+    article.landing_content = [section_block("What you get")]
+    soup = render(client, article)
+
+    for condition_class, heading_text, _ in PLATFORM_HEROES:
+        heading = soup.select_one(f".fl-split-page-upper .{condition_class} .fl-heading")
+        assert (heading.name, heading.get_text(strip=True)) == ("h1", heading_text)
+    assert headings(soup.select_one(".fl-split-page-lower")) == [("h2", "What you get")]
+
+
+def test_landing_content_without_a_hero_is_ignored(client, article):
+    # Written straight to the database, since validation stops editors saving it.
+    ArticleDetailPage.objects.filter(pk=article.pk).update(landing_content=[section_block("What you get")])
+    assert ArticleDetailPage.objects.get(pk=article.pk).landing_content
+    soup = BeautifulSoup(client.get(article.url).content, "html.parser")
+
+    assert soup.select_one(".fl-split-page-lower") is None
+    assert "What you get" not in soup.get_text()
+    assert [h1.get_text(strip=True) for h1 in soup.find_all("h1")] == ["Firefox VPN"]
+
+
+def test_page_title_and_breadcrumb_keep_the_page_title(client, article):
+    article.hero = [intro_block("Browse privately with Firefox VPN")]
+    soup = render(client, article)
+
+    assert soup.title.get_text().startswith("Firefox VPN")
+    breadcrumb = next(
+        json.loads(script.string) for script in soup.find_all("script", type="application/ld+json") if '"BreadcrumbList"' in script.string
+    )
+    assert breadcrumb["itemListElement"][-1]["name"] == "Firefox VPN"
+
+
+def test_index_card_is_the_same_with_a_hero(client, article, article_index):
+    before = BeautifulSoup(client.get(article_index.url).content, "html.parser").select_one("main")
+
+    article.hero = [intro_block("Browse privately with Firefox VPN")]
+    article.landing_content = [section_block("What you get")]
+    article.save_revision().publish()
+    after = BeautifulSoup(client.get(article_index.url).content, "html.parser").select_one("main")
+
+    assert article.url in str(after)
+    assert str(after) == str(before)
