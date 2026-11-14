@@ -146,16 +146,14 @@
         padding: var(--token-spacing-sm) var(--token-spacing-xl);
     }
 
-    /* Phones get a smaller type scale and a tighter hero, so the download
-       button lands in the first screen and section headings stay below the
-       hero heading. */
+    /* Phones get a tighter hero, so the download button lands in the first
+       screen. */
     @media (--viewport-xs) {
         .fl-home-body .fl-home-intro .fl-intro {
             padding-block-start: var(--token-layout-3xs);
         }
 
         .fl-home-body .fl-home-intro .fl-heading {
-            font-size: var(--fl-theme-font-size-heading-lg);
             margin-block: var(--token-spacing-lg);
         }
 
@@ -167,10 +165,6 @@
         .fl-home-body .fl-home-intro .fl-store-button img {
             block-size: var(--token-layout-xs);
             max-block-size: none;
-        }
-
-        .fl-home-body .fl-heading-size-2 {
-            font-size: var(--fl-theme-font-size-heading-md);
         }
     }
 
