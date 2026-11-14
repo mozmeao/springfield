@@ -15,6 +15,7 @@ from wagtail_localize.fields import SynchronizedField
 from wagtail_localize.segments.extract import extract_segments
 
 from springfield.cms.fixtures.base_fixtures import get_article_index_test_page
+from springfield.cms.fixtures.homepage_fixtures import get_cards_list
 from springfield.cms.fixtures.snippet_fixtures import get_pre_footer_cta_form_snippet, get_pre_footer_cta_snippet
 from springfield.cms.models import ArticleDetailPage, FreeFormPage2026
 from springfield.cms.models.pages import PRE_FOOTER_IMAGE_GLOBE, PRE_FOOTER_IMAGE_KIT
@@ -263,6 +264,17 @@ def test_hero_landing_content_and_text_render_in_order(client, article):
         ("h2", "What you get"),
         ("h2", "Try it free"),
     ]
+
+
+def test_landing_block_without_a_heading_renders_its_items_at_h2(client, article, placeholder_images):
+    cards_list = get_cards_list()
+    article.hero = [intro_block("Browse privately with Firefox VPN")]
+    article.landing_content = [cards_list]
+    soup = render(client, article)
+
+    card_headings = soup.select(".fl-split-page-upper .fl-card .fl-heading")
+    assert len(card_headings) == len(cards_list["value"]["cards"])
+    assert {heading.name for heading in card_headings} == {"h2"}
 
 
 def test_conditional_heroes_are_all_h1(client, article):

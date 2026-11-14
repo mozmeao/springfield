@@ -52,16 +52,20 @@
     font-size: var(--fl-theme-font-size-heading-sm);
 }
 
-.fl-article-page .fl-rich-text {
+.fl-article-page .fl-article-main .fl-rich-text {
     font-size: var(--token-font-size-lg);
 }
 
-.fl-article-page .fl-rich-text :is(h2, h3, h4, h5, h6) {
+.fl-article-page .fl-article-main .fl-rich-text :is(h2, h3, h4, h5, h6) {
     margin-block-start: var(--token-layout-xs);
 }
 
-.fl-article-page .fl-rich-text h3 {
+.fl-article-page .fl-article-main .fl-rich-text h3 {
     font-size: var(--fl-theme-font-size-heading-xs);
+}
+
+.fl-article-page .fl-article-main .fl-rich-text :is(h4, h5, h6) {
+    font-size: var(--token-font-size-lg);
 }
 
 .fl-article-main .fl-heading {

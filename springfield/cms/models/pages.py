@@ -1127,6 +1127,7 @@ class ArticleDetailPage(ImageAltTextMixin, PreFooterImageMixin, UTMParamsMixin, 
         index.SearchField("hero"),
         index.SearchField("landing_content"),
         index.SearchField("content"),
+        index.SearchField("closing_cta"),
     ]
 
     override_translatable_fields = [
