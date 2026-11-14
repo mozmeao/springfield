@@ -45,10 +45,6 @@
         margin-block-end: var(--token-spacing-2xl);
     }
 
-    .fl-page-user-privacy .main-content section h2 {
-        font-size: var(--fl-theme-font-size-heading-sm);
-    }
-
     .fl-page-user-privacy .main-content .sidebar {
         display: none;
     }
@@ -198,12 +194,6 @@
 
     .fl-page-user-privacy.fl-page-user-privacy-cms .fl-section:last-child {
         padding-block-end: 0;
-    }
-
-    .fl-page-user-privacy.fl-page-user-privacy-cms
-        .fl-section:last-child
-        .fl-heading {
-        font-size: var(--fl-theme-font-size-heading-md);
     }
 
     .fl-page-user-privacy .has-gradient-bottom::before {

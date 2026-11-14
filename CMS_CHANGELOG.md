@@ -1,3 +1,8 @@
+## 2026-11-13
+
+- Free Form 2026 pages have a "Type scale" setting under Settings → Appearance: Regular (the default, for landing pages) or Compact (tighter headings, for pages that are mostly text sections, or any page that should feel compact). Enterprise-themed pages always use Compact, whatever the setting.
+- Heading sizes now follow each heading's level on every page, so the same block can look larger or smaller depending on whether it is the page's first heading.
+
 ## 2026-11-09
 
 - Generated QR codes now use rounded dots and corners with the Firefox logo in the middle, matching the designed QR images.

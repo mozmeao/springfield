@@ -137,6 +137,65 @@
     }
 }
 
+/* Headings size by their level, whatever size class a template passes them */
+h1:is(
+    .fl-heading-xl,
+    .fl-heading-lg,
+    .fl-heading-md,
+    .fl-heading-sm,
+    .fl-heading-2xl,
+    .fl-heading-size-2,
+    .fl-heading-size-3
+) {
+    font-size: var(--fl-h1);
+    font-variation-settings:
+        'wght' var(--token-font-weight-semibold),
+        'wdth' var(--token-font-condensed-width);
+    line-height: 0.9;
+}
+
+h2:is(
+    .fl-heading-xl,
+    .fl-heading-lg,
+    .fl-heading-md,
+    .fl-heading-sm,
+    .fl-heading-xs,
+    .fl-heading-size-1,
+    .fl-heading-size-3,
+    .fl-heading-size-5
+) {
+    font-size: var(--fl-h2);
+}
+
+h3:is(
+    .fl-heading-xl,
+    .fl-heading-md,
+    .fl-heading-sm,
+    .fl-heading-xs,
+    .fl-heading-2xs,
+    .fl-heading-size-4
+) {
+    font-size: var(--fl-h3);
+}
+
+h4:is(
+    .fl-heading-md,
+    .fl-heading-sm,
+    .fl-heading-xs,
+    .fl-heading-2xs,
+    .fl-heading-size-3
+) {
+    font-size: var(--fl-h4);
+}
+
+/* An H1 beside media takes the small H1 on desktop */
+@media (--viewport-md-up) {
+    .fl-banner h1,
+    .fl-intro:is(.fl-intro-media-left, .fl-intro-media-right) h1 {
+        font-size: var(--fl-h1-small);
+    }
+}
+
 /* Body size classes */
 .fl-body-lg {
     font-size: var(--fl-theme-font-size-body-lg);
