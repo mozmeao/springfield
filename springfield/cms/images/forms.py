@@ -7,6 +7,7 @@
 # WAGTAILIMAGES_IMAGE_FORM_BASE when it builds the form, by which time models are ready.
 
 from django import forms
+from django.urls import reverse
 
 from wagtail.admin.forms.tags import validate_tag_length
 from wagtail.images.forms import BaseImageForm
@@ -51,6 +52,7 @@ class InlineImageForm(forms.ModelForm):
     def __init__(self, *args, instance, **kwargs):
         super().__init__(*args, instance=instance, prefix=f"image-{instance.pk}", **kwargs)
         self.form_id = f"image-inline-{instance.pk}"
+        self.action_url = reverse("cms_image_inline_edit", args=[instance.pk])
         self.initial["tags"] = list(instance.tags.all())
         for field in self.fields.values():
             field.widget.attrs["form"] = self.form_id

@@ -8,11 +8,19 @@ from django.conf import settings
 from django.http import Http404, HttpResponseRedirect
 
 from wagtail.models import Locale as WagtailLocale, Site
-from wagtail.views import serve as wagtail_serve
 
 from springfield.cms.utils import find_fallback_page_for_locale, mark_locale_fallback_exempt
 
 logger = logging.getLogger(__name__)
+
+
+def wagtail_serve(request, path):
+    """Serve ``path`` with Wagtail's page-serving view."""
+    # Imported inline to break an import cycle: wagtail.views loads the Page model on import,
+    # and this module is imported while the cms models are still being registered.
+    from wagtail.views import serve
+
+    return serve(request, path)
 
 
 def _alias_needs_prewagtail_intercept(lang_prefix):

@@ -23,9 +23,10 @@ def get_kit_intro_variants() -> list[dict]:
             "type": "kit_intro",
             "value": {
                 "heading": {
-                    "superheading_text": '<p data-block-key="ki26s3">New</p>',
+                    "superheading_text": '<p data-block-key="ki26s3">Buttons and buttons below</p>',
                     "heading_text": '<p data-block-key="ki26h3">Kit Intro with two buttons and a button below</p>',
-                    "subheading_text": "",
+                    "subheading_text": '<p data-block-key="ki26b3">The first row takes up to two buttons; Buttons below adds a second row '
+                    "under the first row's privacy notice.</p>",
                 },
                 "buttons": [buttons["secondary"], buttons["ghost"]],
                 "buttons_below": [buttons["link"]],

@@ -16,9 +16,9 @@ def get_sliding_carousel_slides() -> list[dict]:
             "type": "item",
             "value": {
                 "heading": heading_value(
-                    heading_text="Protect your privacy across the web",
-                    superheading_text="Privacy",
-                    subheading_text="Control who can see your browsing activity.",
+                    heading_text="Slides advance continuously on their own",
+                    superheading_text="Sliding Carousel",
+                    subheading_text="Unlike the Carousel, this one keeps sliding without the user clicking.",
                     block_key="slca",
                 ),
                 "media": [image_block(image_id=img, dark_mode_image_id=dark, block_id="2026sc01-0000-0000-0000-0000000000a1")],
@@ -29,9 +29,9 @@ def get_sliding_carousel_slides() -> list[dict]:
             "type": "item",
             "value": {
                 "heading": heading_value(
-                    heading_text="Block trackers and ads automatically",
-                    superheading_text="Security",
-                    subheading_text="Enhanced Tracking Protection works out of the box.",
+                    heading_text="Each slide has an eyebrow, heading, subheading and media",
+                    superheading_text="Every slide",
+                    subheading_text="All of the heading fields are required on every slide.",
                     block_key="slca",
                 ),
                 "media": [image_block(image_id=dark, dark_mode_image_id=img, block_id="2026sc01-0000-0000-0000-0000000000a2")],
@@ -42,9 +42,9 @@ def get_sliding_carousel_slides() -> list[dict]:
             "type": "item",
             "value": {
                 "heading": heading_value(
-                    heading_text="Sync your data across all your devices",
-                    superheading_text="Sync",
-                    subheading_text="Bookmarks, passwords, and tabs — always with you.",
+                    heading_text="Use between two and six slides",
+                    superheading_text="Slide count",
+                    subheading_text="Fewer than two will not slide; more than six is not allowed.",
                     block_key="slca",
                 ),
                 "media": [image_block(image_id=img, block_id="2026sc01-0000-0000-0000-0000000000a3")],
@@ -55,9 +55,9 @@ def get_sliding_carousel_slides() -> list[dict]:
             "type": "item",
             "value": {
                 "heading": heading_value(
-                    heading_text="Browse faster with fewer interruptions",
-                    superheading_text="Speed",
-                    subheading_text="Firefox is built to be fast so you can get more done.",
+                    heading_text="Add one image or video per slide",
+                    superheading_text="Media",
+                    subheading_text="Keep slide dimensions consistent so the motion stays smooth.",
                     block_key="slca",
                 ),
                 "media": [image_block(image_id=dark, dark_mode_image_id=img, block_id="2026sc01-0000-0000-0000-0000000000a4")],
@@ -68,9 +68,9 @@ def get_sliding_carousel_slides() -> list[dict]:
             "type": "item",
             "value": {
                 "heading": heading_value(
-                    heading_text="Make Firefox yours with themes and extensions",
-                    superheading_text="Customise",
-                    subheading_text="Thousands of add-ons let you tailor your browser experience.",
+                    heading_text="Avoid call-to-action buttons inside slides",
+                    superheading_text="Content",
+                    subheading_text="The constant motion makes them hard to click.",
                     block_key="slca",
                 ),
                 "media": [image_block(image_id=img, dark_mode_image_id=dark, block_id="2026sc01-0000-0000-0000-0000000000a5")],

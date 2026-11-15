@@ -20,6 +20,7 @@ def get_sharing_links_variants(content_area: int = 1) -> dict[str, dict]:
                 "copy_label": "Copy link",
                 "copy_success_label": "Link copied!",
                 "url": SHARED_URL,
+                "show_url": True,
                 "email_label": "Share by email",
                 "email_subject": "Take a look at Firefox for Enterprise",
                 "email_body": (
@@ -55,6 +56,7 @@ def get_sharing_links_variants(content_area: int = 1) -> dict[str, dict]:
                 "copy_label": "Copy link",
                 "copy_success_label": "Link copied!",
                 "url": SHARED_URL,
+                "show_url": False,
                 "email_label": "Share by email",
                 "email_subject": "Take a look at Firefox for Enterprise",
                 "email_body": "Firefox for Enterprise has the tools your team needs.",
@@ -79,7 +81,10 @@ def get_sharing_links_blocks(content_area: int = 1) -> list[dict]:
         media_content(
             block_id="shrlnk02-0000-0000-0000-000000000000",
             heading_text="Required Fields Only",
-            subheading_text="A custom copy label and URL only: the email draft holds just the URL and the QR code modal shows just the code.",
+            subheading_text=(
+                "A custom copy label and URL only: the URL shows above the buttons, the email draft holds just the URL "
+                "and the QR code modal shows just the code."
+            ),
             body_blocks=[variants["required_only"]],
             media=get_image_media("shrlnk02-0000-0000-0000-000000000003"),
         ),
@@ -87,7 +92,7 @@ def get_sharing_links_blocks(content_area: int = 1) -> list[dict]:
             block_id="shrlnk03-0000-0000-0000-000000000000",
             theme="dark-purple-gradient",
             heading_text="In a Banner",
-            subheading_text="Sharing Links can also be added to a Banner's content.",
+            subheading_text="Sharing Links can also be added to a Banner's content. This one hides the URL above the buttons.",
             buttons=[],
             content_blocks=[variants["banner"]],
             media=get_image_media("shrlnk03-0000-0000-0000-000000000003"),
@@ -113,7 +118,8 @@ def get_sharing_links_test_page() -> FreeFormPage2026:
         "<p>The Sharing Links block is a row of three buttons for sharing one URL. "
         "<b>Copy link</b> copies the URL to the clipboard, the <b>email</b> button opens a draft "
         "with the optional subject and body followed by the URL, and the <b>QR code</b> button opens "
-        "a modal with a QR code for the URL plus the optional heading and text.</p>"
+        "a modal with a QR code for the URL plus the optional heading and text. "
+        "The URL also shows as a link above the buttons unless <b>Show URL</b> is turned off.</p>"
         "<p>It can be added to Section, Featured Image Section, Media + Content, Two-Column Card and Banner blocks.</p>"
     )
     page.save_revision().publish()

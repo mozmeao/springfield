@@ -23,7 +23,7 @@ const PAGES = [
     { name: 'article-index', path: '/en-US/features/all/' },
     { name: 'article-hub', path: '/en-US/features/' },
     { name: 'article-detail', path: '/features/password-manager/' },
-    { name: 'enterprise-landing', path: '/en-US/browsers/enterprise/' },
+    { name: 'enterprise-landing', path: '/en-US/enterprise/' },
     { name: 'mobile-landing', path: '/en-US/mobile/' },
     { name: 'user-privacy', path: '/en-US/user-privacy/' },
     { name: 'newsletter', path: '/en-US/newsletter/' },

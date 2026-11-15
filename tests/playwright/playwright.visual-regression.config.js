@@ -11,6 +11,8 @@ const baseConfig = require('./playwright.config');
 
 module.exports = defineConfig({
     ...baseConfig,
+    /* Pixel comparisons share the runner with the Django server under test, so keep these at two. */
+    workers: process.env.CI ? 2 : undefined,
     grepInvert: undefined,
     grep: /@visual-regression|@flare-components/,
     projects: [baseConfig.projects.find((p) => p.name === 'chromium')]
