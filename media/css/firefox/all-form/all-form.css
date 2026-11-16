@@ -159,23 +159,16 @@
     }
 
     .c-platform-logo {
-        background-image: var(--c-platform-logo);
+        background-color: currentColor;
+        mask: var(--c-platform-logo) no-repeat center / contain;
 
         .c-form:invalid & {
             display: none;
         }
 
-        /* Adjustments since the logo files aren’t great */
-        .c-form:has(
-            option:is(
-                [value^="win"],
-                [value^="osx"],
-                [value="ios"],
-                [value="android"]
-            ):checked
-        ) & { filter: brightness(100); }
-
-        .c-form:has(option[value^="linux"]:checked) & { filter: invert(1); }
+        @media (forced-colors: active) {
+            background-color: CanvasText;
+        }
     }
 
     .c-release-logo {
