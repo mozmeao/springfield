@@ -355,8 +355,7 @@ def test_errored_current_translation_suppresses_the_entry(translated_page):
 def test_orphan_stringtranslation_without_a_translation_type_has_no_comment(translated_page):
     """
     wagtail-localize builds the comment from the translation type, and has
-    nothing to say about a row that carries neither a type nor a tool. The
-    'previous translations' panel shows the comment, so it even if it is blank.
+    nothing to say about a row that carries neither a type nor a tool.
     """
     context = title_context(translated_page)
     orphan_stringtranslation(translated_page, context, "Try Firefox", "Essayez Firefox", translation_type="")
