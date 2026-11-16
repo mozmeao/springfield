@@ -189,7 +189,7 @@ _RELEASE_TO_NOTES_CHANNEL = {
     "esr-115": "organizations",
 }
 
-RELEASE_UNAVAILABLE_ERROR = "Chosen release type is not available for this platform."
+RELEASE_UNAVAILABLE_ERROR = "Release type unavailable for this platform."
 
 # ---------------------------------------------------------------------------
 # Copy

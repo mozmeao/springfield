@@ -964,7 +964,7 @@ class TestFormView:
         # The conflict verdict is the script's to make.
         assert b'class="c-incompatible-choices" hidden' in content
         # And the language note starts hidden even though this is a store app.
-        assert b'class="c-language-message" hidden' in content
+        assert b'class="c-language-message c-message-hidden"' in content
 
     @override_switch("ALL_FORM", active=True)
     def test_no_selection_state_on_the_host_element(self, client):
