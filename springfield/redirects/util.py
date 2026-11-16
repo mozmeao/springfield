@@ -89,7 +89,15 @@ def platform_redirector(desktop_dest, android_dest, ios_dest):
     return decider
 
 
-def mobile_app_redirector(request, product, campaign):
+def mobile_app_redirector(request, product, utm_params):
+    """
+    Return the app store URL for `product` on the requesting device, carrying
+    the already-validated `utm_params` as attribution.
+
+    Google Play only reads attribution from a single `referrer` param, so the
+    UTM values are packed into it, defaulting source and medium to firefox.com.
+    The App Store only takes a campaign token.
+    """
     android_re = re.compile(r"\bAndroid\b", flags=re.I)
     value = request.headers.get("User-Agent", "")
 
@@ -104,18 +112,20 @@ def mobile_app_redirector(request, product, campaign):
     }
 
     tracking_product = product_mapping.get(product, "unrecognized")
+    provided_utm_params = {name: param_value for name, param_value in utm_params.items() if param_value}
 
     if android_re.search(value):
         base_url = getattr(settings, f"GOOGLE_PLAY_{product.upper()}_LINK")
-        params = "&referrer=utm_source%3Dwww.firefox.com%26utm_medium%3Dreferral%26utm_campaign%3D{cmp}"
-    else:
-        base_url = getattr(settings, f"APPLE_APPSTORE_{product.upper()}_LINK").replace("/{country}/", "/")
-        params = "?pt=373246&ct={cmp}&mt=8&mz_pr={tp}"
+        if not provided_utm_params:
+            return base_url
+        referrer_params = {"utm_source": "www.firefox.com", "utm_medium": "referral"} | provided_utm_params
+        return base_url + "&" + urlencode({"referrer": urlencode(referrer_params)})
 
-    if campaign:
-        return base_url + params.format(cmp=campaign, tp=tracking_product)
-    else:
+    base_url = getattr(settings, f"APPLE_APPSTORE_{product.upper()}_LINK").replace("/{country}/", "/")
+    campaign = provided_utm_params.get("utm_campaign")
+    if not campaign:
         return base_url
+    return base_url + "?" + urlencode({"pt": "373246", "ct": campaign, "mt": "8", "mz_pr": tracking_product})
 
 
 def no_redirect(pattern, locale_prefix=True, re_flags=None):

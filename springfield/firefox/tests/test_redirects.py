@@ -64,32 +64,89 @@ def test_param_verification(test_param, is_valid):
         assert validate_param_value(test_param) is None
 
 
-def test_mobile_app():
-    rf = RequestFactory()
+NO_UTM_PARAMS = {"utm_source": None, "utm_medium": None, "utm_campaign": None, "utm_content": None, "utm_term": None}
+ANDROID_UA = "Mozilla/5.0 (Android 14; Mobile; rv:133.0) Gecko/133.0 Firefox/133.0"
+IOS_UA = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148"
 
-    # both args exist and have valid values
-    req = rf.get("/firefox/app/?product=focus&campaign=firefox-all")
-    with patch("springfield.firefox.redirects.mobile_app_redirector") as mar:
-        mobile_app(req)
-        mar.assert_called_with(req, "focus", "firefox-all")
 
-    # neither args exist
-    req = rf.get("/firefox/app/")
-    with patch("springfield.firefox.redirects.mobile_app_redirector") as mar:
-        mobile_app(req)
-        mar.assert_called_with(req, "firefox", None)
+@pytest.mark.parametrize(
+    "path, expected_product, expected_utm_params",
+    (
+        ("/firefox/app/?product=focus&campaign=firefox-all", "focus", NO_UTM_PARAMS | {"utm_campaign": "firefox-all"}),
+        ("/firefox/app/", "firefox", NO_UTM_PARAMS),
+        ("/firefox/app/?product=dude&campaign=walter$", "firefox", NO_UTM_PARAMS),
+        ("/firefox/app/?bunny=dude&maude=artist", "firefox", NO_UTM_PARAMS),
+        (
+            "/firefox/app/?product=firefox&utm_source=meta&utm_medium=paid_video&utm_campaign=ke-belva&utm_content=sync&utm_term=browser",
+            "firefox",
+            {"utm_source": "meta", "utm_medium": "paid_video", "utm_campaign": "ke-belva", "utm_content": "sync", "utm_term": "browser"},
+        ),
+        ("/firefox/app/?campaign=legacy&utm_campaign=modern", "firefox", NO_UTM_PARAMS | {"utm_campaign": "legacy"}),
+        ("/firefox/app/?campaign=bad$&utm_campaign=modern", "firefox", NO_UTM_PARAMS | {"utm_campaign": "modern"}),
+        ("/firefox/app/?utm_source=bad<script>&utm_medium=paid&utm_content=ǖnicode", "firefox", NO_UTM_PARAMS | {"utm_medium": "paid"}),
+    ),
+)
+def test_mobile_app(path, expected_product, expected_utm_params):
+    request = RequestFactory().get(path)
+    with patch("springfield.firefox.redirects.mobile_app_redirector") as mobile_app_redirector:
+        mobile_app(request)
+        mobile_app_redirector.assert_called_with(request, expected_product, expected_utm_params)
 
-    # both args exist but invalid values
-    req = rf.get("/firefox/app/?product=dude&campaign=walter$")
-    with patch("springfield.firefox.redirects.mobile_app_redirector") as mar:
-        mobile_app(req)
-        mar.assert_called_with(req, "firefox", None)
 
-    # other args exist
-    req = rf.get("/firefox/app/?bunny=dude&maude=artist")
-    with patch("springfield.firefox.redirects.mobile_app_redirector") as mar:
-        mobile_app(req)
-        mar.assert_called_with(req, "firefox", None)
+@pytest.mark.parametrize(
+    "query, expected_location",
+    (
+        ("product=firefox", "https://play.google.com/store/apps/details?id=org.mozilla.firefox"),
+        (
+            "product=firefox&campaign=firefox-com-mobile-page",
+            "https://play.google.com/store/apps/details?id=org.mozilla.firefox"
+            "&referrer=utm_source%3Dwww.firefox.com%26utm_medium%3Dreferral%26utm_campaign%3Dfirefox-com-mobile-page",
+        ),
+        (
+            "product=firefox&utm_source=meta&utm_medium=paid_video&utm_campaign=ke-belva&utm_content=sync",
+            "https://play.google.com/store/apps/details?id=org.mozilla.firefox"
+            "&referrer=utm_source%3Dmeta%26utm_medium%3Dpaid_video%26utm_campaign%3Dke-belva%26utm_content%3Dsync",
+        ),
+        (
+            "product=focus&utm_campaign=spring&utm_term=private-browser",
+            "https://play.google.com/store/apps/details?id=org.mozilla.focus"
+            "&referrer=utm_source%3Dwww.firefox.com%26utm_medium%3Dreferral%26utm_campaign%3Dspring%26utm_term%3Dprivate-browser",
+        ),
+        (
+            "utm_source=bad%26utm_medium%3Dhijack&utm_campaign=spring",
+            "https://play.google.com/store/apps/details?id=org.mozilla.firefox"
+            "&referrer=utm_source%3Dwww.firefox.com%26utm_medium%3Dreferral%26utm_campaign%3Dspring",
+        ),
+    ),
+)
+def test_mobile_app_android_destination(client, query, expected_location):
+    response = client.get(f"/browsers/mobile/app/?{query}", HTTP_USER_AGENT=ANDROID_UA)
+    assert response.status_code == 302
+    assert response["Location"] == expected_location
+
+
+@pytest.mark.parametrize(
+    "query, expected_location",
+    (
+        ("product=firefox&utm_source=meta&utm_medium=paid_video", "https://apps.apple.com/app/apple-store/id989804926"),
+        (
+            "product=firefox&campaign=firefox-com-mobile-page",
+            "https://apps.apple.com/app/apple-store/id989804926?pt=373246&ct=firefox-com-mobile-page&mt=8&mz_pr=firefox_mobile",
+        ),
+        (
+            "product=focus&utm_source=meta&utm_campaign=ke-belva&utm_content=sync",
+            "https://apps.apple.com/app/apple-store/id1055677337?pt=373246&ct=ke-belva&mt=8&mz_pr=focus",
+        ),
+        (
+            "product=firefox&campaign=legacy&utm_campaign=modern",
+            "https://apps.apple.com/app/apple-store/id989804926?pt=373246&ct=legacy&mt=8&mz_pr=firefox_mobile",
+        ),
+    ),
+)
+def test_mobile_app_ios_destination(client, query, expected_location):
+    response = client.get(f"/browsers/mobile/app/?{query}", HTTP_USER_AGENT=IOS_UA)
+    assert response.status_code == 302
+    assert response["Location"] == expected_location
 
 
 def _get_refresh_middleware():
