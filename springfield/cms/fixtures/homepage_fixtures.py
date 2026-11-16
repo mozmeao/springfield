@@ -257,7 +257,8 @@ def get_card_gallery():
             "secondary_card": {
                 "icon": "trending",
                 "headline": '<p data-block-key="czbp1">Simple. Thoughtful. Minimal.</p>',
-                "description": '<p data-block-key="7lrh2">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque ac congue urna.</p>',
+                "description": '<p data-block-key="7lrh2">A clean interface stays out of your way, so the web is the thing you '
+                "notice — not the browser around it.</p>",
                 "buttons": [buttons["primary"]],
                 "image": {
                     "image": placeholder_images.image.id,

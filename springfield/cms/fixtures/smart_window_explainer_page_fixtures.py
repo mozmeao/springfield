@@ -14,10 +14,10 @@ def get_smart_window_explainer_intro() -> dict:
             "settings": {"layout": "right", "full_width": False, "slim": False, "anchor_id": ""},
             "media": [],
             "heading": {
-                "superheading_text": '<p data-block-key="swepi1s">Lorem Ipsum</p>',
-                "heading_text": '<p data-block-key="swepi1h">Lorem ipsum dolor sit amet</p>',
-                "subheading_text": '<p data-block-key="swepi1b">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor '
-                "incididunt ut labore et dolore magna aliqua.</p>",
+                "superheading_text": '<p data-block-key="swepi1s">Smart Window Explainer</p>',
+                "heading_text": '<p data-block-key="swepi1h">Show visitors what the Smart Window can do</p>',
+                "subheading_text": '<p data-block-key="swepi1b">This page type walks through the Firefox Smart Window one feature at a time, '
+                "pairing a short animation with a phrase the visitor can type to follow along.</p>",
             },
             "content": [],
         },
@@ -36,21 +36,22 @@ def get_smart_window_explainer_content() -> list[dict]:
                 "media": [animation_block(poster_image_id=img, block_id="swepmc01-0000-0000-0000-000000000010")],
                 "heading": {
                     "superheading_text": "",
-                    "heading_text": '<p data-block-key="swepmc1h">Lorem ipsum dolor sit amet</p>',
+                    "heading_text": '<p data-block-key="swepmc1h">Each section pairs an animation with an instruction</p>',
                     "subheading_text": "",
                 },
                 "content": [
                     rich_text(
-                        rich_text_html='<p data-block-key="swepmc1c1">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>',
+                        rich_text_html='<p data-block-key="swepmc1c1">A Media + Content block holds the animation. Use the copy above the '
+                        "instruction to say what the visitor is about to see.</p>",
                         block_id="swepmc01-0000-0000-0000-000000000011",
                     ),
                     smart_window_instructions(
-                        typewriter_text="lorem ipsum dolor sit amet",
-                        instructions_text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.",
+                        typewriter_text="Summarize this page for me",
+                        instructions_text="The Smart Window Instructions block types a phrase one character at a time, then explains what it does.",
                         block_id="swepmc01-0000-0000-0000-000000000012",
                     ),
                     rich_text(
-                        rich_text_html='<p data-block-key="swepmc1c2">Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.</p>',
+                        rich_text_html='<p data-block-key="swepmc1c2">Close with a line that leads into the next thing the Smart Window can do.</p>',
                         block_id="swepmc01-0000-0000-0000-000000000013",
                     ),
                 ],
@@ -63,23 +64,23 @@ def get_smart_window_explainer_content() -> list[dict]:
                 "settings": {"media_after": False, "narrow": False},
                 "media": [animation_block(poster_image_id=img, block_id="swepmc01-0000-0000-0000-000000000020")],
                 "heading": {
-                    "superheading_text": '<p data-block-key="swepmc2e">Consectetur</p>',
-                    "heading_text": '<p data-block-key="swepmc2h">Sed do eiusmod tempor incididunt</p>',
+                    "superheading_text": '<p data-block-key="swepmc2e">Media before</p>',
+                    "heading_text": '<p data-block-key="swepmc2h">Alternate the media side to keep a rhythm</p>',
                     "subheading_text": "",
                 },
                 "content": [
                     rich_text(
-                        rich_text_html='<p data-block-key="swepmc2c1">Duis aute irure dolor in reprehenderit in voluptate velit esse '
-                        "cillum dolore eu fugiat nulla pariatur.</p>",
+                        rich_text_html='<p data-block-key="swepmc2c1">Turn off &ldquo;media after&rdquo; to put the animation first. '
+                        "Alternating sides down a long explainer keeps it from feeling repetitive.</p>",
                         block_id="swepmc01-0000-0000-0000-000000000021",
                     ),
                     smart_window_instructions(
-                        typewriter_text="sed do eiusmod tempor incididunt",
-                        instructions_text="Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua ut enim.",
+                        typewriter_text="Compare these two articles",
+                        instructions_text="Keep the typed phrase short — it is a prompt the visitor could paste straight into the Smart Window.",
                         block_id="swepmc01-0000-0000-0000-000000000022",
                     ),
                     rich_text(
-                        rich_text_html='<p data-block-key="swepmc2c2">Excepteur sint occaecat cupidatat non proident.</p>',
+                        rich_text_html='<p data-block-key="swepmc2c2">Keep each section focused on a single capability so it is easy to scan.</p>',
                         block_id="swepmc01-0000-0000-0000-000000000023",
                     ),
                 ],
@@ -92,24 +93,23 @@ def get_smart_window_explainer_content() -> list[dict]:
                 "settings": {"media_after": True, "narrow": False},
                 "media": [animation_block(poster_image_id=img, block_id="swepmc01-0000-0000-0000-000000000030")],
                 "heading": {
-                    "superheading_text": '<p data-block-key="swepmc3e">Adipiscing</p>',
-                    "heading_text": '<p data-block-key="swepmc3h">Quis nostrud exercitation ullamco</p>',
+                    "superheading_text": '<p data-block-key="swepmc3e">One idea per section</p>',
+                    "heading_text": '<p data-block-key="swepmc3h">End with the payoff</p>',
                     "subheading_text": "",
                 },
                 "content": [
                     rich_text(
-                        rich_text_html='<p data-block-key="swepmc3c1">Sunt in culpa qui officia deserunt mollit anim id est laborum.</p>',
+                        rich_text_html='<p data-block-key="swepmc3c1">Finish the explainer with the outcome the visitor gets from the feature.</p>',
                         block_id="swepmc01-0000-0000-0000-000000000031",
                     ),
                     smart_window_instructions(
-                        typewriter_text="ut labore et dolore magna aliqua ut enim ad minim",
-                        instructions_text="Ut labore et dolore magna aliqua enim ad minim veniam quis nostrud exercitation.",
+                        typewriter_text="Draft a reply in my own style",
+                        instructions_text="The instruction text can be a full sentence; the typed phrase should stay a short, realistic prompt.",
                         block_id="swepmc01-0000-0000-0000-000000000032",
                     ),
                     rich_text(
-                        rich_text_html='<p data-block-key="swepmc3c2">Lorem ipsum dolor sit amet, consectetur '
-                        "adipiscing elit, sed do eiusmod tempor incididunt "
-                        "ut labore et dolore magna aliqua ut enim ad minim.</p>",
+                        rich_text_html='<p data-block-key="swepmc3c2">This sample uses placeholder animations and a numbered-grid poster image. '
+                        "Swap in the real assets on a production page.</p>",
                         block_id="swepmc01-0000-0000-0000-000000000033",
                     ),
                 ],

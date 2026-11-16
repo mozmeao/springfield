@@ -249,7 +249,8 @@ def get_set_as_default_button_block() -> dict:
             "heading": {
                 "superheading_text": "",
                 "heading_text": '<p data-block-key="sad01">Make Firefox your default</p>',
-                "subheading_text": "",
+                "subheading_text": '<p data-block-key="sad02">The button below uses the Set-as-Default snippet — its copy changes '
+                "with your current browser and whether Firefox is already your default.</p>",
             },
             "content": [
                 {

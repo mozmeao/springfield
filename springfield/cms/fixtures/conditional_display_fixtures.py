@@ -18,7 +18,7 @@ def get_bind_to_uitour_section() -> dict:
             },
             "heading": {
                 "superheading_text": "",
-                "heading_text": '<p data-block-key="cduith1">Bound to UI Tour</p>',
+                "heading_text": '<p data-block-key="cduith1">Bound to UI Tour — shows only when its UI Tour button is available</p>',
                 "subheading_text": "",
             },
             "content": [],
