@@ -5,6 +5,7 @@
 from functools import partial
 from unittest.mock import patch
 
+from django.conf import settings
 from django.http.response import HttpResponse
 from django.test import RequestFactory
 
@@ -94,59 +95,62 @@ def test_mobile_app(path, expected_product, expected_utm_params):
 
 
 @pytest.mark.parametrize(
-    "query, expected_location",
+    "query, store_link_setting, expected_query",
     (
-        ("product=firefox", "https://play.google.com/store/apps/details?id=org.mozilla.firefox"),
+        ("product=firefox", "GOOGLE_PLAY_FIREFOX_LINK", ""),
         (
             "product=firefox&campaign=firefox-com-mobile-page",
-            "https://play.google.com/store/apps/details?id=org.mozilla.firefox"
+            "GOOGLE_PLAY_FIREFOX_LINK",
             "&referrer=utm_source%3Dwww.firefox.com%26utm_medium%3Dreferral%26utm_campaign%3Dfirefox-com-mobile-page",
         ),
         (
             "product=firefox&utm_source=meta&utm_medium=paid_video&utm_campaign=ke-belva&utm_content=sync",
-            "https://play.google.com/store/apps/details?id=org.mozilla.firefox"
+            "GOOGLE_PLAY_FIREFOX_LINK",
             "&referrer=utm_source%3Dmeta%26utm_medium%3Dpaid_video%26utm_campaign%3Dke-belva%26utm_content%3Dsync",
         ),
         (
             "product=focus&utm_campaign=spring&utm_term=private-browser",
-            "https://play.google.com/store/apps/details?id=org.mozilla.focus"
+            "GOOGLE_PLAY_FOCUS_LINK",
             "&referrer=utm_source%3Dwww.firefox.com%26utm_medium%3Dreferral%26utm_campaign%3Dspring%26utm_term%3Dprivate-browser",
         ),
         (
-            "utm_source=bad%26utm_medium%3Dhijack&utm_campaign=spring",
-            "https://play.google.com/store/apps/details?id=org.mozilla.firefox"
-            "&referrer=utm_source%3Dwww.firefox.com%26utm_medium%3Dreferral%26utm_campaign%3Dspring",
+            "product=klar&utm_content=sync",
+            "GOOGLE_PLAY_KLAR_LINK",
+            "&referrer=utm_source%3Dwww.firefox.com%26utm_medium%3Dreferral%26utm_content%3Dsync",
         ),
     ),
 )
-def test_mobile_app_android_destination(client, query, expected_location):
+def test_mobile_app_android_destination(client, query, store_link_setting, expected_query):
     response = client.get(f"/browsers/mobile/app/?{query}", HTTP_USER_AGENT=ANDROID_UA)
     assert response.status_code == 302
-    assert response["Location"] == expected_location
+    assert response["Location"] == getattr(settings, store_link_setting) + expected_query
 
 
 @pytest.mark.parametrize(
-    "query, expected_location",
+    "query, store_link_setting, expected_query",
     (
-        ("product=firefox&utm_source=meta&utm_medium=paid_video", "https://apps.apple.com/app/apple-store/id989804926"),
+        ("product=firefox&utm_source=meta&utm_medium=paid_video", "APPLE_APPSTORE_FIREFOX_LINK", ""),
         (
             "product=firefox&campaign=firefox-com-mobile-page",
-            "https://apps.apple.com/app/apple-store/id989804926?pt=373246&ct=firefox-com-mobile-page&mt=8&mz_pr=firefox_mobile",
+            "APPLE_APPSTORE_FIREFOX_LINK",
+            "?pt=373246&ct=firefox-com-mobile-page&mt=8&mz_pr=firefox_mobile",
         ),
         (
             "product=focus&utm_source=meta&utm_campaign=ke-belva&utm_content=sync",
-            "https://apps.apple.com/app/apple-store/id1055677337?pt=373246&ct=ke-belva&mt=8&mz_pr=focus",
+            "APPLE_APPSTORE_FOCUS_LINK",
+            "?pt=373246&ct=ke-belva&mt=8&mz_pr=focus",
         ),
         (
             "product=firefox&campaign=legacy&utm_campaign=modern",
-            "https://apps.apple.com/app/apple-store/id989804926?pt=373246&ct=legacy&mt=8&mz_pr=firefox_mobile",
+            "APPLE_APPSTORE_FIREFOX_LINK",
+            "?pt=373246&ct=legacy&mt=8&mz_pr=firefox_mobile",
         ),
     ),
 )
-def test_mobile_app_ios_destination(client, query, expected_location):
+def test_mobile_app_ios_destination(client, query, store_link_setting, expected_query):
     response = client.get(f"/browsers/mobile/app/?{query}", HTTP_USER_AGENT=IOS_UA)
     assert response.status_code == 302
-    assert response["Location"] == expected_location
+    assert response["Location"] == getattr(settings, store_link_setting).replace("/{country}/", "/") + expected_query
 
 
 def _get_refresh_middleware():

@@ -94,9 +94,9 @@ def mobile_app_redirector(request, product, utm_params):
     Return the app store URL for `product` on the requesting device, carrying
     the already-validated `utm_params` as attribution.
 
-    Google Play only reads attribution from a single `referrer` param, so the
-    UTM values are packed into it, defaulting source and medium to firefox.com.
-    The App Store only takes a campaign token.
+    On Android every UTM value is packed into the Play Store `referrer` param,
+    with source and medium defaulting to www.firefox.com / referral. Elsewhere
+    only `utm_campaign` is kept, as the App Store `ct` token.
     """
     android_re = re.compile(r"\bAndroid\b", flags=re.I)
     value = request.headers.get("User-Agent", "")
