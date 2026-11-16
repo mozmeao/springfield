@@ -18,11 +18,14 @@
   <div class="fl-section c-page">
     <h1 id="firefox-download-options" class="fl-heading c-page-title">Download Firefox</h1>
 
-    {% if has_errors %}
-    <include:notification icon="error" color="red">
+    {#
+      Always rendered, and only shown when there are errors, so the space between
+      the heading and the form is the same either way: the notification's own
+      size, whatever the viewport does to it.
+    #}
+    <include:notification icon="error" color="red" extra_class="{{ '' if has_errors else 'c-message-hidden' }}">
       <p role="alert">There were issues with your selection. <a href="#release">Jump to issue</a></p>
     </include:notification>
-    {% endif %}
 
     {#
       No selection state on the element: the script sets `data-os` and friends
@@ -33,7 +36,7 @@
     <firefox-download-form>
       <form class="c-form" aria-labelledby="firefox-download-options" name="download" method="get" action="{{ result_url }}">
         <div class="c-choices">
-          <div class="fl-field-wrap">
+          <div class="fl-field-wrap c-field-wrap">
             <div class="fl-label c-label">
               <label for="os">Operating System</label>
               <button type="button" data-target-id="os-help" class="fl-tiny-icon-button fl-dialog-trigger">
@@ -76,7 +79,7 @@
             </select>
           </div>
 
-          <div class="fl-field-wrap">
+          <div class="fl-field-wrap c-field-wrap">
             <div class="fl-label c-label">
               <label for="release">Release Type</label>
               <button type="button" data-target-id="release-help" class="fl-tiny-icon-button fl-dialog-trigger">
@@ -118,14 +121,11 @@
             <select id="release" name="release" required class="fl-field" aria-describedby="{{ 'server-release-error ' if release_error }}release-no-js-hint">
               {% for value, label in release_choices %}<option name="{{ value }}" value="{{ value }}"{{ ' selected' if value == selected_release }}>{{ label }}</option>{% endfor %}
             </select>
-
             {% if has_errors %}
-              <div id="server-release-error">
-                <div class="fl-field-error-message"><include:icon icon_name="warning" hidden /> {{ release_error }}</div>
-              </div>
+              <div id="server-release-error" class="fl-field-error-message"><include:icon icon_name="warning" hidden /> {{ release_error }}</div>
             {% endif %}
           </div>
-          <div class="fl-field-wrap">
+          <div class="fl-field-wrap c-field-wrap">
             <div class="fl-label c-label">
               <label for="language">Language</label>
             </div>
@@ -142,7 +142,7 @@
               language for a store app anyway, and disabling it here would strand
               a no-JS visitor who switches back to a desktop platform.
             #}
-            <p class="c-language-message" hidden>{{ copy.languageIgnored }}</p>
+            <p class="c-language-message c-message-hidden">{{ copy.languageIgnored }}</p>
           </div>
         </div>
 

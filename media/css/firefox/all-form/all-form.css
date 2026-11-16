@@ -77,6 +77,50 @@
         margin-block: 0;
     }
 
+    .c-field-wrap {
+        display: grid;
+        font-size: var(--token-font-size-xs);
+
+        /* Template at least three rows, where the third row (for messages) as a minimum height */
+        grid-template-rows: auto auto minmax(1lh, auto);
+
+        > :is(select, dialog) { font-size: var(--token-font-size-md); }
+
+        /*
+         * Centre icons for error messages on the first line only.
+         */
+        > .fl-field-error-message {
+            align-items: baseline;
+            column-gap: var(--token-spacing-xs);
+            display: grid;
+            grid-template-columns: auto 1fr;
+
+            > .fl-icon {
+                flex-shrink: 0;
+                translate: 0 calc(50% - 0.5cap);
+            }
+        }
+    }
+
+    /*
+     * A message that doesn't apply keeps its space and fades out rather than
+     * cutting away. Visibility switches at the end of the fade, which also takes
+     * the message out of the accessibility tree.
+     *
+     * With JS the script adds .c-message-hidden. Without it, the server-rendered
+     * errors describe the selection the page loaded with, so they go once the
+     * release select has been changed.
+     */
+    .c-message-hidden,
+    .no-js:has([name='release']:where(:user-invalid, :user-valid)) :is(
+        .fl-notification-wrapper,
+        #server-release-error
+    ) {
+        opacity: 0;
+        transition: opacity 200ms, visibility 200ms;
+        visibility: hidden;
+    }
+
     /* --- Results ---------------------------------------------------------- */
 
     .c-results {
@@ -238,41 +282,55 @@
 
         /*
          * The language select is disabled for store apps, where the choice does
-         * not apply. Hiding it outright rather than showing a dead control; the
-         * message beside it explains why it went.
+         * not apply. Hidden rather than shown as a dead control, but it keeps
+         * its space so nothing moves.
          */
+
+        select#language {
+            anchor-name: --c-language-select;
+        }
+
         select:disabled {
-            display: none;
+            opacity: 0;
+            transition: opacity 200ms, visibility 200ms;
+            visibility: hidden;
+        }
+
+        /*
+         * The note explaining why takes the select's place, rather than leaving
+         * a select-sized gap above it. The message row below keeps its line of
+         * space.
+         */
+        .c-language-message {
+            position: absolute;
+            position-anchor: --c-language-select;
+            position-visibility: always;
+            inset: anchor(inside);
         }
     }
 
     /*
      * Without JS the release select keeps every option, so the hint under it
-     * says which ones the chosen platform actually has. These are the only rules
-     * here that need `.no-js`: everything else the server rendered is already
+     * says which ones the chosen platform actually has. Apart from hiding the
+     * server's errors (see .c-message-hidden), these are the only rules here
+     * that need `.no-js`: everything else the server rendered is already
      * correct for the selection it rendered.
      */
     .no-js {
         &:has(option[value='ios']:checked) [data-hint-for='ios'],
         &:has(option[value='android']:checked) [data-hint-for='android'],
-        &:has(option[value='linux']:checked) [data-hint-for='linux'],
+        &:has(option[value='linux']:checked) [data-hint-for='linux'] {
+            display: revert;
+        }
+
         /*
          * Same idea for the note that the language does not apply to a store
          * app. With JS the script shows and hides it; without, this does, and
          * follows the select rather than whatever was selected at load.
          */
         &:has(#os option:where([value='ios'], [value='android']):checked) .c-language-message {
-            display: revert;
-        }
-
-        /*
-         * Hide the serialized error messages once the form is dirty.
-         */
-        &:has([name='release']:where(:user-invalid, :user-valid)) :is(
-            .fl-notification-wrapper,
-            #server-release-error
-        ) {
-            display: none;
+            opacity: 1;
+            visibility: visible;
         }
     }
 }

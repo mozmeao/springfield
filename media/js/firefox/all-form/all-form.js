@@ -805,7 +805,10 @@ class FirefoxDownloadFormElement extends HTMLElement {
         // Mobile builds are multi-locale, so the language choice does not apply.
         this._effect(() => {
             this._form.elements.language.disabled = this._isMobile.value;
-            this._languageMessage.hidden = !this._isMobile.value;
+            this._languageMessage.classList.toggle(
+                'c-message-hidden',
+                !this._isMobile.value
+            );
         });
 
         // Compatibility is expressed as a native constraint, so the browser
@@ -826,14 +829,16 @@ class FirefoxDownloadFormElement extends HTMLElement {
 
             const serverError = this.querySelector('#server-release-error');
             if (serverError) {
-                serverError.remove();
+                serverError.classList.add('c-message-hidden');
                 this._form.elements.release.removeAttribute('aria-describedby');
             }
 
             const serverNotification = this.closest('.fl-main').querySelector(
                 '.fl-notification-wrapper'
             );
-            if (serverNotification) serverNotification.remove();
+            if (serverNotification) {
+                serverNotification.classList.add('c-message-hidden');
+            }
         });
 
         this._effect(() => {
@@ -977,7 +982,11 @@ class FirefoxDownloadFormElement extends HTMLElement {
         if (!message) {
             if (!current) return;
             clearTimeout(current.announcement);
-            current.element.remove();
+            // Fades out rather than cutting away; the field's message row keeps
+            // the space either way. The id goes so a new message for this field
+            // can take it.
+            current.element.removeAttribute('id');
+            current.element.classList.add('c-message-hidden');
             fieldWrap.classList.remove('fl-field-error');
             control.removeAttribute('aria-describedby');
             this._fieldErrors.delete(control);
@@ -986,7 +995,7 @@ class FirefoxDownloadFormElement extends HTMLElement {
 
         if (current) {
             if (current.message !== message) {
-                current.element.textContent = message;
+                current.text.textContent = message;
                 current.message = message;
             }
             return;
@@ -994,13 +1003,36 @@ class FirefoxDownloadFormElement extends HTMLElement {
 
         // A server-rendered message is already saying this. Leave it be rather
         // than stacking a second copy underneath it; the clear:server-error
-        // effect takes it away on the first edit and we render from then on.
-        if (fieldWrap.querySelector('.fl-field-error-message')) return;
+        // effect clears it on the first edit and we render from then on.
+        if (
+            fieldWrap.querySelector(
+                '#server-release-error:not(.c-message-hidden)'
+            )
+        )
+            return;
+
+        // The new message replaces any error still fading out, so the field
+        // only ever has one in its message row. Only errors: the language note
+        // is hidden with the same class and stays.
+        for (const cleared of fieldWrap.querySelectorAll(
+            ':scope > .fl-field-error-message.c-message-hidden'
+        )) {
+            cleared.remove();
+        }
 
         const element = document.createElement('deferred-alert');
         element.id = `${control.id}-error`;
         element.classList.add('fl-field-error-message');
-        element.textContent = message;
+
+        // The icon is what marks this as an error without relying on colour,
+        // the same as the server-rendered message. The text gets its own
+        // element so updating it leaves the icon alone.
+        const icon = document.createElement('span');
+        icon.classList.add('fl-icon', 'fl-icon-warning');
+        icon.setAttribute('aria-hidden', 'true');
+        const text = document.createElement('span');
+        text.textContent = message;
+        element.append(icon, ' ', text);
 
         // Since the validation is happening as the select element closes, the announcement-space is very busy and we risk our message being clobbered.
         // This is especially bad on iOS.
@@ -1012,7 +1044,7 @@ class FirefoxDownloadFormElement extends HTMLElement {
             () => {
                 element.attachShadow({ mode: 'open' });
                 element.shadowRoot.innerHTML =
-                    '<div role=alert><slot></slot></div>';
+                    '<div role=alert style="display: grid; grid-template-columns: subgrid; grid-column: span 2;"><slot></slot></div>';
             },
             !window.Mozilla?.Client?.isMobile ? 250 : 1_400
         );
@@ -1020,7 +1052,12 @@ class FirefoxDownloadFormElement extends HTMLElement {
         fieldWrap.classList.add('fl-field-error');
         fieldWrap.append(element);
 
-        this._fieldErrors.set(control, { element, message, announcement });
+        this._fieldErrors.set(control, {
+            element,
+            text,
+            message,
+            announcement
+        });
 
         control.setAttribute('aria-describedby', element.id);
     }
