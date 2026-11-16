@@ -1,3 +1,8 @@
+## 2026-11-16
+
+- The "Enable marketing attribution" checkbox on the Promote tab (Free Form, Home and Smart Window pages) is now a "Marketing attribution" setting with three options: Disabled, Enabled (always promoted), and Enabled only with ?promoted=1. Pages that had the checkbox ticked are set to Enabled (always promoted).
+- "Enabled only with ?promoted=1" shows the opt-out checkbox and consent banner only to visitors whose URL has `?promoted=1`, and keeps the page in search results. Paid links to these pages must add `?promoted=1`. It's the only option allowed on the site's homepage.
+
 ## 2026-11-09
 
 - Generated QR codes now use rounded dots and corners with the Firefox logo in the middle, matching the designed QR images.
