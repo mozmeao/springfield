@@ -199,9 +199,3 @@ locales = [
     locales = [
         "en-GB",
     ]
-[[paths]]
-    reference = "en/firefox/browsers/mobile/android-china.ftl"
-    l10n = "{locale}/firefox/browsers/mobile/android-china.ftl"
-    locales = [
-        "zh-CN",
-    ]

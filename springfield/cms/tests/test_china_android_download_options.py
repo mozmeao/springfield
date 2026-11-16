@@ -2,6 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from django.core.exceptions import ValidationError
+
 import pytest
 from bs4 import BeautifulSoup
 from waffle.testutils import override_switch
@@ -9,7 +11,7 @@ from waffle.testutils import override_switch
 from springfield.cms.fixtures.button_fixtures import get_button_variants
 from springfield.cms.fixtures.freeformpage import get_mobile_store_qr_code_test_page
 from springfield.cms.fixtures.homepage_fixtures import get_kit_banner
-from springfield.cms.models import SimpleRichTextPage
+from springfield.cms.models import DownloadPage, SimpleRichTextPage
 from springfield.cms.tests.factories import DownloadIndexPageFactory, DownloadPageFactory
 
 pytestmark = [pytest.mark.django_db]
@@ -34,6 +36,22 @@ def android_download_page(minimal_site):
     root_page = SimpleRichTextPage.objects.first()
     download_index = DownloadIndexPageFactory(parent=root_page, slug="download")
     return DownloadPageFactory(parent=download_index, slug="android", platform="android")
+
+
+@pytest.fixture
+def windows_download_page(android_download_page):
+    return DownloadPageFactory(parent=android_download_page.get_parent(), slug="windows", platform="windows")
+
+
+@pytest.fixture
+def all_options_download_page(android_download_page):
+    return DownloadPageFactory(
+        parent=android_download_page,
+        slug="all-options",
+        platform="android",
+        show_all_android_download_options=True,
+        heading="<p>Get the official Firefox for Android</p>",
+    )
 
 
 @pytest.fixture
@@ -177,3 +195,58 @@ def test_visitor_outside_china_gets_google_play_from_the_app_store_banner(minima
 
     assert banner.find("a", class_="show-android")["href"].startswith("https://play.google.com/")
     assert banner.find("p", class_="show-android") is not None
+
+
+def test_visitor_outside_china_gets_the_official_google_play_badge_on_the_android_download_page(android_download_page, china_download_links, client):
+    soup = get_soup(client, "/en-US/download/android/", "US")
+
+    assert soup.find("div", class_="fl-china-download-options") is None
+    assert len(find_official_google_play_badges(soup)) == 1
+
+
+def test_visitor_outside_china_gets_every_download_option_on_a_page_showing_all_android_download_options(
+    all_options_download_page, china_download_links, client
+):
+    actions = get_soup(client, "/en-US/download/android/all-options/", "US").find("div", class_="download-page-actions")
+
+    links = actions.find("div", class_="fl-china-download-options").find_all("a")
+    assert links[0]["href"].startswith("https://play.google.com/")
+    assert links[0]["id"] == "playStoreLink-primary"
+    assert [link["href"] for link in links[1:]] == [MI_STORE_LINK, V_APPSTORE_LINK, APK_LINK]
+
+
+def test_download_page_heading_replaces_the_platform_picker(all_options_download_page, client):
+    intro = get_soup(client, "/en-US/download/android/all-options/", "US").find("section", class_="fl-download-intro")
+
+    assert intro.find("h1").get_text(strip=True) == "Get the official Firefox for Android"
+    assert intro.find("div", class_="fl-platform-dropdown") is None
+
+
+def test_download_page_without_a_heading_has_the_platform_picker(android_download_page, client):
+    intro = get_soup(client, "/en-US/download/android/", "US").find("section", class_="fl-download-intro")
+
+    assert intro.find("div", class_="fl-platform-dropdown") is not None
+
+
+def test_download_page_under_an_android_download_page_links_to_the_other_download_pages(android_download_page, windows_download_page, client):
+    DownloadPageFactory(parent=android_download_page, slug="nested", platform="android")
+
+    dropdown = get_soup(client, "/en-US/download/android/nested/", "US").find("ul", class_="fl-platform-dropdown-list")
+
+    assert windows_download_page.get_url() in [link["href"] for link in dropdown.find_all("a")]
+
+
+def test_download_page_can_be_created_under_the_download_index_and_android_download_pages(android_download_page):
+    assert DownloadPage.can_create_at(android_download_page.get_parent())
+    assert DownloadPage.can_create_at(android_download_page)
+
+
+def test_download_page_cannot_be_created_under_other_download_pages(windows_download_page):
+    assert not DownloadPage.can_create_at(windows_download_page)
+
+
+def test_only_android_download_pages_can_show_all_android_download_options(windows_download_page):
+    windows_download_page.show_all_android_download_options = True
+
+    with pytest.raises(ValidationError):
+        windows_download_page.clean()

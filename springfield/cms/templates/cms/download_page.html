@@ -7,7 +7,7 @@
 {% extends "cms/base-flare.html" %}
 
 {% from "firefox/includes/macros.html" import firefox_download_desktop_button_mac, firefox_download_desktop_button_linux, firefox_download_desktop_button_windows with context %}
-{% from "macros.html" import google_play_button, android_download_button, apple_app_store_button with context %}
+{% from "macros.html" import google_play_button, android_download_button, android_download_options, apple_app_store_button with context %}
 
 {% block page_css %}{{ css_bundle('flare-download') }}{% endblock %}
 
@@ -23,6 +23,9 @@
 <div class="fl-page">
   <div class="fl-main">
     <section class="fl-split-page-upper has-gradient-bottom fl-download-intro">
+      {% if page.heading %}
+      <h1 class="fl-heading fl-heading-size-1">{{ page.heading|richtext|remove_p_tag }}</h1>
+      {% else %}
       <h1 class="fl-heading fl-heading-size-1">
         {% if LANG.startswith('en-') %}
         Download <span class="prevent-line-break"><span class="fl-fx-logo">‍</span> Firefox</span> for
@@ -52,6 +55,7 @@
           </ul>
         </div>
       </div>
+      {% endif %}
 
       <p class="fl-subheading">{{ page.subheading|richtext|remove_p_tag }}</p>
 
@@ -66,7 +70,11 @@
         {{ firefox_download_desktop_button_linux(flare_styles=True) }}
       {% elif page.platform == "android" %}
         {% set android_url = play_store_url('firefox', campaign) %}
-        {{ android_download_button(href=android_url, id='playStoreLink-primary', class_name="fl-store-button", cta_position="download-intro") }}
+        {% if page.show_all_android_download_options %}
+          {{ android_download_options(href=android_url, id='playStoreLink-primary', cta_position="download-intro") }}
+        {% else %}
+          {{ android_download_button(href=android_url, id='playStoreLink-primary', class_name="fl-store-button", cta_position="download-intro") }}
+        {% endif %}
       {% elif page.platform == "ios" %}
         {% set ios_url = app_store_url('firefox', campaign) %}
         {# iOS installs directly from here. Android/other visitors can't (the QR is desktop-only),

@@ -491,7 +491,7 @@ class DownloadIndexPage(AbstractSpringfieldCMSPage):
 
 
 class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
-    parent_page_types = ["cms.DownloadIndexPage"]
+    parent_page_types = ["cms.DownloadIndexPage", "cms.DownloadPage"]
 
     ftl_files = [
         "cms/download",
@@ -515,6 +515,17 @@ class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         max_length=50,
         choices=PLATFORM_CHOICES,
         help_text="The platform this download page is for (e.g., Windows, macOS, Linux).",
+    )
+    heading = RichTextField(
+        null=True,
+        blank=True,
+        features=HEADING_TEXT_FEATURES,
+        help_text="Optional. Replaces the Download Firefox heading and its platform picker.",
+    )
+    show_all_android_download_options = models.BooleanField(
+        default=False,
+        verbose_name="Show all Android download options",
+        help_text="Show Google Play, Mi Store, V-appstore and the APK link to every visitor, not only to visitors in China.",
     )
     subheading = RichTextField(default="Subheading", features=HEADING_TEXT_FEATURES)
     intro_footer_text = RichTextField(null=True, blank=True, features=HEADING_TEXT_FEATURES)
@@ -568,6 +579,8 @@ class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
     content_panels = AbstractSpringfieldCMSPage.content_panels + [
         FieldPanel("platform"),
+        FieldPanel("show_all_android_download_options"),
+        FieldPanel("heading"),
         FieldPanel("subheading"),
         FieldPanel("intro_footer_text"),
         FieldPanel("featured_image"),
@@ -590,6 +603,7 @@ class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     settings_panels = AbstractSpringfieldCMSPage.settings_panels
 
     search_fields = AbstractSpringfieldCMSPage.search_fields + [
+        index.SearchField("heading"),
         index.SearchField("subheading"),
         index.SearchField("intro_footer_text"),
     ]
@@ -605,6 +619,18 @@ class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     def __str__(self):
         return f"DownloadPage: {self.title} - {self.locale}"
 
+    @classmethod
+    def can_create_at(cls, parent):
+        parent = parent.specific
+        if isinstance(parent, DownloadPage) and parent.platform != "android":
+            return False
+        return super().can_create_at(parent)
+
+    def clean(self):
+        super().clean()
+        if self.show_all_android_download_options and self.platform != "android":
+            raise ValidationError({"show_all_android_download_options": "Only Android download pages can show all Android download options."})
+
     def get_context(self, request, *args, **kwargs):
         context = super().get_context(request, *args, **kwargs)
         context["platforms"] = dict(self.PLATFORM_CHOICES)
@@ -617,6 +643,8 @@ class DownloadPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
             "chromebook": "/browsers/desktop/chromebook",
         }
         parent = self.get_parent().specific
+        if isinstance(parent, DownloadPage):
+            parent = parent.get_parent().specific
         children = parent.get_children().filter(downloadpage__isnull=False).live().public().specific()
         for page in children:
             platform_links[page.platform] = page.get_url()

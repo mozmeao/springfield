@@ -172,9 +172,32 @@ def get_download_page(platform) -> DownloadPage:
     return page
 
 
+def get_android_all_options_download_page() -> DownloadPage:
+    android_page = get_download_page("android")
+
+    slug = "test-download-page-android-all-options"
+    page = get_or_create_page(
+        DownloadPage,
+        slug=slug,
+        parent=android_page,
+        defaults={
+            "title": "Download Page Test - Android All Options",
+        },
+    )
+
+    page.platform = "android"
+    page.show_all_android_download_options = True
+    page.heading = '<p data-block-key="heading">Get the official Firefox for Android</p>'
+    page.subheading = '<p data-block-key="subheading">Download Firefox from a store you trust to get the latest version.</p>'
+    page.content = with_fresh_ids([get_cards_list_section()])
+    page.save_revision().publish()
+    return page
+
+
 def get_download_pages() -> dict:
     pages = {}
     for platform, _ in DownloadPage.PLATFORM_CHOICES:
         page = get_download_page(platform)
         pages[platform] = page
+    pages["android-all-options"] = get_android_all_options_download_page()
     return pages

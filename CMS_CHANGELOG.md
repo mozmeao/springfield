@@ -1,3 +1,9 @@
+## 2026-11-09
+
+- Android download pages can have download pages under them, for example `/download/android/<slug>/`. Other download pages can't.
+- Added Heading to download pages. It replaces the "Download Firefox for" heading and its platform picker.
+- Added "Show all Android download options" to Android download pages. It shows Google Play, Mi Store, V-appstore and the APK link to every visitor, not only to visitors in China. Each store only shows once its link is set.
+
 ## 2026-10-21
 
 - Blog articles have an "Exclude from RSS" checkbox on the Settings tab. It keeps the article out of the blog's RSS feeds; the article still shows on the blog. Translations follow after Sync translated pages and publish.
