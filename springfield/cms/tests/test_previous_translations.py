@@ -149,9 +149,8 @@ def test_field_edited_twice_offers_its_latest_translation(translated_page):
     assert len(entries) == 1
     assert entries[0].previous_source == latest.translation_of.data
     assert entries[0].translation == latest.data
-    # Offering the latest is a heuristic: the entry says so rather than claiming the
-    # translator's edit certainly produced this one.
-    assert not entries[0].is_exact
+    # The field holds one string, so the latest leftover is the text it used to hold.
+    assert entries[0].is_exact
 
 
 def test_a_field_edited_and_translated_twice_still_offers_a_previous_translation(translated_page):
@@ -481,6 +480,27 @@ def test_deleted_paragraph_is_paired_with_an_unrelated_new_one(three_paragraph_p
     assert entries[0].current_sources == ("Delta",)  # the paragraph that was appended
     assert entries[0].previous_source == "Beta"  # the paragraph that was deleted
     assert entries[0].translation == "Beta FR"
+    assert entries[0].is_exact
+
+
+def test_a_field_rewritten_down_to_one_paragraph_is_treated_as_exact(three_paragraph_page):
+    """
+    Several paragraphs replaced by a single one leave several translations behind. The
+    field now holds one string, so the newest leftover is offered as the text it stands
+    in for.
+    """
+    context = content_context(three_paragraph_page)
+    segments = list(StringSegment.objects.filter(source=three_paragraph_page.translation.source, context=context).order_by("order"))
+    for segment, value in zip(segments, ["Alpha FR", "Beta FR", "Gamma FR"]):
+        translate_segment(three_paragraph_page, segment, value)
+
+    set_rich_text(three_paragraph_page, "<p>Delta</p>")
+
+    entries = get_previous_translations(three_paragraph_page.translation)
+
+    assert len(entries) == 1
+    assert entries[0].current_sources == ("Delta",)
+    assert entries[0].previous_source == "Gamma"
     assert entries[0].is_exact
 
 

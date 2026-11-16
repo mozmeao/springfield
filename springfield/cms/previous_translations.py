@@ -99,9 +99,9 @@ def find_stale_pairing(
     ones written most recently. Rows written in the same moment, as an import writes
     them, are separated by the one added last (by pk).
 
-    When there is one leftover and one untranslated segment, this is a match.
-    Otherwise, each leftover is a guess and is flagged as not exact. A segment with
-    nothing to translate counts towards neither.
+    A pairing is a match of one leftover and one untranslated segment, or when
+    the context holds a single segment. Otherwise each leftover is a guess and
+    is flagged as not exact.
     """
     current_string_ids = {segment.string_id for segment in segments}
     leftovers = [row for row in string_translations if row.translation_of_id not in current_string_ids and row.data and not is_do_not_translate(row)]
@@ -114,7 +114,11 @@ def find_stale_pairing(
     untranslated = [segment for segment in segments if segment.string_id not in translated_string_ids and has_visible_text(segment)]
     if not untranslated:
         return None
-    is_exact = len(untranslated) == 1 and len(leftovers) == 1
+    # If a paragraph is deleted while another is added, it leaves a single
+    # leftover, which looks the same as when a second paragraph is edited.
+    # We don't try to definitively solve for this scenario; we just mark it as
+    # an inexact match.
+    is_exact = len(untranslated) == 1 and (len(segments) == 1 or len(leftovers) == 1)
     newest_first = sorted(leftovers, key=lambda row: (row.updated_at, row.pk), reverse=True)
     return untranslated, newest_first[: len(untranslated)], is_exact
 
