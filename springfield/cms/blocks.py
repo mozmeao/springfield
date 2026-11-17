@@ -167,6 +167,7 @@ UITOUR_BUTTON_ABOUT_PREFERENCES_EXPERIMENTAL = "open_about_preferences_experimen
 UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC = "open_about_preferences_sync"
 UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC_IMPORT_BROWSER_DATA = "open_about_preferences_sync_import_browser_data"
 UITOUR_BUTTON_ABOUT_PREFERENCES_MORE_FROM_MOZILLA = "open_about_preferences_more_from_mozilla"
+UITOUR_BUTTON_ABOUT_PREFERENCES_ABOUT = "open_about_preferences_about"
 UITOUR_BUTTON_PROTECTIONS_REPORT = "open_protections_report"
 UITOUR_BUTTON_SMART_WINDOW = "open_smart_window"
 UITOUR_BUTTON_PIN_TO_TASKBAR = "pin_to_taskbar"
@@ -190,6 +191,7 @@ UITOUR_BUTTON_CHOICES = (
         UITOUR_BUTTON_ABOUT_PREFERENCES_MORE_FROM_MOZILLA,
         "Open Preferences - More From Mozilla",
     ),
+    (UITOUR_BUTTON_ABOUT_PREFERENCES_ABOUT, "Open Preferences - About (Firefox Updates)"),
     (UITOUR_BUTTON_PROTECTIONS_REPORT, "Open Protections Report"),
     (UITOUR_BUTTON_SMART_WINDOW, "Open Smart Window"),
     (UITOUR_BUTTON_PIN_TO_TASKBAR, "Pin to Taskbar (Windows and Mac only)"),
@@ -211,6 +213,7 @@ UI_TOUR_CLASSES = {
     UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC: "ui-tour-open-about-preferences-sync",
     UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC_IMPORT_BROWSER_DATA: "ui-tour-open-about-preferences-sync-importBrowserData",
     UITOUR_BUTTON_ABOUT_PREFERENCES_MORE_FROM_MOZILLA: "ui-tour-open-about-preferences-moreFromMozilla",
+    UITOUR_BUTTON_ABOUT_PREFERENCES_ABOUT: "ui-tour-open-about-preferences-about",
     UITOUR_BUTTON_PROTECTIONS_REPORT: "ui-tour-open-protections-report",
     UITOUR_BUTTON_SMART_WINDOW: "ui-tour-open-smart-window",
     UITOUR_BUTTON_PIN_TO_TASKBAR: "ui-tour-pin-to-taskbar",

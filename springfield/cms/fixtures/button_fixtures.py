@@ -992,6 +992,21 @@ def get_button_blocks() -> list[dict]:
                                 },
                                 "id": "uitour02-0000-0000-0000-000000000018",
                             },
+                            {
+                                "type": "uitour_button",
+                                "value": {
+                                    "settings": {
+                                        "theme": "secondary",
+                                        "icon": "",
+                                        "icon_position": "right",
+                                        "analytics_id": "uitour02-0000-0000-0000-000000000022",
+                                    },
+                                    "button_type": "open_about_preferences_about",
+                                    "pretranslated_label": None,
+                                    "custom_label": "Preferences: About",
+                                },
+                                "id": "uitour02-0000-0000-0000-000000000022",
+                            },
                         ],
                     },
                     {
