@@ -1,0 +1,3 @@
+The `kit-banner` component is the brand-styled banner, usually with Kit artwork, always rendered in dark mode. It adds character and lightness to a page rather than carrying a hard sell.
+
+The Kit Banner block offers six themes — No Kit Image, Small Curious Kit, Large Curious Kit, Sitting Kit, Kit Tail and Curious Kit Animation — over a purple radial or dark purple gradient background. The two themes shown here are reserved: **diving-in** and **with-qr** come from the Home Kit Banner block (on the homepage, referral and share pages) and the Banner Snippet's Kit option, and with-qr is picked automatically when a QR code is set.
