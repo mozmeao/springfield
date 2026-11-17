@@ -63,6 +63,7 @@ from springfield.cms.blocks import (
     ImageVariantsBlock,
     ImpactDashBlock,
     MobileStoreQRCodeBlock,
+    NotificationBlock,
     QRCodeModalButtonBlock,
     QuoteBlock,
     RelatedArticleBlock,
@@ -4043,6 +4044,16 @@ def test_notification_block(index_page, rf):
                 assert message in div.get_text()
             else:
                 assert message in heading_el.get_text()
+
+
+def test_notification_block_anchor_id_is_the_wrapper_id(rf):
+    block = NotificationBlock()
+    value = block.to_python({"settings": {"show_to": SHOW_TO_ALL, "anchor_id": "update-notice"}, "message": "<p>Message</p>"})
+
+    html = block.render(value, context={"request": rf.get("/")})
+
+    wrapper = BeautifulSoup(html, "html.parser").find("div", class_="fl-notification-wrapper")
+    assert wrapper["id"] == "update-notice"
 
 
 def test_two_column_cards_block(index_page, rf):
