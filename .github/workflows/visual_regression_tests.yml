@@ -12,6 +12,7 @@ on:
     paths:
       - 'springfield/cms/templates/components/**'
       - 'springfield/cms/templates/pattern-library/components/flare/**'
+      - 'springfield/cms/templates/pattern-library/context-specific/**'
       - 'media/css/cms/**'
       - 'tests/playwright/specs/visual-regression/**'
   workflow_dispatch:
