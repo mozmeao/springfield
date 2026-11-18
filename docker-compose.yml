@@ -1,3 +1,9 @@
+# A CI runner starts with an empty image store, so left to itself every build runs every step.
+# `make pull` fetches the images the previous build pushed, and the `cache_from` and `cache_to`
+# settings below let BuildKit treat their layers as its own, so steps whose inputs have not
+# changed (apt, `uv sync`, `npm ci`, `npm run build`) are reused rather than rerun. Inline cache
+# records only a target's final layers, nothing from intermediate stages, which is why each
+# service lists every stage image the pipeline pushes rather than just its own.
 services:
   # Run webpack-dev-server and compile static assets.
   #
@@ -7,6 +13,11 @@ services:
     build:
       context: .
       target: assets
+      cache_from:
+        - mozmeao/springfield_build:latest
+        - mozmeao/springfield_assets:latest
+      cache_to:
+        - type=inline
     image: mozmeao/springfield_assets:${GIT_COMMIT:-latest}
     platform: linux/amd64
     command: npm run watch
@@ -25,6 +36,13 @@ services:
     build:
       context: .
       target: devapp
+      cache_from:
+        - mozmeao/springfield_build:latest
+        - mozmeao/springfield_assets:latest
+        - mozmeao/springfield_code:latest
+        - mozmeao/springfield_test:latest
+      cache_to:
+        - type=inline
     image: mozmeao/springfield_test:${GIT_COMMIT:-latest}
     platform: linux/amd64
     tty: true
@@ -111,6 +129,13 @@ services:
       target: release
       args:
         GIT_SHA: ${GIT_COMMIT:-latest}
+      cache_from:
+        - mozmeao/springfield_build:latest
+        - mozmeao/springfield_assets:latest
+        - mozmeao/springfield_code:latest
+        - mozmeao/springfield:latest
+      cache_to:
+        - type=inline
     image: mozmeao/springfield:${GIT_COMMIT:-latest}
     platform: linux/amd64
 
@@ -175,6 +200,10 @@ services:
     build:
       context: .
       target: python-builder
+      cache_from:
+        - mozmeao/springfield_build:latest
+      cache_to:
+        - type=inline
     image: mozmeao/springfield_build:${GIT_COMMIT:-latest}
     platform: linux/amd64
 
@@ -182,6 +211,11 @@ services:
     build:
       context: .
       target: app-base
+      cache_from:
+        - mozmeao/springfield_build:latest
+        - mozmeao/springfield_code:latest
+      cache_to:
+        - type=inline
     image: mozmeao/springfield_code:${GIT_COMMIT:-latest}
     platform: linux/amd64
 
