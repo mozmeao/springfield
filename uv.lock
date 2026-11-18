@@ -546,14 +546,14 @@ wheels = [
 
 [[package]]
 name = "django-pattern-library"
-version = "1.6.0+ll.2"
-source = { url = "https://github.com/lincolnloop/django-pattern-library/releases/download/v1.6.0%2Bll.2/django_pattern_library-1.6.0+ll.2.tar.gz" }
+version = "1.6.0+ll.3"
+source = { url = "https://github.com/lincolnloop/django-pattern-library/releases/download/v1.6.0%2Bll.3/django_pattern_library-1.6.0+ll.3.tar.gz" }
 dependencies = [
     { name = "django" },
     { name = "markdown" },
     { name = "pyyaml" },
 ]
-sdist = { hash = "sha256:505c3e086f8464322658c6e7413d9bd1a50745c721a8b39e59a4066abda282f6" }
+sdist = { hash = "sha256:d680ce4b479c89d3be3e0827da6a426d1d18ac9c6ff91555310c38059af1022f" }
 
 [package.metadata]
 requires-dist = [
@@ -2062,7 +2062,7 @@ requires-dist = [
     { name = "django-jsonview", specifier = "==2.0.0" },
     { name = "django-memoize", specifier = "==2.3.1" },
     { name = "django-mozilla-product-details", specifier = "==1.0.3" },
-    { name = "django-pattern-library", url = "https://github.com/lincolnloop/django-pattern-library/releases/download/v1.6.0%2Bll.2/django_pattern_library-1.6.0+ll.2.tar.gz" },
+    { name = "django-pattern-library", url = "https://github.com/lincolnloop/django-pattern-library/releases/download/v1.6.0%2Bll.3/django_pattern_library-1.6.0+ll.3.tar.gz" },
     { name = "django-rq", specifier = "==4.2.0" },
     { name = "django-rq-email-backend", specifier = "==2.0.0" },
     { name = "django-storages", extras = ["google"], specifier = "==1.14.6" },
