@@ -1274,6 +1274,9 @@ def assert_sharing_links(
     assert copy_button["data-label-success"] == sharing_links_value["copy_success_label"]
     assert copy_button.find("span", class_="fl-copy-to-clipboard-label").get_text(strip=True) == sharing_links_value["copy_label"]
     assert copy_button.find("span", class_="fl-copy-to-clipboard-label-success").get_text(strip=True) == sharing_links_value["copy_success_label"]
+    status_region = copy_button.find_next_sibling()
+    assert "fl-copy-to-clipboard-status" in status_region["class"]
+    assert status_region["role"] == "status"
     assert copy_button["data-cta-position"] == f"{cta_position}.copy-link"
     assert copy_button["data-cta-text"] == f"{heading_text} - {sharing_links_value['copy_label']}"
     assert copy_button["data-cta-uid"] == f"{analytics_id}-copy-link"
