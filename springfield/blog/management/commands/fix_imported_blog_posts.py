@@ -336,7 +336,7 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        self.dry_run = options["dry_run"]
+        self.start_run(dry_run=options["dry_run"])
         self.include_live = options["include_live"]
         fixes = list(dict.fromkeys(options["fixes"]))
 
@@ -350,7 +350,6 @@ class Command(BaseCommand):
                 raise CommandError(f"--fix {FIX_AUTHOR_NAMES} needs --author-names <csv>")
             author_names = self.read_author_names(options["author_names"])
 
-        self.image_decisions, self.video_decisions, self.page_decisions, self.link_decisions = {}, {}, {}, {}
         if any(fix in DECISION_FIXES for fix in fixes):
             if not options["decisions"]:
                 raise CommandError(f"--fix {'/'.join(fix for fix in fixes if fix in DECISION_FIXES)} needs --decisions <json>")
@@ -374,8 +373,6 @@ class Command(BaseCommand):
                 raise CommandError(f"No {self.locale.language_code} blog post with slug {', '.join(sorted(missing))}")
 
         self.limited_to_slugs = bool(options["slugs"])
-        self.poster_plans = {}
-        self.counts = {}
         # Written even when there is nothing to report, so a stale report from an earlier run is
         # never mistaken for this one. Flushed row by row, like the importer's CSVs.
         self.report_path = options["report_out"]
@@ -409,6 +406,15 @@ class Command(BaseCommand):
         summary = ", ".join(f"{fix} {action}: {count}" for (fix, action), count in sorted(self.counts.items())) or "nothing to do"
         self.stdout.write(f"Done. {summary}.")
         self.stdout.write(f"Wrote {self.report_rows} rows to {self.report_path}")
+
+    def start_run(self, dry_run, writing=False):
+        """Set the state a run shares across pages; `writing` says whether new posters get saved."""
+        self.dry_run = dry_run
+        self.writing = writing
+        self.created_plans = []
+        self.poster_plans = {}
+        self.counts = {}
+        self.image_decisions, self.video_decisions, self.page_decisions, self.link_decisions = {}, {}, {}, {}
 
     def isolated(self, fix, slug, function, *args, detail=""):
         """Run one author or image change in its own transaction, so a failure is reported and
@@ -632,6 +638,10 @@ class Command(BaseCommand):
                 data = json.load(decisions_file)
         except (OSError, ValueError) as exc:
             raise CommandError(f"Could not read {path}: {exc}") from exc
+        self.load_decisions(data, path)
+
+    def load_decisions(self, data, path):
+        """Check and keep the reviewed decisions in `data`; errors name `path` and the entry."""
         for number, entry in enumerate(data.get("images", []), start=1):
             file_hash = (entry.get("hash") or "").strip()
             title = (entry.get("title") or "").strip()

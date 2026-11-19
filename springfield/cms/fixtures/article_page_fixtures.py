@@ -4,7 +4,7 @@
 
 from springfield.cms.fixtures.base_fixtures import (
     SHOW_TO_ALL,
-    get_article_index_test_page,
+    get_article_theme_root_page,
     get_or_create_page,
     get_placeholder_images,
     with_fresh_ids,
@@ -14,13 +14,15 @@ from springfield.cms.fixtures.snippet_fixtures import get_pencil_banner_snippet,
 from springfield.cms.models import ArticleDetailPage, ArticleThemePage, SpringfieldImage, Tag
 from springfield.cms.models.pages import ArticleDetailPagePencilBannerPlacement, ArticleThemePagePencilBannerPlacement
 
-LOREM_IPSUM = (
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. "
-    "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, "
-    "quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. "
-    "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. "
-    "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-)
+ARTICLE_BODY_PARAGRAPHS = [
+    "This is a sample Article Detail Page. Its title, description, tag and images are the fields that article cards pull from "
+    "when they link to it, so filling them in well is what makes the cards on the theme and index pages look right.",
+    "On a card any of those fields can be overridden, so the same article can be presented differently in different places "
+    "without changing the article itself.",
+    "The body you are reading is the article's own content, shown only here on the detail page — cards never display it.",
+    "Turn on the Featured flag to pull an article into the index page's featured row instead of the plain listing below it.",
+    "Give every article a clear tag; the theme and index pages group and style their cards by it.",
+]
 
 
 def create_article(
@@ -36,13 +38,15 @@ def create_article(
     link_text: str,
     featured_image: SpringfieldImage,
 ) -> ArticleDetailPage:
-    index_page = get_article_index_test_page()
+    # Articles live under the theme root, as siblings of the index page — the index
+    # lists them through show_sibling_detail_pages, mirroring the real /features section.
+    theme_root = get_article_theme_root_page()
     placeholder_alt = "A numbered grid, standing in for a real image"
 
     article = get_or_create_page(
         ArticleDetailPage,
         slug=slug,
-        parent=index_page,
+        parent=theme_root,
         defaults={
             "title": title,
             "image": image,
@@ -76,9 +80,10 @@ def get_article_pages():
         slug="test-featured-article-1",
         featured=True,
         description=(
-            '<p data-block-key="c1bc4d7eadf0">This is a description for Test Featured Article 1. It provides an overview of the article content.</p>'
+            '<p data-block-key="c1bc4d7eadf0">A featured article. This description, its tag and its image are what a card shows '
+            "when it references the article — unless the card overrides them.</p>"
         ),
-        content_blocks=[f"<p data-block-key='{key}'>{LOREM_IPSUM}</p>" for key in p_keys[:3]],
+        content_blocks=[f"<p data-block-key='{key}'>{para}</p>" for key, para in zip(p_keys, ARTICLE_BODY_PARAGRAPHS[:3])],
         image=image,
         featured_image=dark_mobile_image,
         icon="globe",
@@ -95,9 +100,10 @@ def get_article_pages():
         slug="test-featured-article-2",
         featured=True,
         description=(
-            '<p data-block-key="c1bc4d7eadf0">This is a description for Test Featured Article 2. It provides an overview of the article content.</p>'
+            '<p data-block-key="c1bc4d7eadf0">Another featured article. Featured articles appear in the index page\'s featured row; '
+            "non-featured ones fall into the plain listing below it.</p>"
         ),
-        content_blocks=[f"<p data-block-key='{key}'>{LOREM_IPSUM}</p>" for key in p_keys[:4]],
+        content_blocks=[f"<p data-block-key='{key}'>{para}</p>" for key, para in zip(p_keys, ARTICLE_BODY_PARAGRAPHS[:4])],
         image=dark_image,
         featured_image=mobile_image,
         icon="arrow-clockwise",
@@ -111,9 +117,10 @@ def get_article_pages():
         slug="test-regular-article-1",
         featured=False,
         description=(
-            '<p data-block-key="c1bc4d7eadf0">This is a description for Test Regular Article 1. It provides an overview of the article content.</p>'
+            '<p data-block-key="c1bc4d7eadf0">A regular (non-featured) article. It shows in the index page\'s main listing, '
+            "and anywhere a card on a theme page links to it.</p>"
         ),
-        content_blocks=[f"<p data-block-key='{key}'>{LOREM_IPSUM}</p>" for key in p_keys[:2]],
+        content_blocks=[f"<p data-block-key='{key}'>{para}</p>" for key, para in zip(p_keys, ARTICLE_BODY_PARAGRAPHS[:2])],
         image=image,
         featured_image=dark_mobile_image,
         icon="apple",
@@ -127,9 +134,10 @@ def get_article_pages():
         slug="test-regular-article-2",
         featured=False,
         description=(
-            '<p data-block-key="c1bc4d7eadf0">This is a description for Test Regular Article 2. It provides an overview of the article content.</p>'
+            '<p data-block-key="c1bc4d7eadf0">A regular article. Every article in this section feeds the cards on the theme page '
+            "and the automatic listing on the index page.</p>"
         ),
-        content_blocks=[f"<p data-block-key='{key}'>{LOREM_IPSUM}</p>" for key in p_keys[:3]],
+        content_blocks=[f"<p data-block-key='{key}'>{para}</p>" for key, para in zip(p_keys, ARTICLE_BODY_PARAGRAPHS[:3])],
         image=image,
         featured_image=mobile_image,
         icon="android",
@@ -157,7 +165,7 @@ def get_theme_page_intro():
                     "type": "image",
                     "value": {
                         "image": placeholder_images.image.id,
-                        "image_alt": "A person shielded by a protective glow",
+                        "image_alt": "A numbered grid, standing in for a real image",
                         "settings": {
                             "dark_mode_image": None,
                             "mobile_image": None,
@@ -168,11 +176,11 @@ def get_theme_page_intro():
                 }
             ],
             "heading": {
-                "superheading_text": '<p data-block-key="aafi8">Protection</p>',
-                "heading_text": '<p data-block-key="u6bj0">Your online life belongs</p><p data-block-key="5ji63">to you</p>',
-                "subheading_text": '<p data-block-key="l00s0">Protection shouldn’t be a premium feature. With Firefox, it’s built in. '
-                "We block trackers automatically, protect your privacy by default, and give you clear visibility into what’s "
-                "happening behind the scenes.</p>",
+                "superheading_text": '<p data-block-key="aafi8">Article Theme Page</p>',
+                "heading_text": '<p data-block-key="u6bj0">The root of an article section</p>',
+                "subheading_text": '<p data-block-key="l00s0">A theme page is the landing for a section like /features. It highlights a '
+                "hand-picked set of articles with the article cards below — it does not list every article. The Article Index Page "
+                "nested beneath it is the full table of contents.</p>",
             },
             "content": [],
         },
@@ -189,8 +197,9 @@ def get_theme_page_illustration_cards_section():
             "settings": {"show_to": SHOW_TO_ALL, "anchor_id": ""},
             "heading": {
                 "superheading_text": "",
-                "heading_text": '<p data-block-key="qf39f">Peace of mind? Piece of cake.</p>',
-                "subheading_text": "",
+                "heading_text": '<p data-block-key="qf39f">Article cards pull their content from the articles</p>',
+                "subheading_text": '<p data-block-key="qf39g">Each card references an article and shows the article\'s own image, tag, title, '
+                "description and link. The first card overrides those fields to show custom copy instead.</p>",
             },
             "content": [
                 {
@@ -204,10 +213,11 @@ def get_theme_page_illustration_cards_section():
                                     "article": articles[0].id,
                                     "overrides": {
                                         "image": placeholder_images.mobile_image.id,
-                                        "superheading": "Tag override",
-                                        "title": '<p data-block-key="njwu5">Title override</p>',
-                                        "description": '<p data-block-key="mwjdk">Description override. The image is also different.</p>',
-                                        "link_label": "Different label",
+                                        "superheading": "Overridden tag",
+                                        "title": '<p data-block-key="njwu5">Overridden title</p>',
+                                        "description": '<p data-block-key="mwjdk">This card overrides the article\'s title, description, '
+                                        "tag and image. The cards beside it leave the overrides empty, so they use the article's own fields.</p>",
+                                        "link_label": "Overridden label",
                                         "link": {
                                             "link_to": "",
                                             "page": None,
@@ -294,8 +304,9 @@ def get_theme_page_icon_cards_section():
             "settings": {"show_to": SHOW_TO_ALL, "anchor_id": ""},
             "heading": {
                 "superheading_text": "",
-                "heading_text": '<p data-block-key="sv9yi">Protection Features</p>',
-                "subheading_text": "",
+                "heading_text": '<p data-block-key="sv9yi">The same cards, as icon cards</p>',
+                "subheading_text": '<p data-block-key="sv9yj">The card_type setting switches the layout. Icon cards lead with an icon '
+                "instead of the article image; this first card overrides the article's icon, title and description.</p>",
             },
             "content": [
                 {
@@ -312,9 +323,10 @@ def get_theme_page_icon_cards_section():
                                         "sticker": None,
                                         "icon": "book",
                                         "superheading": "",
-                                        "title": '<p data-block-key="bcq0b">Different title</p>',
-                                        "description": '<p data-block-key="ovybu">Something else about the article. Another sticker too.</p>',
-                                        "link_label": "Different label",
+                                        "title": '<p data-block-key="bcq0b">Overridden title</p>',
+                                        "description": '<p data-block-key="ovybu">This icon card overrides the article\'s icon, '
+                                        "title and description.</p>",
+                                        "link_label": "Overridden label",
                                         "link": {
                                             "link_to": "",
                                             "page": None,
@@ -425,7 +437,12 @@ def get_theme_page_pictogram_row_section():
         "type": "section",
         "value": {
             "settings": {"show_to": SHOW_TO_ALL, "anchor_id": ""},
-            "heading": {"superheading_text": "", "heading_text": '<p data-block-key="sv9yi">More Firefox Features</p>', "subheading_text": ""},
+            "heading": {
+                "superheading_text": "",
+                "heading_text": '<p data-block-key="sv9yi">The same cards, as a sticker row</p>',
+                "subheading_text": '<p data-block-key="sv9yk">sticker_row is a third card_type — a compact row that leads with the article\'s '
+                "sticker image. This first card overrides the sticker, tag, title and description.</p>",
+            },
             "content": [
                 {
                     "type": "article_cards_list",
@@ -440,10 +457,11 @@ def get_theme_page_pictogram_row_section():
                                         "image": None,
                                         "sticker": placeholder_images.image.id,
                                         "icon": "",
-                                        "superheading": "Different tag",
-                                        "title": '<p data-block-key="bcq0b">Different title</p>',
-                                        "description": '<p data-block-key="ovybu">Something else about the article. Another sticker too.</p>',
-                                        "link_label": "Different label",
+                                        "superheading": "Overridden tag",
+                                        "title": '<p data-block-key="bcq0b">Overridden title</p>',
+                                        "description": '<p data-block-key="ovybu">This sticker-row card overrides the article\'s '
+                                        "sticker, tag, title and description.</p>",
+                                        "link_label": "Overridden label",
                                         "link": {
                                             "link_to": "",
                                             "page": None,
@@ -529,10 +547,10 @@ def get_theme_hub_page_upper_content():
                 "settings": {"layout": "vertical", "slim": False, "anchor_id": ""},
                 "media": [],
                 "heading": {
-                    "superheading_text": "",
-                    "heading_text": '<p data-block-key="arkm4">Browse with features that put you first</p>',
-                    "subheading_text": '<p data-block-key="ffk5g">Most browsers were built to capture your attention and monetize your data. '
-                    "Firefox was built to give you control.</p>",
+                    "superheading_text": '<p data-block-key="arkm3">Article Theme Page (nested)</p>',
+                    "heading_text": '<p data-block-key="arkm4">A theme page nested under another theme</p>',
+                    "subheading_text": '<p data-block-key="ffk5g">Theme pages can nest under other theme pages, like /features/protection. Each '
+                    "nested theme highlights its own subset of articles with the same article cards.</p>",
                 },
                 "content": [],
             },
@@ -652,9 +670,9 @@ def get_theme_hub_page_pictogram_row_section():
             "settings": {"show_to": SHOW_TO_ALL, "anchor_id": ""},
             "heading": {
                 "superheading_text": "",
-                "heading_text": '<p data-block-key="sx44k">Made by people on the internet, for people on the internet</p>',
-                "subheading_text": '<p data-block-key="mrour">We\'re here to give you the internet on your terms: '
-                "fast, private and actually useful.</p>",
+                "heading_text": '<p data-block-key="sx44k">This nested theme\'s hand-picked articles</p>',
+                "subheading_text": '<p data-block-key="mrour">Like the root theme page, a nested theme curates a specific set of articles '
+                "with cards rather than listing them all.</p>",
             },
             "content": [
                 {
@@ -752,16 +770,11 @@ def get_theme_hub_page_pictogram_row_section():
 
 
 def get_article_theme_page():
-    index_page = get_article_index_test_page()
-    theme_page = get_or_create_page(
-        ArticleThemePage,
-        slug="test-article-theme-page",
-        parent=index_page,
-        defaults={
-            "title": "Test Article Theme Page",
-        },
-    )
-    theme_page.content = with_fresh_ids(
+    """Fill the section root (the theme page) with its curated content: an intro and
+    three article-card sections that highlight specific articles. The page itself is
+    created by get_article_theme_root_page, so its title stays the section-root title."""
+    theme_root = get_article_theme_root_page()
+    theme_root.content = with_fresh_ids(
         [
             get_theme_page_intro(),
             get_theme_page_illustration_cards_section(),
@@ -770,25 +783,32 @@ def get_article_theme_page():
         ]
     )
     snippet = get_pencil_banner_snippet()
-    ArticleThemePagePencilBannerPlacement.objects.get_or_create(page=theme_page, snippet=snippet)
-    theme_page.save_revision().publish()
-    return theme_page
+    ArticleThemePagePencilBannerPlacement.objects.get_or_create(page=theme_root, snippet=snippet)
+    # The article children were created (under this root) after it was fetched, so this
+    # instance's tree bookkeeping is stale. Refresh it before publishing so we don't
+    # write back a stale numchild and collide child paths on the next add_child.
+    theme_root.refresh_from_db(fields=["numchild", "path", "depth"])
+    theme_root.save_revision().publish()
+    return theme_root
 
 
 def get_article_theme_hub_page():
-    index_page = get_article_index_test_page()
-    theme_page = get_or_create_page(
+    """A theme page nested under the section root, mirroring /features/protection."""
+    theme_root = get_article_theme_root_page()
+    sub_theme = get_or_create_page(
         ArticleThemePage,
         slug="test-article-theme-hub-page",
-        parent=index_page,
+        parent=theme_root,
         defaults={
-            "title": "Test Article Theme Hub Page",
+            "title": "02. Article Theme Page (nested theme)",
         },
     )
-    theme_page.upper_content = get_theme_hub_page_upper_content()
-    theme_page.content = [
+    # Sequential prefix keeps the nested theme beside the index, above the article pages.
+    sub_theme.title = "02. Article Theme Page (nested theme)"
+    sub_theme.upper_content = get_theme_hub_page_upper_content()
+    sub_theme.content = [
         get_theme_hub_illustration_cards_section(),
         get_theme_hub_page_pictogram_row_section(),
     ]
-    theme_page.save_revision().publish()
-    return theme_page
+    sub_theme.save_revision().publish()
+    return sub_theme

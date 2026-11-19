@@ -24,7 +24,7 @@ from wagtail.images.jinja2tags import image, srcset_image
 from wagtail.models import Locale, Page, PageViewRestriction, Site
 
 from lib.l10n_utils import fluent_l10n, get_locale
-from springfield.base.templatetags.qrcode import qrcode_rounded
+from springfield.base.templatetags.qrcode import qrcode_rounded_svg
 from springfield.blog.fixtures.blog_fixtures import (
     FEATURED_DESCRIPTIONS,
     FEATURED_TITLES,
@@ -1309,9 +1309,9 @@ def assert_sharing_links(
     assert "fl-qr-code-dialog" in dialog["class"]
     assert dialog["aria-label"] == sharing_links_value["qr_label"]
     assert dialog.find("button", class_="fl-dialog-close-button")["aria-label"] == "Close"
-    qr_code_image = dialog.find("div", class_="fl-qr-code-image").find("img")
-    expected_qr_code_image = BeautifulSoup(qrcode_rounded(url), "html.parser").find("img")
-    assert qr_code_image["src"] == expected_qr_code_image["src"], "The QR code encodes the shared URL"
+    qr_code_svg = dialog.find("div", class_="fl-qr-code-image").find("svg")
+    expected_qr_code_svg = BeautifulSoup(qrcode_rounded_svg(url, 12), "html.parser").find("svg")
+    assert str(qr_code_svg) == str(expected_qr_code_svg), "The QR code encodes the shared URL"
 
     if sharing_links_value["qr_heading"]:
         heading = dialog.find(qr_heading_tag, class_="fl-heading")
@@ -2609,7 +2609,9 @@ def test_intro_block(index_page, placeholder_images, rf):
                 elif media_block["type"] == "qr_code":
                     qr_div = media_el.find("div", class_="fl-media-qr-code")
                     assert qr_div
-                    assert qr_div.find("div", class_="fl-qr-code").find("svg")
+                    svg = qr_div.find("div", class_="fl-qr-code").find("svg")
+                    expected_svg = BeautifulSoup(qrcode_rounded_svg(media_block["value"]["data"], 12), "html.parser").find("svg")
+                    assert str(svg) == str(expected_svg)
                     if media_block["value"].get("background"):
                         assert qr_div.find("img")
             else:
@@ -5881,7 +5883,8 @@ def test_tab_block_referral_controls_qr_code_encodes_invite_url():
     # The QR is decorative: the copy button already exposes the link, and the
     # trigger button carries qr_label as its accessible name.
     assert qr["aria-hidden"] == "true"
-    assert qr.find("svg") is not None
+    expected_svg = BeautifulSoup(qrcode_rounded_svg(INVITE_URL, 8), "html.parser").find("svg")
+    assert str(qr.find("svg")) == str(expected_svg)
 
 
 def test_tab_block_referral_controls_qr_heading_precedes_the_code():

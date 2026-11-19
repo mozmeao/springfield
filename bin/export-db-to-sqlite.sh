@@ -80,20 +80,23 @@ echo "Checked that source DB is Postgres"
 # Back up DATABASE_URL, to restore later
 export ORIGINAL_DATABASE_URL=$DATABASE_URL
 
-# Dump out to JSON from the default, source DB
-echo "Dumping JSON from the source DB:"
+# Dump out to JSON Lines from the default, source DB.
+# JSON Lines rather than JSON because loaddata's json deserializer parses the
+# whole fixture into memory before saving anything, so memory use would grow
+# with the size of the export. The jsonl deserializer reads one object per line.
+echo "Dumping JSON Lines from the source DB:"
 
 python manage.py dumpdata \
     contenttypes \
-    --indent 2 \
-    --output /tmp/export_contenttypes.json || all_well=false
+    --format jsonl \
+    --output /tmp/export_contenttypes.jsonl || all_well=false
 
 check_status_and_handle_failure "Dumping contenttypes"
 
 python manage.py dumpdata \
     wagtailcore.Locale \
-    --indent 2 \
-    --output /tmp/export_wagtail_locales.json || all_well=false
+    --format jsonl \
+    --output /tmp/export_wagtail_locales.jsonl || all_well=false
 
 check_status_and_handle_failure "Dumping wagtailcore.Locale"
 
@@ -206,8 +209,8 @@ python manage.py dumpdata \
     releasenotes.ProductRelease \
     utils.GitRepoState \
     sitemaps.SitemapURL \
-    --indent 2 \
-    --output /tmp/export_remainder.json || all_well=false
+    --format jsonl \
+    --output /tmp/export_remainder.jsonl || all_well=false
 
 check_status_and_handle_failure "Dumping main data"
 
@@ -256,9 +259,9 @@ echo "Purged data that was automatically added via Django/Wagtail migrations"
 PROD_DETAILS_STORAGE=product_details.storage.PDFileStorage \
 SQLITE_EXPORT_MODE=True \
     python manage.py loaddata \
-        "/tmp/export_contenttypes.json" \
-        "/tmp/export_wagtail_locales.json" \
-        "/tmp/export_remainder.json" \
+        "/tmp/export_contenttypes.jsonl" \
+        "/tmp/export_wagtail_locales.jsonl" \
+        "/tmp/export_remainder.jsonl" \
         || all_well=false
 
 check_status_and_handle_failure "Loading data from JSON"

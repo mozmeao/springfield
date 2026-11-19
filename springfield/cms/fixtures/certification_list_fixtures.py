@@ -17,7 +17,7 @@ def get_certification_list_variants() -> list[dict]:
                     certification_item(text="GDPR", item_id="2026cl01b", url="https://mozilla.org/gdpr/"),
                     certification_item(text="NIS2", item_id="2026cl01c", url="https://mozilla.org/nis2/"),
                     certification_item(text="ISO27001", item_id="2026cl01d", url="https://mozilla.org/iso27001/"),
-                    certification_item(text="SEC2", item_id="2026cl01e", url="https://mozilla.org/sec2/"),
+                    certification_item(text="SOC2", item_id="2026cl01e", url="https://mozilla.org/sec2/"),
                 ],
             },
             "id": "2026cli1-0000-0000-0000-000000000001",

@@ -13,7 +13,7 @@ from wagtail.documents.models import Document
 from wagtail.models import Locale, Site
 
 from springfield.cms.models import ArticleIndexPage, SpringfieldImage
-from springfield.cms.models.pages import FlareDocsIndexPage
+from springfield.cms.models.pages import ArticleThemePage, FlareDocsIndexPage
 
 PLACEHOLDER_IMAGE_TITLE = "Placeholder Image for Testing"
 PLACEHOLDER_DARK_IMAGE_TITLE = "Dark Mode Placeholder Image for Testing"
@@ -222,22 +222,51 @@ def get_flare_snippets_docs_page():
     return snippets_docs_page
 
 
-def get_article_index_test_page():
+def get_article_theme_root_page():
+    """Root of the article section, mirroring the real ``/features`` landing.
+
+    A theme page is the root of an article section: it highlights a hand-picked set
+    of articles with article cards rather than listing them all. Its content is filled
+    in by ``article_page_fixtures``; the full automatic listing lives in the index page
+    nested beneath it.
+    """
     root_page = get_flare_pages_docs_page()
+    theme_root = get_or_create_page(
+        ArticleThemePage,
+        slug="test-articles",
+        parent=root_page,
+        defaults={"title": "Article Theme Page (section root)"},
+    )
+    theme_root.title = "Article Theme Page (section root)"
+    theme_root.save_revision().publish()
+    return theme_root
+
+
+def get_article_index_test_page():
+    """The section's table of contents: an ArticleIndexPage nested under the theme
+    root, like ``/features/all``. It auto-lists every article, and with
+    ``show_sibling_detail_pages`` it lists the ArticleDetailPages that sit beside it."""
+    theme_root = get_article_theme_root_page()
+    sub_title = "Lists every article in this section automatically — a table of contents, not a curated landing."
+    other_articles_subheading = "<p data-block-key='c1bc4d7eadf0'>Every non-featured article shows up here; nothing is hand-picked.</p>"
     index_page = get_or_create_page(
         ArticleIndexPage,
         slug="tests-article-index",
-        parent=root_page,
+        parent=theme_root,
         defaults={
-            "title": "Article Index Page",
-            "sub_title": "An index page for testing articles.",
+            "title": "01. Article Index Page (table of contents)",
+            "sub_title": sub_title,
             "other_articles_heading": "<p data-block-key='c1bc4d7eadf0'>More Articles</p>",
-            "other_articles_subheading": "<p data-block-key='c1bc4d7eadf0'>Explore additional articles below.</p>",
+            "other_articles_subheading": other_articles_subheading,
         },
     )
-    index_page.sub_title = "An index page for testing articles."
+    # Numeric prefix keeps this index page at the top of the theme root's listing.
+    index_page.title = "01. Article Index Page (table of contents)"
+    index_page.sub_title = sub_title
     index_page.other_articles_heading = "<p data-block-key='c1bc4d7eadf0'>More Articles</p>"
-    index_page.other_articles_subheading = "<p data-block-key='c1bc4d7eadf0'>Explore additional articles below.</p>"
+    index_page.other_articles_subheading = other_articles_subheading
+    # Articles are siblings of this index (both under the theme root), so list siblings too.
+    index_page.show_sibling_detail_pages = True
     index_page.save_revision().publish()
     return index_page
 

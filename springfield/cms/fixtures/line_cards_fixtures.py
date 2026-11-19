@@ -41,9 +41,9 @@ def get_line_card_variants() -> list[dict]:
             "value": {
                 "pictogram": placeholder_images.image.id,
                 "superheading": "",
-                "headline": '<p data-block-key="2026lc3h">Line Card with Two Buttons</p>',
-                "content": '<p data-block-key="2026lc3c">Content without superheading and two action buttons. '
-                "This variant is suited for presenting a primary action alongside a secondary option.</p>",
+                "headline": '<p data-block-key="2026lc3h">Line Card with Pictogram and Two Buttons</p>',
+                "content": '<p data-block-key="2026lc3c">Content with an optional pictogram on the left, no superheading, '
+                "and two action buttons for a primary action alongside a secondary option.</p>",
                 "buttons": [buttons["primary"], buttons["ghost"]],
             },
             "id": "2026lc01-0000-0000-0000-000000000003",
