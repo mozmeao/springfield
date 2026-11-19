@@ -100,7 +100,7 @@ class TestVocabulary:
 
 JS_OPTION_KEYS = ("fallback", "apt", "esr-next", "primary", "esr-115", "apk", "microsoft-store")
 
-JS_SUPPORT_LINK_KEYS = ("release-notes", "system-requirements", "privacy")
+JS_SUPPORT_LINK_KEYS = ("system-requirements", "release-notes", "privacy")
 
 JS_MESSAGE_KEYS = ("releaseUnavailable", "divider", "languageIgnored", "conflict", "fallback")
 
@@ -254,6 +254,12 @@ class TestLinux32Drift:
 
 
 class TestChoices:
+    def test_language_label_names_both_when_they_differ(self):
+        assert all_form.get_language_label("de") == "German - Deutsch"
+
+    def test_language_label_names_one_when_they_match(self):
+        assert all_form.get_language_label("en-US") == "English (US)"
+
     def test_os_values_include_linux32_because_of_esr(self):
         assert "linux" in all_form.get_os_values()
 
@@ -838,8 +844,8 @@ class TestDownloadOptionList:
 class TestSupportLinks:
     def test_always_three(self):
         assert [link["key"] for link in all_form.get_support_links("win64", "stable")] == [
-            "release-notes",
             "system-requirements",
+            "release-notes",
             "privacy",
         ]
 

@@ -16,7 +16,7 @@
 <div class="fl-main">
   <div class="fl-section c-section">
     <div class="c-result">
-      <h1 class="fl-heading fl-text-align-center">{{ release_label }} for {{ os_label }}</h1>
+      <h1 class="fl-heading fl-heading-size-3 fl-text-align-center">{{ release_label }} for {{ os_label }}</h1>
 
       {# One logo: this page has no controls, so there is nothing to swap to. #}
       <img class="c-result-logo" src="{{ static(logo.file) }}" alt="{{ logo.alt }}" width="100" height="100">
@@ -29,13 +29,13 @@
         {%- endif -%}
       </p>
 
-      <div class="c-download-options">
-        {% include "firefox/all-form/_download-options.html" %}
-      </div>
-
       {% if esr_transition %}
         {% include "firefox/all-form/_esr-transition.html" %}
       {% endif %}
+
+      <div class="c-download-options">
+        {% include "firefox/all-form/_download-options.html" %}
+      </div>
 
       <div class="c-support-links">
         {%- for link in support_links %}

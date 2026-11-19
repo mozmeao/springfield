@@ -220,9 +220,9 @@ MESSAGES = {
 }
 
 SUPPORT_LINK_LABELS = {
-    "release-notes": "Release Notes",
-    "system-requirements": "System Requirements",
-    "privacy": "Privacy Policy",
+    "system-requirements": "System requirements",
+    "release-notes": "Release notes",
+    "privacy": "Privacy notice",
 }
 
 # ESR 115 is offered to people whose operating system newer Firefox has dropped,
@@ -325,16 +325,21 @@ def is_offered_language(language):
 
 
 def get_language_choices():
-    """(locale, "English - Native") pairs for the language field, sorted by label."""
+    """(locale, label) pairs for the language field, sorted by label."""
     return sorted(
-        ((locale, f"{names['English']} - {names['native']}") for locale, names in product_details.languages.items() if is_offered_language(locale)),
+        ((locale, get_language_label(locale)) for locale in product_details.languages if is_offered_language(locale)),
         key=lambda item: item[1],
     )
 
 
 def get_language_label(language):
+    """The English and native names, or just one when they match."""
     names = product_details.languages.get(language)
-    return f"{names['English']} - {names['native']}" if names else language
+    if not names:
+        return language
+    if names["English"] == names["native"]:
+        return names["English"]
+    return f"{names['English']} - {names['native']}"
 
 
 def get_unsupported_platforms():
@@ -663,7 +668,7 @@ def get_download_option_list(os_value, release, language):
 
     apk_url = get_apk_url(os_value, release)
     if apk_url:
-        options.append(_option(OPTION_APK, "Download the APK directly", apk_url, "downloads", ["button-secondary", "fl-button-small"]))
+        options.append(_option(OPTION_APK, "Download the APK", apk_url, "downloads", ["button-secondary", "fl-button-small"]))
 
     if get_store_kind(os_value, release) == "microsoft-store":
         options.append(
@@ -695,12 +700,12 @@ def get_support_links(os_value, release):
     tables in get_client_data().
     """
     return [
-        {"key": "release-notes", "label": SUPPORT_LINK_LABELS["release-notes"], "href": get_release_notes_url(os_value, release)},
         {
             "key": "system-requirements",
             "label": SUPPORT_LINK_LABELS["system-requirements"],
             "href": get_system_requirements_url(os_value, release),
         },
+        {"key": "release-notes", "label": SUPPORT_LINK_LABELS["release-notes"], "href": get_release_notes_url(os_value, release)},
         {"key": "privacy", "label": SUPPORT_LINK_LABELS["privacy"], "href": PRIVACY_URL},
     ]
 
@@ -766,7 +771,7 @@ def get_client_data():
                 "recommendations": dict(ESR_115_RECOMMENDATIONS),
             },
             "apk": {
-                "label": "Download the APK directly",
+                "label": "Download the APK",
                 "ctaText": CTA_TEXT[OPTION_APK],
                 "icon": "downloads",
                 "classes": ["button-secondary", "fl-button-small"],

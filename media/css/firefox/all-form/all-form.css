@@ -10,13 +10,11 @@
     .c-page {
         /* One measure for the heading and the form, so they line up. */
         --c-measure: 56rem;
-        --c-choices-inline-size: 20rem;
-        --c-column-gap: 48px;
         --c-option-gap: 12px;
+        --c-panel-padding: var(--token-spacing-3xl);
     }
 
-    .c-page-title,
-    .c-page-intro {
+    .c-page-title {
         margin-inline: auto;
         max-inline-size: var(--c-measure);
         text-align: center;
@@ -32,38 +30,59 @@
      * level with the first field label rather than floating against nothing.
      */
     .c-form {
-        block-size: 32rem;
-        align-items: center;
+        border: 1px solid var(--fl-subtle-border-color);
+        border-radius: var(--token-border-radius-md);
         display: grid;
-        gap: var(--c-column-gap);
-        grid-template-columns: var(--c-choices-inline-size) minmax(0, 1fr);
-        margin-block-start: var(--token-spacing-xl, 48px);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         margin-inline: auto;
         max-inline-size: var(--c-measure);
+        min-block-size: 24rem;
+        overflow: hidden;
     }
 
     @media (--viewport-below-md) {
+        .c-page {
+            --c-panel-padding: var(--token-spacing-lg);
+        }
+
         .c-form {
-            block-size: unset;
-            gap: var(--token-spacing-2xl, 32px);
+            border-radius: var(--token-border-radius-sm);
             grid-template-columns: minmax(0, 1fr);
-            max-inline-size: var(--c-choices-inline-size);
         }
     }
 
     .c-choices {
+        align-content: center;
+        background-color: var(--token-color-grey-1);
         display: grid;
-        row-gap: var(--token-spacing-md, 16px);
+        padding: var(--c-panel-padding);
+    }
+
+    .c-choices > .c-field-wrap {
+        border-block-end: 1px solid var(--fl-subtle-border-color);
+        padding-block: var(--token-spacing-lg);
+
+        &:first-child {
+            padding-block-start: 0;
+        }
+
+        &:last-child {
+            border-block-end: 0;
+            padding-block-end: 0;
+        }
     }
 
     /* Fill the column rather than sitting ragged inside it. */
     .c-choices .fl-field {
+        border-radius: var(--token-border-radius-md);
         inline-size: 100%;
     }
 
     .c-label {
         align-items: center;
         display: flex;
+        font-size: var(--fl-theme-font-size-body-sm);
+        font-weight: var(--token-font-weight-medium);
         gap: 4px;
     }
 
@@ -85,7 +104,7 @@
         /* Template at least three rows, where the third row (for messages) as a minimum height */
         grid-template-rows: auto auto minmax(1lh, auto);
 
-        > :is(select, dialog) { font-size: var(--token-font-size-md); }
+        > :is(select, dialog) { font-size: var(--fl-theme-font-size-body-sm); }
 
         /*
          * Centre icons for error messages on the first line only.
@@ -125,24 +144,31 @@
     /* --- Results ---------------------------------------------------------- */
 
     .c-results {
-        align-content: start;
-        display: grid;
-        gap: var(--token-spacing-md, 16px);
-        justify-items: center;
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+        gap: var(--token-spacing-md);
+        justify-content: center;
+        padding: var(--c-panel-padding) var(--c-panel-padding) var(--token-spacing-lg);
+    }
+
+    /* Centre the downloads in the space above the support links, which sit at the bottom. */
+    .c-results:has(> .c-support-links:not([hidden])) > .c-results-logos,
+    .c-results > .c-support-links {
+        margin-block-start: auto;
     }
 
     .c-results-logos {
         display: flex;
         justify-content: center;
-        gap: 8px;
-        margin-block-end: var(--token-spacing-md);
+        gap: var(--token-spacing-sm);
     }
 
     .c-form:valid .c-no-download-image { display: none; }
 
     .c-form:invalid .c-no-download-image {
         display: block;
-        block-size: 150px;
+        block-size: 120px;
         margin-block: 0;
     }
 
@@ -153,7 +179,7 @@
     .c-release-logo,
     .c-platform-logo {
         aspect-ratio: 1;
-        block-size: 80px;
+        block-size: 44px;
         background-repeat: no-repeat;
         background-size: contain;
         background-position: center;
@@ -174,6 +200,24 @@
 
     .c-release-logo {
         background-image: var(--c-release-logo);
+        position: relative;
+    }
+
+    .c-form:has(#release option[value='esr']:checked) .c-release-logo::after {
+        align-items: center;
+        background-color: var(--token-color-white);
+        border-radius: var(--token-border-radius-3xs);
+        box-shadow: 0 0 0 1px var(--fl-subtle-border-color);
+        color: var(--fl-theme-color-text);
+        content: 'ESR' / '';
+        display: flex;
+        font-size: 9px;
+        font-weight: var(--token-font-weight-bold);
+        inset-block-end: 1px;
+        inset-inline-end: 1px;
+        line-height: 1;
+        padding: 2px 3px;
+        position: absolute;
     }
 
     .c-form:valid {
@@ -209,12 +253,22 @@
     }
 
     .c-esr-transition:not([hidden]) {
+        background-color: var(--token-color-soft-purple);
+        border-radius: var(--token-border-radius-3xs);
         font-size: var(--fl-theme-font-size-body-xs);
-        max-inline-size: 32rem;
-        text-align: center;
+        max-inline-size: 22rem;
+        padding: var(--token-spacing-md);
 
         p {
-            margin-block: 0 var(--token-spacing-xs);
+            margin-block: 0;
+        }
+
+        p + p {
+            margin-block-start: var(--token-spacing-sm);
+        }
+
+        a {
+            color: inherit;
         }
     }
 
@@ -246,8 +300,30 @@
         display: flex;
         flex-wrap: wrap;
         font-size: var(--fl-theme-font-size-body-xs);
-        gap: 4px var(--token-spacing-md, 16px);
         justify-content: center;
+        row-gap: 4px;
+    }
+
+    .c-support-links > * + * {
+        border-inline-start: 1px solid var(--fl-subtle-border-color);
+        margin-inline-start: var(--token-spacing-xs);
+        padding-inline-start: var(--token-spacing-xs);
+    }
+
+    .c-detected-os:not([hidden]) {
+        font-size: var(--fl-theme-font-size-body-sm);
+    }
+
+    .c-detected-pill {
+        background-color: var(--token-color-grey-1);
+        border: 1px solid var(--fl-subtle-border-color);
+        border-radius: var(--token-border-radius-md);
+        display: inline-block;
+        font-size: var(--fl-theme-font-size-body-xs);
+        font-weight: var(--token-font-weight-medium);
+        margin-inline-start: var(--token-spacing-2xs);
+        padding: 1px var(--token-spacing-xs);
+        white-space: nowrap;
     }
 
     .c-incompatible-choices {

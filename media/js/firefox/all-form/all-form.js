@@ -740,12 +740,12 @@ class FirefoxDownloadFormElement extends HTMLElement {
         this._supportLinksPane.classList.add('c-support-links');
         this._supportLinksPane.append(
             this._createSupportLink({
-                label: releaseNotes.label,
-                href: () => this._releaseNotesHref.value
-            }),
-            this._createSupportLink({
                 label: systemRequirements.label,
                 href: () => this._systemRequirementsHref.value
+            }),
+            this._createSupportLink({
+                label: releaseNotes.label,
+                href: () => this._releaseNotesHref.value
             }),
             this._createSupportLink({
                 label: privacy.label,
