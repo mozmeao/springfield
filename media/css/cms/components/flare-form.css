@@ -44,9 +44,9 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 .fl-field-wrap select {
     appearance: none;
     background-image: url('/media/img/firefox/flare/icons/desktop-16/arrows-and-chevrons/chevron-down-small-16.svg');
-    background-position: right var(--token-spacing-sm) center;
+    background-position: right calc(var(--token-spacing-sm) + 5px) center;
     background-repeat: no-repeat;
-    background-size: 20px 20px;
+    background-size: 10px auto;
     padding-inline-end: calc(var(--token-spacing-sm) * 2 + 20px);
 }
 

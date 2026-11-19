@@ -23,6 +23,11 @@
     inline-size: 1.4em;
 }
 
+.fl-icon.is-caret {
+    -webkit-mask-size: 75% 75%;
+    mask-size: 75% 75%;
+}
+
 .fl-icon-with-text {
     align-items: center;
     display: flex;

@@ -92,7 +92,7 @@
     inset-inline-end: 12px;
     -webkit-mask: var(--icon-src) no-repeat center / 1em 1em;
     mask: var(--icon-src) no-repeat center / 1em 1em;
-    mask-size: 14px;
+    mask-size: 75%;
     position: absolute;
     vertical-align: middle;
     z-index: 1;
