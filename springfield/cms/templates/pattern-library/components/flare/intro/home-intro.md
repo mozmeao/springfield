@@ -1,0 +1,3 @@
+The home intro is the `intro` component inside `fl-home-intro`, always in dark mode — the Kit Intro block, used at the top of the homepage and the referral and share pages, and offered in the upper content of free-form and What's New pages. It expects more content below. With media it closes itself off: the image sits flush on a rounded bottom edge, with an optional Scroll To See More snippet on that edge.
+
+**superheading_is_pill** turns the superheading into a pill (clickable when it holds a link) and renders italic text in it as a gold tag. The sample shows it, but no block sets it, so the Kit Intro renders a plain superheading.

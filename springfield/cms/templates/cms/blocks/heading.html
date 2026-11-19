@@ -12,6 +12,5 @@
   heading_text="{{ value.heading_text|richtext|remove_p_tag if value.heading_text else '' }}"
   superheading_text="{{ value.superheading_text|richtext|remove_p_tag if value.superheading_text else '' }}"
   subheading_text="{{ value.subheading_text|richtext|remove_p_tag if value.subheading_text else '' }}"
-  subheading_size="{{ 'fl-subheading-' ~ (block_level + 2) if block_level else 'fl-subheading-3' }}"
   alignment_class="{{ alignment_class }}"
 />
