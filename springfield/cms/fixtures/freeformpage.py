@@ -43,6 +43,7 @@ def get_mobile_store_qr_code():
             },
             "qr_code_data": "https://www.firefox.com/browsers/mobile/app/?product=firefox&campaign=firefox-com-mobile-page",
             "mobile_image": placeholder_images.mobile_image.id,
+            "mobile_image_alt": "A numbered grid, standing in for a real image",
         },
         "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
     }
@@ -55,6 +56,7 @@ def get_mobile_browsers_cards():
             "type": "image",
             "value": {
                 "image": image.id,
+                "image_alt": "A numbered grid, standing in for a real image",
                 "settings": {
                     "dark_mode_image": None,
                     "mobile_image": None,
@@ -247,7 +249,8 @@ def get_set_as_default_button_block() -> dict:
             "heading": {
                 "superheading_text": "",
                 "heading_text": '<p data-block-key="sad01">Make Firefox your default</p>',
-                "subheading_text": "",
+                "subheading_text": '<p data-block-key="sad02">The button below uses the Set-as-Default snippet — its copy changes '
+                "with your current browser and whether Firefox is already your default.</p>",
             },
             "content": [
                 {
@@ -486,6 +489,7 @@ def get_scroll_to_see_more_snippet_test_page() -> FreeFormPage2026:
                     "type": "image",
                     "value": {
                         "image": placeholder_images.image.id,
+                        "image_alt": "A numbered grid, standing in for a real image",
                         "settings": {"dark_mode_image": None, "mobile_image": None, "dark_mode_mobile_image": None},
                     },
                     "id": "ssm00001-0000-0000-0000-000000000001",

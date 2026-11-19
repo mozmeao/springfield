@@ -5,16 +5,16 @@
  */
 
 /*
- * Saves a row of the image listing from its inline form and swaps the server's re-rendered
- * cells into the row. Rows with unsaved edits are marked, and leaving the page or replacing
- * the results through search or filters asks for confirmation first.
+ * Saves a row of the image or image tag listing from its inline form and swaps the server's
+ * re-rendered cells into the row. Rows with unsaved edits are marked, and leaving the page or
+ * replacing the results through search or filters asks for confirmation first.
  *
  * A row's inputs sit in separate table cells and join the row's <form> through their `form`
  * attribute, so `new FormData(form)` and `input.form` both include them.
  */
 
-const FORM_SELECTOR = '[data-inline-image-form]';
-const STATUS_SELECTOR = '[data-inline-image-status]';
+const FORM_SELECTOR = '[data-inline-form]';
+const STATUS_SELECTOR = '[data-inline-status]';
 const DIRTY_ATTRIBUTE = 'data-inline-dirty';
 
 function setStatus(row, message) {
@@ -147,7 +147,7 @@ function confirmDiscardBeforeSwap(event) {
     if (
         hasUnsavedRows() &&
         // eslint-disable-next-line no-alert
-        !window.confirm('Some images have unsaved changes. Discard them?')
+        !window.confirm('Some rows have unsaved changes. Discard them?')
     ) {
         event.preventDefault();
         // Wagtail's swap controller shows its spinner before dispatching this event and

@@ -36,9 +36,9 @@ def get_banner_snippet() -> BannerSnippet:
         locale=Locale.get_default(),
         defaults={
             "kit_theme": True,
-            "heading": '<p data-block-key="c1bc4d7eadf0">Take your tabs, history and passwords wherever you go</p>',
-            "content": '<p data-block-key="0b474f02">Your passwords, bookmarks, and preferences sync seamlessly across all your devices, '
-            "so you can pick up where you left off. </p>",
+            "heading": '<p data-block-key="c1bc4d7eadf0">Reusable banner snippet</p>',
+            "content": '<p data-block-key="0b474f02">A banner you edit once and reuse anywhere — add it to a page with the '
+            "banner_snippet block, and changes here update every page that references it.</p>",
             "qr_code": "QR Code Content",
         },
     )
@@ -62,8 +62,9 @@ def get_pre_footer_cta_form_snippet() -> PreFooterCTAFormSnippet:
         translation_key=PRE_FOOTER_CTA_FORM_SNIPPET_TRANSLATION_KEY,
         locale=Locale.get_default(),
         defaults={
-            "heading": '<p data-block-key="c1bc4d7eadf0">Keep up with all things Firefox</p>',
-            "subheading": '<p data-block-key="0b474f02">Get how-tos, advice and news to make your Firefox experience work best for you.</p>',
+            "heading": '<p data-block-key="c1bc4d7eadf0">Pre-footer CTA form snippet</p>',
+            "subheading": '<p data-block-key="0b474f02">A reusable newsletter sign-up shown above the footer to Firefox users '
+            "when a page turns on Show Pre-Footer.</p>",
             "analytics_id": "0b474f02-d3fd-4d86-83cd-c1bc4d7eadf0",
         },
     )
@@ -75,7 +76,7 @@ def get_qr_code_snippet() -> QRCodeSnippet:
         translation_key=QR_CODE_SNIPPET_TRANSLATION_KEY,
         locale=Locale.get_default(),
         defaults={
-            "heading": '<p data-block-key="c1bc4d7eadf0">Get Firefox on your phone</p>',
+            "heading": '<p data-block-key="c1bc4d7eadf0">QR code snippet — scan to get Firefox on your phone</p>',
             "qr_code": "https://www.firefox.com/browsers/mobile/",
             "closable": True,
         },
@@ -137,8 +138,8 @@ def get_floating_qr_code_snippet() -> QRCodeFloatingSnippet:
         translation_key=FLOATING_QR_CODE_SNIPPET_TRANSLATION_KEY,
         locale=Locale.get_default(),
         defaults={
-            "heading": '<p data-block-key="c1bc4d7eadf1">Get Firefox on your phone</p>',
-            "content": "Bring your tabs with you",
+            "heading": '<p data-block-key="c1bc4d7eadf1">Floating QR code snippet</p>',
+            "content": "A QR code that floats as you scroll; pages opt in with Show Floating QR Code Snippet.",
             "url": "https://www.firefox.com/browsers/mobile/",
             "open_behavior": QROpenBehavior.OPEN,
         },
@@ -151,8 +152,8 @@ def get_pencil_banner_snippet() -> PencilBannerSnippet:
         translation_key=PENCIL_BANNER_SNIPPET_TRANSLATION_KEY,
         locale=Locale.get_default(),
         defaults={
-            "title": '<p data-block-key="pb001"><i>New</i> Firefox is here</p>',
-            "description": '<p data-block-key="pb002">The fastest, most private Firefox yet.</p>',
+            "title": '<p data-block-key="pb001"><i>Pencil</i> banner snippet</p>',
+            "description": '<p data-block-key="pb002">A thin ribbon above the nav; attach it to a page with a Pencil Banner Placement.</p>',
             "link": "https://www.firefox.com/",
             "dismissable": True,
             "settings": [],

@@ -9,7 +9,7 @@
 const { test, expect } = require('@playwright/test');
 const openPage = require('../../../scripts/open-page');
 const languages = ['en-US', 'ja'];
-const pageUrl = '/LANG/browsers/enterprise/';
+const pageUrl = '/LANG/enterprise/';
 const downloadBaseUrl = 'https://download.mozilla.org/';
 
 languages.forEach((lang) => {

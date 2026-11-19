@@ -2,7 +2,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-import itertools
 import json
 from datetime import UTC, date, datetime
 from types import SimpleNamespace
@@ -15,13 +14,14 @@ from django.utils import timezone
 import pytest
 from bs4 import BeautifulSoup
 from wagtail.admin.panels import FieldRowPanel
-from wagtail.models import Locale, PageViewRestriction, Site
+from wagtail.models import Locale, PageViewRestriction
 from wagtail.rich_text import RichText
 from wagtail_localize.fields import TranslatableField, get_translatable_fields
 from wagtail_localize.operations import translate_object
 
 from springfield.blog.blocks import BlogArticleBlock
 from springfield.blog.fixtures.blog_fixtures import (
+    ARTICLE_BODY,
     FEATURED_DESCRIPTIONS,
     FEATURED_TITLES,
     NUM_LIST_ARTICLES,
@@ -48,23 +48,6 @@ pytestmark = [pytest.mark.django_db]
 
 
 @pytest.fixture
-def blog_index(minimal_site):
-    root_page = Site.objects.get(is_default_site=True).root_page
-    index_page = BlogIndexPage(
-        title="Blog",
-        slug="test-unit-blog",
-        locale=Locale.objects.get(language_code="en-US"),
-    )
-    root_page.add_child(instance=index_page)
-    return index_page
-
-
-@pytest.fixture
-def blog_topic(blog_index):
-    return BlogTopic.objects.create(name="Privacy", slug="test-unit-privacy", locale=blog_index.locale)
-
-
-@pytest.fixture
 def blog_tag(blog_index):
     return BlogTag.objects.create(name="VPN", slug="test-unit-vpn", locale=blog_index.locale)
 
@@ -78,26 +61,6 @@ def excluded_index(blog_index, blog_topic, blog_tag):
     ]
     blog_index.save()
     return blog_index
-
-
-@pytest.fixture
-def make_article(blog_index, blog_topic):
-    slug_numbers = itertools.count(1)
-
-    def make_article(**fields):
-        fields.setdefault("topic", blog_topic)
-        if not fields.get("image"):
-            fields.setdefault("hero_style", HeroStyle.TEXT_ONLY)
-        article = BlogArticlePage(
-            title=fields.pop("title", "Test article"),
-            slug=f"test-unit-article-{next(slug_numbers)}",
-            locale=blog_index.locale,
-            **fields,
-        )
-        blog_index.add_child(instance=article)
-        return article
-
-    return make_article
 
 
 @pytest.fixture
@@ -248,15 +211,15 @@ def stub_images(db):
 
 
 @pytest.fixture
-def real_images(db):
-    """Two image rows with real files, for tests that render an `<img>`."""
-    image, dark_image, _, _ = get_placeholder_images()
-    return image, dark_image
+def bare_article(make_article):
+    return make_article(title="Bare article")
 
 
 @pytest.fixture
-def bare_article(make_article):
-    return make_article(title="Bare article")
+def blog_article(make_article, real_images):
+    """An article with a non-decorative featured image and its alt text."""
+    image, _ = real_images
+    return make_article(image=image, image_alt="A laptop showing the Firefox home page")
 
 
 @pytest.fixture
@@ -472,6 +435,32 @@ def test_blog_index_header_topics_use_the_page_locale(index_page_and_topics):
 
     assert [topic.name for topic in header_topics] == ["Astuces"]
     assert [topic.locale_id for topic in header_topics] == [fr_locale.pk]
+
+
+def test_blog_index_lists_every_article_when_nothing_is_curated(blog_index, make_article, rf):
+    titles = {make_article(title=f"Article {number}").title for number in range(3)}
+
+    response = blog_index.serve(rf.get(blog_index.get_full_url()))
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    assert {heading.get_text(strip=True) for heading in soup.select(".fl-blog-article-list h2")} == titles
+
+
+def test_blog_index_article_list_paginates_on_the_index_url(blog_index, make_article, rf):
+    for number in range(ARTICLES_PER_PAGE + 1):
+        make_article(title=f"Article {number}")
+
+    response = blog_index.serve(rf.get(blog_index.get_full_url()))
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    assert len(soup.select(".fl-blog-article-list h2")) == ARTICLES_PER_PAGE
+    assert soup.find("a", href=f"{blog_index.url}?page=2")
+
+
+def test_blog_index_with_sections_does_not_list_every_article(sectioned_index):
+    blog_index, _, _ = sectioned_index
+
+    assert not blog_index.lists_all_articles()
 
 
 def test_all_context_omits_unpublished_articles_while_the_index_is_published(blog_index, make_article, rf):
@@ -1578,7 +1567,7 @@ def test_blog_article_renders_text_block(single_article, rf):
 
     rich_text_section = soup.find("section", class_="fl-rich-text")
     assert rich_text_section
-    assert "Lorem ipsum" in rich_text_section.get_text()
+    assert ARTICLE_BODY in rich_text_section.get_text()
 
 
 def test_blog_article_renders_media_block(single_article, rf):
@@ -1829,6 +1818,17 @@ def test_blog_article_listing_image_suppresses_the_featured_image_variants(bare_
     assert variants.dark_mode_mobile is None
 
 
+def test_get_listing_image_alt_follows_get_listing_image(blog_article):
+    blog_article.image_alt = "The featured image"
+    blog_article.listing_image_alt = "The listing image"
+
+    blog_article.listing_image = None
+    assert blog_article.get_listing_image_alt() == "The featured image"
+
+    blog_article.listing_image = blog_article.image
+    assert blog_article.get_listing_image_alt() == "The listing image"
+
+
 @pytest.mark.parametrize("hero_style", [HeroStyle.STANDARD_IMAGE, HeroStyle.LARGE_IMAGE])
 def test_blog_article_image_hero_styles_require_featured_image(hero_style, bare_article):
     bare_article.hero_style = hero_style
@@ -1852,6 +1852,20 @@ def test_blog_article_text_only_hero_style_needs_no_assets(bare_article):
     bare_article.hero_style = HeroStyle.TEXT_ONLY
 
     bare_article.clean()  # does not raise
+
+
+def test_blog_article_page_requires_alt_for_a_non_decorative_image(blog_article):
+    blog_article.image_alt = ""
+    with pytest.raises(ValidationError) as excinfo:
+        blog_article.clean()
+    assert "image_alt" in excinfo.value.error_dict
+
+
+def test_blog_article_page_accepts_a_blank_alt_for_a_decorative_image(blog_article):
+    blog_article.image.is_decorative = True
+    blog_article.image.save()
+    blog_article.image_alt = ""
+    blog_article.clean()  # does not raise
 
 
 def test_blog_article_hero_renders_in_the_split_page_upper(make_article, real_images, rf):
@@ -2019,9 +2033,17 @@ def test_blog_article_content_tab_groups():
         "updated_date",
         "hide_dates",
     ]
-    assert _panel_labels(featured.children) == ["image", "listing_image", "Dark mode & mobile versions", "hero_style", "hero_video"]
-    assert _panel_labels(featured.children[2].children) == ["image_dark_mode", "image_mobile", "image_dark_mode_mobile"]
-    assert isinstance(featured.children[2], FieldRowPanel)
+    assert _panel_labels(featured.children) == [
+        "image",
+        "image_alt",
+        "listing_image",
+        "listing_image_alt",
+        "Dark mode & mobile versions",
+        "hero_style",
+        "hero_video",
+    ]
+    assert _panel_labels(featured.children[4].children) == ["image_dark_mode", "image_mobile", "image_dark_mode_mobile"]
+    assert isinstance(featured.children[4], FieldRowPanel)
     for panel in (post_details, featured, bottom_banner):
         assert "collapsed" in panel.classname
 

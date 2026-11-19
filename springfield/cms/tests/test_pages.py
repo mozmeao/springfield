@@ -19,6 +19,7 @@ from wagtail import hooks
 from wagtail.models import Site
 
 from springfield.cms.blocks import UI_TOUR_CLASSES, UITOUR_BUTTON_SMART_WINDOW
+from springfield.cms.fixtures.base_fixtures import get_article_index_test_page
 from springfield.cms.fixtures.block_factories import notification_block, show_to_value
 from springfield.cms.fixtures.button_fixtures import get_buttons_test_page
 from springfield.cms.fixtures.homepage_fixtures import get_home_test_page
@@ -30,13 +31,53 @@ from springfield.cms.fixtures.smart_window_page_fixtures import (
     get_smart_window_testimonial_cards,
 )
 from springfield.cms.fixtures.thanks_page_fixtures import get_download_support
-from springfield.cms.models import FreeFormPage2026, SmartWindowExplainerPage, SmartWindowPage, ThanksPage
+from springfield.cms.models import ArticleDetailPage, ArticleIndexPage, FreeFormPage2026, SmartWindowExplainerPage, SmartWindowPage, ThanksPage
 from springfield.cms.wagtail_hooks import warn_about_leading_conditional_blocks
 
 
 @pytest.fixture
 def smart_window_page(index_page, placeholder_images) -> SmartWindowPage:
     return get_smart_window_test_page()
+
+
+@pytest.fixture
+def article_detail_page_with_body_image(minimal_site, placeholder_images) -> ArticleDetailPage:
+    """An ArticleDetailPage with two image groups (featured_image and image)."""
+    image, *_ = placeholder_images
+    page = ArticleDetailPage(
+        slug="test-article-detail-page",
+        title="Test Article Detail Page",
+        featured_image=image,
+        featured_image_alt="A numbered grid, standing in for a real image",
+        image=image,
+        image_alt="A numbered grid, standing in for a real image",
+    )
+    minimal_site.root_page.add_child(instance=page)
+    page.save_revision().publish()
+    return page
+
+
+@pytest.fixture
+def article_in_illustration_card_index(minimal_site, placeholder_images) -> tuple[ArticleIndexPage, ArticleDetailPage]:
+    """A non-featured ArticleDetailPage inside an illustration-card ArticleIndexPage.
+    The illustration card is the only place where featured_image is rendered."""
+    image, *_ = placeholder_images
+    index_page = get_article_index_test_page()
+    index_page.index_card_type = ArticleIndexPage.INDEX_CARD_ILLUSTRATION
+    index_page.save_revision().publish()
+
+    article = ArticleDetailPage(
+        slug="test-illustration-article",
+        title="Test Illustration Article",
+        featured=False,
+        featured_image=image,
+        featured_image_alt="A numbered grid, standing in for a real image",
+        image=image,
+        image_alt="A numbered grid, standing in for a real image",
+    )
+    index_page.add_child(instance=article)
+    article.save_revision().publish()
+    return index_page, article
 
 
 @pytest.fixture
@@ -908,6 +949,27 @@ def test_editor_is_warned_when_a_notification_precedes_the_conditional_blocks(fr
 
 
 @pytest.mark.django_db
+def test_editor_is_warned_when_a_block_without_settings_leads_with_conditions(free_form_page: FreeFormPage2026, rf):
+    """Form + Content keeps its show_to beside its other fields rather than in a settings group."""
+    conditional_form_content = {
+        "type": "form_content",
+        "value": {"show_to": {"platforms": ["osx"]}, "heading": {"heading_text": "<p>Talk to us on macOS</p>"}},
+    }
+
+    warnings = save_page_and_collect_warnings(
+        free_form_page,
+        [
+            conditional_intro_block("Firefox for Windows", ["windows"]),
+            conditional_form_content,
+        ],
+        rf,
+    )
+
+    assert len(warnings) == 1
+    assert "leads with 2 conditional blocks" in warnings[0]
+
+
+@pytest.mark.django_db
 def test_editor_is_not_warned_when_the_page_leads_with_an_unconditional_block(free_form_page: FreeFormPage2026, rf):
     unconditional_intro = {
         "type": "intro",
@@ -924,3 +986,38 @@ def test_editor_is_not_warned_when_the_page_leads_with_an_unconditional_block(fr
     )
 
     assert warnings == []
+
+
+@pytest.mark.django_db
+def test_article_detail_page_requires_alt_for_a_non_decorative_featured_image(article_detail_page_with_body_image):
+    article_detail_page_with_body_image.featured_image_alt = ""
+    with pytest.raises(ValidationError) as excinfo:
+        article_detail_page_with_body_image.clean()
+    assert "featured_image_alt" in excinfo.value.error_dict
+
+
+@pytest.mark.django_db
+def test_article_detail_page_accepts_a_blank_alt_for_a_decorative_featured_image(article_detail_page_with_body_image):
+    article_detail_page_with_body_image.featured_image.is_decorative = True
+    article_detail_page_with_body_image.featured_image.save()
+    article_detail_page_with_body_image.featured_image_alt = ""
+    article_detail_page_with_body_image.clean()
+
+
+@pytest.mark.django_db
+def test_article_detail_page_renders_its_image_alt(client, article_detail_page_with_body_image):
+    article_detail_page_with_body_image.image_alt = "Firefox on a laptop"
+    article_detail_page_with_body_image.save_revision().publish()
+
+    soup = BeautifulSoup(client.get(article_detail_page_with_body_image.url).content, "html.parser")
+    assert soup.find("img", alt="Firefox on a laptop")
+
+
+@pytest.mark.django_db
+def test_article_index_page_renders_the_featured_image_alt(client, article_in_illustration_card_index):
+    index_page, article = article_in_illustration_card_index
+    article.featured_image_alt = "Firefox on a laptop"
+    article.save_revision().publish()
+
+    soup = BeautifulSoup(client.get(index_page.url).content, "html.parser")
+    assert soup.find("img", alt="Firefox on a laptop")

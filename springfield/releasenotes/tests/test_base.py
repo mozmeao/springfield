@@ -223,7 +223,7 @@ class TestReleaseViews(TestCase):
         assert release_notes_document.select_one("h1").get_text(" ", strip=True) == "Firefox Enterprise Release Notes"
         for element_id in ("download-enterprise-primary", "download-enterprise-secondary"):
             button = release_notes_document.select_one(f"#{element_id}")
-            assert button["href"] == reverse("firefox.enterprise.index")
+            assert button["href"] == "/en-US/enterprise/"
             assert button.get_text(strip=True) == "Request Early Access"
 
     def test_enterprise_subnav_entry_is_current_on_enterprise_notes(self):

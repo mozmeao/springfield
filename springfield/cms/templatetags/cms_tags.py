@@ -77,6 +77,18 @@ def image_variant_classes(dark_mode=None, mobile=None, dark_mode_mobile=None, br
     )
 
 
+@library.global_function
+def alt_text(alt, image):
+    """The alt attribute for an image as used in a particular context."""
+    if image is None:
+        return ""
+    if alt:
+        return alt
+    if image.is_decorative:
+        return ""
+    return image.description
+
+
 @library.filter
 def remove_p_tag(value: str) -> str:
     rich_text = RichText(value)

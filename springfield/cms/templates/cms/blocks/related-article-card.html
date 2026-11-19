@@ -9,7 +9,7 @@
     <div class="fl-card-media fl-card-media-pictogram">
       {% set img = value.get_pictogram() %}
       {% if img %}
-        {{ image(img, "width-400") }}
+        {{ image(img, "width-400", alt="") }}
       {% else %}
         <img src="/media/img/logos/firefox/firefox-logo.svg" alt="" />
       {% endif %}

@@ -178,3 +178,5 @@ firefox-desktop-download-interrupted = Your download was interrupted. But all is
 # Variables:
 #   $url (url) - link to https://www.firefox.com/download/all/
 firefox-desktop-download-your-system-may-not = Your system may not meet the requirements for { -brand-name-firefox }, but you can try one of <a href="{ $url }">these versions</a>.
+
+download-chromebook-x86-based-chromebook = *x86 based Chromebook running Chrome OS 80 or later

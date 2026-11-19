@@ -156,6 +156,12 @@
     max-inline-size: 100%;
 }
 
+.nav-get-mobile-qr-img svg {
+    block-size: auto;
+    display: block;
+    inline-size: 100%;
+}
+
 /* Scoped under .nav-get-mobile to out-specify the base `.fl-dropdown-panel a`
    menu-item styling (which strips the underline and adds block padding + a hover
    background) so this reads as a caption link, not a menu row. */

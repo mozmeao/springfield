@@ -1,0 +1,17 @@
+{% comment %} SKIP LICENSE INSERTION {% endcomment %}
+{% comment %}
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
+{% endcomment %}
+
+{% comment %}
+The number of images with a tag, linking to the image listing filtered by it.
+{% endcomment %}
+<td data-inline-cell="image_count">
+    {% if instance.image_count %}
+        <a href="{% url 'wagtailimages:index' %}?tag={{ instance.name|urlencode:'' }}">{{ instance.image_count }}</a>
+    {% else %}
+        {{ instance.image_count }}
+    {% endif %}
+</td>

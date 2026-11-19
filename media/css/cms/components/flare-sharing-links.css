@@ -21,6 +21,12 @@ Sharing Links - copy, email and QR code buttons for one URL
     margin: 0;
 }
 
+/* The Banner stacks its button rows on mobile; the three sharing buttons stay in one row. */
+.fl-banner-content-inner .fl-sharing-links .fl-buttons {
+    flex-direction: row;
+    margin: 0;
+}
+
 .fl-sharing-links-dialog .fl-qr-code-prompt .fl-heading {
     font: inherit;
     margin: 0;
@@ -40,13 +46,19 @@ Sharing Links - copy, email and QR code buttons for one URL
 }
 
 @media (--viewport-xs) {
-    .fl-mediacontent-content .fl-sharing-links .fl-button {
+    .fl-mediacontent-content .fl-sharing-links .fl-button,
+    .fl-banner .fl-sharing-links .fl-button {
         inline-size: unset;
     }
 }
 
 @media (--viewport-md-up) {
-    .fl-mediacontent-content .fl-sharing-links {
+    .fl-mediacontent-content .fl-sharing-links,
+    .fl-banner-content-left .fl-sharing-links {
         align-items: start;
+    }
+
+    .fl-banner-content-inner-centralize-content .fl-sharing-links {
+        align-items: center;
     }
 }

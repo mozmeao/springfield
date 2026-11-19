@@ -80,14 +80,19 @@ DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 TASK_QUEUE_AVAILABLE = False
 RQ_QUEUES = {}
 
+# Names of the task queues we use. When running tests, these are swapped
+# for test-specific queues - see springfield/settings/__init__.py
+RQ_DEFAULT_QUEUE = "default"
+RQ_IMAGE_RENDITIONS_QUEUE = "image_renditions"
+
 REDIS_URL = config("REDIS_URL", default="")
 if REDIS_URL:
     TASK_QUEUE_AVAILABLE = True
     REDIS_URL = REDIS_URL.rstrip("/0")
     RQ_QUEUES = {
         # Same Redis DBs/connections
-        "default": {"URL": f"{REDIS_URL}/0"},
-        "image_renditions": {"URL": f"{REDIS_URL}/0"},
+        RQ_DEFAULT_QUEUE: {"URL": f"{REDIS_URL}/0"},
+        RQ_IMAGE_RENDITIONS_QUEUE: {"URL": f"{REDIS_URL}/0"},
     }
 
 CACHE_TIME_SHORT = 60 * 10  # 10 mins
@@ -949,6 +954,7 @@ PATTERN_LIBRARY = {
         ("Docs", ["pattern-library/docs"]),
         ("Base Styles", ["pattern-library/base-styles"]),
         ("Components", ["pattern-library/components/flare/"]),
+        ("Context Specific Components", ["pattern-library/context-specific/"]),
     ),
     # Configure which files to detect as templates.
     "TEMPLATE_SUFFIX": ".html",
@@ -984,6 +990,9 @@ if DEBUG:
     default_email_backend = "django.core.mail.backends.console.EmailBackend"
 elif TASK_QUEUE_AVAILABLE is True:
     default_email_backend = "django_rq_email_backend.backends.RQEmailBackend"
+
+# The queue that django-rq-email-backend sends emails via, when it is in use
+RQ_EMAIL_DEFAULT_QUEUE = RQ_DEFAULT_QUEUE
 
 DEFAULT_FROM_EMAIL = "Mozilla.com <noreply@mozilla.com>"
 
@@ -1418,7 +1427,7 @@ WAGTAILADMIN_BASE_URL = config("WAGTAILADMIN_BASE_URL", default="")
 # https://docs.wagtail.org/en/stable/reference/settings.html#wagtail-autosave-interval
 WAGTAIL_AUTOSAVE_INTERVAL = 0
 
-# We're sticking to LTS releases of Wagtail, so we don't want to be told there's a new version if that's not LTS
+# Wagtail upgrades are planned work, so don't show editors the dashboard notice about new releases
 WAGTAIL_ENABLE_UPDATE_CHECK = False
 
 # Custom setting (not a Wagtail core one) that we use to plug in/unplug the admin UI entirely
@@ -1557,6 +1566,7 @@ WAGTAIL_LOCALIZE_SMARTLING = {
     "REFORMAT_LANGUAGE_CODES": False,  # don't force language codes into Django's all-lowercase pattern
     "VISUAL_CONTEXT_CALLBACK": "springfield.cms.wagtail_localize_smartling.callbacks.visual_context",
     "EXCLUDE_LOCALES": SMARTLING_EXCLUDED_LOCALES,
+    "SEND_TO_SMARTLING_BY_DEFAULT": False,  # override a potential regression in w-l-s 0.13
 }
 
 WAGTAILDRAFTSHARING = {

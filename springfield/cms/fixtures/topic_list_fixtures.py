@@ -17,6 +17,7 @@ def _get_topics(anchor_prefix):
                 "short_title": "Privacy Online",
                 "anchor_id": f"{anchor_prefix}privacy-online",
                 "image": placeholder_images.image.id,
+                "image_alt": "A numbered grid, standing in for a real image",
                 "heading": {
                     "superheading_text": "",
                     "heading_text": '<p data-block-key="tp01">Privacy Online</p>',
@@ -34,6 +35,7 @@ def _get_topics(anchor_prefix):
                 "short_title": "Speed & Performance",
                 "anchor_id": f"{anchor_prefix}speed-performance",
                 "image": placeholder_images.image.id,
+                "image_alt": "A numbered grid, standing in for a real image",
                 "heading": {
                     "superheading_text": "",
                     "heading_text": '<p data-block-key="tp03">Speed & Performance</p>',
@@ -51,6 +53,7 @@ def _get_topics(anchor_prefix):
                 "short_title": "Customization",
                 "anchor_id": f"{anchor_prefix}customization",
                 "image": placeholder_images.image.id,
+                "image_alt": "A numbered grid, standing in for a real image",
                 "heading": {
                     "superheading_text": "",
                     "heading_text": '<p data-block-key="tp05">Customization</p>',

@@ -118,6 +118,41 @@ function init() {
             }
         });
 
+        // Find any buttons that should open about:newtab with the widgets
+        // customization panel (about:newtab#customize-widgets).
+        const openNewTabWidgetsButtons = document.querySelectorAll(
+            '.ui-tour-open-new-tab-customize-widgets'
+        );
+
+        if (openNewTabWidgetsButtons.length) {
+            Mozilla.UITour.getConfiguration('appinfo', (data) => {
+                // The widgets panel (about:newtab#customize-widgets) ships in Firefox 160.
+                if (data && data.version && parseFloat(data.version) < 160) {
+                    openNewTabWidgetsButtons.forEach((button) => {
+                        const wrapper = button.closest('.ui-tour');
+                        if (wrapper) {
+                            wrapper.classList.add('is-hidden');
+                        }
+                    });
+                    return;
+                }
+
+                openNewTabWidgetsButtons.forEach((button) => {
+                    const clickTarget =
+                        button.closest('.fl-card-expand-link') || button;
+                    clickTarget.addEventListener(
+                        'click',
+                        (e) => {
+                            e.preventDefault();
+
+                            Mozilla.UITour.showNewTab('customize-widgets');
+                        },
+                        false
+                    );
+                });
+            });
+        }
+
         // Find any buttons that should open about:preferences to any of the panes.
         const openPreferencesButtons = document.querySelectorAll(
             '[class*="ui-tour-open-about-preferences"]'
@@ -319,6 +354,31 @@ function init() {
                 });
             });
         }
+
+        // Find any buttons that should set the treatment tag named in their
+        // data-treatment-tag-name attribute. Firefox stores it in the
+        // browser.uitour.treatment.<name> pref, which messaging can observe.
+        // Each click stores a new random value so the pref always changes.
+        const setTreatmentTagButtons = document.querySelectorAll(
+            '.ui-tour-set-treatment-tag'
+        );
+        setTreatmentTagButtons.forEach((button) => {
+            const name = button.dataset.treatmentTagName;
+
+            // Listen on the card when the button expands to fill one, so a
+            // click on the button sets the tag once rather than twice.
+            const clickTarget =
+                button.closest('.fl-card-expand-link') || button;
+            clickTarget.addEventListener(
+                'click',
+                (e) => {
+                    e.preventDefault();
+
+                    Mozilla.UITour.setTreatmentTag(name, crypto.randomUUID());
+                },
+                false
+            );
+        });
 
         // Find any openSmartWindowButtons that should open the  Firefox Accounts sign-in flow for the AI Window feature.
         const openSmartWindowButtons = document.querySelectorAll(

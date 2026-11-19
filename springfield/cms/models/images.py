@@ -4,6 +4,7 @@
 
 import re
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 
@@ -66,6 +67,13 @@ class SpringfieldImage(AbstractImage):
 
     admin_form_fields = Image.admin_form_fields + ("is_decorative",)
 
+    @property
+    def default_alt_text(self):
+        """The alt text Wagtail's chooser prefills, empty for a decorative image."""
+        if self.is_decorative:
+            return ""
+        return super().default_alt_text
+
     def clean(self):
         super().clean()
         errors = {}
@@ -116,7 +124,7 @@ class SpringfieldImage(AbstractImage):
         # to generate renditions, else it will immediately generate them
         defer_task(
             _make_renditions,
-            queue_name="image_renditions",
+            queue_name=settings.RQ_IMAGE_RENDITIONS_QUEUE,
             func_kwargs={
                 "image_id": self.id,
                 "filter_specs": AUTOMATIC_RENDITION_FILTER_SPECS,
@@ -130,17 +138,6 @@ class SpringfieldRendition(AbstractRendition):
         on_delete=models.CASCADE,
         related_name="renditions",
     )
-
-    @property
-    def alt(self):
-        """The alt text for the rendered <img>, empty for a decorative image.
-
-        An empty alt attribute is what drops an image out of the accessibility tree. Leaving
-        the attribute off instead makes screen readers fall back to announcing the file name.
-        """
-        if self.image.is_decorative:
-            return ""
-        return super().alt
 
     class Meta:
         unique_together = (("image", "filter_spec", "focal_point_key"),)

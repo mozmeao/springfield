@@ -551,7 +551,7 @@ def get_button_blocks() -> list[dict]:
                 "heading": {
                     "superheading_text": "",
                     "heading_text": '<p data-block-key="j8nhz">External link Buttons with Mozilla domains</p>',
-                    "subheading_text": '<p data-block-key="6u373">Choose <i>Custom URL</i> to ad a link to another site. '
+                    "subheading_text": '<p data-block-key="6u373">Choose <i>Custom URL</i> to add a link to another site. '
                     'Check the <i>Open in new window</i> option if the link should open in another browser tab/window.</p><p data-block-key="ft6q5">'
                     '</p><p data-block-key="a68ij"><b>*.mozilla.org</b>, <b>*.mozillafoundation.org</b>, and <b>*.firefox.com</b> '
                     "(except <b>www.firefox.com</b>) domains automatically get UTM parameters added to the links. </p>",
@@ -574,7 +574,7 @@ def get_button_blocks() -> list[dict]:
                 "heading": {
                     "superheading_text": "",
                     "heading_text": '<p data-block-key="j8nhz">External link buttons with non Mozilla domains</p>',
-                    "subheading_text": '<p data-block-key="6u373">Choose <i>Custom URL</i> to ad a link to another site. Check the '
+                    "subheading_text": '<p data-block-key="6u373">Choose <i>Custom URL</i> to add a link to another site. Check the '
                     '<i>Open in new window</i> option if the link should open in another browser tab/window.</p><p data-block-key="ft6q5"></p>'
                     '<p data-block-key="5inkg">Links to non Mozilla domain don\'t get the UTM parameters.</p>',
                 },
@@ -596,7 +596,8 @@ def get_button_blocks() -> list[dict]:
                 "heading": {
                     "superheading_text": "",
                     "heading_text": '<p data-block-key="j8nhz">Internal link button</p>',
-                    "subheading_text": "",
+                    "subheading_text": '<p data-block-key="intlnk01s">Choose <i>Page</i> to link to another page in the CMS. '
+                    "Check <i>Open in new window</i> to open it in a new browser tab.</p>",
                 },
                 "content": [
                     {"type": "buttons", "id": "961cf2a3-0000-0000-0000-000000000001", "value": [buttons["page"], buttons["page_new_tab"]]},
@@ -666,7 +667,8 @@ def get_button_blocks() -> list[dict]:
                 "heading": {
                     "superheading_text": "",
                     "heading_text": '<p data-block-key="j8nhz">Email and phone links</p>',
-                    "subheading_text": "",
+                    "subheading_text": '<p data-block-key="emailph01s">Choose <i>Email</i> or <i>Phone</i> to build a '
+                    "mailto: or tel: link from the address or number you enter.</p>",
                 },
                 "content": [
                     {"type": "buttons", "id": "706155ae-0000-0000-0000-000000000001", "value": [buttons["email"], buttons["phone"]]},
@@ -763,7 +765,8 @@ def get_button_blocks() -> list[dict]:
                         "type": "rich_text",
                         "id": "uitour01-0000-0000-0000-000000000001",
                         "value": '<p data-block-key="uitour01t">Calls <code>Mozilla.UITour.showNewTab()</code> to open a new browser tab in Firefox, '
-                        "or <code>Mozilla.UITour.showHome('customize')</code> to open a new tab with the customization panel. "
+                        "<code>Mozilla.UITour.showHome('customize')</code> to open a new tab with the customization panel, "
+                        "or <code>Mozilla.UITour.showNewTab('customize-widgets')</code> to open a new tab with the widgets panel. "
                         "Only works in Firefox Desktop — the buttons are hidden on other browsers.</p>",
                     },
                     {
@@ -799,6 +802,21 @@ def get_button_blocks() -> list[dict]:
                                     "custom_label": "Open New Tab (Customize Panel)",
                                 },
                                 "id": "uitour01-0000-0000-0000-000000000011",
+                            },
+                            {
+                                "type": "uitour_button",
+                                "value": {
+                                    "settings": {
+                                        "theme": "secondary",
+                                        "icon": "open-tabs",
+                                        "icon_position": "right",
+                                        "analytics_id": "uitour01-0000-0000-0000-000000000012",
+                                    },
+                                    "button_type": "open_new_tab_customize_widgets",
+                                    "pretranslated_label": None,
+                                    "custom_label": "Open New Tab (Widgets Panel)",
+                                },
+                                "id": "uitour01-0000-0000-0000-000000000012",
                             },
                         ],
                     },
@@ -974,6 +992,21 @@ def get_button_blocks() -> list[dict]:
                                 },
                                 "id": "uitour02-0000-0000-0000-000000000018",
                             },
+                            {
+                                "type": "uitour_button",
+                                "value": {
+                                    "settings": {
+                                        "theme": "secondary",
+                                        "icon": "",
+                                        "icon_position": "right",
+                                        "analytics_id": "uitour02-0000-0000-0000-000000000022",
+                                    },
+                                    "button_type": "open_about_preferences_about",
+                                    "pretranslated_label": None,
+                                    "custom_label": "Preferences: About",
+                                },
+                                "id": "uitour02-0000-0000-0000-000000000022",
+                            },
                         ],
                     },
                     {
@@ -1010,6 +1043,22 @@ def get_button_blocks() -> list[dict]:
                                     "custom_label": "Set Wallpaper: Wrexham",
                                 },
                                 "id": "uitour02-0000-0000-0000-000000000020",
+                            },
+                            {
+                                "type": "uitour_button",
+                                "value": {
+                                    "settings": {
+                                        "theme": "secondary",
+                                        "icon": "",
+                                        "icon_position": "right",
+                                        "analytics_id": "uitour02-0000-0000-0000-000000000021",
+                                    },
+                                    "button_type": "set_treatment_tag",
+                                    "treatment_tag_name": "wnp-test-show-callout",
+                                    "pretranslated_label": None,
+                                    "custom_label": "Set Treatment Tag",
+                                },
+                                "id": "uitour02-0000-0000-0000-000000000021",
                             },
                         ],
                     },

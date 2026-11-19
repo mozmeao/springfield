@@ -21,6 +21,8 @@ updates:
     ignore:
       # Need to be kept in sync with pre-commit-config.yaml.
       - dependency-name: 'ruff'
+      # Pinned to 4.51.0 for the Internet Explorer integration job; see the note in pyproject.toml.
+      - dependency-name: 'selenium'
     schedule:
       interval: monthly
     # Matches `exclude-newer` in `pyproject.toml`, so Dependabot never proposes a version uv refuses to lock
