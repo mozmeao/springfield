@@ -43,7 +43,7 @@ JS_UNSUPPORTED_PLATFORMS_BY_RELEASE = {
     "stable": ["linux"],
     "esr-next": ["ios", "android", "linux"],
     "esr": ["ios", "android"],
-    "esr-115": ["ios", "android", "win64-aarch64", "linux", "linux64-aarch64"],
+    "esr-115": ["ios", "android", "win64-aarch64", "linux", "linux64", "linux64-aarch64"],
     "beta": ["linux"],
     "dev": ["ios", "android", "linux", "osx-pkg"],
     "nightly": ["ios", "linux"],
@@ -181,7 +181,7 @@ class TestClientData:
 
     def test_esr_115_recommendations_are_desktop_only(self):
         recommendations = all_form.get_client_data()["options"]["esr115"]["recommendations"]
-        assert set(recommendations) == {"windows", "macos", "linux"}
+        assert set(recommendations) == {"windows", "macos"}
 
     def test_bouncer_pieces_rebuild_a_download_url(self):
         # The JS builds this one URL itself because the language reaches it, so
@@ -353,8 +353,8 @@ class TestGetDownloadUrl:
 
 
 class TestSecondaryEsrUrls:
-    SUPPORTED = ["win", "win-msi", "win64", "win64-msi", "osx", "osx-pkg", "linux64"]
-    UNSUPPORTED = ["linux", "win64-aarch64", "linux64-aarch64"]
+    SUPPORTED = ["win", "win-msi", "win64", "win64-msi", "osx", "osx-pkg"]
+    UNSUPPORTED = ["linux", "linux64", "win64-aarch64", "linux64-aarch64"]
 
     @pytest.mark.parametrize("os_value", SUPPORTED)
     def test_esr_115_offered(self, os_value):
@@ -718,10 +718,12 @@ class TestDownloadOptionList:
     """
 
     def test_order_is_fixed(self):
-        # Every option at once: Linux gets APT, ESR gets both extra ESR builds.
+        # Linux gets APT, and ESR gets the next ESR; ESR 115 is never offered on Linux.
         with patch.object(all_form, "get_esr_next_version", return_value="153.0"):
-            keys = list(options_for(os="linux64", release="esr", language="de"))
-        assert keys == ["apt", "esr-next", "primary", "esr-115"]
+            linux_keys = list(options_for(os="linux64", release="esr", language="de"))
+            windows_keys = list(options_for(os="win64", release="esr", language="de"))
+        assert linux_keys == ["apt", "esr-next", "primary"]
+        assert windows_keys == ["esr-next", "primary", "esr-115"]
 
     def test_desktop_primary(self):
         options = options_for(os="win64", release="stable", language="de")

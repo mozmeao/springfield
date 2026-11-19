@@ -116,7 +116,7 @@ UNSUPPORTED_PLATFORMS_BY_RELEASE = {
     "stable": ("linux",),
     "esr": ("ios", "android"),
     "esr-next": ("ios", "android", "linux"),
-    "esr-115": ("ios", "android", "win64-aarch64", "linux", "linux64-aarch64"),
+    "esr-115": ("ios", "android", "win64-aarch64", "linux", "linux64", "linux64-aarch64"),
     "beta": ("linux",),
     "dev": ("ios", "android", "linux", "osx-pkg"),
     "nightly": ("ios", "linux"),
@@ -224,7 +224,6 @@ SUPPORT_LINK_LABELS = {
 ESR_115_RECOMMENDATIONS = {
     "windows": "Recommended for Windows 7/8/8.1",
     "macos": "Recommended for macOS 10.12–10.14",
-    "linux": "Recommended for older operating systems",
 }
 
 # ---------------------------------------------------------------------------
