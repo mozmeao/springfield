@@ -34,6 +34,7 @@ from springfield.blog.management.commands.import_wordpress_blog_posts import (
 from springfield.blog.models import BlogArticlePage
 from springfield.blog.models.pages import HeroStyle
 from springfield.blog.models.snippets import BlogAuthor, BlogTag, BlogTopic
+from springfield.cms.blocks import POSTER_SOURCE_YOUTUBE
 from springfield.cms.models import SpringfieldImage
 from springfield.cms.tests.factories import LocaleFactory
 
@@ -912,6 +913,7 @@ def test_materialize_content_video_spec_downloads_youtube_thumbnail_as_poster(co
     assert video_type == "video"
     assert video_value["video_url"] == "https://www.youtube.com/watch?v=abc123"
     assert video_value["alt"] == "A video"
+    assert video_value["poster_source"] == POSTER_SOURCE_YOUTUBE
     assert video_value["poster"].title == "A video"
     assert [call.request.url for call in responses.calls] == ["https://img.youtube.com/vi/abc123/maxresdefault.jpg"]
 

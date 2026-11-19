@@ -1,3 +1,8 @@
+## 2026-11-18
+
+- Video blocks have a Poster setting. "YouTube thumbnail" (the default for new video blocks) adds the video's own thumbnail to the image library when you save, and changes with the video URL. "Upload an image" uses your own poster image, and is required for assets.mozilla.net videos. Existing videos keep their poster image.
+- Drafts save with an incomplete video block. The poster is checked when you publish.
+
 ## 2026-11-17
 
 - UI Tour buttons have an "Open Preferences - About (Firefox Updates)" action, which opens `about:preferences#about`.
