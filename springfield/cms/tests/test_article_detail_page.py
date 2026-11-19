@@ -19,7 +19,7 @@ from springfield.cms.fixtures.homepage_fixtures import get_cards_list
 from springfield.cms.fixtures.snippet_fixtures import get_pre_footer_cta_form_snippet, get_pre_footer_cta_snippet
 from springfield.cms.models import ArticleDetailPage, FreeFormPage2026
 from springfield.cms.models.pages import PRE_FOOTER_IMAGE_GLOBE, PRE_FOOTER_IMAGE_KIT
-from springfield.cms.tests.factories import ArticleDetailPageFactory
+from springfield.cms.tests.factories import ArticleDetailPageFactory, ArticleIndexPageFactory
 from springfield.cms.tests.test_pages import build_page_save_request
 from springfield.cms.wagtail_hooks import warn_about_leading_conditional_blocks
 
@@ -68,6 +68,15 @@ def article(article_index):
         slug="vpn",
         content=[{"type": "text", "value": "<h2>Why use a VPN</h2><p>Article text.</p>"}],
     )
+    page.save_revision().publish()
+    return page
+
+
+@pytest.fixture
+def minimal_article(minimal_site):
+    """A published article under a bare index page, for tests that never render the page."""
+    article_index = ArticleIndexPageFactory(parent=minimal_site.root_page, other_articles_heading="<p>More articles</p>")
+    page = ArticleDetailPageFactory(parent=article_index, title="Firefox VPN", slug="vpn")
     page.save_revision().publish()
     return page
 
@@ -141,11 +150,11 @@ def test_hero_and_landing_content_sit_on_their_own_tab():
     assert "closing_cta" in tabs["Content"]
 
 
-def test_landing_content_needs_a_hero(article):
-    article.landing_content = [section_block("What you get")]
+def test_landing_content_needs_a_hero(minimal_article):
+    minimal_article.landing_content = [section_block("What you get")]
 
     with pytest.raises(ValidationError) as error:
-        article.full_clean()
+        minimal_article.full_clean()
 
     assert error.value.message_dict["hero"] == ["Add a hero to use landing content."]
 
@@ -155,19 +164,19 @@ def test_landing_content_needs_a_hero(article):
     [([], []), ([intro_block("Firefox VPN")], []), ([intro_block("Firefox VPN")], [section_block("What you get")])],
     ids=["neither", "hero_only", "both"],
 )
-def test_hero_and_landing_content_pass_validation(article, hero, landing_content):
-    article.hero = hero
-    article.landing_content = landing_content
+def test_hero_and_landing_content_pass_validation(minimal_article, hero, landing_content):
+    minimal_article.hero = hero
+    minimal_article.landing_content = landing_content
 
-    article.full_clean()
+    minimal_article.full_clean()
 
 
-def test_hero_and_landing_strings_are_translatable(article):
-    article.hero = [intro_block("Firefox VPN")]
-    article.landing_content = [section_block("What you get")]
-    article.save()
+def test_hero_and_landing_strings_are_translatable(minimal_article):
+    minimal_article.hero = [intro_block("Firefox VPN")]
+    minimal_article.landing_content = [section_block("What you get")]
+    minimal_article.save()
 
-    strings = {segment.string.data for segment in extract_segments(article) if hasattr(segment, "string")}
+    strings = {segment.string.data for segment in extract_segments(minimal_article) if hasattr(segment, "string")}
 
     assert "Firefox VPN" in strings
     assert "What you get" in strings
@@ -331,12 +340,12 @@ def test_index_card_is_the_same_with_a_hero(client, article, article_index):
     ],
     ids=["conditional_heroes", "hero_for_everyone"],
 )
-def test_editor_is_warned_when_heroes_are_all_conditional(article, rf, hero, warning_count):
-    article.hero = hero
-    article.save_revision().publish()
+def test_editor_is_warned_when_heroes_are_all_conditional(minimal_article, rf, hero, warning_count):
+    minimal_article.hero = hero
+    minimal_article.save_revision().publish()
 
-    request = build_page_save_request(rf, article)
-    warn_about_leading_conditional_blocks(request, article)
+    request = build_page_save_request(rf, minimal_article)
+    warn_about_leading_conditional_blocks(request, minimal_article)
     warnings = [str(message) for message in get_messages(request) if message.level == messages.WARNING]
 
     assert len(warnings) == warning_count
