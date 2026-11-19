@@ -10,13 +10,14 @@
 
 {% block page_css %}{{ css_bundle('firefox_all_form') }}{% endblock %}
 
-{% block page_title %}Firefox download options{% endblock %}
+{% block page_title %}Firefox download configuration tool{% endblock %}
 
 {% block content %}
 
 <div class="fl-main">
   <div class="fl-section c-page">
-    <h1 id="firefox-download-options" class="fl-heading c-page-title">Download Firefox</h1>
+    <h1 id="firefox-download-options" class="fl-heading c-page-title">Download configuration tool</h1>
+    <p class="c-page-intro">Choose an operating system, release type, and language to download a standalone Firefox installer that doesn’t need an internet connection to install.</p>
 
     {#
       Always rendered, and only shown when there are errors, so the space between
@@ -38,10 +39,10 @@
         <div class="c-choices">
           <div class="fl-field-wrap c-field-wrap">
             <div class="fl-label c-label">
-              <label for="os">Operating System</label>
+              <label for="os">Operating system</label>
               <button type="button" data-target-id="os-help" class="fl-tiny-icon-button fl-dialog-trigger">
                 <include:icon icon_name="help" hidden />
-                <span class="visually-hidden">Help for Operating System</span>
+                <span class="visually-hidden">Help choosing an operating system</span>
               </button>
             </div>
             <include:dialog id="os-help">
@@ -81,10 +82,10 @@
 
           <div class="fl-field-wrap c-field-wrap">
             <div class="fl-label c-label">
-              <label for="release">Release Type</label>
+              <label for="release">Release type</label>
               <button type="button" data-target-id="release-help" class="fl-tiny-icon-button fl-dialog-trigger">
                 <include:icon icon_name="help" hidden />
-                <span class="visually-hidden">Help for Release Type</span>
+                <span class="visually-hidden">Help choosing a release type</span>
               </button>
             </div>
             <include:dialog id="release-help">

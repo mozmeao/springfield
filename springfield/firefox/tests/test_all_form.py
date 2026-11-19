@@ -692,7 +692,7 @@ class TestFormContext:
 
     def test_conflict_produces_an_error_on_the_release_field(self):
         ctx = all_form.get_form_context(all_form.parse_selection({"os": "ios", "release": "esr"}))
-        assert ctx["release_error"] == all_form.RELEASE_UNAVAILABLE_ERROR
+        assert ctx["release_error"] == "Firefox ESR is not available for iOS."
         assert ctx["has_errors"] is True
         # Both values are still echoed, so the error sits next to what was chosen.
         assert ctx["selected_os"] == "ios"
@@ -915,7 +915,7 @@ class TestFormView:
     def test_conflict_renders_inline(self, client):
         response = client.get(FORM_URL, {"os": "ios", "release": "esr", "language": "de"})
         assert response.status_code == 200
-        assert response.context["release_error"] == all_form.RELEASE_UNAVAILABLE_ERROR
+        assert response.context["release_error"] == "Firefox ESR is not available for iOS."
 
     @override_switch("ALL_FORM", active=True)
     def test_client_data_is_embedded_for_the_js(self, client):
@@ -1020,7 +1020,7 @@ class TestResultView:
         response = client.get(RESULT_URL, {"os": "ios", "release": "esr"}, follow=True)
         assert response.status_code == 200
         assert len(response.redirect_chain) == 1
-        assert response.context["release_error"] == all_form.RELEASE_UNAVAILABLE_ERROR
+        assert response.context["release_error"] == "Firefox ESR is not available for iOS."
 
     @override_switch("ALL_FORM", active=True)
     def test_bounce_keeps_the_locale_prefix(self, client):

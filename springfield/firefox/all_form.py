@@ -189,7 +189,13 @@ _RELEASE_TO_NOTES_CHANNEL = {
     "esr-115": "organizations",
 }
 
-RELEASE_UNAVAILABLE_ERROR = "Release type unavailable for this platform."
+# `{release}` and `{os}` are the option labels; the JS fills them in the same way.
+RELEASE_UNAVAILABLE_ERROR = "{release} is not available for {os}."
+
+
+def get_release_unavailable_error(os_value, release):
+    return RELEASE_UNAVAILABLE_ERROR.format(release=RELEASE_LABELS[release], os=OS_LABELS[os_value])
+
 
 # ---------------------------------------------------------------------------
 # Copy
@@ -206,7 +212,7 @@ MESSAGES = {
     # Not keyed "or": Jinja cannot reach that as an attribute, it is a keyword.
     "divider": "or",
     # Shown under the language select once it has been disabled for a store app.
-    "languageIgnored": "Language can be configured after installation.",
+    "languageIgnored": "Configure your language after installing.",
     # The whole results pane, when the two choices cannot go together.
     "conflict": "There are no downloads for this combination. Pick a different release type, or a different operating system.",
     # The submit button, which is the results pane until a platform is known.
@@ -872,7 +878,7 @@ def get_form_context(selection):
     (`selected_*`), and a pair with no builds still gets its inline error, which
     is about the submission rather than about the current state of the controls.
     """
-    release_error = RELEASE_UNAVAILABLE_ERROR if selection.has_conflict else None
+    release_error = get_release_unavailable_error(os_value=selection.os, release=selection.release) if selection.has_conflict else None
 
     return {
         "os_groups": get_os_groups(),

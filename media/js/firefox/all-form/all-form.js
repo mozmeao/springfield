@@ -817,9 +817,20 @@ class FirefoxDownloadFormElement extends HTMLElement {
         // for free. Reporting it is a separate, event-driven step: see
         // _report and _handleInvalid.
         this._effect(() => {
-            this._form.elements.release.setCustomValidity(
-                this._isCompatible.value ? '' : MESSAGES.releaseUnavailable
-            );
+            const { os, release } = this._form.elements;
+            const message = this._isCompatible.value
+                ? ''
+                : MESSAGES.releaseUnavailable
+                      .replace(
+                          '{release}',
+                          this._releaseOptions.get(this._release.value).option
+                              .textContent
+                      )
+                      .replace(
+                          '{os}',
+                          os.namedItem(this._os.value).textContent
+                      );
+            release.setCustomValidity(message);
         });
 
         // The server-rendered errors describes the selection the page loaded
