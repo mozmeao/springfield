@@ -37,6 +37,10 @@
         {% include "firefox/all-form/_download-options.html" %}
       </div>
 
+      {% if qr_code %}
+        {% include "firefox/all-form/_qr-code.html" %}
+      {% endif %}
+
       <div class="c-support-links">
         {%- for link in support_links %}
         <a href="{{ link.href }}">{{ link.label }}</a>

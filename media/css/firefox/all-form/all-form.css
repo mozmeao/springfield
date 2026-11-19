@@ -310,6 +310,36 @@
         padding-inline-start: var(--token-spacing-xs);
     }
 
+    .c-qr-code-trigger:not([hidden]) {
+        display: grid;
+        gap: var(--c-option-gap);
+        justify-items: center;
+        margin-block-start: calc(var(--c-option-gap) - var(--token-spacing-md));
+    }
+
+    .c-qr-code:not([hidden]) {
+        display: grid;
+        gap: var(--token-spacing-sm);
+        justify-items: center;
+        margin: 0;
+
+        svg {
+            block-size: auto;
+            inline-size: 200px;
+        }
+
+        figcaption {
+            font-size: var(--fl-theme-font-size-body-sm);
+            max-inline-size: 20rem;
+            text-align: center;
+        }
+    }
+
+    /* Scanning a code needs a second device, so phones get the store buttons alone. */
+    :root:is(.android, .ios) :is(.c-qr-code-trigger, .c-result .c-qr-code) {
+        display: none;
+    }
+
     .c-detected-os:not([hidden]) {
         font-size: var(--fl-theme-font-size-body-sm);
     }

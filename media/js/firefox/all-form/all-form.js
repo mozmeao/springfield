@@ -435,6 +435,9 @@ class FirefoxDownloadFormElement extends HTMLElement {
     _downloadOptionsPane;
     _incompatiblePane;
     _esrTransition;
+    _qrCodeTrigger;
+    /** "os release" -> its QR code figure, inside the dialog. */
+    _qrCodes = new Map();
     _supportLinksPane;
     _languageMessage;
 
@@ -562,6 +565,16 @@ class FirefoxDownloadFormElement extends HTMLElement {
         // Only rendered while the server knows of a next ESR.
         this._esrTransition =
             this._resultsPane.querySelector('.c-esr-transition');
+        this._qrCodeTrigger =
+            this._resultsPane.querySelector('.c-qr-code-trigger');
+        for (const figure of document.querySelectorAll(
+            '#qr-code-dialog .c-qr-code'
+        )) {
+            this._qrCodes.set(
+                `${figure.dataset.os} ${figure.dataset.release}`,
+                figure
+            );
+        }
 
         // Server-rendered, and already showing if the page loaded on a store app.
         this._languageMessage = language
@@ -868,6 +881,19 @@ class FirefoxDownloadFormElement extends HTMLElement {
             this._esrTransition.hidden = !(
                 this._view.value === VIEW.OPTIONS && this._hasESRNext.value
             );
+        });
+
+        this._effect(() => {
+            const qrCode =
+                this._view.value === VIEW.OPTIONS
+                    ? this._qrCodes.get(
+                          `${this._os.value} ${this._release.value}`
+                      )
+                    : undefined;
+            this._qrCodeTrigger.hidden = !qrCode;
+            for (const figure of this._qrCodes.values()) {
+                figure.hidden = figure !== qrCode;
+            }
         });
 
         // During an ESR transition the newer ESR is the recommended download.

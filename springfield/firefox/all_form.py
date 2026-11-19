@@ -494,6 +494,36 @@ def get_store_url(os_value, release):
     return None
 
 
+# Short URLs keep the codes coarse enough to scan. The redirector sends each
+# phone to its own store with attribution, and is on the production host so a
+# code shown on any environment still works when scanned.
+QR_CODE_RELEASE_URL = "https://www.firefox.com/browsers/mobile/app/?product=firefox&campaign=firefox-all"
+
+
+def get_qr_code(os_value, release):
+    """
+    A QR code target for a mobile store listing, or None.
+
+    The redirector only knows release Firefox, so Android Beta and Nightly encode
+    their bare Play Store listing, without attribution. iOS Beta has none: it
+    leads to the TestFlight explainer on this site, not to a store.
+    """
+    if os_value not in MOBILE_OS or not is_supported(os_value, release):
+        return None
+    if release == "stable":
+        url = QR_CODE_RELEASE_URL
+    elif os_value == "android":
+        url = getattr(settings, _ANDROID_PLAY_STORE_SETTING[_RELEASE_TO_MOBILE_CHANNEL["android"][release]])
+    else:
+        return None
+    return {"os": os_value, "release": release, "url": url, "label": f"{RELEASE_LABELS[release]} for {OS_LABELS[os_value]}"}
+
+
+def get_qr_codes():
+    """Every store QR code the form page can show, for the script to pick from."""
+    return [qr_code for os_value in sorted(MOBILE_OS) for release in RELEASE_LABELS if (qr_code := get_qr_code(os_value, release))]
+
+
 def release_to_ms_store_channel(release):
     """The `mz_cn` value the Microsoft Store listing expects."""
     return "release" if release == "stable" else release
@@ -930,6 +960,7 @@ def get_form_context(selection):
         "client_data_json": get_client_data_json(),
         "copy": MESSAGES,
         "esr_transition": get_esr_transition(),
+        "qr_codes": get_qr_codes(),
     }
 
 
@@ -954,6 +985,7 @@ def get_download_options(selection):
         "language_label": get_language_label(language) if language else "",
         "download_options": download_options,
         "esr_transition": get_esr_transition() if any(option["key"] == OPTION_ESR_NEXT for option in download_options) else None,
+        "qr_code": get_qr_code(os_value, release),
         "support_links": get_support_links(os_value, release),
         "copy": MESSAGES,
         "logo": get_logo(release),

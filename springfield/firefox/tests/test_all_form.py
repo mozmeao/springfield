@@ -507,6 +507,31 @@ class TestGetStoreUrlDesktop:
 # ---------------------------------------------------------------------------
 
 
+class TestQrCode:
+    def test_store_apps_get_a_qr_code(self):
+        targets = [(qr_code["os"], qr_code["release"]) for qr_code in all_form.get_qr_codes()]
+        assert targets == [("android", "stable"), ("android", "beta"), ("android", "nightly"), ("ios", "stable")]
+
+    @pytest.mark.parametrize("os_value", ["android", "ios"])
+    def test_release_qr_code_uses_the_redirector(self, os_value):
+        qr_code = all_form.get_qr_code(os_value=os_value, release="stable")
+        assert qr_code["url"] == "https://www.firefox.com/browsers/mobile/app/?product=firefox&campaign=firefox-all"
+        assert qr_code["label"] == f"Firefox for {all_form.OS_LABELS[os_value]}"
+
+    @pytest.mark.parametrize("release, url", [("beta", "id=org.mozilla.firefox_beta"), ("nightly", "id=org.mozilla.fenix")])
+    def test_android_prerelease_qr_code_is_the_bare_listing(self, release, url):
+        qr_code = all_form.get_qr_code(os_value="android", release=release)
+        assert qr_code["url"].startswith("https://play.google.com/")
+        assert qr_code["url"].endswith(url)
+
+    def test_ios_beta_has_no_qr_code(self):
+        assert all_form.get_qr_code(os_value="ios", release="beta") is None
+
+    @pytest.mark.parametrize("os_value", ["win64", "osx", "linux64"])
+    def test_desktop_has_no_qr_code(self, os_value):
+        assert all_form.get_qr_code(os_value=os_value, release="stable") is None
+
+
 class TestApkUrl:
     @pytest.mark.parametrize("release", ["stable", "beta"])
     def test_apk_url_contains_the_version(self, release):
@@ -935,6 +960,13 @@ class TestFormView:
         assert b"support.mozilla.org/kb/firefox-esr-release-cycle" in response.content
 
     @override_switch("ALL_FORM", active=True)
+    def test_qr_codes_are_rendered_hidden_for_the_script(self, client):
+        content = client.get(FORM_URL).content
+        assert b'<div class="c-qr-code-trigger" hidden>' in content
+        for qr_code in all_form.get_qr_codes():
+            assert f'data-os="{qr_code["os"]}" data-release="{qr_code["release"]}" hidden>'.encode() in content
+
+    @override_switch("ALL_FORM", active=True)
     def test_no_esr_transition_outside_a_transition(self, client):
         with patch.object(all_form, "get_esr_transition", return_value=None):
             assert b"c-esr-transition" not in client.get(FORM_URL).content
@@ -1069,6 +1101,17 @@ class TestResultView:
         # controls, so the row cannot fall out of step with anything.
         assert b'class="c-support-links"' in response.content
         assert all_form.SUPPORT_LINK_LABELS["privacy"].encode() in response.content
+
+    @override_switch("ALL_FORM", active=True)
+    def test_store_app_result_shows_its_qr_code(self, client):
+        response = client.get(RESULT_URL, {"os": "android", "release": "beta"})
+        assert b'<figure class="c-qr-code" data-os="android" data-release="beta">' in response.content
+        assert b"to get Firefox Beta for Android." in response.content
+
+    @override_switch("ALL_FORM", active=True)
+    @pytest.mark.parametrize("query", [{"os": "ios", "release": "beta"}, {"os": "win64", "release": "stable", "language": "de"}])
+    def test_other_results_have_no_qr_code(self, client, query):
+        assert b'class="c-qr-code"' not in client.get(RESULT_URL, query).content
 
     @override_switch("ALL_FORM", active=True)
     def test_result_page_is_not_indexed(self, client):

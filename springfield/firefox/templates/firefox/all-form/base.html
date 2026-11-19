@@ -254,6 +254,12 @@
             </div>
           </div>
 
+          {# Server-rendered so the dialog script wires it up; the script shows it for store apps. #}
+          <div class="c-qr-code-trigger" hidden>
+            <div class="c-or-divider">{{ copy.divider }}</div>
+            <button type="button" class="fl-button button-secondary fl-button-small fl-dialog-trigger" data-target-id="qr-code-dialog" data-cta-text="Scan QR code">Scan QR code<include:icon icon_name="device-mobile" hidden /></button>
+          </div>
+
           {# JS-only: without it, an unusable pair is reported by the inline error
              on the release field, which is about the submission rather than about
              where the selects have since been moved to. #}
@@ -264,6 +270,20 @@
         </div>
       </form>
     </firefox-download-form>
+    <include:dialog id="qr-code-dialog">
+      <content:heading>
+        <include:heading
+          level="h1"
+          heading_size="fl-heading-size-3"
+          heading_text="Scan the QR code"
+        />
+      </content:heading>
+      <content:body>
+        {% for qr_code in qr_codes %}
+          {% with hidden=True %}{% include "firefox/all-form/_qr-code.html" %}{% endwith %}
+        {% endfor %}
+      </content:body>
+    </include:dialog>
     <div class="c-need-help">
       {% set campaign = "firefox-all" %}
       {% set params = '?utm_source=www.firefox.com&utm_medium=referral&utm_campaign=' + campaign %}
