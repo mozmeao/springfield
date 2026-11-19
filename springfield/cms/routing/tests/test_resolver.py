@@ -12,11 +12,11 @@ from django.utils import translation
 
 import pytest
 from bs4 import BeautifulSoup
-from wagtail.models import Locale, Page, Site
+from wagtail.models import Locale, Page, PageViewRestriction, Site
 
 from springfield.cms.routing.mixins import RoutingMixin
 from springfield.cms.routing.models import RoutingCondition, RoutingRule
-from springfield.cms.routing.resolver import fallback_url, render_resolver, serialize_manifest, serialize_rules, with_visitor_query
+from springfield.cms.routing.resolver import fallback_url, render_resolver, rule_problems, serialize_manifest, serialize_rules, with_visitor_query
 from springfield.cms.tests.factories import SimpleRichTextPageFactory
 
 pytestmark = [pytest.mark.django_db]
@@ -406,3 +406,11 @@ def test_serialize_drops_a_rule_whose_translated_target_is_unpublished(translate
 def test_serialize_is_unaffected_for_an_untranslated_page(routed_page):
     serialized = serialize_rules(routed_page.canonical)
     assert serialized[0]["target"] == routed_page.target.get_url()
+
+
+def test_a_restricted_target_is_reported_and_never_serialized(routed_page):
+    PageViewRestriction.objects.create(page=routed_page.target, restriction_type=PageViewRestriction.LOGIN)
+    canonical = Page.objects.get(pk=routed_page.canonical.pk)
+    assert serialize_rules(canonical) == []
+    problem = rule_problems(canonical)[routed_page.rule.pk]
+    assert problem.pending is False

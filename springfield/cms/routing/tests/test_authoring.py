@@ -540,6 +540,15 @@ def test_an_organic_page_rejects_a_rule_with_no_conditions(admin_client, downloa
     assert not RoutingRule.objects.filter(page=canonical).exists()
 
 
+def test_an_organic_page_ignores_a_deleted_rule(admin_client, download):
+    canonical, target = download
+    condition = {"signal": "is_firefox", "operator": "is", "expected_value": "true"}
+    rules = inline_formset([{"name": "Gone", "match_all": "", "target": target.pk, "DELETE": "on", "conditions": inline_formset([condition])}])
+    response = admin_client.post(_edit_url(canonical), _download_post_data(canonical, rules))
+    assert response.status_code == 302, _routing_errors(response)
+    assert not RoutingRule.objects.filter(page=canonical).exists()
+
+
 def test_an_organic_tab_offers_only_server_signals_and_its_own_help(admin_client, download):
     canonical, _target = download
     response = admin_client.get(_edit_url(canonical))

@@ -9,6 +9,7 @@ from unittest.mock import patch
 from django.test import RequestFactory, override_settings
 
 import pytest
+from wagtail.models import PageViewRestriction
 
 from springfield.cms.routing import server_match
 from springfield.cms.routing.models import RoutingCondition, RoutingRule
@@ -144,3 +145,14 @@ def test_each_signal_is_read_once_per_request(country_rules):
     with patch.dict(server_match.SERVER_SIGNALS, {"country": reader}):
         assert matched_target(refetched(country_rules.canonical), request_from("US")) is None
     assert len(reads) == 1
+
+
+def test_a_rule_with_a_restricted_target_is_never_matched(country_rules):
+    PageViewRestriction.objects.create(page=country_rules.variant, restriction_type=PageViewRestriction.LOGIN)
+    assert matched_target(refetched(country_rules.canonical), request_from("CN")).pk == country_rules.second.pk
+
+
+def test_a_restricted_canonical_never_matches(country_rules):
+    # Its variants inherit the restriction, so a cacheable redirect can't skip the never-cache serve.
+    PageViewRestriction.objects.create(page=country_rules.canonical, restriction_type=PageViewRestriction.LOGIN)
+    assert matched_target(refetched(country_rules.canonical), request_from("CN")) is None

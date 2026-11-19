@@ -13,7 +13,7 @@ from django.test.utils import CaptureQueriesContext
 
 import pytest
 from waffle.testutils import override_switch
-from wagtail.models import Site
+from wagtail.models import PageViewRestriction, Site
 
 from springfield.cms.models import DownloadPage
 from springfield.cms.routing.arming import OrganicArmingCondition
@@ -148,6 +148,12 @@ def test_kill_switch_serves_canonical(client, download):
 
 
 def test_switch_off_serves_canonical(client, download):
+    assert get_page(client, download.android, country="CN").status_code == 200
+
+
+@override_switch("user_routing", active=True)
+def test_a_restricted_variant_is_never_redirected_to(client, download):
+    PageViewRestriction.objects.create(page=download.variant, restriction_type=PageViewRestriction.LOGIN)
     assert get_page(client, download.android, country="CN").status_code == 200
 
 
