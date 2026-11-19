@@ -823,6 +823,16 @@ class TestSupportLinks:
         links = {link["key"]: link["href"] for link in all_form.get_support_links("win64", "beta")}
         assert links["release-notes"].startswith("/en-US/")
 
+    def test_every_option_has_cta_text_without_a_version(self):
+        for os_value in all_form.get_os_values():
+            for release in all_form.RELEASE_LABELS:
+                for option in all_form.get_download_option_list(os_value, release, "de"):
+                    assert option["cta_text"]
+                    assert not re.search(r"\d+\.\d", option["cta_text"])
+
+    def test_testflight_has_its_own_cta_text(self):
+        assert options_for(os="ios", release="beta")["primary"]["cta_text"] == "Sign up for TestFlight"
+
 
 class TestDownloadOptionsContext:
     def test_desktop(self):
@@ -995,6 +1005,11 @@ class TestResultView:
         options = {option["key"]: option for option in response.context["download_options"]}
         assert options["primary"]["href"] == f"{BOUNCER}?os=win64&product=firefox-latest-ssl&lang=de"
         assert b'data-download-option="primary"' in response.content
+        # Tracked by the site-wide `data` bundle and given attribution by
+        # download-attribution, since this page loads no script of its own.
+        assert b'class="download-link ga-product-download fl-button button-primary"' in response.content
+        assert b'data-download-version="win64"' in response.content
+        assert b'data-cta-text="Download Firefox"' in response.content
         # Unlike the form page, this one does render the support links: it has no
         # controls, so the row cannot fall out of step with anything.
         assert b'class="c-support-links"' in response.content

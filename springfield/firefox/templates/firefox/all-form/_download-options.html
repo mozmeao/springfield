@@ -2,7 +2,9 @@
  This Source Code Form is subject to the terms of the Mozilla Public
  License, v. 2.0. If a copy of the MPL was not distributed with this
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
 
+{#
  The download options for a selection, from all_form.get_download_option_list().
 
  Used by the result page only. The form page never renders a list — see the
@@ -23,7 +25,7 @@
   <div class="c-or-divider">{{ copy.divider }}</div>
   {% endif %}
   <div class="c-download-option" data-download-option="{{ option.key }}">
-    <a class="fl-button {{ option.classes|join(' ') }}" href="{{ option.href }}">{{ option.label }}<span aria-hidden="true" class="fl-icon fl-icon-{{ option.icon }}"></span></a>
+    <a class="download-link ga-product-download fl-button {{ option.classes|join(' ') }}" href="{{ option.href }}" data-download-version="{{ os_value }}" data-cta-text="{{ option.cta_text }}">{{ option.label }}<span aria-hidden="true" class="fl-icon fl-icon-{{ option.icon }}"></span></a>
     {%- if option.recommendation %}
     <p class="c-recommendation">{{ option.recommendation }}</p>
     {%- endif %}

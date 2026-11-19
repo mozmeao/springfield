@@ -198,11 +198,12 @@ function systemRequirementsURL(os, release) {
 function resolvePrimaryAction(os, release, href) {
     const family = isMobileOS(os) ? os : 'desktop';
     const action = DATA.options.primary[family]?.[release];
-    if (!action) return { label: '', icon: 'downloads', href: '' };
+    if (!action) return { label: '', icon: 'downloads', ctaText: '', href: '' };
 
     return {
         label: action.label,
         icon: action.icon,
+        ctaText: action.ctaText,
         href: isMobileOS(os) ? (DATA.storeUrls[os][release] ?? '') : href
     };
 }
@@ -641,6 +642,7 @@ class FirefoxDownloadFormElement extends HTMLElement {
             this._createDownloadButton({
                 name: DOWNLOAD_OPTION.APT,
                 label: apt.label,
+                ctaText: apt.ctaText,
                 href: apt.href,
                 icon: apt.icon,
                 additionalClasses: apt.classes
@@ -652,6 +654,7 @@ class FirefoxDownloadFormElement extends HTMLElement {
             this._createDownloadButton({
                 name: DOWNLOAD_OPTION.ESR_NEXT,
                 label: esrNext.label,
+                ctaText: esrNext.ctaText,
                 icon: esrNext.icon,
                 additionalClasses: esrNext.classes,
                 href: () =>
@@ -671,6 +674,7 @@ class FirefoxDownloadFormElement extends HTMLElement {
                 // Each field gets its own computed, so a change that only moves
                 // the href leaves the label's text node untouched.
                 label: () => this._primary.value.label,
+                ctaText: () => this._primary.value.ctaText,
                 icon: () => this._primary.value.icon,
                 href: () => this._primary.value.href
             })
@@ -681,6 +685,7 @@ class FirefoxDownloadFormElement extends HTMLElement {
             this._createDownloadButton({
                 name: DOWNLOAD_OPTION.ESR_115,
                 label: esr115.label,
+                ctaText: esr115.ctaText,
                 icon: esr115.icon,
                 additionalClasses: esr115.classes,
                 href: () =>
@@ -699,6 +704,7 @@ class FirefoxDownloadFormElement extends HTMLElement {
             this._createDownloadButton({
                 name: DOWNLOAD_OPTION.APK,
                 label: apk.label,
+                ctaText: apk.ctaText,
                 icon: apk.icon,
                 additionalClasses: apk.classes,
                 href: () => apk.hrefs[this._release.value] ?? ''
@@ -710,6 +716,7 @@ class FirefoxDownloadFormElement extends HTMLElement {
             this._createDownloadButton({
                 name: DOWNLOAD_OPTION.MICROSOFT_STORE,
                 label: microsoftStore.label,
+                ctaText: microsoftStore.ctaText,
                 icon: microsoftStore.icon,
                 additionalClasses: microsoftStore.classes,
                 href: () => microsoftStore.hrefs[this._release.value] ?? ''
@@ -1095,6 +1102,7 @@ class FirefoxDownloadFormElement extends HTMLElement {
     _createDownloadButton({
         name,
         label,
+        ctaText,
         href,
         icon,
         recommendation,
@@ -1121,6 +1129,11 @@ class FirefoxDownloadFormElement extends HTMLElement {
         const hrefSource = this._bind(href);
         this._effect(() => {
             link.href = hrefSource.value;
+        });
+
+        const ctaTextSource = this._bind(ctaText);
+        this._effect(() => {
+            link.dataset.ctaText = ctaTextSource.value;
         });
 
         this._effect(() => {

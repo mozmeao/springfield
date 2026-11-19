@@ -16,6 +16,9 @@ const appStoreURL = /^https:\/\/apps.apple.com/;
 const playStoreURL = /^https:\/\/play.google.com/;
 const msStoreUrl = /^https:\/\/apps.microsoft.com/;
 const msStoreUrl2 = /^ms-windows-store:\/\/pdp\//;
+// Captures the version directory, e.g. 146.0 or 146.0b3.
+const fenixApkURL =
+    /^https:\/\/(?:ftp|archive)\.mozilla\.org\/pub\/fenix\/releases\/([^/]+)\/.+\.apk$/;
 
 if (typeof window.dataLayer === 'undefined') {
     window.dataLayer = [];
@@ -36,7 +39,8 @@ TrackProductDownload.isValidDownloadURL = (downloadURL) => {
             appStoreURL.test(downloadURL) ||
             playStoreURL.test(downloadURL) ||
             msStoreUrl.test(downloadURL) ||
-            msStoreUrl2.test(downloadURL)
+            msStoreUrl2.test(downloadURL) ||
+            fenixApkURL.test(downloadURL)
         ) {
             return true;
         } else {
@@ -142,6 +146,14 @@ TrackProductDownload.getEventFromUrl = (downloadURL) => {
             'site',
             release,
             params.lang
+        );
+    } else if (fenixApkURL.test(downloadURL)) {
+        const version = downloadURL.match(fenixApkURL)[1];
+        eventObject = TrackProductDownload.getEventObject(
+            'firefox_mobile',
+            'android',
+            'site',
+            /b\d+$/.test(version) ? 'beta' : 'release'
         );
     } else if (playStoreURL.test(downloadURL)) {
         const idParam = params.id;

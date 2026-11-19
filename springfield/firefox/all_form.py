@@ -562,11 +562,23 @@ LINK_FAMILIES = ("desktop", "android", "ios")
 # ---------------------------------------------------------------------------
 
 
-def _option(key, label, href, icon, classes, recommendation=""):
+# `data-cta-text` for analytics. Fixed English, so events stay comparable across
+# locales and versions, unlike the button labels.
+CTA_TEXT = {
+    OPTION_APT: "Set up the APT repository",
+    OPTION_ESR_NEXT: "Download Firefox ESR next",
+    OPTION_ESR_115: "Download Firefox ESR 115",
+    OPTION_APK: "Download the APK",
+    OPTION_MICROSOFT_STORE: "Download from the Microsoft Store",
+}
+
+
+def _option(key, label, href, icon, classes, recommendation="", cta_text=None):
     return {
         "key": key,
         "group": _OPTION_GROUPS[key],
         "label": label,
+        "cta_text": cta_text or CTA_TEXT[key],
         "href": href,
         "icon": icon,
         # Applied on top of `fl-button`.
@@ -578,7 +590,7 @@ def _option(key, label, href, icon, classes, recommendation=""):
 
 def get_primary_action(family, release):
     """
-    The main download button's label and icon, which never depend on the chosen
+    The main download button's label, icon and analytics CTA text, which never depend on the chosen
     language — only the href does. Keyed on the platform family rather than the
     OS so the JS can be handed one small table instead of a 12-row one.
     """
@@ -586,13 +598,13 @@ def get_primary_action(family, release):
         if release == "beta":
             # iOS betas go through TestFlight, so this leads to an explainer
             # rather than straight to a download.
-            return {"label": "Sign up for TestFlight", "icon": "forward"}
-        return {"label": "Download from the App Store", "icon": "downloads"}
+            return {"label": "Sign up for TestFlight", "icon": "forward", "ctaText": "Sign up for TestFlight"}
+        return {"label": "Download from the App Store", "icon": "downloads", "ctaText": "Download from the App Store"}
     if family == "android":
-        return {"label": "Download from the Play Store", "icon": "downloads"}
+        return {"label": "Download from the Play Store", "icon": "downloads", "ctaText": "Download from the Play Store"}
     version = get_version("win64", release)
     label = f"Download {RELEASE_LABELS[release]} {version}" if version else f"Download {RELEASE_LABELS[release]}"
-    return {"label": label, "icon": "downloads"}
+    return {"label": label, "icon": "downloads", "ctaText": f"Download {RELEASE_LABELS[release]}"}
 
 
 def get_esr_next_label():
@@ -624,7 +636,7 @@ def get_download_option_list(os_value, release, language):
     family = get_platform_family(os_value)
     primary = get_primary_action(family, release)
     primary_href = get_store_url(os_value, release) if os_value in MOBILE_OS else get_download_url(os_value, release, language)
-    options.append(_option(OPTION_PRIMARY, primary["label"], primary_href, primary["icon"], ["button-primary"]))
+    options.append(_option(OPTION_PRIMARY, primary["label"], primary_href, primary["icon"], ["button-primary"], cta_text=primary["ctaText"]))
 
     esr_115_url = get_esr_115_download_url(os_value, release, language)
     if esr_115_url:
@@ -718,7 +730,13 @@ def get_client_data():
             # {platform family: {release: {label, icon}}} — the label carries the
             # version, so it changes with the release but not with the OS.
             "primary": {family: {release: get_primary_action(family, release) for release in selectable} for family in ("desktop", "ios", "android")},
-            "apt": {"label": "Set up the APT repository", "icon": "external-link", "classes": ["button-secondary"], "href": LINUX_APT_URL},
+            "apt": {
+                "label": "Set up the APT repository",
+                "ctaText": CTA_TEXT[OPTION_APT],
+                "icon": "external-link",
+                "classes": ["button-secondary"],
+                "href": LINUX_APT_URL,
+            },
             # `available` because the option is gated on there being a second
             # ESR in product details, which the JS cannot see for itself. Its
             # href is built browser-side from the language, so unlike `apk` it
@@ -726,23 +744,27 @@ def get_client_data():
             "esrNext": {
                 "available": bool(get_esr_next_version()),
                 "label": get_esr_next_label(),
+                "ctaText": CTA_TEXT[OPTION_ESR_NEXT],
                 "icon": "downloads",
                 "classes": ["button-primary"],
             },
             "esr115": {
                 "label": f"Download {RELEASE_LABELS['esr']} 115",
+                "ctaText": CTA_TEXT[OPTION_ESR_115],
                 "icon": "downloads",
                 "classes": ["button-primary", "fl-button-small"],
                 "recommendations": dict(ESR_115_RECOMMENDATIONS),
             },
             "apk": {
                 "label": "Download the APK directly",
+                "ctaText": CTA_TEXT[OPTION_APK],
                 "icon": "downloads",
                 "classes": ["button-secondary", "fl-button-small"],
                 "hrefs": {release: get_apk_url("android", release) for release in selectable},
             },
             "microsoftStore": {
                 "label": "Download from the Microsoft Store",
+                "ctaText": CTA_TEXT[OPTION_MICROSOFT_STORE],
                 "icon": "external-link",
                 "classes": ["button-secondary", "fl-button-small"],
                 # Keyed by release only: every listed Windows option shares a listing.
@@ -909,6 +931,7 @@ def get_download_options(selection):
 
     return {
         "is_mobile": os_value in MOBILE_OS,
+        "os_value": os_value,
         "os_label": OS_LABELS[os_value],
         "release_label": RELEASE_LABELS[release],
         "language_label": get_language_label(language) if language else "",
