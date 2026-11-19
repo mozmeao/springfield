@@ -139,8 +139,8 @@ module.exports = [
         }
     },
     {
-        // JS Playwright test files.
-        files: ['tests/playwright/**/*.js'],
+        // JS Playwright test files and Playwright-driven skill scripts.
+        files: ['tests/playwright/**/*.js', '.claude/skills/**/*.js'],
         languageOptions: {
             ecmaVersion: 'latest',
             sourceType: 'script',
