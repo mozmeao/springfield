@@ -157,12 +157,13 @@
      *
      * With JS the script adds .c-message-hidden. Without it, the server-rendered
      * errors describe the selection the page loaded with, so they go once the
-     * release select has been changed.
+     * release or language select has been changed.
      */
     .c-message-hidden,
-    .no-js:has([name='release']:where(:user-invalid, :user-valid)) :is(
+    .no-js:has(:is([name='release'], [name='language']):where(:user-invalid, :user-valid)) :is(
         .fl-notification-wrapper,
-        #server-release-error
+        #server-release-error,
+        #server-language-error
     ) {
         opacity: 0;
         transition: opacity 200ms, visibility 200ms;

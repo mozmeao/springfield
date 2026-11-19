@@ -56,8 +56,13 @@ const MOBILE_OS = new Set(DATA.mobileOS);
 // The Windows options with a Microsoft Store listing. The MSI builds are for
 // corporate IT to deploy and have no store equivalent.
 const MICROSOFT_STORE_OS = new Set(DATA.microsoftStoreOS);
-// ESR 115 has no builds for these locales (mozilla/bedrock#15437).
-const ESR_115_UNAVAILABLE_LOCALES = new Set(DATA.esr115UnavailableLocales);
+// Desktop locales with a build, per release, secondary ESRs included.
+const LANGUAGES_BY_RELEASE = new Map(
+    Object.entries(DATA.languagesByRelease).map(([release, languages]) => [
+        release,
+        new Set(languages)
+    ])
+);
 
 const MESSAGES = DATA.messages;
 
@@ -119,6 +124,10 @@ function releaseSupportsPlatform(release, platform) {
         throw new RangeError(`Unknown platform: ${platform}`);
 
     return !DATA.unsupportedPlatformsByRelease[release].includes(platform);
+}
+
+function releaseHasLanguage(release, language) {
+    return LANGUAGES_BY_RELEASE.get(release)?.has(language) ?? false;
 }
 
 // ---------------------------------------------------------------------------
@@ -333,9 +342,18 @@ class FirefoxDownloadFormElement extends HTMLElement {
         releaseSupportsPlatform(this._release.value, this._os.value)
     );
 
+    // Store apps are multi-locale, so only desktop builds can lack a language.
+    _hasLanguage = computed(
+        () =>
+            this._isMobile.value ||
+            releaseHasLanguage(this._release.value, this._language.value)
+    );
+
     _view = computed(() => {
         if (!this._os.value) return VIEW.EMPTY;
-        return this._isCompatible.value ? VIEW.OPTIONS : VIEW.CONFLICT;
+        return this._isCompatible.value && this._hasLanguage.value
+            ? VIEW.OPTIONS
+            : VIEW.CONFLICT;
     });
 
     _downloadHref = computed(() =>
@@ -369,16 +387,17 @@ class FirefoxDownloadFormElement extends HTMLElement {
         () =>
             this._isESR.value &&
             DATA.options.esrNext.available &&
-            releaseSupportsPlatform(RELEASES.ESR_NEXT, this._os.value)
+            releaseSupportsPlatform(RELEASES.ESR_NEXT, this._os.value) &&
+            releaseHasLanguage(RELEASES.ESR_NEXT, this._language.value)
     );
 
-    // The only download option gated on language: ESR 115 predates a couple of
-    // locales and has no build for them, so offering it would link to a 404.
+    // The secondary ESRs have their own locale lists, so offering one in a
+    // language it lacks would link to a 404.
     _hasESR115 = computed(
         () =>
             this._isESR.value &&
             releaseSupportsPlatform(RELEASES.ESR_115, this._os.value) &&
-            !ESR_115_UNAVAILABLE_LOCALES.has(this._language.value)
+            releaseHasLanguage(RELEASES.ESR_115, this._language.value)
     );
 
     // Keyed on the exact OS rather than the family: the MSI builds are Windows
@@ -463,6 +482,7 @@ class FirefoxDownloadFormElement extends HTMLElement {
      * on every input event.
      */
     _releaseOptions = new Map();
+    _languageOptions = new Map();
 
     /** The selects, in DOM order. */
     _fields = [];
@@ -531,6 +551,7 @@ class FirefoxDownloadFormElement extends HTMLElement {
         this._collectElements();
         this._removeNoJSReleaseHint();
         this._collectReleaseOptions();
+        this._collectLanguageOptions();
         this._createDownloadOptions();
         this._createSupportLinks();
         this._registerEffects();
@@ -632,13 +653,42 @@ class FirefoxDownloadFormElement extends HTMLElement {
      * the platform changes.
      */
     _collectReleaseOptions() {
-        for (const option of this._form.elements.release.options) {
-            this._releaseOptions.set(option.value, {
+        this._collectOptions(this._form.elements.release, this._releaseOptions);
+    }
+
+    /** Same as _collectReleaseOptions, for the languages a release has. */
+    _collectLanguageOptions() {
+        this._collectOptions(
+            this._form.elements.language,
+            this._languageOptions
+        );
+    }
+
+    _collectOptions(select, options) {
+        for (const option of select.options) {
+            options.set(option.value, {
                 option,
                 placeholder: new Comment(
                     `${option.value}:${option.textContent}`
                 )
             });
+        }
+    }
+
+    /**
+     * Swap unavailable options for their placeholders. A selected one stays,
+     * disabled: changing the visitor's choice out from under them hides which
+     * field is the problem.
+     */
+    _filterOptions(options, selected, isAvailable) {
+        for (const [value, { option, placeholder }] of options) {
+            const available = isAvailable(value);
+            if (available || value === selected) {
+                if (!option.isConnected) placeholder.replaceWith(option);
+                option.disabled = !available;
+            } else if (option.isConnected) {
+                option.replaceWith(placeholder);
+            }
         }
     }
 
@@ -821,37 +871,37 @@ class FirefoxDownloadFormElement extends HTMLElement {
         // Keep the query string in step with what the visitor chose. Gated on
         // an actual edit: a detected platform is a guess, and writing it to the
         // URL would make the next reload look like a deliberate prefill.
+        // Only the three fields change, so campaign params survive for download
+        // attribution to read.
         this._effect(() => {
             if (this._provenance.value !== PROVENANCE.EDITED) return;
-            const params = {
-                os: this._os.value,
-                release: this._release.value,
-                language: this._language.value
-            };
             const url = new URL(window.location);
-            url.search = new URLSearchParams(params);
+            url.searchParams.set('os', this._os.value);
+            url.searchParams.set('release', this._release.value);
+            url.searchParams.set('language', this._language.value);
             history.replaceState(null, '', url);
         });
 
         // Which releases the platform can actually offer.
         this._effect(() => {
             const os = this._os.value;
-            const selected = this._release.value;
+            this._filterOptions(
+                this._releaseOptions,
+                this._release.value,
+                (release) => releaseSupportsPlatform(release, os)
+            );
+        });
 
-            for (const [release, { option, placeholder }] of this
-                ._releaseOptions) {
-                const supported = releaseSupportsPlatform(release, os);
-
-                // An unavailable option that is currently selected stays in the
-                // select, disabled: changing the visitor's choice out from
-                // under them hides which half of the pair is the problem.
-                if (supported || release === selected) {
-                    if (!option.isConnected) placeholder.replaceWith(option);
-                    option.disabled = !supported;
-                } else if (option.isConnected) {
-                    option.replaceWith(placeholder);
-                }
-            }
+        // Which languages the release has builds in. Store apps skip this: their
+        // language select is disabled and hidden.
+        this._effect(() => {
+            const release = this._release.value;
+            const isMobile = this._isMobile.value;
+            this._filterOptions(
+                this._languageOptions,
+                this._language.value,
+                (language) => isMobile || releaseHasLanguage(release, language)
+            );
         });
 
         // Mobile builds are multi-locale, so the language choice does not apply.
@@ -885,15 +935,38 @@ class FirefoxDownloadFormElement extends HTMLElement {
             release.setCustomValidity(message);
         });
 
+        this._effect(() => {
+            const message = this._hasLanguage.value
+                ? ''
+                : MESSAGES.languageUnavailable
+                      .replace(
+                          '{language}',
+                          this._languageOptions.get(this._language.value).option
+                              .textContent
+                      )
+                      .replace(
+                          '{release}',
+                          this._releaseOptions.get(this._release.value).option
+                              .textContent
+                      );
+            this._form.elements.language.setCustomValidity(message);
+        });
+
         // The server-rendered errors describes the selection the page loaded
         // with. Once the visitor edits, it is stale.
         this._effect(() => {
             if (this._provenance.value !== PROVENANCE.EDITED) return;
 
-            const serverError = this.querySelector('#server-release-error');
-            if (serverError) {
-                serverError.classList.add('c-message-hidden');
-                this._form.elements.release.removeAttribute('aria-describedby');
+            for (const field of ['release', 'language']) {
+                const serverError = this.querySelector(
+                    `#server-${field}-error`
+                );
+                if (serverError) {
+                    serverError.classList.add('c-message-hidden');
+                    this._form.elements[field].removeAttribute(
+                        'aria-describedby'
+                    );
+                }
             }
 
             const serverNotification = this.closest('.fl-main').querySelector(
@@ -1026,12 +1099,13 @@ class FirefoxDownloadFormElement extends HTMLElement {
     _report() {
         for (const field of this._fields) this._setFieldError(field, '');
 
-        // Only the release field reports as you edit. It carries the one
-        // constraint of ours — compatibility — and it is where the explanation
-        // for a conflict belongs, whichever select produced it. `required` on a
-        // field left empty is not something to complain about mid-flow; native
-        // submit raises that, and _handleInvalid renders it then.
+        // Only the release and language fields report as you edit. They carry
+        // our constraints — what each is available for — and are where the
+        // explanation belongs, whichever select produced the conflict. `required`
+        // on a field left empty is not something to complain about mid-flow;
+        // native submit raises that, and _handleInvalid renders it then.
         this._form.elements.release.checkValidity();
+        this._form.elements.language.checkValidity();
     }
 
     /**
@@ -1097,7 +1171,7 @@ class FirefoxDownloadFormElement extends HTMLElement {
         // effect clears it on the first edit and we render from then on.
         if (
             fieldWrap.querySelector(
-                '#server-release-error:not(.c-message-hidden)'
+                ':is(#server-release-error, #server-language-error):not(.c-message-hidden)'
             )
         )
             return;

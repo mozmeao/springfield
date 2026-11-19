@@ -435,7 +435,8 @@ def firefox_all_form(request):
     if not waffle.switch("all-form"):
         raise Http404()
     selection = all_form.parse_selection(request.GET, all_form.default_language(request.locale))
-    return l10n_utils.render(request, "firefox/all-form/base.html", all_form.get_form_context(selection), ftl_files="firefox/all")
+    context = all_form.get_form_context(selection) | {"campaign_params": all_form.get_campaign_params(request.GET)}
+    return l10n_utils.render(request, "firefox/all-form/base.html", context, ftl_files="firefox/all")
 
 
 @require_safe
@@ -450,7 +451,8 @@ def firefox_all_form_result(request):
         # query string and renders the error inline. The whole query string is
         # preserved so campaign params survive too.
         return HttpResponseRedirect(all_form.form_url(request.GET), status=303)
-    return l10n_utils.render(request, "firefox/all-form/result.html", all_form.get_download_options(selection), ftl_files="firefox/all")
+    context = all_form.get_download_options(selection, campaign_params=all_form.get_campaign_params(request.GET))
+    return l10n_utils.render(request, "firefox/all-form/result.html", context, ftl_files="firefox/all")
 
 
 class DownloadThanksView(L10nTemplateView):

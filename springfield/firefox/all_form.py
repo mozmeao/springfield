@@ -33,6 +33,7 @@ from product_details import product_details
 
 from springfield.base.urlresolvers import reverse
 from springfield.firefox.firefox_details import firefox_android, firefox_desktop, firefox_ios
+from springfield.firefox.redirects import UTM_PARAM_NAMES, validate_param_value
 
 # The release the form falls back to, matching the first <option> the browser
 # selects when no release was submitted.
@@ -104,14 +105,10 @@ RELEASE_LABELS = {
 # alongside `esr`.
 SECONDARY_RELEASES = ("esr-next", "esr-115")
 
-# Which OS options each release has no build for. This is the source of truth for
-# availability and is serialized into the form page for the JS.
-#
-# It is deliberately hardcoded rather than derived from firefox_desktop.platforms(),
-# which only knows about the "32-bit Linux ends with v145" rule (firefox_details.py:90).
-# That rule is why `linux` is absent from the `esr` row below and present in every
-# other one; `linux` must be added to `esr` by hand once ESR moves past 145.
-# test_all_form.py has a drift alarm for exactly that.
+# Which OS options each release has no build for, apart from 32-bit Linux, which
+# product details drops per channel once it reaches v145 (firefox_details.py:90)
+# and _unsupported_platforms() adds from that. ESR 115 dropped it out of band, so
+# its row lists it by hand.
 UNSUPPORTED_PLATFORMS_BY_RELEASE = {
     "stable": ("linux",),
     "esr": ("ios", "android"),
@@ -129,9 +126,6 @@ LINUX_APT_URL = "https://support.mozilla.org/en-US/kb/install-firefox-linux#w_in
 MOBILE_SYSREQ_URL = "https://support.mozilla.org/kb/will-firefox-work-my-mobile-device"
 
 PRIVACY_URL = "https://www.mozilla.org/privacy/firefox/"
-
-# ESR 115 has no builds for these locales (mozilla/bedrock#15437).
-ESR_115_UNAVAILABLE_LOCALES = frozenset({"sat", "skr"})
 
 _FENIX_FTP_BASE = "https://ftp.mozilla.org/pub/fenix/releases"
 
@@ -197,6 +191,14 @@ def get_release_unavailable_error(os_value, release):
     return RELEASE_UNAVAILABLE_ERROR.format(release=RELEASE_LABELS[release], os=OS_LABELS[os_value])
 
 
+# `{language}` and `{release}` are the option labels; the JS fills them in the same way.
+LANGUAGE_UNAVAILABLE_ERROR = "{language} is not available for {release}."
+
+
+def get_language_unavailable_error(language, release):
+    return LANGUAGE_UNAVAILABLE_ERROR.format(language=get_language_label(language), release=RELEASE_LABELS[release])
+
+
 # ---------------------------------------------------------------------------
 # Copy
 #
@@ -208,13 +210,14 @@ def get_release_unavailable_error(os_value, release):
 
 MESSAGES = {
     "releaseUnavailable": RELEASE_UNAVAILABLE_ERROR,
+    "languageUnavailable": LANGUAGE_UNAVAILABLE_ERROR,
     # The word between two download options that are alternatives to each other.
     # Not keyed "or": Jinja cannot reach that as an attribute, it is a keyword.
     "divider": "or",
     # Shown under the language select once it has been disabled for a store app.
     "languageIgnored": "Matches your phone’s language.",
     # The whole results pane, when the two choices cannot go together.
-    "conflict": "There are no downloads for this combination. Pick a different release type, or a different operating system.",
+    "conflict": "There are no downloads for this combination. Pick a different operating system, release type, or language.",
     # The submit button, which is the results pane until a platform is known.
     "fallback": "See download options",
 }
@@ -290,9 +293,17 @@ _OPTION_GROUPS = {
 # ---------------------------------------------------------------------------
 
 
+def _unsupported_platforms(release):
+    unsupported = UNSUPPORTED_PLATFORMS_BY_RELEASE[release]
+    channel = _RELEASE_TO_DESKTOP_CHANNEL.get(release)
+    if channel and "linux" not in unsupported and "linux" not in dict(firefox_desktop.platforms(channel)):
+        unsupported += ("linux",)
+    return unsupported
+
+
 def is_supported(os_value, release):
     """Whether the given OS option has a build for the given release."""
-    return os_value not in UNSUPPORTED_PLATFORMS_BY_RELEASE[release]
+    return os_value not in _unsupported_platforms(release)
 
 
 def get_os_values():
@@ -316,23 +327,39 @@ def get_release_choices():
     return list(RELEASE_LABELS.items())
 
 
-def is_offered_language(language):
+def get_release_languages(release):
     """
-    Whether the language field offers this locale.
+    The locales with a desktop build for this release.
 
-    `ja-JP-mac` is excluded: it shares its labels with `ja`, so it would render as
-    a second, indistinguishable "Japanese" option, and it is only ever correct for
-    macOS — where get_download_url() derives it from `ja` anyway.
+    `ja-JP-mac` is left out: get_download_url() derives it from `ja` on macOS, and
+    offering it would add a second, indistinguishable "Japanese".
     """
-    return language != "ja-JP-mac" and language in product_details.languages
+    if release == "esr-115":
+        version = firefox_desktop.firefox_versions.get("FIREFOX_ESR115")
+    else:
+        version = firefox_desktop.latest_version(_RELEASE_TO_DESKTOP_CHANNEL[release])
+    if not version:
+        return frozenset()
+    return frozenset(
+        locale
+        for locale, builds in firefox_desktop.firefox_primary_builds.items()
+        if builds.get(version) and locale in product_details.languages and locale != "ja-JP-mac"
+    )
+
+
+def get_offered_languages():
+    """Every locale some selectable release has a build for."""
+    return frozenset().union(*(get_release_languages(release) for release in RELEASE_LABELS))
+
+
+def is_offered_language(language):
+    """Whether the language field offers this locale."""
+    return language in get_offered_languages()
 
 
 def get_language_choices():
     """(locale, label) pairs for the language field, sorted by label."""
-    return sorted(
-        ((locale, get_language_label(locale)) for locale in product_details.languages if is_offered_language(locale)),
-        key=lambda item: item[1],
-    )
+    return sorted(((locale, get_language_label(locale)) for locale in get_offered_languages()), key=lambda item: item[1])
 
 
 def get_language_label(language):
@@ -352,7 +379,7 @@ def get_unsupported_platforms():
     Every release key is always present, including ones that are not selectable:
     the JS indexes this map directly, so a missing key is a TypeError.
     """
-    return {release: list(os_values) for release, os_values in UNSUPPORTED_PLATFORMS_BY_RELEASE.items()}
+    return {release: list(_unsupported_platforms(release)) for release in UNSUPPORTED_PLATFORMS_BY_RELEASE}
 
 
 # ---------------------------------------------------------------------------
@@ -436,7 +463,7 @@ def get_download_url(os_value, release, language):
 
 def get_esr_115_download_url(os_value, release, language):
     """ESR 115 download URL, offered as a secondary option alongside ESR."""
-    if release != "esr" or not is_supported(os_value, "esr-115") or language in ESR_115_UNAVAILABLE_LOCALES:
+    if release != "esr" or not is_supported(os_value, "esr-115") or language not in get_release_languages("esr-115"):
         return None
     return get_download_url(os_value, "esr-115", language)
 
@@ -444,6 +471,8 @@ def get_esr_115_download_url(os_value, release, language):
 def get_esr_next_download_url(os_value, release, language):
     """Next-ESR download URL, offered as a secondary option alongside ESR."""
     if release != "esr" or not is_supported(os_value, "esr-next") or not get_esr_next_version():
+        return None
+    if language not in get_release_languages("esr-next"):
         return None
     return get_download_url(os_value, "esr-next", language)
 
@@ -761,7 +790,9 @@ def get_client_data():
         "unsupportedPlatformsByRelease": get_unsupported_platforms(),
         "mobileOS": sorted(MOBILE_OS),
         "microsoftStoreOS": sorted(MS_STORE_OS),
-        "esr115UnavailableLocales": sorted(ESR_115_UNAVAILABLE_LOCALES),
+        # Desktop locales per release, including the secondary ESRs, so the JS can
+        # filter the language field and gate the extra ESR downloads the same way.
+        "languagesByRelease": {release: sorted(get_release_languages(release)) for release in UNSUPPORTED_PLATFORMS_BY_RELEASE},
         # The pieces of the bouncer URL, not a finished one: it is the only URL
         # that depends on the chosen language, so it is the only one the JS builds.
         "bouncerUrl": settings.BOUNCER_URL,
@@ -889,9 +920,14 @@ class Selection:
         return self.os is not None and not is_supported(self.os, self.effective_release)
 
     @property
+    def has_language_conflict(self):
+        """A desktop release with no build in the chosen language."""
+        return self.os is not None and self.os not in MOBILE_OS and self.language not in get_release_languages(self.effective_release)
+
+    @property
     def is_valid(self):
         """Whether this is a submission we can show results for."""
-        return self.is_complete and not self.has_conflict
+        return self.is_complete and not self.has_conflict and not self.has_language_conflict
 
 
 def default_language(locale):
@@ -917,6 +953,11 @@ def parse_selection(data, language=None):
 # ---------------------------------------------------------------------------
 
 
+def get_campaign_params(data):
+    """The valid UTM params in a query string, to carry through the form."""
+    return {name: value for name in UTM_PARAM_NAMES if (value := validate_param_value(data.get(name)))}
+
+
 def form_url(data=None):
     """The form page URL, preserving a query string so choices survive a bounce."""
     url = reverse("firefox.all_form")
@@ -940,7 +981,9 @@ def get_form_context(selection):
     (`selected_*`), and a pair with no builds still gets its inline error, which
     is about the submission rather than about the current state of the controls.
     """
-    release_error = get_release_unavailable_error(os_value=selection.os, release=selection.release) if selection.has_conflict else None
+    release = selection.effective_release
+    release_error = get_release_unavailable_error(os_value=selection.os, release=release) if selection.has_conflict else None
+    language_error = get_language_unavailable_error(language=selection.language, release=release) if selection.has_language_conflict else None
 
     return {
         "os_groups": get_os_groups(),
@@ -950,7 +993,10 @@ def get_form_context(selection):
         "selected_release": selection.effective_release,
         "selected_language": selection.language,
         "release_error": release_error,
-        "has_errors": bool(release_error),
+        "language_error": language_error,
+        "has_errors": bool(release_error or language_error),
+        # Where the banner's "Jump to issue" goes: the first field with an error.
+        "first_error_field": "release" if release_error else "language",
         "result_url": reverse("firefox.all_form.result"),
         "client_data_json": get_client_data_json(),
         "copy": MESSAGES,
@@ -959,7 +1005,7 @@ def get_form_context(selection):
     }
 
 
-def get_download_options(selection):
+def get_download_options(selection, campaign_params=None):
     """
     Context for the result page: every download option for a valid selection.
 
@@ -984,5 +1030,5 @@ def get_download_options(selection):
         "support_links": get_support_links(os_value, release),
         "copy": MESSAGES,
         "logo": get_logo(release),
-        "form_url": form_url({"os": os_value, "release": release, "language": selection.language}),
+        "form_url": form_url({"os": os_value, "release": release, "language": selection.language} | (campaign_params or {})),
     }

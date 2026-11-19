@@ -3,6 +3,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import re
+from contextlib import contextmanager
 from unittest.mock import PropertyMock, patch
 
 from django.conf import settings
@@ -36,6 +37,37 @@ JS_OS_VALUES = (
     "linux64",
     "linux64-aarch64",
 )
+
+
+@contextmanager
+def secondary_esr_builds(esr_115_missing=()):
+    """Build the secondary ESRs in the current ESR's languages, which the test data lacks."""
+    release_languages = all_form.get_release_languages
+
+    def languages(release):
+        if release == "esr-115":
+            return release_languages("esr") - frozenset(esr_115_missing)
+        if release == "esr-next":
+            return release_languages("esr")
+        return release_languages(release)
+
+    with patch.object(all_form, "get_release_languages", side_effect=languages):
+        yield
+
+
+@contextmanager
+def nightly_only_language(language="fr"):
+    """Every release built in German, and Nightly in `language` as well."""
+    languages = {"nightly": frozenset({"de", language})}
+    with patch.object(all_form, "get_release_languages", side_effect=lambda release: languages.get(release, frozenset({"de"}))):
+        yield language
+
+
+@contextmanager
+def a_next_esr(version):
+    with patch.object(all_form, "get_esr_next_version", return_value=version), secondary_esr_builds():
+        yield
+
 
 JS_RELEASE_VALUES = ("stable", "beta", "dev", "nightly", "esr", "esr-next", "esr-115")
 
@@ -102,7 +134,7 @@ JS_OPTION_KEYS = ("fallback", "apt", "esr-next", "primary", "esr-115", "apk", "m
 
 JS_SUPPORT_LINK_KEYS = ("system-requirements", "release-notes", "privacy")
 
-JS_MESSAGE_KEYS = ("releaseUnavailable", "divider", "languageIgnored", "conflict", "fallback")
+JS_MESSAGE_KEYS = ("releaseUnavailable", "languageUnavailable", "divider", "languageIgnored", "conflict", "fallback")
 
 
 class TestClientData:
@@ -113,7 +145,7 @@ class TestClientData:
             "unsupportedPlatformsByRelease",
             "mobileOS",
             "microsoftStoreOS",
-            "esr115UnavailableLocales",
+            "languagesByRelease",
             "bouncerUrl",
             "bouncerChannels",
             "options",
@@ -199,7 +231,7 @@ class TestClientData:
         available = data["options"]["esrNext"]["available"]
         assert available is bool(all_form.get_esr_next_version())
         offered = all_form.get_esr_next_download_url("win64", "esr", "en-US") is not None
-        assert offered is available
+        assert offered is (available and "en-US" in data["languagesByRelease"]["esr-next"])
 
     def test_no_copy_is_left_hardcoded_in_the_js(self):
         # A cheap guard against a string creeping back into the frontend: the
@@ -209,44 +241,52 @@ class TestClientData:
         assert all(messages.values())
 
 
-class TestLinux32Drift:
-    """
-    The matrix is hardcoded, so 32-bit Linux availability can go stale.
+class TestLinux32:
+    """32-bit Linux follows product details, which drops it per channel at v145."""
 
-    Product details drops the `linux` platform once a channel reaches v145
-    (firefox_details.py:90). Today only ESR is still below that, which is why
-    `linux` is missing from the `esr` row and present in every other one. When ESR
-    rolls past 145, product details stops shipping 32-bit Linux for it and this
-    test fails until `linux` is added to the `esr` row.
+    def test_offered_while_product_details_ships_it(self):
+        with patch.object(all_form.firefox_desktop, "platforms", return_value=[("linux", "Linux 32-bit"), ("linux64", "Linux 64-bit")]):
+            assert all_form.is_supported("linux", "esr")
 
-    Runs against the live product-details singleton on purpose — the point is to
-    notice real data moving. The assertion is deliberately one-directional: it
-    fails when we offer something with no build, but not when we have stopped
-    offering something a stale local snapshot still lists (a dev checkout can be
-    many versions behind).
-    """
+    def test_dropped_once_product_details_does(self):
+        with patch.object(all_form.firefox_desktop, "platforms", return_value=[("linux64", "Linux 64-bit")]):
+            assert not all_form.is_supported("linux", "esr")
+            assert "linux" in all_form.get_unsupported_platforms()["esr"]
+            assert all_form.get_download_url("linux", "esr", "de") is not None  # still buildable, just not offered
+            assert "linux" not in all_form.get_os_values()
 
-    RELEASE_CHANNELS = {
-        "stable": "release",
-        "beta": "beta",
-        "dev": "devedition",
-        "nightly": "nightly",
-        "esr": "esr",
-        "esr-next": "esr_next",
-    }
+    def test_esr_115_never_offers_it(self):
+        # ESR 115 dropped 32-bit Linux out of band (bug 2040496), below v145.
+        with patch.object(all_form.firefox_desktop, "platforms", return_value=[("linux", "Linux 32-bit")]):
+            assert not all_form.is_supported("linux", "esr-115")
 
-    @pytest.mark.parametrize("release,channel", sorted(RELEASE_CHANNELS.items()))
-    def test_linux32_is_not_offered_without_a_build(self, release, channel):
-        if release == "esr-next" and len(firefox_desktop.esr_major_versions) < 2:
-            pytest.skip("no ESR Next in product details yet")
-        ships_linux32 = "linux" in {slug for slug, _ in firefox_desktop.platforms(channel)}
-        if not ships_linux32:
-            assert not all_form.is_supported("linux", release)
 
-    def test_esr_115_is_excluded_from_the_check(self):
-        # ESR 115 is below v145 yet dropped 32-bit Linux out of band (bug 2040496),
-        # so the product-details rule above does not describe it.
-        assert not all_form.is_supported("linux", "esr-115")
+class TestLanguages:
+    def test_only_languages_with_a_build_are_offered(self):
+        offered = all_form.get_offered_languages()
+        assert "de" in offered
+        assert "x-testing" not in offered
+        assert "ja-JP-mac" not in offered
+        assert offered == frozenset().union(*(all_form.get_release_languages(release) for release in all_form.RELEASE_LABELS))
+
+    def test_a_language_missing_from_the_release_conflicts(self):
+        with nightly_only_language() as language:
+            selection = all_form.parse_selection({"os": "win64", "release": "stable", "language": language})
+            assert selection.has_language_conflict
+            assert not selection.is_valid
+            ctx = all_form.get_form_context(selection)
+            assert ctx["language_error"] == f"{all_form.get_language_label(language)} is not available for Firefox."
+            assert ctx["first_error_field"] == "language"
+            assert all_form.parse_selection({"os": "win64", "release": "nightly", "language": language}).is_valid
+
+    def test_store_apps_ignore_the_language(self):
+        assert not all_form.parse_selection({"os": "android", "release": "stable", "language": "x-testing"}).has_language_conflict
+
+
+class TestCampaignParams:
+    def test_keeps_valid_utm_params_only(self):
+        params = all_form.get_campaign_params({"utm_source": "newsletter", "utm_campaign": "bad value!", "os": "win64", "ref": "x"})
+        assert params == {"utm_source": "newsletter"}
 
 
 # ---------------------------------------------------------------------------
@@ -360,6 +400,11 @@ class TestGetDownloadUrl:
 
 
 class TestSecondaryEsrUrls:
+    @pytest.fixture(autouse=True)
+    def _secondary_esr_builds(self):
+        with secondary_esr_builds(esr_115_missing={"sat"}):
+            yield
+
     SUPPORTED = ["win", "win-msi", "win64", "win64-msi", "osx", "osx-pkg"]
     UNSUPPORTED = ["linux", "linux64", "win64-aarch64", "linux64-aarch64"]
 
@@ -378,12 +423,21 @@ class TestSecondaryEsrUrls:
     def test_esr_115_only_alongside_esr(self, release):
         assert all_form.get_esr_115_download_url("win64", release, "de") is None
 
-    @pytest.mark.parametrize("language", sorted(all_form.ESR_115_UNAVAILABLE_LOCALES))
-    def test_esr_115_not_offered_for_missing_locales(self, language):
-        assert all_form.get_esr_115_download_url("win64", "esr", language) is None
+    def test_esr_115_not_offered_for_missing_locales(self):
+        assert all_form.get_esr_115_download_url("win64", "esr", "sat") is None
+
+    def test_esr_next_not_offered_in_a_language_it_lacks(self):
+        release_languages = all_form.get_release_languages
+        with (
+            patch.object(all_form, "get_esr_next_version", return_value="153.0"),
+            patch.object(
+                all_form, "get_release_languages", side_effect=lambda release: frozenset() if release == "esr-next" else release_languages(release)
+            ),
+        ):
+            assert all_form.get_esr_next_download_url("win64", "esr", "de") is None
 
     def test_esr_next_offered_when_a_second_esr_exists(self):
-        with patch.object(all_form, "get_esr_next_version", return_value="140.0"):
+        with a_next_esr("140.0"):
             url = all_form.get_esr_next_download_url("win64", "esr", "de")
         assert "product=firefox-esr-next-latest-ssl" in url
 
@@ -392,7 +446,7 @@ class TestSecondaryEsrUrls:
             assert all_form.get_esr_next_download_url("win64", "esr", "de") is None
 
     def test_esr_next_not_offered_for_unsupported_os(self):
-        with patch.object(all_form, "get_esr_next_version", return_value="140.0"):
+        with a_next_esr("140.0"):
             assert all_form.get_esr_next_download_url("linux", "esr", "de") is None
 
 
@@ -746,7 +800,7 @@ class TestDownloadOptionList:
 
     def test_order_is_fixed(self):
         # Linux gets APT, and ESR gets the next ESR; ESR 115 is never offered on Linux.
-        with patch.object(all_form, "get_esr_next_version", return_value="153.0"):
+        with a_next_esr("153.0"):
             linux_keys = list(options_for(os="linux64", release="esr", language="de"))
             windows_keys = list(options_for(os="win64", release="esr", language="de"))
         assert linux_keys == ["apt", "esr-next", "primary"]
@@ -788,7 +842,8 @@ class TestDownloadOptionList:
         assert options["apt"]["group"] == all_form.GROUP_ASIDE
 
     def test_esr_offers_esr_115(self):
-        options = options_for(os="osx", release="esr", language="de")
+        with secondary_esr_builds():
+            options = options_for(os="osx", release="esr", language="de")
         assert "product=firefox-esr115-latest-ssl" in options["esr-115"]["href"]
         assert options["esr-115"]["recommendation"] == all_form.ESR_115_RECOMMENDATIONS["macos"]
 
@@ -803,14 +858,14 @@ class TestDownloadOptionList:
         assert "primary" in keys
 
     def test_esr_next_when_a_second_esr_exists(self):
-        with patch.object(all_form, "get_esr_next_version", return_value="153.0"):
+        with a_next_esr("153.0"):
             options = options_for(os="osx", release="esr", language="de")
         assert "product=firefox-esr-next-latest-ssl" in options["esr-next"]["href"]
         # The version comes from product details rather than being written out.
         assert options["esr-next"]["label"] == "Download Firefox ESR 153.0"
 
     def test_newer_esr_is_primary_during_a_transition(self):
-        with patch.object(all_form, "get_esr_next_version", return_value="153.0"):
+        with a_next_esr("153.0"):
             options = options_for(os="win64", release="esr", language="de")
         assert options["esr-next"]["classes"] == ["button-primary"]
         assert options["primary"]["classes"] == ["button-secondary"]
@@ -1129,7 +1184,7 @@ class TestResultView:
     @override_switch("ALL_FORM", active=True)
     def test_esr_transition_shown_with_the_next_esr(self, client):
         with (
-            patch.object(all_form, "get_esr_next_version", return_value="153.0"),
+            a_next_esr("153.0"),
             patch.object(all_form, "get_esr_transition", return_value=ESR_TRANSITION),
         ):
             response = client.get(RESULT_URL, {"os": "win64", "release": "esr", "language": "de"})
@@ -1156,6 +1211,32 @@ class TestResultView:
         assert location.startswith(reverse("firefox.all_form") + "?")
         for param in ("os=ios", "release=esr", "language=de", "utm_source=somewhere"):
             assert param in location
+
+    @override_switch("ALL_FORM", active=True)
+    def test_os_alone_that_the_default_release_lacks_reports_a_conflict(self, client):
+        os_value = next(os_value for os_value in all_form.get_os_values() if not all_form.is_supported(os_value, all_form.DEFAULT_RELEASE))
+        response = client.get(FORM_URL, {"os": os_value})
+        assert response.status_code == 200
+        assert response.context["release_error"] == f"Firefox is not available for {all_form.OS_LABELS[os_value]}."
+        response = client.get(RESULT_URL, {"os": os_value}, follow=True)
+        assert response.status_code == 200
+        assert response.context["release_error"]
+
+    @override_switch("ALL_FORM", active=True)
+    def test_language_conflict_bounces_to_an_inline_language_error(self, client):
+        with nightly_only_language() as language:
+            response = client.get(RESULT_URL, {"os": "win64", "release": "stable", "language": language}, follow=True)
+        assert response.status_code == 200
+        assert b'id="server-language-error"' in response.content
+        assert b'href="#language">Jump to issue' in response.content
+
+    @override_switch("ALL_FORM", active=True)
+    def test_campaign_params_carry_through_the_form_and_back(self, client):
+        response = client.get(FORM_URL, {"utm_source": "newsletter", "utm_campaign": "spring"})
+        assert b'<input type="hidden" name="utm_source" value="newsletter">' in response.content
+        assert b'<input type="hidden" name="utm_campaign" value="spring">' in response.content
+        response = client.get(RESULT_URL, {"os": "win64", "release": "stable", "language": "de", "utm_source": "newsletter"})
+        assert "utm_source=newsletter" in response.context["form_url"]
 
     @override_switch("ALL_FORM", active=True)
     def test_bounce_does_not_loop(self, client):
