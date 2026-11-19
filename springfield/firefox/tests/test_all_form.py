@@ -98,7 +98,7 @@ class TestVocabulary:
 # failure, because a missing key there is a silent `undefined`.
 # ---------------------------------------------------------------------------
 
-JS_OPTION_KEYS = ("fallback", "apt", "esr-next", "primary", "esr-115", "apk", "microsoft-store")
+JS_OPTION_KEYS = ("fallback", "apt", "esr-next", "primary", "esr-115", "apk", "microsoft-store", "qr-code")
 
 JS_SUPPORT_LINK_KEYS = ("system-requirements", "release-notes", "privacy")
 
@@ -139,6 +139,7 @@ class TestClientData:
             all_form.OPTION_ESR_115,
             all_form.OPTION_APK,
             all_form.OPTION_MICROSOFT_STORE,
+            all_form.OPTION_QR_CODE,
         )
         assert keys == JS_OPTION_KEYS
 
@@ -512,17 +513,12 @@ class TestQrCode:
         targets = [(qr_code["os"], qr_code["release"]) for qr_code in all_form.get_qr_codes()]
         assert targets == [("android", "stable"), ("android", "beta"), ("android", "nightly"), ("ios", "stable")]
 
-    @pytest.mark.parametrize("os_value", ["android", "ios"])
-    def test_release_qr_code_uses_the_redirector(self, os_value):
-        qr_code = all_form.get_qr_code(os_value=os_value, release="stable")
-        assert qr_code["url"] == "https://www.firefox.com/browsers/mobile/app/?product=firefox&campaign=firefox-all"
-        assert qr_code["label"] == f"Firefox for {all_form.OS_LABELS[os_value]}"
-
-    @pytest.mark.parametrize("release, url", [("beta", "id=org.mozilla.firefox_beta"), ("nightly", "id=org.mozilla.fenix")])
-    def test_android_prerelease_qr_code_is_the_bare_listing(self, release, url):
-        qr_code = all_form.get_qr_code(os_value="android", release=release)
-        assert qr_code["url"].startswith("https://play.google.com/")
-        assert qr_code["url"].endswith(url)
+    @pytest.mark.parametrize("os_value, release", [("android", "stable"), ("android", "beta"), ("android", "nightly"), ("ios", "stable")])
+    def test_qr_code_is_the_store_url_under_its_own_campaign(self, os_value, release):
+        qr_code = all_form.get_qr_code(os_value=os_value, release=release)
+        assert qr_code["url"] == all_form.get_store_url(os_value, release, campaign="firefox-all-qr")
+        assert qr_code["url"] != all_form.get_store_url(os_value, release)
+        assert qr_code["label"] == f"{all_form.RELEASE_LABELS[release]} for {all_form.OS_LABELS[os_value]}"
 
     def test_ios_beta_has_no_qr_code(self):
         assert all_form.get_qr_code(os_value="ios", release="beta") is None
@@ -755,13 +751,25 @@ class TestDownloadOptionList:
             windows_keys = list(options_for(os="win64", release="esr", language="de"))
         assert linux_keys == ["apt", "esr-next", "primary"]
         assert windows_keys == ["esr-next", "primary", "esr-115"]
+        assert list(options_for(os="android", release="stable")) == ["primary", "apk"]
 
     def test_desktop_primary(self):
         options = options_for(os="win64", release="stable", language="de")
         assert options["primary"]["href"] == f"{BOUNCER}?os=win64&product=firefox-latest-ssl&lang=de"
-        assert options["primary"]["label"].startswith("Download Firefox ")
+        assert options["primary"]["label"] == "Download Firefox"
         assert options["primary"]["icon"] == "downloads"
         assert options["primary"]["group"] == all_form.GROUP_DOWNLOAD
+
+    @pytest.mark.parametrize("release", ["beta", "dev", "nightly"])
+    def test_desktop_primary_has_no_version_outside_esr(self, release):
+        label = options_for(os="win64", release=release, language="de")["primary"]["label"]
+        assert label == f"Download {all_form.RELEASE_LABELS[release]}"
+
+    def test_esr_primary_names_its_version(self):
+        with patch.object(all_form, "get_version", return_value="140.5.0"):
+            options = options_for(os="win64", release="esr", language="de")
+        assert options["primary"]["label"] == "Download Firefox ESR 140.5.0"
+        assert options["primary"]["cta_text"] == "Download Firefox ESR"
 
     def test_windows_offers_the_microsoft_store(self):
         options = options_for(os="win64", release="stable", language="de")
@@ -962,7 +970,7 @@ class TestFormView:
     @override_switch("ALL_FORM", active=True)
     def test_qr_codes_are_rendered_hidden_for_the_script(self, client):
         content = client.get(FORM_URL).content
-        assert b'<div class="c-qr-code-trigger" hidden>' in content
+        assert b'<div class="c-download-option" data-download-option="qr-code" hidden>' in content
         for qr_code in all_form.get_qr_codes():
             assert f'data-os="{qr_code["os"]}" data-release="{qr_code["release"]}" hidden>'.encode() in content
 

@@ -35,11 +35,11 @@
 
       <div class="c-download-options">
         {% include "firefox/all-form/_download-options.html" %}
+        {% if qr_code %}
+          <div class="c-or-divider c-qr-code-divider">{{ copy.divider }}</div>
+          {% include "firefox/all-form/_qr-code.html" %}
+        {% endif %}
       </div>
-
-      {% if qr_code %}
-        {% include "firefox/all-form/_qr-code.html" %}
-      {% endif %}
 
       <div class="c-support-links">
         {%- for link in support_links %}

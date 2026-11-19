@@ -9,8 +9,8 @@
 @layer page {
     .c-page {
         /* One measure for the heading and the form, so they line up. */
-        --c-measure: 56rem;
-        --c-option-gap: 12px;
+        --c-measure: var(--token-width-desktop-content-lg);
+        --c-subtle-surface: color-mix(in sRGB, var(--fl-theme-color-text) 3%, var(--fl-theme-background));
         --c-panel-padding: var(--token-spacing-3xl);
     }
 
@@ -53,7 +53,7 @@
 
     .c-choices {
         align-content: center;
-        background-color: var(--token-color-grey-1);
+        background-color: var(--c-subtle-surface);
         display: grid;
         padding: var(--c-panel-padding);
     }
@@ -76,6 +76,31 @@
     .c-choices .fl-field {
         border-radius: var(--token-border-radius-md);
         inline-size: 100%;
+        padding-inline-start: var(--token-spacing-lg);
+    }
+
+    /* Clear Flare's 20px chevron, which sits one spacing-sm from the end. */
+    .c-choices select.fl-field {
+        padding-inline-end: calc(var(--token-spacing-sm) * 2 + 20px);
+
+        /* Flare positions the chevron physically, so it would stay on the right. */
+        &:dir(rtl) {
+            background-position: left var(--token-spacing-sm) center;
+        }
+    }
+
+    /* Flare's dark theme keeps form fields white, which glares against the dark panel. */
+    @media (prefers-color-scheme: dark) {
+        .c-choices {
+            --theme-form-color: var(--fl-theme-color-text);
+            --theme-form-field-background: var(--token-color-purple);
+            --theme-form-field-background-focus: var(--token-color-medium-purple);
+        }
+
+        .c-choices select.fl-field {
+            background-image: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M8.23336 10.4664L11.8474 6.85339C11.894 6.8071 11.931 6.75203 11.9563 6.69136C11.9816 6.63069 11.9946 6.56562 11.9946 6.49989C11.9946 6.43417 11.9816 6.3691 11.9563 6.30843C11.931 6.24776 11.894 6.19269 11.8474 6.14639C11.7536 6.05266 11.6264 6 11.4939 6C11.3613 6 11.2341 6.05266 11.1404 6.14639L7.99236 9.29339L4.84736 6.14739C4.75305 6.05631 4.62675 6.00592 4.49566 6.00706C4.36456 6.0082 4.23915 6.06078 4.14645 6.15348C4.05374 6.24619 4.00116 6.37159 4.00002 6.50269C3.99888 6.63379 4.04928 6.76009 4.14036 6.85439L7.75236 10.4674L8.23336 10.4664Z' fill='white'/%3E%3C/svg%3E");
+            color-scheme: dark;
+        }
     }
 
     .c-label {
@@ -83,7 +108,7 @@
         display: flex;
         font-size: var(--fl-theme-font-size-body-sm);
         font-weight: var(--token-font-weight-medium);
-        gap: 4px;
+        gap: var(--token-spacing-xs);
     }
 
     .c-field-description p {
@@ -95,11 +120,14 @@
         font-size: var(--fl-theme-label-sm);
         font-style: italic;
         margin-block: 0;
+        padding-block: var(--token-spacing-sm);
+        padding-inline: var(--token-spacing-lg) calc(var(--token-spacing-sm) * 2 + 20px);
     }
 
     .c-field-wrap {
         display: grid;
         font-size: var(--token-font-size-xs);
+        margin-block-start: 1lh;
 
         /* Template at least three rows, where the third row (for messages) as a minimum height */
         grid-template-rows: auto auto minmax(1lh, auto);
@@ -162,6 +190,7 @@
         display: flex;
         justify-content: center;
         gap: var(--token-spacing-sm);
+        margin-block-end: var(--token-spacing-md);
     }
 
     .c-form:valid .c-no-download-image { display: none; }
@@ -179,7 +208,7 @@
     .c-release-logo,
     .c-platform-logo {
         aspect-ratio: 1;
-        block-size: 44px;
+        block-size: 80px;
         background-repeat: no-repeat;
         background-size: contain;
         background-position: center;
@@ -205,18 +234,18 @@
 
     .c-form:has(#release option[value='esr']:checked) .c-release-logo::after {
         align-items: center;
-        background-color: var(--token-color-white);
-        border-radius: var(--token-border-radius-3xs);
+        background-color: var(--fl-theme-background);
+        border-radius: var(--token-border-radius-2xs);
         box-shadow: 0 0 0 1px var(--fl-subtle-border-color);
         color: var(--fl-theme-color-text);
         content: 'ESR' / '';
         display: flex;
-        font-size: 9px;
+        font-size: var(--token-font-size-sm);
         font-weight: var(--token-font-weight-bold);
-        inset-block-end: 1px;
-        inset-inline-end: 1px;
+        inset-block-end: var(--token-spacing-2xs);
+        inset-inline-end: 0;
         line-height: 1;
-        padding: 2px 3px;
+        padding: var(--token-spacing-2xs) var(--token-spacing-xs);
         position: absolute;
     }
 
@@ -241,6 +270,7 @@
     }
 
     .c-download-options:not([hidden]) {
+        --c-option-gap: var(--token-spacing-md);
         display: grid;
         gap: var(--c-option-gap);
         justify-items: center;
@@ -249,12 +279,13 @@
     .c-download-option {
         display: grid;
         justify-items: center;
-        row-gap: 8px;
+        row-gap: var(--token-spacing-sm);
     }
 
     .c-esr-transition:not([hidden]) {
-        background-color: var(--token-color-soft-purple);
+        background-color: var(--notification-bg);
         border-radius: var(--token-border-radius-3xs);
+        color: var(--notification-color);
         font-size: var(--fl-theme-font-size-body-xs);
         max-inline-size: 22rem;
         padding: var(--token-spacing-md);
@@ -291,9 +322,9 @@
 
     .c-or-divider::before,
     .c-or-divider::after {
-        border-top: 1px solid var(--fl-subtle-border-color);
+        border-block-start: 1px solid var(--fl-subtle-border-color);
         content: '';
-        width: 3rem;
+        inline-size: 3rem;
     }
 
     .c-support-links:not([hidden]) {
@@ -301,20 +332,13 @@
         flex-wrap: wrap;
         font-size: var(--fl-theme-font-size-body-xs);
         justify-content: center;
-        row-gap: 4px;
+        row-gap: var(--token-spacing-xs);
     }
 
     .c-support-links > * + * {
         border-inline-start: 1px solid var(--fl-subtle-border-color);
         margin-inline-start: var(--token-spacing-xs);
         padding-inline-start: var(--token-spacing-xs);
-    }
-
-    .c-qr-code-trigger:not([hidden]) {
-        display: grid;
-        gap: var(--c-option-gap);
-        justify-items: center;
-        margin-block-start: calc(var(--c-option-gap) - var(--token-spacing-md));
     }
 
     .c-qr-code:not([hidden]) {
@@ -326,6 +350,10 @@
         svg {
             block-size: auto;
             inline-size: 200px;
+
+            #qr-code-dialog & {
+                inline-size: min(280px, 100%);
+            }
         }
 
         figcaption {
@@ -336,7 +364,7 @@
     }
 
     /* Scanning a code needs a second device, so phones get the store buttons alone. */
-    :root:is(.android, .ios) :is(.c-qr-code-trigger, .c-result .c-qr-code) {
+    :root:is(.android, .ios) .c-result :is(.c-qr-code, .c-qr-code-divider) {
         display: none;
     }
 
@@ -345,14 +373,14 @@
     }
 
     .c-detected-pill {
-        background-color: var(--token-color-grey-1);
+        background-color: var(--c-subtle-surface);
         border: 1px solid var(--fl-subtle-border-color);
         border-radius: var(--token-border-radius-md);
         display: inline-block;
         font-size: var(--fl-theme-font-size-body-xs);
         font-weight: var(--token-font-weight-medium);
         margin-inline-start: var(--token-spacing-2xs);
-        padding: 1px var(--token-spacing-xs);
+        padding: var(--token-spacing-2xs) var(--token-spacing-xs);
         white-space: nowrap;
     }
 
@@ -365,7 +393,7 @@
 
     .c-result {
         display: grid;
-        gap: var(--token-spacing-md, 16px);
+        gap: var(--token-spacing-md);
         justify-items: center;
         margin-inline: auto;
         max-inline-size: var(--c-measure);
@@ -387,7 +415,7 @@
         display: block;
 
         :target {
-            scroll-margin-block-start: 1rem;
+            scroll-margin-block-start: var(--token-spacing-lg);
         }
 
         /*
@@ -409,9 +437,10 @@
         /*
          * The note explaining why takes the select's place, rather than leaving
          * a select-sized gap above it. The message row below keeps its line of
-         * space.
+         * space. Only with JS: without it the select stays visible, so the note
+         * sits in the message row instead.
          */
-        .c-language-message {
+        .js & .c-language-message {
             position: absolute;
             position-anchor: --c-language-select;
             position-visibility: always;

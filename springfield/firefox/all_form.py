@@ -212,7 +212,7 @@ MESSAGES = {
     # Not keyed "or": Jinja cannot reach that as an attribute, it is a keyword.
     "divider": "or",
     # Shown under the language select once it has been disabled for a store app.
-    "languageIgnored": "Configure your language after installing.",
+    "languageIgnored": "Matches your phone’s language.",
     # The whole results pane, when the two choices cannot go together.
     "conflict": "There are no downloads for this combination. Pick a different release type, or a different operating system.",
     # The submit button, which is the results pane until a platform is known.
@@ -265,6 +265,8 @@ OPTION_PRIMARY = "primary"
 OPTION_ESR_115 = "esr-115"
 OPTION_APK = "apk"
 OPTION_MICROSOFT_STORE = "microsoft-store"
+# Rendered by the form page's template and shown by the script; never in a list from here.
+OPTION_QR_CODE = "qr-code"
 
 # `or` dividers go between adjacent DOWNLOAD options, which are alternative ways
 # to get the same thing. An ASIDE sits alongside the whole set and never gets one.
@@ -279,6 +281,7 @@ _OPTION_GROUPS = {
     OPTION_ESR_115: GROUP_DOWNLOAD,
     OPTION_APK: GROUP_DOWNLOAD,
     OPTION_MICROSOFT_STORE: GROUP_DOWNLOAD,
+    OPTION_QR_CODE: GROUP_DOWNLOAD,
 }
 
 
@@ -467,14 +470,14 @@ def get_apt_url(os_value):
     return LINUX_APT_URL if os_value in LINUX_OS else None
 
 
-def get_store_url(os_value, release):
+def get_store_url(os_value, release, campaign="firefox-all"):
     """The store URL with attribution for this OS + release, or None."""
     if os_value == "android":
         channel = _RELEASE_TO_MOBILE_CHANNEL["android"].get(release)
         if not channel:
             return None
         base_url = getattr(settings, _ANDROID_PLAY_STORE_SETTING[channel])
-        referrer = quote("utm_source=www.firefox.com&utm_medium=referral&utm_campaign=firefox-all")
+        referrer = quote(f"utm_source=www.firefox.com&utm_medium=referral&utm_campaign={campaign}")
         # No hl= param: Play Store detects language from the browser's Accept-Language header.
         return f"{base_url}&referrer={referrer}"
     if os_value == "ios":
@@ -485,7 +488,7 @@ def get_store_url(os_value, release):
             return None
         # Country-less App Store URL: Apple routes by the user's Apple Account region
         base_url = settings.APPLE_APPSTORE_FIREFOX_LINK.replace("/{country}/", "/")
-        return f"{base_url}?mz_pr=firefox_mobile&pt=373246&ct=firefox-all&mt=8"
+        return f"{base_url}?mz_pr=firefox_mobile&pt=373246&ct={campaign}&mt=8"
     if os_value in MS_STORE_OS:
         setting = _RELEASE_TO_MS_STORE_SETTING.get(release)
         if setting:
@@ -494,27 +497,18 @@ def get_store_url(os_value, release):
     return None
 
 
-# Short URLs keep the codes coarse enough to scan. The redirector sends each
-# phone to its own store with attribution, and is on the production host so a
-# code shown on any environment still works when scanned.
-QR_CODE_RELEASE_URL = "https://www.firefox.com/browsers/mobile/app/?product=firefox&campaign=firefox-all"
-
-
 def get_qr_code(os_value, release):
     """
     A QR code target for a mobile store listing, or None.
 
-    The redirector only knows release Firefox, so Android Beta and Nightly encode
-    their bare Play Store listing, without attribution. iOS Beta has none: it
-    leads to the TestFlight explainer on this site, not to a store.
+    The store button's URL, under its own campaign so scans can be told apart
+    from clicks. iOS Beta has none: it leads to the TestFlight explainer on this
+    site, not to a store.
     """
     if os_value not in MOBILE_OS or not is_supported(os_value, release):
         return None
-    if release == "stable":
-        url = QR_CODE_RELEASE_URL
-    elif os_value == "android":
-        url = getattr(settings, _ANDROID_PLAY_STORE_SETTING[_RELEASE_TO_MOBILE_CHANNEL["android"][release]])
-    else:
+    url = get_store_url(os_value, release, campaign="firefox-all-qr")
+    if not url or not url.startswith("https://"):
         return None
     return {"os": os_value, "release": release, "url": url, "label": f"{RELEASE_LABELS[release]} for {OS_LABELS[os_value]}"}
 
@@ -645,9 +639,10 @@ def get_primary_action(family, release):
         return {"label": "Download from the App Store", "icon": "downloads", "ctaText": "Download from the App Store"}
     if family == "android":
         return {"label": "Download from the Play Store", "icon": "downloads", "ctaText": "Download from the Play Store"}
-    version = get_version("win64", release)
-    label = f"Download {RELEASE_LABELS[release]} {version}" if version else f"Download {RELEASE_LABELS[release]}"
-    return {"label": label, "icon": "downloads", "ctaText": f"Download {RELEASE_LABELS[release]}"}
+    label = f"Download {RELEASE_LABELS[release]}"
+    # ESR is the one release people pick by version.
+    version = get_version("win64", release) if release == "esr" else None
+    return {"label": f"{label} {version}" if version else label, "icon": "downloads", "ctaText": label}
 
 
 def get_esr_next_label():
@@ -696,10 +691,6 @@ def get_download_option_list(os_value, release, language):
             )
         )
 
-    apk_url = get_apk_url(os_value, release)
-    if apk_url:
-        options.append(_option(OPTION_APK, "Download the APK", apk_url, "downloads", ["button-secondary", "fl-button-small"]))
-
     if get_store_kind(os_value, release) == "microsoft-store":
         options.append(
             _option(
@@ -710,6 +701,10 @@ def get_download_option_list(os_value, release, language):
                 ["button-secondary", "fl-button-small"],
             )
         )
+
+    apk_url = get_apk_url(os_value, release)
+    if apk_url:
+        options.append(_option(OPTION_APK, "Download the APK", apk_url, "downloads", ["button-secondary", "fl-button-small"]))
 
     return options
 

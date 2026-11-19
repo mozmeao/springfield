@@ -267,7 +267,8 @@ const DOWNLOAD_OPTION = {
     PRIMARY: 'primary',
     ESR_115: 'esr-115',
     APK: 'apk',
-    MICROSOFT_STORE: 'microsoft-store'
+    MICROSOFT_STORE: 'microsoft-store',
+    QR_CODE: 'qr-code'
 };
 
 // `or` dividers go between adjacent options that are alternatives to each other.
@@ -281,7 +282,8 @@ const DOWNLOAD_OPTION_GROUPS = {
     [DOWNLOAD_OPTION.PRIMARY]: GROUP.DOWNLOAD,
     [DOWNLOAD_OPTION.ESR_115]: GROUP.DOWNLOAD,
     [DOWNLOAD_OPTION.APK]: GROUP.DOWNLOAD,
-    [DOWNLOAD_OPTION.MICROSOFT_STORE]: GROUP.DOWNLOAD
+    [DOWNLOAD_OPTION.MICROSOFT_STORE]: GROUP.DOWNLOAD,
+    [DOWNLOAD_OPTION.QR_CODE]: GROUP.DOWNLOAD
 };
 
 // ---------------------------------------------------------------------------
@@ -397,6 +399,14 @@ class FirefoxDownloadFormElement extends HTMLElement {
             Boolean(DATA.options.apk.hrefs[this._release.value])
     );
 
+    // Scanning needs a second device, so a visitor already on a phone gets the
+    // store buttons alone.
+    _qrCode = computed(() =>
+        ['android', 'ios'].includes(window.site.platform)
+            ? undefined
+            : this._qrCodes.get(`${this._os.value} ${this._release.value}`)
+    );
+
     /**
      * Which download options are visible, in render order, as a single string.
      *
@@ -417,11 +427,14 @@ class FirefoxDownloadFormElement extends HTMLElement {
                 return [
                     this._hasApt.value && DOWNLOAD_OPTION.APT,
                     this._hasESRNext.value && DOWNLOAD_OPTION.ESR_NEXT,
+                    // Leads on a computer, where scanning is the quickest way
+                    // to a phone; phones never get it.
+                    this._qrCode.value && DOWNLOAD_OPTION.QR_CODE,
                     DOWNLOAD_OPTION.PRIMARY,
                     this._hasESR115.value && DOWNLOAD_OPTION.ESR_115,
-                    this._hasApk.value && DOWNLOAD_OPTION.APK,
                     this._hasMicrosoftStore.value &&
-                        DOWNLOAD_OPTION.MICROSOFT_STORE
+                        DOWNLOAD_OPTION.MICROSOFT_STORE,
+                    this._hasApk.value && DOWNLOAD_OPTION.APK
                 ]
                     .filter(Boolean)
                     .join(' ');
@@ -435,7 +448,6 @@ class FirefoxDownloadFormElement extends HTMLElement {
     _downloadOptionsPane;
     _incompatiblePane;
     _esrTransition;
-    _qrCodeTrigger;
     /** "os release" -> its QR code figure, inside the dialog. */
     _qrCodes = new Map();
     _supportLinksPane;
@@ -565,8 +577,6 @@ class FirefoxDownloadFormElement extends HTMLElement {
         // Only rendered while the server knows of a next ESR.
         this._esrTransition =
             this._resultsPane.querySelector('.c-esr-transition');
-        this._qrCodeTrigger =
-            this._resultsPane.querySelector('.c-qr-code-trigger');
         for (const figure of document.querySelectorAll(
             '#qr-code-dialog .c-qr-code'
         )) {
@@ -653,6 +663,24 @@ class FirefoxDownloadFormElement extends HTMLElement {
                 `[data-download-option="${DOWNLOAD_OPTION.FALLBACK}"]`
             )
         );
+
+        // Hidden until here, since it needs this script to pick which code the
+        // dialog shows. The dialog is wired here too: the page's dialog script
+        // only finds triggers in the document, and this one is detached
+        // whenever the selection has no QR code.
+        const qrCodeOption = this._downloadOptionsPane.querySelector(
+            `[data-download-option="${DOWNLOAD_OPTION.QR_CODE}"]`
+        );
+        qrCodeOption.hidden = false;
+        this._downloadOptions.set(DOWNLOAD_OPTION.QR_CODE, qrCodeOption);
+
+        const qrCodeDialog = document.getElementById('qr-code-dialog');
+        qrCodeOption
+            .querySelector('button')
+            .addEventListener('click', () => qrCodeDialog.showModal());
+        qrCodeDialog
+            .querySelector('.fl-dialog-close-button')
+            .addEventListener('click', () => qrCodeDialog.close());
 
         this._downloadOptions.set(
             DOWNLOAD_OPTION.APT,
@@ -884,27 +912,24 @@ class FirefoxDownloadFormElement extends HTMLElement {
         });
 
         this._effect(() => {
-            const qrCode =
-                this._view.value === VIEW.OPTIONS
-                    ? this._qrCodes.get(
-                          `${this._os.value} ${this._release.value}`
-                      )
-                    : undefined;
-            this._qrCodeTrigger.hidden = !qrCode;
+            const qrCode = this._qrCode.value;
             for (const figure of this._qrCodes.values()) {
                 figure.hidden = figure !== qrCode;
             }
         });
 
-        // During an ESR transition the newer ESR is the recommended download.
+        // The option above the primary one takes its emphasis: the newer ESR
+        // during a transition, or the QR code on a computer.
         this._effect(() => {
             const link = this._downloadOptions
                 .get(DOWNLOAD_OPTION.PRIMARY)
                 ?.querySelector('a');
             if (!link) return;
-            const demoted = this._hasESRNext.value;
+            const hasQrCode = Boolean(this._qrCode.value);
+            const demoted = this._hasESRNext.value || hasQrCode;
             link.classList.toggle('button-primary', !demoted);
             link.classList.toggle('button-secondary', demoted);
+            link.classList.toggle('fl-button-small', hasQrCode);
         });
 
         this._effect(() => {

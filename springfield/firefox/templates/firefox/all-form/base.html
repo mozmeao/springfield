@@ -252,12 +252,10 @@
             <div class="c-download-option" data-download-option="fallback">
               <button type="submit" class="fl-button" data-primary-action>{{ copy.fallback }}</button>
             </div>
-          </div>
-
-          {# Server-rendered so the dialog script wires it up; the script shows it for store apps. #}
-          <div class="c-qr-code-trigger" hidden>
-            <div class="c-or-divider">{{ copy.divider }}</div>
-            <button type="button" class="fl-button button-secondary fl-button-small fl-dialog-trigger" data-target-id="qr-code-dialog" data-cta-text="Scan QR code">Scan QR code<include:icon icon_name="device-mobile" hidden /></button>
+            {# The script shows this for store apps, first and in place of the store link's emphasis, and opens the dialog with it. #}
+            <div class="c-download-option" data-download-option="qr-code" hidden>
+              <button type="button" class="fl-button button-primary" aria-haspopup="dialog" data-cta-text="Scan QR code">Scan QR code<include:icon icon_name="device-mobile" hidden /></button>
+            </div>
           </div>
 
           {# JS-only: without it, an unusable pair is reported by the inline error
