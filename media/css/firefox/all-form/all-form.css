@@ -208,6 +208,16 @@
         row-gap: 8px;
     }
 
+    .c-esr-transition:not([hidden]) {
+        font-size: var(--fl-theme-font-size-body-xs);
+        max-inline-size: 32rem;
+        text-align: center;
+
+        p {
+            margin-block: 0 var(--token-spacing-xs);
+        }
+    }
+
     .c-recommendation {
         font-size: var(--fl-theme-font-size-body-xs);
         margin-block: 0;

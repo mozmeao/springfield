@@ -3,7 +3,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import re
-from unittest.mock import patch
+from unittest.mock import PropertyMock, patch
 
 from django.conf import settings
 
@@ -770,6 +770,26 @@ class TestDownloadOptionList:
         # The version comes from product details rather than being written out.
         assert options["esr-next"]["label"] == "Download Firefox ESR 153.0"
 
+    def test_newer_esr_is_primary_during_a_transition(self):
+        with patch.object(all_form, "get_esr_next_version", return_value="153.0"):
+            options = options_for(os="win64", release="esr", language="de")
+        assert options["esr-next"]["classes"] == ["button-primary"]
+        assert options["primary"]["classes"] == ["button-secondary"]
+        assert options["esr-115"]["classes"] == ["button-secondary", "fl-button-small"]
+
+    def test_current_esr_is_primary_outside_a_transition(self):
+        with patch.object(all_form, "get_esr_next_version", return_value=None):
+            options = options_for(os="win64", release="esr", language="de")
+        assert options["primary"]["classes"] == ["button-primary"]
+
+    def test_esr_transition_majors(self):
+        versions = patch.object(type(all_form.firefox_desktop), "esr_minor_versions", new_callable=PropertyMock)
+        with versions as esr_minor_versions:
+            esr_minor_versions.return_value = ["140.5.0", "153.0"]
+            assert all_form.get_esr_transition() == {"current_major": "140", "next_major": "153"}
+            esr_minor_versions.return_value = ["140.5.0"]
+            assert all_form.get_esr_transition() is None
+
     def test_no_esr_next_with_a_single_esr(self):
         with patch.object(all_form, "get_esr_next_version", return_value=None):
             assert "esr-next" not in options_for(os="osx", release="esr", language="de")
@@ -804,6 +824,16 @@ class TestDownloadOptionList:
                 for option in all_form.get_download_option_list(os_value, release, "de"):
                     assert option["group"] in (all_form.GROUP_DOWNLOAD, all_form.GROUP_ASIDE)
 
+    def test_every_option_has_cta_text_without_a_version(self):
+        for os_value in all_form.get_os_values():
+            for release in all_form.RELEASE_LABELS:
+                for option in all_form.get_download_option_list(os_value, release, "de"):
+                    assert option["cta_text"]
+                    assert not re.search(r"\d+\.\d", option["cta_text"])
+
+    def test_testflight_has_its_own_cta_text(self):
+        assert options_for(os="ios", release="beta")["primary"]["cta_text"] == "Sign up for TestFlight"
+
 
 class TestSupportLinks:
     def test_always_three(self):
@@ -822,16 +852,6 @@ class TestSupportLinks:
         # The JS used to build these itself and dropped the prefix.
         links = {link["key"]: link["href"] for link in all_form.get_support_links("win64", "beta")}
         assert links["release-notes"].startswith("/en-US/")
-
-    def test_every_option_has_cta_text_without_a_version(self):
-        for os_value in all_form.get_os_values():
-            for release in all_form.RELEASE_LABELS:
-                for option in all_form.get_download_option_list(os_value, release, "de"):
-                    assert option["cta_text"]
-                    assert not re.search(r"\d+\.\d", option["cta_text"])
-
-    def test_testflight_has_its_own_cta_text(self):
-        assert options_for(os="ios", release="beta")["primary"]["cta_text"] == "Sign up for TestFlight"
 
 
 class TestDownloadOptionsContext:
@@ -878,11 +898,40 @@ FORM_URL = reverse("firefox.all_form")
 RESULT_URL = reverse("firefox.all_form.result")
 
 
+ROBOTS_NOINDEX = b'<meta name="robots" content="noindex,follow">'
+ESR_TRANSITION = {"current_major": "140", "next_major": "153"}
+
+
 @pytest.mark.django_db
 class TestFormView:
     def test_404_when_the_switch_is_off(self, client):
         with override_switch("ALL_FORM", active=False):
             assert client.get(FORM_URL).status_code == 404
+
+    @override_switch("ALL_FORM", active=True)
+    def test_bare_page_is_indexable(self, client):
+        assert ROBOTS_NOINDEX not in client.get(FORM_URL).content
+
+    @override_switch("ALL_FORM", active=True)
+    @pytest.mark.parametrize("query", [{"os": "win64"}, {"release": "esr"}, {"language": "de"}])
+    def test_configured_page_is_not_indexed(self, client, query):
+        assert ROBOTS_NOINDEX in client.get(FORM_URL, query).content
+
+    @override_switch("ALL_FORM", active=True)
+    def test_campaign_params_alone_stay_indexable(self, client):
+        assert ROBOTS_NOINDEX not in client.get(FORM_URL, {"utm_source": "somewhere"}).content
+
+    @override_switch("ALL_FORM", active=True)
+    def test_esr_transition_is_rendered_hidden_for_the_script(self, client):
+        with patch.object(all_form, "get_esr_transition", return_value=ESR_TRANSITION):
+            response = client.get(FORM_URL)
+        assert b'<div class="c-esr-transition" hidden>' in response.content
+        assert b"support.mozilla.org/kb/firefox-esr-release-cycle" in response.content
+
+    @override_switch("ALL_FORM", active=True)
+    def test_no_esr_transition_outside_a_transition(self, client):
+        with patch.object(all_form, "get_esr_transition", return_value=None):
+            assert b"c-esr-transition" not in client.get(FORM_URL).content
 
     @override_switch("ALL_FORM", active=True)
     def test_bare_request(self, client):
@@ -1014,6 +1063,27 @@ class TestResultView:
         # controls, so the row cannot fall out of step with anything.
         assert b'class="c-support-links"' in response.content
         assert all_form.SUPPORT_LINK_LABELS["privacy"].encode() in response.content
+
+    @override_switch("ALL_FORM", active=True)
+    def test_result_page_is_not_indexed(self, client):
+        response = client.get(RESULT_URL, {"os": "win64", "release": "stable", "language": "de"})
+        assert ROBOTS_NOINDEX in response.content
+
+    @override_switch("ALL_FORM", active=True)
+    def test_esr_transition_shown_with_the_next_esr(self, client):
+        with (
+            patch.object(all_form, "get_esr_next_version", return_value="153.0"),
+            patch.object(all_form, "get_esr_transition", return_value=ESR_TRANSITION),
+        ):
+            response = client.get(RESULT_URL, {"os": "win64", "release": "esr", "language": "de"})
+        assert b'<div class="c-esr-transition">' in response.content
+        assert b"153" in response.content and b"140" in response.content
+
+    @override_switch("ALL_FORM", active=True)
+    def test_no_esr_transition_on_other_releases(self, client):
+        with patch.object(all_form, "get_esr_transition", return_value=ESR_TRANSITION):
+            response = client.get(RESULT_URL, {"os": "win64", "release": "stable", "language": "de"})
+        assert b"c-esr-transition" not in response.content
 
     @override_switch("ALL_FORM", active=True)
     def test_bare_request_bounces_to_the_form(self, client):

@@ -10,6 +10,8 @@
 
 {% block page_title %}Download {{ release_label }} for {{ os_label }}{% endblock %}
 
+{% block canonical_urls %}<meta name="robots" content="noindex,follow">{% endblock %}
+
 {% block content %}
 <div class="fl-main">
   <div class="fl-section c-section">
@@ -30,6 +32,10 @@
       <div class="c-download-options">
         {% include "firefox/all-form/_download-options.html" %}
       </div>
+
+      {% if esr_transition %}
+        {% include "firefox/all-form/_esr-transition.html" %}
+      {% endif %}
 
       <div class="c-support-links">
         {%- for link in support_links %}

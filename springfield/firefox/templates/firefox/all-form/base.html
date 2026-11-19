@@ -12,6 +12,15 @@
 
 {% block page_title %}Firefox download configuration tool{% endblock %}
 
+{% block canonical_urls %}
+  {# Only the bare page is indexed; every configuration is a variant of it. #}
+  {% if 'os' in request.GET or 'release' in request.GET or 'language' in request.GET %}
+    <meta name="robots" content="noindex,follow">
+  {% else %}
+    {{ super() }}
+  {% endif %}
+{% endblock %}
+
 {% block content %}
 
 <div class="fl-main">
@@ -240,6 +249,11 @@
           {# JS-only: without it, an unusable pair is reported by the inline error
              on the release field, which is about the submission rather than about
              where the selects have since been moved to. #}
+          {# Shown by the script whenever the next ESR is offered. #}
+          {% if esr_transition %}
+            {% with hidden=True %}{% include "firefox/all-form/_esr-transition.html" %}{% endwith %}
+          {% endif %}
+
           <div class="c-incompatible-choices" hidden>
             <p>{{ copy.conflict }}</p>
           </div>

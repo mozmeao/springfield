@@ -434,6 +434,7 @@ class FirefoxDownloadFormElement extends HTMLElement {
     _resultsPane;
     _downloadOptionsPane;
     _incompatiblePane;
+    _esrTransition;
     _supportLinksPane;
     _languageMessage;
 
@@ -558,6 +559,9 @@ class FirefoxDownloadFormElement extends HTMLElement {
         this._incompatiblePane = this._resultsPane.querySelector(
             '.c-incompatible-choices'
         );
+        // Only rendered while the server knows of a next ESR.
+        this._esrTransition =
+            this._resultsPane.querySelector('.c-esr-transition');
 
         // Server-rendered, and already showing if the page loaded on a store app.
         this._languageMessage = language
@@ -857,6 +861,24 @@ class FirefoxDownloadFormElement extends HTMLElement {
             if (serverNotification) {
                 serverNotification.classList.add('c-message-hidden');
             }
+        });
+
+        this._effect(() => {
+            if (!this._esrTransition) return;
+            this._esrTransition.hidden = !(
+                this._view.value === VIEW.OPTIONS && this._hasESRNext.value
+            );
+        });
+
+        // During an ESR transition the newer ESR is the recommended download.
+        this._effect(() => {
+            const link = this._downloadOptions
+                .get(DOWNLOAD_OPTION.PRIMARY)
+                ?.querySelector('a');
+            if (!link) return;
+            const demoted = this._hasESRNext.value;
+            link.classList.toggle('button-primary', !demoted);
+            link.classList.toggle('button-secondary', demoted);
         });
 
         this._effect(() => {

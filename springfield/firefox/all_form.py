@@ -380,6 +380,14 @@ def get_esr_next_version():
     return versions[1] if len(versions) >= 2 else None
 
 
+def get_esr_transition():
+    """Major versions for the ESR transition copy, or None outside a transition."""
+    versions = firefox_desktop.esr_minor_versions
+    if len(versions) < 2:
+        return None
+    return {"current_major": versions[0].split(".")[0], "next_major": versions[1].split(".")[0]}
+
+
 # ---------------------------------------------------------------------------
 # Download URLs
 # ---------------------------------------------------------------------------
@@ -636,7 +644,9 @@ def get_download_option_list(os_value, release, language):
     family = get_platform_family(os_value)
     primary = get_primary_action(family, release)
     primary_href = get_store_url(os_value, release) if os_value in MOBILE_OS else get_download_url(os_value, release, language)
-    options.append(_option(OPTION_PRIMARY, primary["label"], primary_href, primary["icon"], ["button-primary"], cta_text=primary["ctaText"]))
+    # During an ESR transition the newer ESR is the recommended download.
+    primary_classes = ["button-secondary"] if esr_next_url else ["button-primary"]
+    options.append(_option(OPTION_PRIMARY, primary["label"], primary_href, primary["icon"], primary_classes, cta_text=primary["ctaText"]))
 
     esr_115_url = get_esr_115_download_url(os_value, release, language)
     if esr_115_url:
@@ -646,7 +656,7 @@ def get_download_option_list(os_value, release, language):
                 f"Download {RELEASE_LABELS['esr']} 115",
                 esr_115_url,
                 "downloads",
-                ["button-primary", "fl-button-small"],
+                ["button-secondary", "fl-button-small"],
                 recommendation=ESR_115_RECOMMENDATIONS.get(family, ""),
             )
         )
@@ -752,7 +762,7 @@ def get_client_data():
                 "label": f"Download {RELEASE_LABELS['esr']} 115",
                 "ctaText": CTA_TEXT[OPTION_ESR_115],
                 "icon": "downloads",
-                "classes": ["button-primary", "fl-button-small"],
+                "classes": ["button-secondary", "fl-button-small"],
                 "recommendations": dict(ESR_115_RECOMMENDATIONS),
             },
             "apk": {
@@ -914,6 +924,7 @@ def get_form_context(selection):
         "result_url": reverse("firefox.all_form.result"),
         "client_data_json": get_client_data_json(),
         "copy": MESSAGES,
+        "esr_transition": get_esr_transition(),
     }
 
 
@@ -928,6 +939,7 @@ def get_download_options(selection):
     os_value = selection.os
     release = selection.release
     language = selection.effective_language
+    download_options = get_download_option_list(os_value, release, language)
 
     return {
         "is_mobile": os_value in MOBILE_OS,
@@ -935,7 +947,8 @@ def get_download_options(selection):
         "os_label": OS_LABELS[os_value],
         "release_label": RELEASE_LABELS[release],
         "language_label": get_language_label(language) if language else "",
-        "download_options": get_download_option_list(os_value, release, language),
+        "download_options": download_options,
+        "esr_transition": get_esr_transition() if any(option["key"] == OPTION_ESR_NEXT for option in download_options) else None,
         "support_links": get_support_links(os_value, release),
         "copy": MESSAGES,
         "logo": get_logo(release),
