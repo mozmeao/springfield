@@ -39,6 +39,7 @@
 }
 
 .fl-article-closing-cta {
+    color: var(--fl-theme-color-text);
     padding-block: var(--fl-section-v-padding);
 }
 

@@ -49,7 +49,7 @@
   </div>
 
   {% if page.closing_cta %}
-    <div class="fl-article-closing-cta">
+    <div class="fl-article-closing-cta fl-force-dark-theme">
       {% set block_level = 2 %}
       {% for block in page.closing_cta %}
         {% set block_position = "closing-cta-" ~ block.block_type %}

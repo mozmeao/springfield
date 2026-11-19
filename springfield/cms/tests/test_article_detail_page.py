@@ -201,12 +201,13 @@ def test_article_without_new_fields_renders_title_and_text(client, article, pre_
     assert "flare/kit-on-rock.png" in soup.select_one(".fl-newsletterform-illustration img")["src"]
 
 
-def test_closing_cta_renders_after_the_article_as_h2(client, article):
+def test_closing_cta_renders_after_the_article_as_h2_on_the_dark_theme(client, article):
     article.closing_cta = [banner_block("Get Firefox now")]
     soup = render(client, article)
 
     page = soup.select_one(".fl-article-page")
     assert [child.get("class", [])[0] for child in page.find_all(recursive=False)] == ["fl-main", "fl-article-closing-cta"]
+    assert "fl-force-dark-theme" in page.select_one(".fl-article-closing-cta")["class"]
     heading = page.select_one(".fl-article-closing-cta .fl-banner-container .fl-heading")
     assert (heading.name, heading.get_text(strip=True)) == ("h2", "Get Firefox now")
 
