@@ -233,10 +233,8 @@ ESR_115_RECOMMENDATIONS = {
 # Duplicated in all-form.js, which switches on these keys. Nothing else is.
 # ---------------------------------------------------------------------------
 
-# All four logos are rendered on the form page so the visible one can change
-# without a network fetch mid-interaction. Which one shows is decided entirely in
-# CSS, from which release option is `:checked` — so it follows the select whether
-# or not the script is running.
+# Only the result page renders these. The form page sets its logo in CSS, from
+# which release option is `:checked`.
 LOGOS = (
     {"key": "firefox", "file": "img/logos/firefox/firefox-logo.svg", "alt": "Firefox"},
     {"key": "firefox-beta", "file": "img/logos/firefox/firefox-logo-beta.svg", "alt": "Firefox Beta"},
@@ -889,7 +887,6 @@ def get_form_context(selection):
         "result_url": reverse("firefox.all_form.result"),
         "client_data_json": get_client_data_json(),
         "copy": MESSAGES,
-        "logos": LOGOS,
     }
 
 
