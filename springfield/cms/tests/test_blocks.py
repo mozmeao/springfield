@@ -4703,7 +4703,8 @@ class TestIconValueFn:
         assert icon_value_fn("desktop-16/screenshot/screenshot-camera-16") == "screenshot-camera"
 
     def test_colliding_path_returns_dash_joined_value(self):
-        assert icon_value_fn("mobile-24/arrows-chevrons/forward-24") == "mobile-24-arrows-chevrons-forward-24"
+        with mock.patch("springfield.cms.icon_utils._COLLIDING_PATHS", frozenset({"mobile-24/arrows-chevrons/forward-24"})):
+            assert icon_value_fn("mobile-24/arrows-chevrons/forward-24") == "mobile-24-arrows-chevrons-forward-24"
 
     def test_non_colliding_path_returns_css_name(self):
         assert icon_value_fn("mobile-24/cursors/cursors-24") == "cursors"
