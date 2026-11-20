@@ -18,6 +18,7 @@ from wagtail.admin.panels import FieldPanel
 from wagtail.models import Locale, Page as WagtailBasePage, Site
 from wagtail.search import index
 from wagtail_localize.fields import SynchronizedField
+from wagtail_localize_smartling.locks import PendingTranslationLockMixin
 
 from lib import l10n_utils
 from springfield.base.i18n import normalize_language
@@ -131,7 +132,7 @@ class PromotedPageMixin(models.Model):
 
 
 @method_decorator(never_cache, name="serve_password_required_response")
-class AbstractSpringfieldCMSPage(WagtailBasePage):
+class AbstractSpringfieldCMSPage(PendingTranslationLockMixin, WagtailBasePage):
     """Base page class for all Wagtail pages within Springfield
 
     Things we do to in particular are:
@@ -212,6 +213,10 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
 
     class Meta:
         abstract = True
+
+    def can_bypass_pending_translation_lock(self, user):
+        """Only superusers can edit a page whose content is being translated at Smartling."""
+        return user.is_superuser
 
     @classmethod
     def can_create_at(cls, parent):

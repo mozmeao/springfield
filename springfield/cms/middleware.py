@@ -6,10 +6,17 @@ from collections import defaultdict
 from http import HTTPStatus
 
 from django.conf import settings
+from django.contrib import messages
+from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponsePermanentRedirect, HttpResponseRedirect
+from django.shortcuts import redirect
+from django.urls import reverse
+from django.utils.translation import gettext as _
 from django.utils.translation.trans_real import parse_accept_lang_header
 
 from wagtail.models import Page, Site
+from wagtail_localize.models import TranslationSource
+from wagtail_localize_smartling.locks import get_in_flight_locales_for_instance
 
 from springfield.base.i18n import normalize_language
 from springfield.cms.utils import LOCALE_FALLBACK_EXEMPT_ATTR, current_request
@@ -186,3 +193,93 @@ class CMSLocaleFallbackMiddleware:
             # This gets called as a 404, so let's just treat it as Not Found
             return True
         return False
+
+
+class PendingTranslationSyncGuardMiddleware:
+    """
+    Refuse "Sync translated pages" for non-superusers while the page has content
+    at Smartling.
+
+    When a translation is sent to Smartling, we wait for the page's text to be
+    translated. Syncing the source page to the translations creates a mismatch
+    between the text that was sent to Smartling and the text that exists on the
+    page(s), so we do not allow syncing until the Smartling translation has
+    returned.
+
+    It refuses with a redirect and a message rather than ``PermissionDenied`` because
+    Wagtail only converts that into a styled refusal when a *view* raises it. Raised
+    here it would reach Django's raw 403, and springfield has no 403 template in
+    which to explain itself.
+    """
+
+    # A wagtail-localize translation component would be the natural home for this, but
+    # a component's ``clean()`` is skipped whenever the component is optional
+    view_name = "wagtail_localize:update_translations"
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        return self.get_response(request)
+
+    def process_view(self, request, view_func, view_args, view_kwargs):
+        # Do nothing for any view that is not self.view_name.
+        match = request.resolver_match
+        if match is None or match.view_name != self.view_name:
+            return None
+
+        # Do nothing for unauthenticated users.
+        user = getattr(request, "user", None)
+        if user is None or not user.is_authenticated:
+            return None
+
+        source = TranslationSource.objects.filter(pk=view_kwargs.get("translation_source_id")).first()
+        if source is None:
+            # Stale bookmark or deleted source: let the view raise its own 404.
+            return None
+
+        try:
+            instance = source.get_source_instance()
+        except ObjectDoesNotExist:
+            return None
+
+        # Do nothing if this is not a Page.
+        if not isinstance(instance, Page):
+            return None
+
+        # Do nothing if the instance doesn't look like the wagtail-localize-smartling class.
+        can_bypass_lock = getattr(instance, "can_bypass_pending_translation_lock", None)
+        if can_bypass_lock is None:
+            return None
+
+        # Do nothing if the instance isn't being translated into any locales.
+        locales = get_in_flight_locales_for_instance(instance)
+        if not locales:
+            return None
+
+        # If the user can bypass the lock, give the user a warning message on GETs.
+        # After a POST, the view has already redirected onwards and the sync has
+        # happened, so the message would be too late.
+        if can_bypass_lock(user):
+            if request.method == "GET":
+                messages.warning(
+                    request,
+                    _(
+                        "This page is being translated in Smartling into "
+                        "%(locales)s. Syncing now would create a mismatch "
+                        "between the changed text, and the text translated "
+                        "in Smartling."
+                    )
+                    % {"locales": ", ".join(locale.get_display_name() for locale in locales)},
+                )
+            return None
+
+        messages.error(
+            request,
+            _(
+                "This page is being translated in Smartling. Changing a "
+                "field now would create a mismatch between the changed "
+                "text, and the text translated in Smartling."
+            ),
+        )
+        return redirect(reverse("wagtailadmin_pages:edit", args=[instance.id]))
