@@ -41,6 +41,7 @@ from springfield.cms.blocks import (
     ROADMAP_TAG_ICONS,
     ROADMAP_TAG_LABELS,
     UI_TOUR_CLASSES,
+    UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY_VPN,
     UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC_IMPORT_BROWSER_DATA,
     UITOUR_BUTTON_NEW_TAB,
     UITOUR_BUTTON_SET_NEWTAB_WALLPAPER,
@@ -5044,6 +5045,12 @@ def test_uitour_import_browser_data_class_yields_firefox_pane():
     # ui-tour-buttons.js strips this prefix and passes the rest to openPreferences().
     css_class = UI_TOUR_CLASSES[UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC_IMPORT_BROWSER_DATA]
     assert css_class.removeprefix("ui-tour-open-about-preferences-") == "sync-importBrowserData"
+
+
+def test_uitour_privacy_vpn_class_yields_firefox_pane():
+    # ui-tour-buttons.js strips this prefix and passes the rest to openPreferences().
+    css_class = UI_TOUR_CLASSES[UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY_VPN]
+    assert css_class.removeprefix("ui-tour-open-about-preferences-") == "privacy-vpn"
 
 
 @pytest.mark.parametrize(
