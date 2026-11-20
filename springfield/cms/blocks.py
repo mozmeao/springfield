@@ -33,6 +33,7 @@ from lib.l10n_utils.fluent import ftl, ftl_lazy
 from springfield.base.i18n import normalize_language, split_path_and_normalize_language
 from springfield.cms.icon_utils import icon_css_name, icon_value_fn
 from springfield.cms.models.locale import SpringfieldLocale
+from springfield.cms.qr_code_urls import QR_CODE_URL_HELP_TEXT, QR_CODE_URL_LABEL, normalize_qr_code_url, validate_qr_code_url
 from springfield.cms.rich_text import RichTextBlock
 from springfield.cms.views import wagtail_serve_with_locale_fallback
 
@@ -167,6 +168,7 @@ UITOUR_BUTTON_ABOUT_PREFERENCES_EXPERIMENTAL = "open_about_preferences_experimen
 UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC = "open_about_preferences_sync"
 UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC_IMPORT_BROWSER_DATA = "open_about_preferences_sync_import_browser_data"
 UITOUR_BUTTON_ABOUT_PREFERENCES_MORE_FROM_MOZILLA = "open_about_preferences_more_from_mozilla"
+UITOUR_BUTTON_ABOUT_PREFERENCES_ABOUT = "open_about_preferences_about"
 UITOUR_BUTTON_PROTECTIONS_REPORT = "open_protections_report"
 UITOUR_BUTTON_SMART_WINDOW = "open_smart_window"
 UITOUR_BUTTON_PIN_TO_TASKBAR = "pin_to_taskbar"
@@ -190,6 +192,7 @@ UITOUR_BUTTON_CHOICES = (
         UITOUR_BUTTON_ABOUT_PREFERENCES_MORE_FROM_MOZILLA,
         "Open Preferences - More From Mozilla",
     ),
+    (UITOUR_BUTTON_ABOUT_PREFERENCES_ABOUT, "Open Preferences - About (Firefox Updates)"),
     (UITOUR_BUTTON_PROTECTIONS_REPORT, "Open Protections Report"),
     (UITOUR_BUTTON_SMART_WINDOW, "Open Smart Window"),
     (UITOUR_BUTTON_PIN_TO_TASKBAR, "Pin to Taskbar (Windows and Mac only)"),
@@ -211,6 +214,7 @@ UI_TOUR_CLASSES = {
     UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC: "ui-tour-open-about-preferences-sync",
     UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC_IMPORT_BROWSER_DATA: "ui-tour-open-about-preferences-sync-importBrowserData",
     UITOUR_BUTTON_ABOUT_PREFERENCES_MORE_FROM_MOZILLA: "ui-tour-open-about-preferences-moreFromMozilla",
+    UITOUR_BUTTON_ABOUT_PREFERENCES_ABOUT: "ui-tour-open-about-preferences-about",
     UITOUR_BUTTON_PROTECTIONS_REPORT: "ui-tour-open-protections-report",
     UITOUR_BUTTON_SMART_WINDOW: "ui-tour-open-smart-window",
     UITOUR_BUTTON_PIN_TO_TASKBAR: "ui-tour-pin-to-taskbar",
@@ -292,6 +296,28 @@ def icon_display_label(stem: str) -> str:
     """
     css_name = icon_css_name(stem)
     return _ICON_LABEL_OVERRIDES.get(css_name) or css_name.replace("-", " ").title()
+
+
+class QRCodeURLBlock(blocks.CharBlock):
+    def __init__(self, required=True, help_text=QR_CODE_URL_HELP_TEXT, **kwargs):
+        kwargs.setdefault("label", QR_CODE_URL_LABEL)
+        super().__init__(required=required, help_text=help_text, validators=[validate_qr_code_url], **kwargs)
+
+    def clean(self, value):
+        return super().clean(normalize_qr_code_url(value))
+
+
+class OverridableQRCodeURLBlock(blocks.URLBlock):
+    """A QR Code URL field that stays a URLBlock, so each locale overrides it instead of translating it."""
+
+    def __init__(self, required=True, help_text=QR_CODE_URL_HELP_TEXT, **kwargs):
+        kwargs.setdefault("label", QR_CODE_URL_LABEL)
+        super().__init__(required=required, help_text=help_text, **kwargs)
+        # Django's URLField would add http:// itself and reject tel: and mailto: links.
+        self.field = forms.CharField(required=required, help_text=help_text, validators=[validate_qr_code_url])
+
+    def clean(self, value):
+        return super().clean(normalize_qr_code_url(value))
 
 
 class UntranslatableCharBlock(blocks.CharBlock):
@@ -1032,7 +1058,7 @@ def SetAsDefaultButtonBlock(themes=BUTTON_THEMES, **kwargs):
 def QRCodeModalButtonBlock(themes=BUTTON_THEMES, **kwargs):
     class _QRCodeModalButtonBlock(LabelSourceMixin, blocks.StructBlock):
         settings = BaseButtonSettings(themes=themes)
-        url = blocks.URLBlock(label="QR Code URL", help_text="URL to encode as a QR code")
+        url = OverridableQRCodeURLBlock()
         heading = blocks.CharBlock(label="Modal heading")
         content = blocks.CharBlock(label="Modal caption", required=False)
 
@@ -1766,7 +1792,7 @@ def AnimationBlock(required=True, *args, **kwargs):
 
 
 class QRCodeBlock(blocks.StructBlock):
-    data = blocks.CharBlock(label="QR Code Data", help_text="The URL or text encoded in the QR code.")
+    data = QRCodeURLBlock()
     background = ImageChooserBlock(
         required=False,
         help_text="This QR Code background should be 1200x675, expecting a 300px square directly in the center. "
@@ -3681,7 +3707,7 @@ def HomeKitBannerBlock(allow_uitour=False, *args, **kwargs):
     class _HomeKitBannerBlock(blocks.StructBlock):
         settings = HomeKitBannerSettings()
         heading = HeadingBlock()
-        qr_code = blocks.CharBlock(required=False, help_text="QR Code Data or URL.")
+        qr_code = QRCodeURLBlock(required=False)
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
             min_num=0,
@@ -3706,10 +3732,7 @@ class MobileStoreQRCodeBlock(RequireAltTextMixin, blocks.StructBlock):
     alt_text_fields = ("mobile_image",)
 
     heading = HeadingBlock()
-    qr_code_data = blocks.CharBlock(
-        label="QR Code Data",
-        help_text="The URL or text encoded in the QR code.",
-    )
+    qr_code_data = QRCodeURLBlock()
     mobile_image = ImageChooserBlock(
         label="Mobile Image",
         help_text="Image shown on mobile instead of the QR code.",

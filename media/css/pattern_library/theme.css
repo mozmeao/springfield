@@ -104,6 +104,10 @@ body {
     content: "";
 }
 
+.list__button {
+    text-align: start;
+}
+
 .list__item-link {
     color: var(--text-color);
     text-decoration: none;

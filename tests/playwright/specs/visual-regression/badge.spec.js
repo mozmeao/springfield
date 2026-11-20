@@ -9,7 +9,7 @@
 const openPage = require('../../scripts/open-page');
 const { test } = require('@playwright/test');
 const { patternLibraryURL, expectComponentScreenshot } = require('./helpers');
-const url = `${patternLibraryURL}/badge/badge.html`;
+const url = `${patternLibraryURL}/impact-dash/badge.html`;
 
 test.describe(
     `Badge`,

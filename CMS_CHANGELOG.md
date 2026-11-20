@@ -1,3 +1,11 @@
+## 2026-11-19
+
+- Every field that sets where a QR code points is now called "QR Code URL", with the same help text: the QR Code block, Mobile Store Button / QR Code, Home Kit Banner, QR Code Modal Button, the Banner, QR Code and Floating QR Code snippets, and the page-level "Override QR Code URL". If you leave off `https://` it is added when you save, `http://` is changed to `https://`, and `tel:`, `mailto:` and `sms:` links are kept as they are. Anything else, like plain text, shows an error.
+
+## 2026-11-17
+
+- UI Tour buttons have an "Open Preferences - About (Firefox Updates)" action, which opens `about:preferences#about`.
+
 ## 2026-11-09
 
 - Generated QR codes now use rounded dots and corners with the Firefox logo in the middle, matching the designed QR images.

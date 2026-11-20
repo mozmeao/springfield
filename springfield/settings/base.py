@@ -954,6 +954,7 @@ PATTERN_LIBRARY = {
         ("Docs", ["pattern-library/docs"]),
         ("Base Styles", ["pattern-library/base-styles"]),
         ("Components", ["pattern-library/components/flare/"]),
+        ("Context Specific Components", ["pattern-library/context-specific/"]),
     ),
     # Configure which files to detect as templates.
     "TEMPLATE_SUFFIX": ".html",
