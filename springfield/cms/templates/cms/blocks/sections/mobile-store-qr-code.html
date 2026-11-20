@@ -4,7 +4,7 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% from "macros.html" import google_play_button, apple_app_store_button with context %}
+{% from "macros.html" import android_download_button, apple_app_store_button with context %}
 
 {% set block_position = block_position or "mobile-store-qr" %}
 
@@ -27,7 +27,7 @@
     {% set campaign = (utm_parameters or {}).get("utm_campaign", "firefox-mobile") %}
     {% set android_url = play_store_url('firefox', campaign) %}
     {% set ios_url = app_store_url('firefox', campaign) %}
-    {{ google_play_button(href=android_url, class_name="fl-store-button") }}
+    {{ android_download_button(href=android_url, class_name="fl-store-button", cta_position=block_position) }}
     {{ apple_app_store_button(href=ios_url, class_name="fl-store-button") }}
   </content:store_buttons>
   <content:mobile_image>

@@ -114,6 +114,7 @@
         {% set block_index = loop.index %}
         {% set block_type = block.block_type %}
         {% set block_position = "upper-block-" ~ block_index + "-" + block_type %}
+        {% set china_download_options = block_type == "intro" %}
 
         {% if (block.value.heading and block.value.heading.heading_text) or block.value.headline %}
           {% set block_level = 1 if ns.headings == 0 else 2 %}
