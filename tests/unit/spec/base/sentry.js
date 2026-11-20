@@ -9,7 +9,18 @@
  * Sinon docs: http://sinonjs.org/docs/
  */
 
-import SentryConsent from '../../../../media/js/base/sentry-consent.es6';
+import {
+    BrowserClient,
+    defaultStackParser,
+    eventFiltersIntegration,
+    getCurrentScope,
+    globalHandlersIntegration,
+    makeFetchTransport
+} from '@sentry/browser';
+
+import SentryConsent, {
+    eventFilterOptions
+} from '../../../../media/js/base/sentry-consent.es6';
 
 describe('sentry-consent.es6.js', function () {
     beforeEach(function () {
@@ -118,6 +129,55 @@ describe('sentry-consent.es6.js', function () {
 
             SentryConsent.init();
             expect(SentryConsent.initClient).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('Event filters', function () {
+        let client;
+        let send;
+
+        beforeEach(function () {
+            client = new BrowserClient({
+                dsn: 'https://public@sentry.example.com/1',
+                transport: makeFetchTransport,
+                stackParser: defaultStackParser,
+                sendClientReports: false,
+                integrations: [
+                    globalHandlersIntegration(),
+                    eventFiltersIntegration(eventFilterOptions)
+                ]
+            });
+            getCurrentScope().setClient(client);
+            client.init();
+            send = spyOn(client.getTransport(), 'send').and.resolveTo({});
+        });
+
+        afterEach(function () {
+            getCurrentScope().setClient(undefined);
+        });
+
+        it('should report a rejected promise', async function () {
+            await jasmine.spyOnGlobalErrorsAsync(async function () {
+                Promise.reject(new Error('Rejected'));
+                await new Promise((resolve) =>
+                    window.addEventListener('unhandledrejection', resolve, {
+                        once: true
+                    })
+                );
+                await client.flush();
+            });
+
+            expect(send).toHaveBeenCalledTimes(1);
+        });
+
+        it('should ignore unhandledrejection events that carry no rejection reason', async function () {
+            await jasmine.spyOnGlobalErrorsAsync(async function () {
+                window.dispatchEvent(new Event('unhandledrejection'));
+                window.dispatchEvent(new CustomEvent('unhandledrejection'));
+                await client.flush();
+            });
+
+            expect(send).not.toHaveBeenCalled();
         });
     });
 });
