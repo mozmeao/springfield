@@ -25,6 +25,7 @@ const STATES = [
     'firefox',
     'language',
     'device',
+    'store',
     'linux_language',
     'linux_device',
     'unsupported_os'
@@ -347,6 +348,10 @@ describe('partner-download.es6.js', function () {
             originalSite = window.site;
             window.dataLayer = [];
             signedCookie = null;
+            document.documentElement.setAttribute(
+                'data-download-partner-mode',
+                'message'
+            );
             spyOn(PartnerDownload, 'navigate');
             spyOn(PartnerDownload, 'isX64').and.returnValue(
                 Promise.resolve(true)
@@ -369,6 +374,9 @@ describe('partner-download.es6.js', function () {
 
         afterEach(function () {
             jasmine.clock().uninstall();
+            document.documentElement.removeAttribute(
+                'data-download-partner-mode'
+            );
             window.site = originalSite;
             window.Mozilla.DownloadAttribution.gettingAnalyticsData = false;
             window.Mozilla.DownloadAttribution.inFlightXHR = null;
@@ -681,7 +689,8 @@ describe('partner-download.es6.js', function () {
                     partner: 'acme',
                     platform: platform === 'osx' ? 'macos' : platform,
                     download_language: 'en-US',
-                    reason: reason
+                    reason: reason,
+                    partner_mode: 'message'
                 };
                 expect(eventsNamed('partner_download_unavailable')).toEqual([
                     Object.assign(
@@ -715,6 +724,418 @@ describe('partner-download.es6.js', function () {
             }
 
             expect(eventsNamed('partner_download_unavailable')).toEqual([]);
+        });
+
+        describe('immediate partners', function () {
+            const REGULAR_URL =
+                'https://download.mozilla.org/?product=firefox-stub';
+            const REGULAR_WIN64_URL = `${REGULAR_URL}&os=win64&lang=en-US`;
+            const REGULAR_WIN_URL = `${REGULAR_URL}&os=win&lang=en-US`;
+            const REGULAR_OSX_URL =
+                'https://download.mozilla.org/?product=firefox-latest-ssl&os=osx&lang=en-US';
+            const PLAY_STORE_URL =
+                'https://play.google.com/store/apps/details?id=org.mozilla.firefox';
+            const APP_STORE_URL =
+                'https://apps.apple.com/us/app/apple-store/id989804926';
+            const noBuilds = {
+                windows: 'language',
+                osx: 'device',
+                linux: 'device'
+            };
+
+            function downloadList(versions) {
+                const links = versions
+                    .map(
+                        ([version, url]) =>
+                            `<a data-download-version="${version}" href="${url}"></a>`
+                    )
+                    .join('');
+                return `<ul class="download-list">${links}</ul>`;
+            }
+
+            function renderImmediatePage(builds, links = []) {
+                container = renderPage(builds, links);
+                container.setAttribute('data-mode', 'immediate');
+                container
+                    .querySelector('[data-state="device"]')
+                    .insertAdjacentHTML(
+                        'beforeend',
+                        downloadList([
+                            ['win64', REGULAR_WIN64_URL],
+                            ['win', REGULAR_WIN_URL],
+                            ['osx', REGULAR_OSX_URL]
+                        ])
+                    );
+                container
+                    .querySelector('[data-state="store"]')
+                    .insertAdjacentHTML(
+                        'beforeend',
+                        downloadList([
+                            ['android', PLAY_STORE_URL],
+                            ['ios', APP_STORE_URL]
+                        ])
+                    );
+            }
+
+            async function runFor(ms) {
+                PartnerDownload.begin();
+                await flushPromises();
+                jasmine.clock().tick(ms);
+                await flushPromises();
+            }
+
+            beforeEach(function () {
+                document.documentElement.setAttribute(
+                    'data-download-partner-mode',
+                    'immediate'
+                );
+            });
+
+            it('should download regular Firefox at 1 second without leaving the page, and point "try again" at it', async function () {
+                visitOn('windows');
+                renderImmediatePage(noBuilds);
+
+                await runFor(999);
+                expect(shownStates()).toEqual(['download']);
+                expect(PartnerDownload.navigate).not.toHaveBeenCalled();
+
+                jasmine.clock().tick(1);
+                await flushPromises();
+                expect(PartnerDownload.navigate).toHaveBeenCalledOnceWith(
+                    REGULAR_WIN64_URL
+                );
+                expect(
+                    window.Mozilla.TrackProductDownload.sendEventFromURL
+                ).toHaveBeenCalledWith(REGULAR_WIN64_URL);
+                expect(
+                    document.getElementById('partner-download-try-again').href
+                ).toBe(REGULAR_WIN64_URL);
+            });
+
+            it('should send one unavailable event before the download starts', async function () {
+                visitOn('windows');
+                renderImmediatePage(noBuilds);
+
+                await runFor(0);
+
+                expect(PartnerDownload.navigate).not.toHaveBeenCalled();
+                expect(eventsNamed('partner_download_unavailable')).toEqual([
+                    jasmine.objectContaining({
+                        reason: 'language',
+                        partner_mode: 'immediate'
+                    })
+                ]);
+                jasmine.clock().tick(1000);
+                await flushPromises();
+                expect(eventsNamed('partner_download_unavailable').length).toBe(
+                    1
+                );
+            });
+
+            it('should wait for signing that finishes at 1.6 seconds and attribute the download', async function () {
+                visitOn('windows');
+                renderImmediatePage(noBuilds);
+                window.Mozilla.DownloadAttribution.gettingAnalyticsData = true;
+
+                await runFor(1599);
+                expect(PartnerDownload.navigate).not.toHaveBeenCalled();
+
+                signedCookie = SIGNED;
+                window.Mozilla.DownloadAttribution.successCallback();
+                await flushPromises();
+                expect(PartnerDownload.navigate).toHaveBeenCalledWith(
+                    `${REGULAR_WIN64_URL}&attribution_code=code123&attribution_sig=sig456`
+                );
+                expect(attributionEvents()).toEqual([
+                    jasmine.objectContaining({ action: 'success' })
+                ]);
+            });
+
+            it('should download without attribution at 2 seconds when signing never returns', async function () {
+                visitOn('windows');
+                renderImmediatePage(noBuilds);
+                window.Mozilla.DownloadAttribution.gettingAnalyticsData = true;
+
+                await runFor(1999);
+                expect(PartnerDownload.navigate).not.toHaveBeenCalled();
+
+                jasmine.clock().tick(1);
+                await flushPromises();
+                expect(PartnerDownload.navigate).toHaveBeenCalledWith(
+                    REGULAR_WIN64_URL
+                );
+                expect(attributionEvents()).toEqual([
+                    jasmine.objectContaining({ action: 'timeout' })
+                ]);
+            });
+
+            it('should download regular Firefox for a Mac with no build', async function () {
+                visitOn('osx');
+                renderImmediatePage(noBuilds);
+
+                await runFor(1000);
+
+                expect(PartnerDownload.navigate).toHaveBeenCalledWith(
+                    REGULAR_OSX_URL
+                );
+                expect(eventsNamed('partner_download_unavailable')).toEqual([
+                    jasmine.objectContaining({ reason: 'device' })
+                ]);
+            });
+
+            it('should download 32-bit regular Firefox when Windows is not 64-bit and the build is', async function () {
+                PartnerDownload.isX64.and.returnValue(Promise.resolve(false));
+                visitOn('windows');
+                renderImmediatePage(
+                    { windows: 'available', osx: 'device', linux: 'device' },
+                    [['win64', WIN64_URL]]
+                );
+
+                await runFor(1000);
+
+                expect(PartnerDownload.navigate).toHaveBeenCalledWith(
+                    REGULAR_WIN_URL
+                );
+                expect(eventsNamed('partner_download_unavailable')).toEqual([
+                    jasmine.objectContaining({ reason: 'device' })
+                ]);
+            });
+
+            for (const [platform, storeUrl] of [
+                ['android', PLAY_STORE_URL],
+                ['ios', APP_STORE_URL]
+            ]) {
+                it(`should send ${platform} to the store at 1 second without waiting for signing`, async function () {
+                    visitOn(platform);
+                    renderImmediatePage(noBuilds);
+                    window.Mozilla.DownloadAttribution.gettingAnalyticsData = true;
+
+                    await runFor(999);
+                    expect(shownStates()).toEqual(['store']);
+                    expect(PartnerDownload.navigate).not.toHaveBeenCalled();
+
+                    jasmine.clock().tick(1);
+                    await flushPromises();
+                    const storeLink = container.querySelector(
+                        `[data-state="store"] [data-download-version="${platform}"]`
+                    );
+                    expect(storeLink.href.startsWith(storeUrl)).toBeTrue();
+                    expect(PartnerDownload.navigate).toHaveBeenCalledOnceWith(
+                        storeLink.href
+                    );
+                    expect(
+                        window.Mozilla.TrackProductDownload.sendEventFromURL
+                    ).toHaveBeenCalledOnceWith(storeLink.href);
+                    expect(eventsNamed('partner_download_unavailable')).toEqual(
+                        [jasmine.objectContaining({ reason: 'device' })]
+                    );
+                });
+            }
+
+            it('should not redirect after the visitor taps the store badge', async function () {
+                visitOn('android');
+                renderImmediatePage(noBuilds);
+                container.addEventListener('click', (event) =>
+                    event.preventDefault()
+                );
+
+                await runFor(500);
+                container
+                    .querySelector('[data-download-version="android"]')
+                    .click();
+                jasmine.clock().tick(1000);
+                await flushPromises();
+
+                expect(PartnerDownload.navigate).not.toHaveBeenCalled();
+                expect(
+                    window.Mozilla.TrackProductDownload.sendEventFromURL
+                ).not.toHaveBeenCalled();
+            });
+
+            it('should show Linux its options without downloading', async function () {
+                const cases = [
+                    [{}, 'device', 'linux_device'],
+                    [
+                        { windows: 'device', osx: 'device', linux: 'language' },
+                        'language',
+                        'linux_language'
+                    ]
+                ];
+                for (const [builds, reason, expectedState] of cases) {
+                    visitOn('linux');
+                    renderImmediatePage(Object.assign({}, noBuilds, builds));
+                    window.dataLayer = [];
+
+                    await runFor(3000);
+
+                    expect(shownStates()).toEqual([expectedState]);
+                    expect(eventsNamed('partner_download_unavailable')).toEqual(
+                        [jasmine.objectContaining({ reason: reason })]
+                    );
+                    container.remove();
+                }
+                expect(PartnerDownload.navigate).not.toHaveBeenCalled();
+            });
+
+            it('should show ARM Linux its options without downloading', async function () {
+                spyOn(PartnerDownload, 'isArm').and.returnValue(true);
+                visitOn('linux');
+                renderImmediatePage({
+                    windows: 'device',
+                    osx: 'device',
+                    linux: 'available'
+                });
+
+                await runFor(3000);
+
+                expect(shownStates()).toEqual(['linux_device']);
+                expect(PartnerDownload.navigate).not.toHaveBeenCalled();
+            });
+
+            it('should show the same message as other partners to Firefox, unsupported and other systems', async function () {
+                const cases = [
+                    ['osx', { isFirefox: () => true }, 'firefox'],
+                    ['windows', { fxSupported: false }, 'unsupported_os'],
+                    ['other', {}, 'device']
+                ];
+                for (const [platform, overrides, expectedState] of cases) {
+                    visitOn(platform, overrides);
+                    renderImmediatePage(noBuilds);
+
+                    await runFor(3000);
+
+                    expect(shownStates()).toEqual([expectedState]);
+                    container.remove();
+                }
+                expect(PartnerDownload.navigate).not.toHaveBeenCalled();
+            });
+
+            it('should still download the partner build when there is one', async function () {
+                visitOn('osx');
+                renderImmediatePage(macBuild, [['osx', OSX_URL]]);
+
+                await runFor(1000);
+
+                expect(PartnerDownload.navigate).toHaveBeenCalledOnceWith(
+                    OSX_URL
+                );
+                expect(eventsNamed('partner_download_unavailable')).toEqual([]);
+            });
+
+            it('should keep the message for partners that chose it', async function () {
+                visitOn('windows');
+                renderImmediatePage(noBuilds);
+                container.setAttribute('data-mode', 'message');
+
+                await runFor(3000);
+
+                expect(shownStates()).toEqual(['language']);
+                expect(PartnerDownload.navigate).not.toHaveBeenCalled();
+            });
+        });
+
+        describe('store links', function () {
+            const APP_STORE_URL =
+                'https://apps.apple.com/de/app/apple-store/id989804926';
+            const PLAY_STORE_URL =
+                'https://play.google.com/store/apps/details?id=org.mozilla.firefox&referrer=utm_source%3Dacme%26utm_medium%3Dpartner%26utm_campaign%3Dacme-launch';
+            let originalPath;
+
+            function renderStoreLinks() {
+                container = renderPage(macBuild);
+                container.insertAdjacentHTML(
+                    'beforeend',
+                    `<a id="app-store" href="${APP_STORE_URL}"></a><a id="play-store" href="${PLAY_STORE_URL}"></a>`
+                );
+            }
+
+            function visitWithQuery(query) {
+                window.history.replaceState(
+                    null,
+                    '',
+                    `${originalPath}${query}`
+                );
+            }
+
+            beforeEach(function () {
+                originalPath = window.location.pathname;
+            });
+
+            afterEach(function () {
+                window.history.replaceState(null, '', originalPath);
+            });
+
+            it('should add the URL campaign to App Store links, keeping the country', async function () {
+                visitOn('ios');
+                visitWithQuery('?utm_source=acme&utm_campaign=acme-launch');
+                renderStoreLinks();
+
+                PartnerDownload.begin();
+                await flushPromises();
+
+                expect(document.getElementById('app-store').href).toBe(
+                    `${APP_STORE_URL}?mz_pr=firefox_mobile&pt=373246&ct=acme-launch&mt=8`
+                );
+            });
+
+            it('should use the default campaign on App Store links when the URL has none', async function () {
+                visitOn('ios');
+                renderStoreLinks();
+
+                PartnerDownload.begin();
+                await flushPromises();
+
+                expect(document.getElementById('app-store').href).toBe(
+                    `${APP_STORE_URL}?mz_pr=firefox_mobile&pt=373246&ct=fxcomdefault&mt=8`
+                );
+            });
+
+            it('should report App Store downloads as Firefox for mobile', async function () {
+                visitOn('ios');
+                renderStoreLinks();
+
+                PartnerDownload.begin();
+                await flushPromises();
+
+                expect(
+                    window.Mozilla.TrackProductDownload.getEventFromUrl(
+                        document.getElementById('app-store').href
+                    ).product
+                ).toBe('firefox_mobile');
+            });
+
+            it('should still download the partner build when the URL campaign is malformed', async function () {
+                visitOn('osx');
+                visitWithQuery('?utm_campaign=50%off');
+                container = renderPage(macBuild, [['osx', OSX_URL]]);
+                container.insertAdjacentHTML(
+                    'beforeend',
+                    `<a id="app-store" href="${APP_STORE_URL}"></a>`
+                );
+
+                PartnerDownload.begin();
+                await flushPromises();
+                jasmine.clock().tick(1000);
+                await flushPromises();
+
+                expect(PartnerDownload.navigate).toHaveBeenCalledWith(OSX_URL);
+                expect(document.getElementById('app-store').href).toBe(
+                    APP_STORE_URL
+                );
+            });
+
+            it('should leave the Play Store link and its campaign as rendered', async function () {
+                visitOn('android');
+                visitWithQuery('?utm_campaign=other');
+                renderStoreLinks();
+
+                PartnerDownload.begin();
+                await flushPromises();
+
+                expect(document.getElementById('play-store').href).toBe(
+                    PLAY_STORE_URL
+                );
+            });
         });
     });
 });

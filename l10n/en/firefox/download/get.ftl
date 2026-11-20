@@ -27,3 +27,6 @@ partner-download-link-visit = Visit { $partner }
 
 # Button text for a link to a company’s page.
 partner-download-link-learn-more = Learn more
+
+# Shown on phones while the page redirects to the app store. ‘app store’ is generic and means the App Store or Google Play.
+partner-download-taking-you-to-store = Taking you to the app store…
