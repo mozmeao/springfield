@@ -112,7 +112,7 @@ def test_a_field_with_many_untranslated_strings_shows_the_first_two_and_folds_th
 
 
 def test_an_exact_entry_is_offered_without_the_guess_note(admin_client, drifted_page):
-    """One untranslated string and one orphan is considered an exact match."""
+    """A field that holds a single string pairs with its newest leftover, so it is considered exact."""
     get_orphan_stringtranslation(drifted_page, PREVIOUS_SOURCE, "La barre latérale")
 
     entry = get_soup_for_panel(editor_html(admin_client, drifted_page)).select_one("li")

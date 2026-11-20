@@ -383,7 +383,10 @@ def test_one_untranslated_paragraph_among_three_yields_that_paragraph(three_para
     assert len(entries) == 1
     assert entries[0].current_sources == ("Beta",)
     assert entries[0].translation == "Beta FR"
-    assert entries[0].is_exact
+    # The paragraph may be an earlier version of this paragraph, or the
+    # translation of a paragraph deleted long ago that this one has nothing
+    # to do with, so it is a guess.
+    assert not entries[0].is_exact
 
 
 def test_untranslated_paragraphs_at_one_context_are_offered_as_separate_candidates(three_paragraph_page):
@@ -418,15 +421,18 @@ def test_a_zero_width_joiner_paragraph_on_its_own_offers_nothing(translated_page
 
 
 def test_a_zero_width_joiner_paragraph_does_not_make_the_pairing_a_guess(translated_page):
-    """One real paragraph beside an empty one is one candidate, so the entry is exact."""
+    """One real paragraph beside an empty one is a field of one string, so the entry is exact."""
     set_rich_text(translated_page, "<p>Alpha</p><p>\u200d</p>")
     context = content_context(translated_page)
-    orphan_stringtranslation(translated_page, context, "Alpha old", "Alpha FR ancien")
+    older = orphan_stringtranslation(translated_page, context, "Alpha oldest", "Alpha FR le plus ancien")
+    latest = orphan_stringtranslation(translated_page, context, "Alpha old", "Alpha FR ancien")
+    StringTranslation.objects.filter(pk=older.pk).update(updated_at=latest.updated_at - timedelta(days=1))
 
     entries = get_previous_translations(translated_page.translation)
 
     assert len(entries) == 1
     assert entries[0].current_sources == ("Alpha",)
+    assert entries[0].translation == "Alpha FR ancien"
     assert entries[0].is_exact
 
 
@@ -462,9 +468,8 @@ def test_deleted_paragraph_is_paired_with_an_unrelated_new_one(three_paragraph_p
     """
     Deleting a paragraph and appending another leaves one
     orphan_stringtranslation and one untranslated segment at the same context,
-    so the the entry is offered, even though the two do not necessarily match.
-    We offer the previous translation, and leave it to the editor to determine
-    what to do.
+    which looks the same as editing a paragraph. The entry is offered as a
+    guess, so the editor can decide what to do with it.
     """
     context = content_context(three_paragraph_page)
     segments = list(StringSegment.objects.filter(source=three_paragraph_page.translation.source, context=context).order_by("order"))
@@ -479,7 +484,7 @@ def test_deleted_paragraph_is_paired_with_an_unrelated_new_one(three_paragraph_p
     assert entries[0].current_sources == ("Delta",)  # the paragraph that was appended
     assert entries[0].previous_source == "Beta"  # the paragraph that was deleted
     assert entries[0].translation == "Beta FR"
-    assert entries[0].is_exact
+    assert not entries[0].is_exact
 
 
 def test_a_field_rewritten_down_to_one_paragraph_is_treated_as_exact(three_paragraph_page):
