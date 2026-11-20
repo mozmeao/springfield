@@ -20,6 +20,12 @@
     padding-block-start: 0;
 }
 
+/* without article text, the dark area's own rounded edge ends the page content */
+.fl-article-page .fl-main:has(> .fl-split-page-upper:last-child) {
+    background: none;
+    padding-block-end: 0;
+}
+
 .fl-article-page .fl-split-page-upper:has(+ .fl-article-landing) {
     z-index: 1;
 }

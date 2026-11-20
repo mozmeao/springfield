@@ -811,28 +811,16 @@ class ArticleIndexPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         return context
 
 
-# Blocks offered in an article page's landing content.
+# Blocks offered in an article page's landing sections.
 ARTICLE_LANDING_BLOCKS = [
-    ("intro", IntroBlock(allow_uitour=True, group="Intro")),
-    ("section", SectionBlock(allow_uitour=True, group="Main")),
-    ("showcase", ShowcaseBlock(allow_tabs=True, group="Media")),
-    ("carousel", CarouselBlock(group="Media")),
-    ("card_gallery", CardGalleryBlock(group="Media")),
-    ("media_content", MediaContentBlock(group="Media", template="cms/blocks/sections/media-content-section.html")),
-    ("cards_list", CardsListBlock(template="cms/blocks/sections/cards-list-section.html", allow_uitour=True, group="Main")),
-    ("featured_image_section", FeaturedImageSectionBlock(allow_uitour=True, group="Media")),
-    ("banner", BannerBlock(allow_uitour=True, group="Banners")),
-    ("kit_banner", KitBannerBlock(allow_uitour=True, group="Banners")),
-    ("line_cards", LineCardsBlock(allow_uitour=True, template="cms/blocks/sections/line-cards-section.html", group="Main")),
-    ("topic_list", TopicListBlock(allow_uitour=True, group="Main")),
-    ("button_row", ButtonRowBlock(allow_uitour=True, group="Main")),
-    ("comparison_table", ComparisonTableBlock(group="Main")),
-    ("browser_comparison_table", BrowserComparisonTableBlock(group="Main")),
-    ("image_caption", ImageCaptionBlock(group="Media")),
-    (
-        "rich_text",
-        RichTextBlock(features=settings.WAGTAIL_RICHTEXT_FEATURES_FULL, group="Main", template="cms/blocks/sections/rich-text-section.html"),
-    ),
+    ("section", SectionBlock(allow_uitour=True)),
+    ("showcase", ShowcaseBlock(allow_tabs=True)),
+    ("carousel", CarouselBlock()),
+    ("cards_list", CardsListBlock(template="cms/blocks/sections/cards-list-section.html", allow_uitour=True)),
+    ("media_content", MediaContentBlock(template="cms/blocks/sections/media-content-section.html")),
+    ("banner", BannerBlock(allow_uitour=True)),
+    ("kit_banner", KitBannerBlock(allow_uitour=True)),
+    ("button_row", ButtonRowBlock(allow_uitour=True)),
 ]
 
 
@@ -947,15 +935,16 @@ class ArticleDetailPage(ImageAltTextMixin, PreFooterImageMixin, UTMParamsMixin, 
         use_json_field=True,
         blank=True,
         null=True,
-        help_text="Optional. Replaces the page title and article image at the top of the page. "
-        "Add more than one only for different audiences, using display conditions.",
+        help_text="Optional. Replaces the page title and article image. "
+        "Add more than one Intro only for different audiences, using display conditions.",
     )
     landing_content = StreamField(
         ARTICLE_LANDING_BLOCKS,
         use_json_field=True,
         blank=True,
         null=True,
-        help_text="Optional landing-page sections shown between the hero and the article text. Needs a hero.",
+        verbose_name="Landing sections",
+        help_text="Optional sections between the hero and the article text. Needs a hero.",
     )
     image = models.ForeignKey(
         "cms.SpringfieldImage",
@@ -1003,6 +992,9 @@ class ArticleDetailPage(ImageAltTextMixin, PreFooterImageMixin, UTMParamsMixin, 
             ("browser_comparison_table", BrowserComparisonTableBlock()),
         ],
         use_json_field=True,
+        blank=True,
+        verbose_name="Article text",
+        help_text="Optional long-form text, shown in the reading column.",
     )
     related_articles = StreamField(
         [
@@ -1030,7 +1022,34 @@ class ArticleDetailPage(ImageAltTextMixin, PreFooterImageMixin, UTMParamsMixin, 
         help_text="If true, the page will display the default pre-footer section.",
     )
 
-    content_panels = AbstractSpringfieldCMSPage.content_panels + [
+    content_panels = [
+        *WagtailBasePage.content_panels,
+        MultiFieldPanel(
+            [
+                FieldPanel("image"),
+                FieldPanel("image_alt"),
+                FieldRowPanel(
+                    [
+                        FieldPanel("image_dark_mode"),
+                        FieldPanel("image_mobile"),
+                        FieldPanel("image_dark_mode_mobile"),
+                    ]
+                ),
+            ],
+            heading="Article Image",
+            classname="collapsed",
+        ),
+        FieldPanel("hero"),
+        FieldPanel("landing_content"),
+        FieldPanel("content"),
+        FieldPanel("related_articles"),
+        FieldPanel("closing_cta"),
+        InlinePanel("pencil_banner_placements", label="Pencil Banners"),
+    ]
+
+    settings_panels = [
+        FieldPanel("internal_title"),
+        *AbstractSpringfieldCMSPage.settings_panels,
         MultiFieldPanel(
             [
                 FieldPanel("featured"),
@@ -1078,33 +1097,6 @@ class ArticleDetailPage(ImageAltTextMixin, PreFooterImageMixin, UTMParamsMixin, 
             ],
             heading="Index Page Settings",
         ),
-        FieldPanel("image"),
-        FieldPanel("image_alt"),
-        MultiFieldPanel(
-            [
-                FieldRowPanel(
-                    [
-                        FieldPanel("image_dark_mode"),
-                        FieldPanel("image_mobile"),
-                        FieldPanel("image_dark_mode_mobile"),
-                    ]
-                )
-            ],
-            heading="Article Image Variants",
-            classname="collapsed",
-        ),
-        FieldPanel("content"),
-        FieldPanel("related_articles"),
-        FieldPanel("closing_cta"),
-        InlinePanel("pencil_banner_placements", label="Pencil Banners"),
-    ]
-
-    landing_panels = [
-        FieldPanel("hero"),
-        FieldPanel("landing_content"),
-    ]
-
-    settings_panels = AbstractSpringfieldCMSPage.settings_panels + [
         MultiFieldPanel(
             [
                 FieldPanel("show_pre_footer"),
@@ -1117,7 +1109,6 @@ class ArticleDetailPage(ImageAltTextMixin, PreFooterImageMixin, UTMParamsMixin, 
     edit_handler = TabbedInterface(
         [
             ObjectList(content_panels, heading="Content"),
-            ObjectList(landing_panels, heading="Landing"),
             ObjectList(UTMParamsMixin.promote_panels, heading="Promote"),
             ObjectList(settings_panels, heading="Settings"),
         ]

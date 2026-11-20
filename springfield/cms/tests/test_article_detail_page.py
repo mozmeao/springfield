@@ -104,23 +104,14 @@ def test_hero_offers_intro_only():
 
 def test_landing_content_offers_article_landing_blocks():
     assert list(stream_block(ArticleDetailPage, "landing_content").child_blocks) == [
-        "intro",
         "section",
         "showcase",
         "carousel",
-        "card_gallery",
-        "media_content",
         "cards_list",
-        "featured_image_section",
+        "media_content",
         "banner",
         "kit_banner",
-        "line_cards",
-        "topic_list",
         "button_row",
-        "comparison_table",
-        "browser_comparison_table",
-        "image_caption",
-        "rich_text",
     ]
 
 
@@ -139,15 +130,15 @@ def test_closing_cta_offers_one_banner():
         closing_cta.clean(two_banners)
 
 
-def test_hero_and_landing_content_sit_on_their_own_tab():
+def test_content_tab_holds_the_page_content_in_page_order():
     tabs = {
         tab.heading: [panel.field_name for panel in tab.children if hasattr(panel, "field_name")]
         for tab in ArticleDetailPage.get_edit_handler().children
     }
 
-    assert list(tabs) == ["Content", "Landing", "Promote", "Settings"]
-    assert tabs["Landing"] == ["hero", "landing_content"]
-    assert "closing_cta" in tabs["Content"]
+    assert list(tabs) == ["Content", "Promote", "Settings"]
+    assert tabs["Content"] == ["title", "hero", "landing_content", "content", "related_articles", "closing_cta"]
+    assert tabs["Settings"][0] == "internal_title"
 
 
 def test_landing_content_needs_a_hero(minimal_article):
@@ -273,6 +264,22 @@ def test_hero_landing_content_and_text_render_in_order(client, article):
     assert "fl-article-main" in text["class"]
     assert headings(hero) == [("h1", "Browse privately with Firefox VPN")]
     assert headings(landing) == [("h2", "What you get"), ("h2", "Try it free")]
+
+
+@pytest.mark.parametrize(
+    ("hero", "has_header"),
+    [([], True), ([intro_block("Browse privately with Firefox VPN")], False)],
+    ids=["title_only", "hero_only"],
+)
+def test_article_text_is_optional(client, article, hero, has_header):
+    article.content = []
+    article.hero = hero
+    article.full_clean()
+    soup = render(client, article)
+
+    assert soup.select_one(".fl-rich-text") is None
+    assert (soup.select_one(".fl-article-main .fl-article-header") is not None) is has_header
+    assert len(soup.find_all("h1")) == 1
 
 
 def test_landing_block_without_a_heading_renders_its_items_at_h2(client, article, placeholder_images):

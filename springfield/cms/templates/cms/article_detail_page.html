@@ -26,17 +26,21 @@
       {% include "cms/includes/article-landing-top.html" %}
     {% endif %}
 
-    <div class="fl-article-main">
-      {% if not page.hero %}
-        {% include "cms/includes/article-header.html" %}
-      {% endif %}
+    {% if not page.hero or page.content %}
+      <div class="fl-article-main">
+        {% if not page.hero %}
+          {% include "cms/includes/article-header.html" %}
+        {% endif %}
 
-      <section class="fl-rich-text">
-        {% for block in page.content %}
-          {% include_block block %}
-        {% endfor %}
-      </section>
-    </div>
+        {% if page.content %}
+          <section class="fl-rich-text">
+            {% for block in page.content %}
+              {% include_block block %}
+            {% endfor %}
+          </section>
+        {% endif %}
+      </div>
+    {% endif %}
 
 
 
