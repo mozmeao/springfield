@@ -12,11 +12,11 @@ from django.utils import translation
 
 import pytest
 from bs4 import BeautifulSoup
-from wagtail.models import Locale, Page, Site
+from wagtail.models import Locale, Page, PageViewRestriction, Site
 
 from springfield.cms.routing.mixins import RoutingMixin
 from springfield.cms.routing.models import RoutingCondition, RoutingRule
-from springfield.cms.routing.resolver import render_resolver, serialize_manifest, serialize_rules
+from springfield.cms.routing.resolver import fallback_url, render_resolver, rule_problems, serialize_manifest, serialize_rules, with_visitor_query
 from springfield.cms.tests.factories import SimpleRichTextPageFactory
 
 pytestmark = [pytest.mark.django_db]
@@ -285,6 +285,26 @@ def test_the_no_js_paths_drop_control_params_and_carry_the_loop_breaker(routed_p
         assert "utm_source=update" in url
 
 
+def test_with_visitor_query_keeps_attribution_and_drops_reserved_params():
+    request = rf.get("/?utm_source=x&routing=1&routed=&preview_rule=3&preview_signal=country:CN&utm_campaign=y")
+    assert with_visitor_query("/en-US/target/", request) == "/en-US/target/?utm_source=x&utm_campaign=y"
+
+
+def test_with_visitor_query_adds_no_loop_breaker():
+    assert with_visitor_query("/en-US/target/", rf.get("/")) == "/en-US/target/"
+
+
+def test_with_visitor_query_never_duplicates_a_name_the_url_has():
+    request = rf.get("/?lang=de&utm_source=x")
+    assert with_visitor_query("/en-US/target/?lang=en", request) == "/en-US/target/?lang=en&utm_source=x"
+
+
+def test_fallback_url_adds_the_loop_breaker(routed_page):
+    request = rf.get("/?utm_source=x&routed=1")
+    url = fallback_url(routed_page.canonical, request)
+    assert url.endswith("?utm_source=x&routed=1")
+
+
 def test_resolver_response_is_cacheable(routed_page):
     response, _html = _render(routed_page)
     # The plain resolver must stay CDN-cacheable — no no-store (previews add it).
@@ -386,3 +406,11 @@ def test_serialize_drops_a_rule_whose_translated_target_is_unpublished(translate
 def test_serialize_is_unaffected_for_an_untranslated_page(routed_page):
     serialized = serialize_rules(routed_page.canonical)
     assert serialized[0]["target"] == routed_page.target.get_url()
+
+
+def test_a_restricted_target_is_reported_and_never_serialized(routed_page):
+    PageViewRestriction.objects.create(page=routed_page.target, restriction_type=PageViewRestriction.LOGIN)
+    canonical = Page.objects.get(pk=routed_page.canonical.pk)
+    assert serialize_rules(canonical) == []
+    problem = rule_problems(canonical)[routed_page.rule.pk]
+    assert problem.pending is False

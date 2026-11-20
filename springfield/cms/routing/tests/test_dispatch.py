@@ -16,6 +16,7 @@ import pytest
 from springfield.cms.routing.dispatch import (
     SERVE_CANONICAL,
     SERVE_PREVIEW,
+    SERVE_REDIRECT,
     SERVE_RESOLVER,
     decide_routing,
 )
@@ -206,3 +207,76 @@ def test_the_rule_scan_is_skipped_on_a_non_canonical_page():
     _, _, canonical, live = _decide_counting(routing_enabled=True, trigger_satisfied=True, is_canonical=False, has_live_rules=True)
     assert canonical.calls == 1
     assert live.calls == 0
+
+
+# ---------------------------------------------------------------------------
+# Organic pages: step 4 matches on the server and redirects, instead of the resolver.
+# ---------------------------------------------------------------------------
+
+
+def _raises():
+    raise AssertionError("has_server_match must not be called here")
+
+
+# Same scan for steps 0-3; step 4 asks the server matcher instead of counting live rules.
+_ORGANIC_RULES = _ORDERED_RULES[:-1] + ((lambda f: f["trigger_satisfied"] and f["is_canonical"] and f["has_server_match"], SERVE_REDIRECT),)
+
+
+def expected_organic_decision(flags):
+    for predicate, outcome in _ORGANIC_RULES:
+        if predicate(flags):
+            return outcome
+    return SERVE_CANONICAL
+
+
+def decide_organic(**flags):
+    server_match = flags.pop("has_server_match")
+    return decide(**flags, matches_on_server=True, has_server_match=lambda: server_match)
+
+
+ORGANIC_FLAG_NAMES = (*FLAG_NAMES, "has_server_match")
+ORGANIC_FLAG_COMBINATIONS = [dict(zip(ORGANIC_FLAG_NAMES, values)) for values in itertools.product([False, True], repeat=len(ORGANIC_FLAG_NAMES))]
+
+
+@pytest.mark.parametrize("flags", ORGANIC_FLAG_COMBINATIONS)
+def test_organic_decision_matches_spec_order_for_every_combination(flags):
+    assert decide_organic(**flags) == expected_organic_decision(flags)
+
+
+def _organic(**overrides):
+    return _flags(routing_enabled=True, trigger_satisfied=True, is_canonical=True, **overrides)
+
+
+def test_organic_canonical_with_a_server_match_redirects():
+    assert decide(**_organic(), matches_on_server=True, has_server_match=lambda: True) == SERVE_REDIRECT
+
+
+def test_organic_canonical_with_no_server_match_is_canonical():
+    assert decide(**_organic(), matches_on_server=True, has_server_match=lambda: False) == SERVE_CANONICAL
+
+
+def test_organic_ignores_the_live_rules_flag():
+    assert decide(**_organic(has_live_rules=True), matches_on_server=True, has_server_match=lambda: False) == SERVE_CANONICAL
+
+
+def test_organic_non_canonical_page_never_matches():
+    flags = {**_organic(), "is_canonical": False}
+    assert decide(**flags, matches_on_server=True, has_server_match=_raises) == SERVE_CANONICAL
+
+
+@pytest.mark.parametrize(
+    "overrides",
+    ({"routing_enabled": False}, {"has_loop_breaker": True}, {"is_paused": True}),
+)
+def test_organic_gates_return_canonical_before_matching(overrides):
+    flags = {**_organic(), **overrides}
+    assert decide(**flags, matches_on_server=True, has_server_match=_raises) == SERVE_CANONICAL
+
+
+def test_organic_preview_admin_gets_preview():
+    assert decide(**_organic(is_preview_admin=True), matches_on_server=True, has_server_match=_raises) == SERVE_PREVIEW
+
+
+@pytest.mark.parametrize("flags", ALL_FLAG_COMBINATIONS)
+def test_param_pages_never_ask_the_server_matcher(flags):
+    assert decide(**flags, has_server_match=_raises) == expected_decision(flags)
