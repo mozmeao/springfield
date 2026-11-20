@@ -1,0 +1,9 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+<figure class="c-qr-code" data-os="{{ qr_code.os }}" data-release="{{ qr_code.release }}"{{ ' hidden' if hidden }}>
+  {{ qrcode_rounded_svg(qr_code.url, 12, logo=False) }}
+  <figcaption>Scan this code with your phone’s camera to get {{ qr_code.label }}.</figcaption>
+</figure>

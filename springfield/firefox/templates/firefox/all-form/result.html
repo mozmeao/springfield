@@ -1,0 +1,58 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+{% extends "cms/base-flare.html" %}
+
+{% block page_css %}{{ css_bundle('firefox_all_form') }}{% endblock %}
+
+{% block page_title %}Download {{ release_label }} for {{ os_label }}{% endblock %}
+
+{% block canonical_urls %}<meta name="robots" content="noindex,follow">{% endblock %}
+
+{% block content %}
+<div class="fl-main">
+  <div class="fl-section c-section">
+    <div class="c-result">
+      <h1 class="fl-heading fl-heading-size-3 fl-text-align-center">{{ release_label }} for {{ os_label }}</h1>
+
+      {# One logo: this page has no controls, so there is nothing to swap to. #}
+      <img class="c-result-logo" src="{{ static(logo.file) }}" alt="{{ logo.alt }}" width="100" height="100">
+
+      <p class="c-result-summary">
+        {%- if is_mobile -%}
+          Installed from the store, in every language Firefox supports.
+        {%- else -%}
+          {{ language_label }}
+        {%- endif -%}
+      </p>
+
+      {% if esr_transition %}
+        {% include "firefox/all-form/_esr-transition.html" %}
+      {% endif %}
+
+      <div class="c-download-options">
+        {% include "firefox/all-form/_download-options.html" %}
+        {% if qr_code %}
+          <div class="c-or-divider c-qr-code-divider">{{ copy.divider }}</div>
+          {% include "firefox/all-form/_qr-code.html" %}
+        {% endif %}
+      </div>
+
+      <div class="c-support-links">
+        {%- for link in support_links %}
+        <a href="{{ link.href }}">{{ link.label }}</a>
+        {%- endfor %}
+      </div>
+
+      <include:button
+        theme_class="button-link"
+        link="{{ form_url }}"
+        label="Change selection"
+      />
+    </div>
+  </div>
+</div>
+{% endblock %}

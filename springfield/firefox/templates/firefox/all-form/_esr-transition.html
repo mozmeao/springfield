@@ -1,0 +1,10 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+<div class="c-esr-transition"{{ ' hidden' if hidden }}>
+  <p>{{ ftl('firefox-all-esr-we-are-in-transition', esr_next_major=esr_transition.next_major, esr_current_major=esr_transition.current_major) }}</p>
+  <p>{{ ftl('firefox-all-esr-if-you-choose') }}</p>
+  <p>{{ ftl('firefox-all-esr-read-more', attrs='href="https://support.mozilla.org/kb/firefox-esr-release-cycle" rel="external noopener" data-cta-text="Firefox ESR release cycle"') }}</p>
+</div>
