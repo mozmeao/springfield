@@ -11,6 +11,9 @@
 - Generated QR codes now use rounded dots and corners with the Firefox logo in the middle, matching the designed QR images.
 - Fixed the QR Code block, which encoded the wrong value instead of its QR Code Data.
 
+## 2026-11-05
+- When a page's English text is edited after it has been translated, the translation editor's "Previous translations" panel shows the previous translation for that text, so it can be read and reused instead of retyped.
+
 ## 2026-11-04
 - Wagtail upgraded from 7.4 to 8.1. The page editor's Checks panel now shows the page's meta title and description, with their lengths measured against search engine limits. Moving or renaming a draft page no longer creates a redirect; live pages still do.
 
