@@ -8,7 +8,6 @@ import {
     consentRequired,
     getConsentCookie,
     getConsentState,
-    getHostName,
     hasConsentCookie,
     isFirefoxDownloadThanks,
     isPromotedPage,
@@ -210,30 +209,6 @@ describe('getConsentState()', function () {
     });
 });
 
-describe('getHostName()', function () {
-    it('should return ".mozilla.org" when hostname matches', function () {
-        const expected = '.mozilla.org';
-        expect(getHostName('www.mozilla.org')).toEqual(expected);
-        expect(getHostName('future.mozilla.org')).toEqual(expected);
-        expect(getHostName('support.mozilla.org')).toEqual(expected);
-        expect(getHostName('addons.mozilla.org')).toEqual(expected);
-        expect(getHostName('bugzilla.mozilla.org')).toEqual(expected);
-    });
-
-    it('should return ".allizom.org" when hostname matches', function () {
-        const expected = '.allizom.org';
-        expect(getHostName('www.allizom.org')).toEqual(expected);
-        expect(getHostName('www-dev.allizom.org')).toEqual(expected);
-        expect(getHostName('www-demo1.allizom.org')).toEqual(expected);
-    });
-
-    it('should return null for other hostnames', function () {
-        expect(getHostName('localhost')).toEqual(null);
-        expect(getHostName('127.0.0.1')).toEqual(null);
-        expect(getHostName('springfield-stage.gcp.moz.works')).toEqual(null);
-    });
-});
-
 describe('hasConsentCookie()', function () {
     it('should return true if a consent cookie exists', function () {
         spyOn(window.Mozilla.Cookies, 'enabled').and.returnValue(true);
@@ -362,7 +337,7 @@ describe('setConsentCookie()', function () {
             '{"analytics":false,"preference":true}',
             jasmine.any(String),
             '/',
-            null,
+            undefined,
             false,
             'lax'
         );
