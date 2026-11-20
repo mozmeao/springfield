@@ -1,17 +1,14 @@
 ## 2026-11-19
 
+- Article pages (features, compare and more) have an optional Hero, which replaces the page title and article image with an Intro, and optional Landing sections between the hero and the Article text. Landing sections need a hero, and Article text is now optional.
+- On article pages, the Content tab now holds only page content, in page order. Internal title and Index Page Settings moved to the Settings tab, and the article image and its variants are one collapsible group.
+- Article pages have an optional Closing CTA (one Banner or Kit Banner) after the article text, and a Pre-footer group on the Settings tab to hide the pre-footer or change its image.
+- In dark mode, article text sits in a darker section.
 - Every field that sets where a QR code points is now called "QR Code URL", with the same help text: the QR Code block, Mobile Store Button / QR Code, Home Kit Banner, QR Code Modal Button, the Banner, QR Code and Floating QR Code snippets, and the page-level "Override QR Code URL". If you leave off `https://` it is added when you save, `http://` is changed to `https://`, and `tel:`, `mailto:` and `sms:` links are kept as they are. Anything else, like plain text, shows an error.
 
 ## 2026-11-17
 
 - UI Tour buttons have an "Open Preferences - About (Firefox Updates)" action, which opens `about:preferences#about`.
-
-## 2026-11-14
-
-- Article pages (features, compare and more) have an optional Hero, which replaces the page title and article image with an Intro, and optional Landing sections between the hero and the Article text. Landing sections need a hero, and Article text is now optional.
-- On article pages, the Content tab now holds only page content, in page order. Internal title and Index Page Settings moved to the Settings tab, and the article image and its variants are one collapsible group.
-- Article pages have an optional Closing CTA (one Banner or Kit Banner) after the article text, and a Pre-footer group on the Settings tab to hide the pre-footer or change its image.
-- In dark mode, article text sits in a darker section.
 
 ## 2026-11-09
 
