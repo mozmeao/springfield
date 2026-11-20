@@ -318,6 +318,23 @@
     text-wrap: balance;
 }
 
+/* On phones an intro's subcopy sits as close below its heading as a section's
+   does. */
+@media (--viewport-xs) {
+    .fl-intro .fl-heading-group:has(+ .fl-body) {
+        margin-block-end: 0;
+    }
+
+    .fl-home-intro .fl-heading {
+        margin-block-end: var(--token-spacing-lg);
+    }
+
+    .fl-home-intro .fl-subheading,
+    .has-sitting-kit .fl-intro .fl-subheading {
+        margin-block-start: var(--token-spacing-lg);
+    }
+}
+
 /* todo: these selectors shouldn't exist. There ought to be
    options on the intro component. For example, see the `.is-slim`
    variant. On the other hand, maybe this is an abuse of a

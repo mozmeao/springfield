@@ -41,8 +41,8 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     /* Font size variables */
     --fl-theme-font-size-heading-3xl: 5rem; /* 80px */
     --fl-theme-font-size-heading-2xl: 4rem; /* 64px */
-    --fl-theme-font-size-heading-xl: 3rem; /* 48px */
-    --fl-theme-font-size-heading-lg: 2.5rem; /* 40px */
+    --fl-theme-font-size-heading-xl: 2.5rem; /* 40px */
+    --fl-theme-font-size-heading-lg: 2rem; /* 32px */
     --fl-theme-font-size-heading-md: 2rem; /* 32px */
     --fl-theme-font-size-heading-sm: 1.5rem; /* 24px */
     --fl-theme-font-size-heading-xs: 1.125rem; /* 18px */
