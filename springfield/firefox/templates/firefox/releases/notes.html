@@ -335,6 +335,36 @@
                   {% endif %}
                 {% endfor %}
 
+                {% for note in release_notes if note.tag == "Known" %}
+                  {% if loop.first %}
+                    <div class="mzp-l-content mzp-has-sidebar mzp-l-sidebar-left fl-l-release-notes-with-sidebar" id="{{ note.tag|lower() }}">
+                      <div class="mzp-l-sidebar">
+                        {% set tag_heading %}
+                          <span class="fl-c-release-notes-heading">
+                            <include:icon
+                              icon_name="critical"
+                              hidden="true"
+                            />
+                            Unresolved
+                          </span>
+                        {% endset %}
+                        <include:heading
+                          level="h3"
+                          heading_size="fl-heading-xs"
+                          heading_text="{{ tag_heading | safe }}"
+                        />
+                      </div>
+                      <div class="mzp-l-main mzp-l-article">
+                        <ul>
+                  {% endif %}
+                  {{ note_entry(note) }}
+                  {% if loop.last %}
+                        </ul>
+                      </div>
+                    </div>
+                  {% endif %}
+                {% endfor %}
+
                 {% for note in release_notes if note.tag == "Enterprise" %}
                   {% if loop.first %}
                     <div class="mzp-l-content mzp-has-sidebar mzp-l-sidebar-left fl-l-release-notes-with-sidebar" id="{{ note.tag|lower() }}">
@@ -467,36 +497,6 @@
                     <div class="mzp-l-content mzp-has-sidebar mzp-l-sidebar-right fl-l-release-notes-with-sidebar fl-t-sidebar-end">
                       <div class="mzp-l-main mzp-l-article">
                         <ul class="untagged">
-                  {% endif %}
-                  {{ note_entry(note) }}
-                  {% if loop.last %}
-                        </ul>
-                      </div>
-                    </div>
-                  {% endif %}
-                {% endfor %}
-
-                {% for note in release_notes if note.tag == "Known" %}
-                  {% if loop.first %}
-                    <div class="mzp-l-content mzp-has-sidebar mzp-l-sidebar-left fl-l-release-notes-with-sidebar" id="{{ note.tag|lower() }}">
-                      <div class="mzp-l-sidebar">
-                        {% set tag_heading %}
-                          <span class="fl-c-release-notes-heading">
-                            <include:icon
-                              icon_name="critical"
-                              hidden="true"
-                            />
-                            Unresolved
-                          </span>
-                        {% endset %}
-                        <include:heading
-                          level="h3"
-                          heading_size="fl-heading-xs"
-                          heading_text="{{ tag_heading | safe }}"
-                        />
-                      </div>
-                      <div class="mzp-l-main mzp-l-article">
-                        <ul>
                   {% endif %}
                   {{ note_entry(note) }}
                   {% if loop.last %}
