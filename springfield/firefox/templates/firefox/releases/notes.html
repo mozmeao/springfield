@@ -16,6 +16,9 @@
 {# header_class is applied to the page header as an additional style hook if needed #}
 {% set header_class = header_class|default('') %}
 
+{# intro_channel_name is the channel named in the "first offered to" sentence. Example: Firefox Developer Edition. #}
+{% set intro_channel_name = intro_channel_name|default(release.channel) %}
+
 {# theme_class is applied to the body as an additional style hook if needed #}
 {% set theme_class = '' %}
 {% set ver = release.major_version_int %}
@@ -193,15 +196,6 @@
                 {% if release.is_public %}
                   <p class="c-release-date fl-c-release-date fl-l-release-notes-sidebar">{{ release.release_date|l10n_format_date }}</p>
                 {% endif %}
-                <div class="mzp-l-main mzp-l-article fl-c-release-summary-details fl-c-release-notes-main">
-                  {% if release.is_public %}
-                    <div class="c-release-first-title fl-heading fl-heading-xs fl-u-font-semibold">Version {{ release.version }}, first offered to {{ release.channel }} channel users on {{ release.release_date|l10n_format_date }}</div>
-                    <div class="c-release-first-text">{{ release.text|safe }}</div>
-                  {% else %}
-                    <h2 class="c-release-draft-title fl-heading fl-heading-xs">We're still preparing the notes for this release, and will post them here when they are ready. Please check back later.</h2>
-                    {% block flare_extra_draft_description %}{% endblock %}
-                  {% endif %}
-                </div>
               </div>
 
               {% endblock %}
@@ -214,6 +208,20 @@
             {% endif %}
 
             <section class="c-release-notes fl-c-release-notes-content fl-l-release-notes-wrapper">
+              {% if release.version %}
+                <div class="mzp-l-content mzp-has-sidebar mzp-l-sidebar-left fl-c-release-notes-intro fl-l-release-notes-with-sidebar">
+                  <div class="mzp-l-main mzp-l-article fl-l-release-notes-main fl-c-release-notes-main">
+                    {% if release.is_public %}
+                      <p class="c-release-first-title fl-body-md">Version {{ release.version }}, first offered to {{ intro_channel_name }} channel users on {{ release.release_date|l10n_format_date }}</p>
+                      <div class="c-release-first-text">{{ release.text|safe }}</div>
+                    {% else %}
+                      <h2 class="c-release-draft-title fl-heading fl-heading-xs">We're still preparing the notes for this release, and will post them here when they are ready. Please check back later.</h2>
+                      {% block flare_extra_draft_description %}{% endblock %}
+                    {% endif %}
+                  </div>
+                </div>
+              {% endif %}
+
               {% if release.is_public and release_notes %}
                 {% for note in release_notes if note.tag == "New" %}
                   {% if loop.first %}
