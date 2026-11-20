@@ -24,7 +24,10 @@ jobs:
   request-review:
     name: Request Copilot review
     runs-on: ubuntu-latest
-    if: github.repository == 'mozmeao/springfield' && !github.event.pull_request.draft
+    if: >-
+      github.repository == 'mozmeao/springfield'
+      && !github.event.pull_request.draft
+      && github.event.pull_request.head.repo.full_name == github.repository
     permissions:
       contents: read # Look up the PR author's collaborator permission
       pull-requests: write # Request a Copilot review on the PR
