@@ -88,7 +88,7 @@ def render(client, page):
     return BeautifulSoup(response.content, "html.parser")
 
 
-def test_new_fields_default_to_a_title_and_text_page():
+def test_article_defaults_to_no_hero_landing_or_closing_cta():
     page = ArticleDetailPage(title="x", slug="x")
 
     assert page.show_pre_footer is True
@@ -147,7 +147,7 @@ def test_landing_content_needs_a_hero(minimal_article):
     with pytest.raises(ValidationError) as error:
         minimal_article.full_clean()
 
-    assert error.value.message_dict["hero"] == ["Add a hero to use landing content."]
+    assert error.value.message_dict["hero"] == ["Add a hero to use landing sections."]
 
 
 @pytest.mark.parametrize(
@@ -188,7 +188,7 @@ def pre_footer_snippets():
     get_pre_footer_cta_form_snippet()
 
 
-def test_article_without_new_fields_renders_title_and_text(client, article, pre_footer_snippets, placeholder_images):
+def test_article_without_a_hero_renders_title_and_text(client, article, pre_footer_snippets, placeholder_images):
     image, *_ = placeholder_images
     article.image = image
     soup = render(client, article)

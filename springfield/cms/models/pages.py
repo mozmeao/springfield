@@ -811,7 +811,6 @@ class ArticleIndexPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         return context
 
 
-# Blocks offered in an article page's landing sections.
 ARTICLE_LANDING_BLOCKS = [
     ("section", SectionBlock(allow_uitour=True)),
     ("showcase", ShowcaseBlock(allow_tabs=True)),
@@ -1137,7 +1136,7 @@ class ArticleDetailPage(ImageAltTextMixin, PreFooterImageMixin, UTMParamsMixin, 
         super().clean()
         errors = self.clean_image_alt_text()
         if self.landing_content and not self.hero:
-            errors["hero"] = "Add a hero to use landing content."
+            errors["hero"] = "Add a hero to use landing sections."
         if errors:
             raise ValidationError(errors)
 
