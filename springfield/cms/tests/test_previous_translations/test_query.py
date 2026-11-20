@@ -18,7 +18,7 @@ from wagtail_localize_intentional_blanks.utils import mark_segment_do_not_transl
 from springfield.cms.fixtures.base_fixtures import SHOW_TO_ALL
 from springfield.cms.previous_translations import get_field_label, get_previous_translations
 from springfield.cms.tests.factories import FreeFormPage2026Factory
-from springfield.cms.tests.helpers import content_context, orphan_stringtranslation, set_rich_text, title_context
+from springfield.cms.tests.test_previous_translations.helpers import content_context, orphan_stringtranslation, set_rich_text, title_context
 
 pytestmark = pytest.mark.django_db
 

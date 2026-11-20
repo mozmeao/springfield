@@ -13,7 +13,7 @@ from wagtail_localize.models import String, StringSegment, StringTranslation, Tr
 from wagtail_localize.strings import StringValue
 
 from springfield.cms.templatetags import cms_previous_translations_tags
-from springfield.cms.tests.helpers import content_context, orphan_stringtranslation, set_rich_text, title_context
+from springfield.cms.tests.test_previous_translations.helpers import content_context, orphan_stringtranslation, set_rich_text, title_context
 
 pytestmark = pytest.mark.django_db
 
