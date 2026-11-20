@@ -154,7 +154,7 @@ jobs:
       - name: Install Python dependencies
         # The uv pin matches the `ghcr.io/astral-sh/uv` image in the Dockerfile.
         run: |
-          pip install "uv==0.13.4"
+          pip install "uv==0.13.7"
           uv sync --locked
       # ThumbnailChoiceBlock scans this directory under STATICFILES_DIRS when the CMS blocks are
       # imported, which Django settings do at startup. The Dockerfile copies the same directory
