@@ -9,7 +9,7 @@ import importlib
 
 from django.db import migrations
 
-cms_backfill = importlib.import_module("springfield.cms.migrations.0165_backfill_image_alt_text")
+cms_backfill = importlib.import_module("springfield.cms.migrations.0167_backfill_image_alt_text")
 
 
 def backfill_blog_alt_text(apps, schema_editor):
@@ -18,12 +18,11 @@ def backfill_blog_alt_text(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("blog", "0005_blogarticlepage_image_alt_and_more"),
-        ("cms", "0165_backfill_image_alt_text"),
+        ("blog", "0006_blogarticlepage_image_alt_and_more"),
+        ("cms", "0167_backfill_image_alt_text"),
     ]
 
     operations = [
-        # Deliberately not undone: the alt text this writes is indistinguishable
-        # from alt text an editor wrote, so reversing it would discard their work too.
-        migrations.RunPython(backfill_blog_alt_text, migrations.RunPython.noop),
+        # Disabled: this has already run against every database with content to fill.
+        # migrations.RunPython(backfill_blog_alt_text, migrations.RunPython.noop),
     ]
