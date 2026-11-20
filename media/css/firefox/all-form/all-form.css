@@ -277,7 +277,7 @@
         justify-items: center;
     }
 
-    .c-download-option {
+    .c-download-option:not([hidden]) {
         display: grid;
         justify-items: center;
         row-gap: var(--token-spacing-sm);

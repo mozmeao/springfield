@@ -41,30 +41,33 @@ import DownloadAttribution from '../../base/download-attribution/download-attrib
 // load. It gets the pieces (`bouncerUrl`, `bouncerChannels`) instead.
 // ---------------------------------------------------------------------------
 
-const DATA = readData();
-
-function readData() {
-    const island = document.getElementById('allFormData');
-    if (!island) throw new Error('Missing #allFormData data island');
-    return JSON.parse(island.textContent);
-}
-
-const OS_VALUES = new Set(DATA.osValues);
-const RELEASE_VALUES = new Set(Object.keys(DATA.unsupportedPlatformsByRelease));
-
-const MOBILE_OS = new Set(DATA.mobileOS);
+// Set by configure() from the page's #allFormData island (see all-form-init.js),
+// or by the tests.
+let DATA;
+let OS_VALUES;
+let RELEASE_VALUES;
+let MOBILE_OS;
 // The Windows options with a Microsoft Store listing. The MSI builds are for
 // corporate IT to deploy and have no store equivalent.
-const MICROSOFT_STORE_OS = new Set(DATA.microsoftStoreOS);
+let MICROSOFT_STORE_OS;
 // Desktop locales with a build, per release, secondary ESRs included.
-const LANGUAGES_BY_RELEASE = new Map(
-    Object.entries(DATA.languagesByRelease).map(([release, languages]) => [
-        release,
-        new Set(languages)
-    ])
-);
+let LANGUAGES_BY_RELEASE;
+let MESSAGES;
 
-const MESSAGES = DATA.messages;
+function configure(data) {
+    DATA = data;
+    OS_VALUES = new Set(DATA.osValues);
+    RELEASE_VALUES = new Set(Object.keys(DATA.unsupportedPlatformsByRelease));
+    MOBILE_OS = new Set(DATA.mobileOS);
+    MICROSOFT_STORE_OS = new Set(DATA.microsoftStoreOS);
+    LANGUAGES_BY_RELEASE = new Map(
+        Object.entries(DATA.languagesByRelease).map(([release, languages]) => [
+            release,
+            new Set(languages)
+        ])
+    );
+    MESSAGES = DATA.messages;
+}
 
 // The only release values this file names directly: the option list is
 // specifically about them. Every other release is just a key it passes through.
@@ -555,6 +558,10 @@ class FirefoxDownloadFormElement extends HTMLElement {
         this._createDownloadOptions();
         this._createSupportLinks();
         this._registerEffects();
+
+        // The site's attribution script ran before these links existed, so a
+        // visitor who downloads without editing would otherwise go unattributed.
+        DownloadAttribution.applyAttributionDataToLinks();
 
         this._form.addEventListener('submit', this);
         this._form.addEventListener('input', this);
@@ -1331,4 +1338,19 @@ class FirefoxDownloadFormElement extends HTMLElement {
     }
 }
 
-customElements.define('firefox-download-form', FirefoxDownloadFormElement);
+/**
+ * Configure the module from the server's data and register the element. Safe
+ * to call again, as the tests do with different data: the element is only
+ * registered once and reads the latest data.
+ */
+function init(data) {
+    configure(data);
+    if (!customElements.get('firefox-download-form')) {
+        customElements.define(
+            'firefox-download-form',
+            FirefoxDownloadFormElement
+        );
+    }
+}
+
+export { downloadURL, init, releaseHasLanguage, releaseSupportsPlatform };

@@ -135,8 +135,13 @@ TrackProductDownload.getEventFromUrl = (downloadURL) => {
         let release = productSplit[1];
         // (except partner builds - where 'partner' is the first word)
         release = productSplit[0] === 'partner' ? 'release' : release;
-        // (except for latest, msi, or sub installer - we update those to say release)
-        if (release === 'latest' || release === 'stub' || release === 'msi') {
+        // (except for latest, msi, pkg, or sub installer - we update those to say release)
+        if (
+            release === 'latest' ||
+            release === 'stub' ||
+            release === 'msi' ||
+            release === 'pkg'
+        ) {
             release = 'release';
         }
 

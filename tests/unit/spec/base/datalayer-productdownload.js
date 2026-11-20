@@ -264,6 +264,13 @@ describe('TrackProductDownload.getEventFromUrl', function () {
         );
         expect(testEvent['release_channel']).toBe('release');
     });
+    it('should identify release_channel for Firefox macOS PKG', function () {
+        const testEvent = TrackProductDownload.getEventFromUrl(
+            'https://download.mozilla.org/?product=firefox-pkg-latest-ssl&os=osx&lang=en-US'
+        );
+        expect(testEvent['release_channel']).toBe('release');
+        expect(testEvent['platform']).toBe('macos');
+    });
     it('should identify release_channel for Firefox ESR on Windows 64-bit', function () {
         const testEvent = TrackProductDownload.getEventFromUrl(
             'https://download.mozilla.org/?product=firefox-esr-latest-ssl&os=win64&lang=en-US'

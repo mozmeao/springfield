@@ -657,7 +657,7 @@
     },
     {
       "files": [
-        "js/firefox/all-form/all-form.js"
+        "js/firefox/all-form/all-form-init.js"
       ],
       "name": "firefox_all_form"
     },

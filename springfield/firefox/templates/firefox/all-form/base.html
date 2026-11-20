@@ -56,7 +56,7 @@
                 <span class="visually-hidden">Help choosing an operating system</span>
               </button>
             </div>
-            <include:dialog id="os-help">
+            <include:dialog id="os-help" label="What version to pick?">
               <content:heading>
                 <include:heading
                   level="h1"
@@ -100,7 +100,7 @@
                 <span class="visually-hidden">Help choosing a release type</span>
               </button>
             </div>
-            <include:dialog id="release-help">
+            <include:dialog id="release-help" label="{{ ftl('firefox-all-learn-about-firefox') }}">
               <content:heading>
                 <include:heading
                   level="h1"
@@ -274,7 +274,7 @@
         </div>
       </form>
     </firefox-download-form>
-    <include:dialog id="qr-code-dialog">
+    <include:dialog id="qr-code-dialog" label="Scan the QR code">
       <content:heading>
         <include:heading
           level="h1"

@@ -619,12 +619,10 @@ LINK_FAMILIES = ("desktop", "android", "ios")
 # ---------------------------------------------------------------------------
 # Download options
 #
-# One ordered list of options per selection, and it has three consumers: the form
-# page renders it when the request already names a platform, the result page
-# always renders it, and the JS rebuilds it as the visitor changes the selects.
-# All three read the same labels, icons, ordering, and grouping from here, which
-# is what keeps the server-rendered list and the JS-rendered list identical — the
-# whole point of rendering it server-side is that the JS's first pass is a no-op.
+# One ordered list of options per selection. The result page renders it, and the
+# JS builds the same list in the browser from get_client_data(), so both take
+# their labels, icons, ordering, and grouping from here. The form page renders no
+# list of its own: the script builds it, and without JS the result page does.
 # ---------------------------------------------------------------------------
 
 

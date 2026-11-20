@@ -2,6 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+import json
 import re
 from contextlib import contextmanager
 from unittest.mock import PropertyMock, patch
@@ -155,8 +156,6 @@ class TestClientData:
         }
 
     def test_json_round_trips(self):
-        import json
-
         assert json.loads(all_form.get_client_data_json()) == all_form.get_client_data()
 
     def test_os_values_match_the_js(self):
@@ -1078,9 +1077,14 @@ class TestFormView:
         assert response.context["release_error"] == "Firefox ESR is not available for iOS."
 
     @override_switch("ALL_FORM", active=True)
-    def test_client_data_is_embedded_for_the_js(self, client):
-        import json
+    def test_every_dialog_is_named_by_its_heading(self, client):
+        content = client.get(FORM_URL).content.decode()
+        for dialog_id, name in (("os-help", "What version to pick?"), ("qr-code-dialog", "Scan the QR code")):
+            assert f'<dialog id="{dialog_id}" class="fl-dialog" closedby="any" aria-label="{name}"' in content
+        assert '<dialog id="release-help" class="fl-dialog" closedby="any" aria-label="' in content
 
+    @override_switch("ALL_FORM", active=True)
+    def test_client_data_is_embedded_for_the_js(self, client):
         response = client.get(FORM_URL)
         data = json.loads(response.context["client_data_json"])
         assert set(data["unsupportedPlatformsByRelease"]) == set(JS_RELEASE_VALUES)
