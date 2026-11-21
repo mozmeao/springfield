@@ -1,0 +1,177 @@
+/*
+* This Source Code Form is subject to the terms of the Mozilla Public
+* License, v. 2.0. If a copy of the MPL was not distributed with this
+* file, You can obtain one at https://mozilla.org/MPL/2.0/.
+*/
+
+.fl-code-block {
+    background: var(--code-block-bg);
+    border: 1px solid var(--code-block-border);
+    border-radius: var(--token-border-radius-xs);
+
+    /* Long lines scroll inside the block instead of widening its column. */
+    contain: inline-size;
+    margin: 0;
+    overflow: hidden;
+}
+
+.fl-code-block-header {
+    align-items: center;
+    background: var(--code-block-header-bg);
+    border-block-end: 1px solid var(--code-block-border);
+    display: flex;
+    font-size: var(--token-font-size-sm);
+    gap: var(--token-spacing-sm);
+    padding-block: var(--token-spacing-xs);
+    padding-inline: var(--token-spacing-lg) var(--token-spacing-xs);
+}
+
+.fl-code-block-label {
+    color: var(--code-block-muted);
+    font-weight: 600;
+}
+
+.fl-button.fl-code-block-copy {
+    --button-font-size: var(--token-font-size-sm);
+    --button-icon-size: 16px;
+    --button-text-color: var(--code-block-muted);
+    --button-border-color: transparent;
+    --button-bg-color-hover: transparent;
+    --button-text-color-hover: var(--code-block-text);
+    --button-bg-color-disabled: transparent;
+    --button-border-color-disabled: transparent;
+    --button-text-color-disabled: var(--code-block-text);
+    gap: var(--token-spacing-xs);
+    margin-inline-start: auto;
+    min-block-size: 32px;
+    padding: var(--token-spacing-2xs) var(--token-spacing-sm);
+}
+
+.fl-button.fl-code-block-copy:hover {
+    --button-border-color: var(--code-block-border);
+}
+
+/* Keeps the focus ring inside the block, which clips overflow. */
+.fl-button.fl-code-block-copy:focus-visible {
+    outline-offset: 0;
+}
+
+.fl-code-block pre {
+    background: none;
+    border-radius: 0;
+    color: var(--code-block-text);
+    margin: 0;
+    overflow-x: auto;
+    padding: var(--token-spacing-lg);
+    tab-size: 4;
+}
+
+.fl-code-block pre:focus-visible {
+    outline: 2px solid var(--code-block-focus);
+    outline-offset: -2px;
+}
+
+.fl-code-block pre code {
+    background: none;
+    color: inherit;
+    font-family:
+        ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas,
+        'Liberation Mono', monospace;
+    font-size: var(--token-font-size-sm);
+    line-height: 1.6;
+    padding: 0;
+}
+
+.fl-code-block-caption {
+    border-block-start: 1px solid var(--code-block-border);
+    color: var(--code-block-muted);
+    font-size: var(--token-font-size-sm);
+    padding: var(--token-spacing-sm) var(--token-spacing-lg);
+}
+
+/* Prompts and model output are prose, so they wrap instead of scrolling. */
+.fl-code-block-prompt,
+.fl-code-block-output {
+    background: var(--code-block-prose-bg);
+    border-color: var(--code-block-prose-border);
+}
+
+.fl-code-block-prompt .fl-code-block-header,
+.fl-code-block-output .fl-code-block-header {
+    background: transparent;
+    border-color: var(--code-block-prose-border);
+}
+
+:is(.fl-code-block-prompt, .fl-code-block-output) pre {
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+}
+
+.fl-code-block-output pre code {
+    font-family: var(--fl-theme-font-family-body);
+    font-size: var(--token-font-size-md);
+    line-height: 1.5;
+}
+
+/* Syntax colours, from the Pygments token classes in highlight_code(). */
+.fl-code-block
+    :is(
+        .tok-k,
+        .tok-kc,
+        .tok-kd,
+        .tok-kn,
+        .tok-kr,
+        .tok-kt,
+        .tok-cp,
+        .tok-cpf,
+        .tok-nt
+    ) {
+    color: var(--code-block-keyword);
+}
+
+.fl-code-block
+    :is(
+        .tok-s,
+        .tok-s1,
+        .tok-s2,
+        .tok-sa,
+        .tok-sb,
+        .tok-sd,
+        .tok-dl,
+        .tok-sr,
+        .tok-se,
+        .tok-si,
+        .tok-na,
+        .tok-ni
+    ) {
+    color: var(--code-block-string);
+}
+
+.fl-code-block :is(.tok-m, .tok-mf, .tok-mh, .tok-mi, .tok-mo) {
+    color: var(--code-block-number);
+}
+
+.fl-code-block
+    :is(
+        .tok-nf,
+        .tok-fm,
+        .tok-nb,
+        .tok-bp,
+        .tok-nc,
+        .tok-nd,
+        .tok-nn,
+        .tok-nv
+    ) {
+    color: var(--code-block-function);
+}
+
+.fl-code-block :is(.tok-c, .tok-c1, .tok-ch, .tok-cm, .tok-cs) {
+    color: var(--code-block-muted);
+    font-style: italic;
+}
+
+@media (--viewport-md-up) {
+    .fl-code-block:not(.fl-code-block-output) pre code {
+        font-size: 15px;
+    }
+}
