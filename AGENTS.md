@@ -249,4 +249,4 @@ checks an editor could follow without reading the diff.
 ## LLM assistance
 
 * When committing code, do not list the LLM as a co-author - it is a tool, not a developer. All code committed is the responsibility of the human developer using the LLM. This is in line with <https://firefox-source-docs.mozilla.org/contributing/ai-coding.html>
-* When an agent posts replies to PR review comments on GitHub, prefix each reply with `Claude: `.
+* When an agent posts replies to PR review comments on GitHub, prefix each reply with its name - eg `Claude: ` or `Copilot:`.

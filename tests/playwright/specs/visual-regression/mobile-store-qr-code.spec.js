@@ -8,8 +8,8 @@
 
 const openPage = require('../../scripts/open-page');
 const { test } = require('@playwright/test');
-const { patternLibraryURL, expectComponentScreenshot } = require('./helpers');
-const url = `${patternLibraryURL}/mobile-store-qr-code/mobile-store-qr-code.html`;
+const { contextSpecificURL, expectComponentScreenshot } = require('./helpers');
+const url = `${contextSpecificURL}/mobile-store-qr-code/mobile-store-qr-code.html`;
 
 test.describe(
     `Mobile Store QR Code`,
