@@ -92,7 +92,8 @@ from springfield.cms.blocks import (
     VideoBlock,
     validate_animation_url,
 )
-from springfield.cms.fields import StreamField
+from springfield.cms.fields import QRCodeURLField, StreamField
+from springfield.cms.qr_code_urls import QR_CODE_URL_HELP_TEXT
 from springfield.cms.rich_text import RichTextBlock, RichTextField
 from springfield.cms.routing.arming import QueryParamValueArmingCondition
 from springfield.cms.routing.mixins import RoutingMixin
@@ -324,10 +325,10 @@ class QRCodeFloatingSnippetMixin(AbstractSpringfieldCMSPage):
         verbose_name="Show Floating QR Code Snippet",
         help_text="If true, the second-generation floating QR code snippet is displayed on the page.",
     )
-    floating_qr_url = models.CharField(
+    floating_qr_url = QRCodeURLField(
         blank=True,
-        verbose_name="Override Floating QR Code URL",
-        help_text="Override the snippet URL. A QR code will be generated from this. Not used if an override image is set.",
+        verbose_name="Override QR Code URL",
+        help_text=f"{QR_CODE_URL_HELP_TEXT} Replaces the snippet's QR Code URL on this page.",
     )
     floating_qr_image = models.ForeignKey(
         "cms.SpringfieldImage",
@@ -410,7 +411,7 @@ class QRCodeFloatingSnippetMixin(AbstractSpringfieldCMSPage):
     def clean(self):
         super().clean()
         if self.floating_qr_url and self.floating_qr_image:
-            raise ValidationError("Only one of 'Floating QR Code URL Override' and 'Floating QR Code Image Override' is allowed.")
+            raise ValidationError("Only one of 'Override QR Code URL' and 'Override Floating QR Code Image' is allowed.")
         if self.show_qr_code_snippet and self.show_floating_qr_code_snippet:
             raise ValidationError("Only one of the Floating QR Code snippets can be enabled.")
         if not self.show_floating_qr_code_snippet and any(

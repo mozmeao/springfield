@@ -41,6 +41,7 @@ from springfield.cms.blocks import (
     ROADMAP_TAG_ICONS,
     ROADMAP_TAG_LABELS,
     UI_TOUR_CLASSES,
+    UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY_VPN,
     UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC_IMPORT_BROWSER_DATA,
     UITOUR_BUTTON_NEW_TAB,
     UITOUR_BUTTON_SET_NEWTAB_WALLPAPER,
@@ -57,6 +58,7 @@ from springfield.cms.blocks import (
     ContactFormBlock,
     FirefoxFocusButtonBlock,
     FXAccountButtonBlock,
+    HomeKitBannerBlock,
     IconChoiceBlock,
     IconListItemValue,
     IconListWithImageBlock,
@@ -64,7 +66,10 @@ from springfield.cms.blocks import (
     ImpactDashBlock,
     MobileStoreQRCodeBlock,
     NotificationBlock,
+    OverridableQRCodeURLBlock,
+    QRCodeBlock,
     QRCodeModalButtonBlock,
+    QRCodeURLBlock,
     QuoteBlock,
     RelatedArticleBlock,
     SectionBlock,
@@ -208,6 +213,7 @@ from springfield.cms.models import (
     WhatsNewPage2026,
 )
 from springfield.cms.models.locale import SpringfieldLocale
+from springfield.cms.qr_code_urls import QR_CODE_URL_HELP_TEXT, QR_CODE_URL_LABEL
 from springfield.cms.templatetags.cms_tags import add_utm_parameters, alt_text
 from springfield.cms.tests.factories import ArticleDetailPageFactory, LocaleFactory
 from springfield.firefox.firefox_details import firefox_desktop
@@ -941,6 +947,55 @@ def test_mobile_store_qr_code_block_reports_a_blank_alt_alongside_other_field_er
     with pytest.raises(StructBlockValidationError) as excinfo:
         block.clean(value)
     assert set(excinfo.value.block_errors) == {"qr_code_data", "mobile_image_alt"}
+
+
+def test_mobile_store_qr_code_block_adds_https_to_its_qr_code_url(placeholder_images):
+    block = MobileStoreQRCodeBlock()
+    value = block.to_python(
+        {
+            "heading": {"heading_text": '<p data-block-key="h">Get the app</p>'},
+            "qr_code_data": "www.firefox.com/mobile/",
+            "mobile_image": placeholder_images.image.id,
+            "mobile_image_alt": "Firefox in the app store",
+        }
+    )
+    assert block.clean(value)["qr_code_data"] == "https://www.firefox.com/mobile/"
+
+
+def test_qr_code_url_block_adds_https_to_a_bare_address():
+    assert QRCodeURLBlock().clean("www.firefox.com/mobile/") == "https://www.firefox.com/mobile/"
+
+
+def test_qr_code_url_block_rejects_an_invalid_url():
+    with pytest.raises(ValidationError):
+        QRCodeURLBlock().clean("javascript:alert(1)")
+
+
+def test_overridable_qr_code_url_block_keeps_tel_links_and_adds_https():
+    block = OverridableQRCodeURLBlock()
+    assert block.clean("tel:+15551234567") == "tel:+15551234567"
+    assert block.clean("www.firefox.com/") == "https://www.firefox.com/"
+
+
+def test_overridable_qr_code_url_block_is_a_url_block():
+    # wagtail-localize lets each locale override a URLBlock value instead of sending it for translation.
+    assert isinstance(OverridableQRCodeURLBlock(), blocks.URLBlock)
+
+
+@pytest.mark.parametrize(
+    "parent_block, field_name, field_block_class",
+    [
+        (QRCodeBlock(), "data", QRCodeURLBlock),
+        (MobileStoreQRCodeBlock(), "qr_code_data", QRCodeURLBlock),
+        (HomeKitBannerBlock(), "qr_code", QRCodeURLBlock),
+        (QRCodeModalButtonBlock(), "url", OverridableQRCodeURLBlock),
+    ],
+)
+def test_qr_code_fields_use_the_qr_code_url_blocks(parent_block, field_name, field_block_class):
+    field_block = parent_block.child_blocks[field_name]
+    assert type(field_block) is field_block_class
+    assert field_block.label == QR_CODE_URL_LABEL
+    assert field_block.field.help_text == QR_CODE_URL_HELP_TEXT
 
 
 def test_topic_block_renders_its_alt(placeholder_images):
@@ -5012,6 +5067,12 @@ def test_uitour_import_browser_data_class_yields_firefox_pane():
     # ui-tour-buttons.js strips this prefix and passes the rest to openPreferences().
     css_class = UI_TOUR_CLASSES[UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC_IMPORT_BROWSER_DATA]
     assert css_class.removeprefix("ui-tour-open-about-preferences-") == "sync-importBrowserData"
+
+
+def test_uitour_privacy_vpn_class_yields_firefox_pane():
+    # ui-tour-buttons.js strips this prefix and passes the rest to openPreferences().
+    css_class = UI_TOUR_CLASSES[UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY_VPN]
+    assert css_class.removeprefix("ui-tour-open-about-preferences-") == "privacy-vpn"
 
 
 @pytest.mark.parametrize(

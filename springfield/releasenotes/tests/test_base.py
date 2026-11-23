@@ -442,6 +442,30 @@ class TestReleaseViews(TestCase):
                 assert "AX" not in rendered
                 assert "AQ" not in rendered
 
+    def test_notes_template_section_order(self):
+        """Unresolved issues sit right after Changed, ahead of the long developer and web platform sections."""
+        tags = ["Community", "Known", "Resolved", "HTML5", "Developer", "Enterprise", "Changed", "Fixed", "Labs", "New"]
+        release = ProductRelease(
+            product="Firefox",
+            channel="Release",
+            version="556.0",
+            release_date=datetime.date.fromisoformat("2117-08-02"),
+            created=datetime.datetime.fromisoformat("2117-03-21T13:19:13.668000+00:00"),
+            modified=datetime.datetime.fromisoformat("2117-03-21T13:19:13.668000+00:00"),
+            is_public=True,
+        )
+        rendered = render_to_string(
+            request=RequestFactory().get("/"),
+            template_name="firefox/releases/notes.html",
+            context={
+                "release_notes": [Note(data={"id": note_id, "tag": tag}) for note_id, tag in enumerate(tags)],
+                "release": release,
+            },
+        )
+        release_notes_document = BeautifulSoup(rendered, "html.parser")
+        section_ids = [section["id"] for section in release_notes_document.select(".c-release-notes > [id]")]
+        assert section_ids == ["new", "labs", "fixed", "changed", "known", "enterprise", "developer", "html5", "resolved", "community"]
+
     @override_settings(DEV=False)
     def test_non_public_release(self):
         """
