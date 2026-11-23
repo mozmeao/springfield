@@ -8,7 +8,7 @@
 
 {# A real link, so the video still opens on YouTube without JS. The JS opens the dialog that follows it. #}
 <include:button
-  link="https://www.youtube.com/watch?v={{ value.video_id() }}"
+  link="https://www.youtube.com/watch?v={{ value.get_video_id() }}"
   extra_classes="fl-video-modal-trigger"
   theme_class="{{ value.theme_class() }}"
   label="{{ button_label or '' }}"

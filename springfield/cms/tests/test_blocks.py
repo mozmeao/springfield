@@ -85,9 +85,9 @@ from springfield.cms.blocks import (
     UntranslatableCharBlock,
     UUIDBlock,
     VideoModalButtonBlock,
+    get_youtube_video_id,
     icon_display_label,
     validate_youtube_url,
-    youtube_video_id,
 )
 from springfield.cms.fixtures.article_page_fixtures import (
     get_article_pages,
@@ -693,26 +693,30 @@ def assert_article_card_attributes(
     assert description_element and description_element.get_text().strip() == description_text.strip()
 
 
-def assert_video_attributes(video_element: BeautifulSoup, video_data: dict):
+# Written out rather than worked out with get_youtube_video_id, which these tests check.
+FIXTURE_YOUTUBE_VIDEO_IDS = {
+    "https://www.youtube.com/watch?v=F-nFQryDB0s&list=PLFlAJDI87Jg3WeEerUpaKQNaYoDlIwPbG": "F-nFQryDB0s",
+    "https://www.youtube.com/watch?v=firefoxdemo": "firefoxdemo",
+}
+
+
+def assert_video_attributes(video_element: BeautifulSoup, video_data: dict, expected_video_id: str | None = None):
     """
     Compares the rendered video element with the expected video data.
+
+    A YouTube video's ID is `expected_video_id`, or else looked up in FIXTURE_YOUTUBE_VIDEO_IDS.
     """
     video_url = video_data["value"]["video_url"]
     alt = video_data["value"]["alt"]
     poster = video_data["value"]["poster"]
 
-    youtube_id = None
-    if "youtube.com" in video_url or "youtu.be" in video_url:
-        youtube_id = video_url.split("watch?v=")[-1].split("youtu.be/")[-1].split("&")[0].split("?")[0]
-
     button = video_element.find("button", class_="fl-video-play")
     assert button and button["aria-label"] == alt
 
-    if youtube_id:
-        assert button["data-video-id"] == youtube_id
-    else:
-        assert "assets.mozilla.net" in video_url
+    if "assets.mozilla.net" in video_url:
         assert button["data-video-url"] == video_url
+    else:
+        assert button["data-video-id"] == (expected_video_id or FIXTURE_YOUTUBE_VIDEO_IDS[video_url])
 
     if poster:
         image = SpringfieldImage.objects.get(id=poster)
@@ -7270,12 +7274,13 @@ def test_sharing_links_block(index_page, rf):
         ("https://m.youtube.com/watch?v=aqz-KE-bpKQ", "aqz-KE-bpKQ"),
         ("https://www.youtube.com/@firefox", None),
         ("https://www.youtube.com/watch", None),
+        ("https://www.youtube.com/watch?v=../../evil", None),
         ("https://example.com/watch?v=aqz-KE-bpKQ", None),
         ("", None),
     ],
 )
-def test_youtube_video_id(url, expected):
-    assert youtube_video_id(url) == expected
+def test_get_youtube_video_id(url, expected):
+    assert get_youtube_video_id(url) == expected
 
 
 def test_validate_youtube_url_rejects_non_video_urls():
