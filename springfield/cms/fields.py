@@ -7,6 +7,7 @@ import os
 import re
 
 from django.core.exceptions import ValidationError
+from django.db import models
 from django.template.defaultfilters import filesizeformat
 from django.utils.translation import gettext_lazy as _
 
@@ -16,6 +17,8 @@ from wagtail.blocks import StreamValue, StructValue
 from wagtail.blocks.list_block import ListValue
 from wagtail.fields import StreamField as WagtailStreamfield
 from wagtail.images.fields import WagtailImageField
+
+from springfield.cms.qr_code_urls import QR_CODE_URL_HELP_TEXT, QR_CODE_URL_LABEL, normalize_qr_code_url, validate_qr_code_url
 
 
 class StreamField(WagtailStreamfield):
@@ -130,6 +133,17 @@ DANGEROUS_ATTRIBUTES = {
     "onkeyup",
     "onkeypress",
 }
+
+
+class QRCodeURLField(models.CharField):
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault("verbose_name", QR_CODE_URL_LABEL)
+        kwargs.setdefault("help_text", QR_CODE_URL_HELP_TEXT)
+        kwargs.setdefault("validators", [validate_qr_code_url])
+        super().__init__(*args, **kwargs)
+
+    def clean(self, value, model_instance):
+        return super().clean(normalize_qr_code_url(value), model_instance)
 
 
 ALLOWED_DATA_URL_MIME_TYPES = {"image": ["jpeg", "png", "gif", "webp"]}
