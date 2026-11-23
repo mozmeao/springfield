@@ -34,6 +34,13 @@ in one line, and the replacement.
       helpers in migrations, fixtures and tests get plain descriptive names.
 - [ ] No name shadowing a stdlib module or builtin (an `html` argument beside `import html`).
 - [ ] Any name that needs a comment to explain what it is gets renamed instead.
+- [ ] Every function and method name starts with a verb, and the verb tells a query from a
+      command. Queries — only read their arguments and return something — use `get_`,
+      `is_`/`has_` or `build_`. Anything that changes state (database, storage, network,
+      mutating an argument or the request) names that action: `create_`, `get_or_create_`,
+      `download_`, `save_`, `set_`, `start_`. Flag a noun name (`poster_image(value)`) and,
+      worse, a query name on a function with side effects. Framework hooks (`clean`, `save`,
+      `get_context`) keep their framework names.
 
 ### 2. Comments and docstrings
 
