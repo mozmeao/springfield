@@ -1623,6 +1623,10 @@ WAGTAILIMAGES_FORMAT_CONVERSIONS = {
     "webp": "webp",
 }
 
+WAGTAILDOCS_DOCUMENT_FORM_BASE = "springfield.cms.documents.forms.SpringfieldDocumentForm"
+# The largest WebM video an editor can upload for the Video and Animation blocks.
+WEBM_MAX_UPLOAD_SIZE_BYTES = 5 * 1024 * 1024  # 5 MB
+
 
 def _localize_dashboard_column_filter_options():
     alias_codes = sorted(FALLBACK_LOCALES.keys())

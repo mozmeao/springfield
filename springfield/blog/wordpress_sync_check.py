@@ -144,7 +144,8 @@ def check_english(page, expected):
     )
 
     videos = [youtube_video_id(item["url"]) for item in items if item["kind"] == "video"]
-    hero_video = [youtube_video_id(block.value["video_url"]) for block in page.hero_video or []]
+    # An uploaded video has no URL, and counts as a video that isn't on YouTube.
+    hero_video = [youtube_video_id(block.value["video_url"] or "") for block in page.hero_video or []]
     rows.append(
         result(
             "youtube",
@@ -232,7 +233,7 @@ def check_translation(page, expected):
     hero_hash = page.image.file_hash if page.image else None
     items = page_media(page)
     images = [item["hash"] for item in items if item["kind"] == "image"]
-    videos = [youtube_video_id(block.value["video_url"]) for block in page.hero_video or []]
+    videos = [youtube_video_id(block.value["video_url"] or "") for block in page.hero_video or []]
     videos += [youtube_video_id(item["url"]) for item in items if item["kind"] == "video"]
     return [
         result("translation", True, "exists and is live", "live"),
@@ -254,7 +255,7 @@ def check_translation(page, expected):
             "translation youtube",
             videos == expected["youtube"],
             " ".join(expected["youtube"]),
-            " ".join(videos),
+            " ".join(map(str, videos)),
             step=youtube_step(expected["youtube"], videos, link),
         ),
     ]

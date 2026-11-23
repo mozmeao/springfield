@@ -1,3 +1,11 @@
+## 2026-11-27
+
+- The Video and Animation blocks have an "Uploaded Video" / "Uploaded Animation" field. Choose a WebM video from Documents or upload a new one, instead of asking a developer to add the file to assets.mozilla.net.
+    - Fill in either this field or the URL field, not both.
+    - The video must be a real WebM file of 5 MB or less. Other document types are unchanged.
+    - A WebM document can only be replaced with another WebM video.
+    - In the Video block, an uploaded video needs a Poster image, the same as an assets.mozilla.net video.
+
 ## 2026-11-23
 
 - The video block's Poster image is optional for YouTube videos. Leave it empty and, when you save, the video's YouTube thumbnail is added to the "YouTube Thumbnails" image collection and filled in as the poster. If you change the video URL, the thumbnail changes with it. Choose your own image to use that instead. assets.mozilla.net videos still need a poster image.

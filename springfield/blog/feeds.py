@@ -68,10 +68,13 @@ def image_html(image, caption="", link_url="", alt=None):
 
 def video_html(value):
     """A self-hosted video plays in the reader; a YouTube video is its poster, linked to YouTube."""
-    url = value["video_url"]
+    url = value.source_url
+    if not url:
+        # A deleted video document leaves the block without a source.
+        return ""
     poster = value.get("poster")
     poster_rendition = feed_rendition(poster)
-    if is_youtube_url(url):
+    if not value.get("video_file") and is_youtube_url(url):
         if poster_rendition is None:
             return format_html('<p><a href="{}">{}</a></p>', url, value["alt"] or url)
         return image_html(poster, link_url=url, alt=value["alt"])
@@ -281,6 +284,7 @@ class BlogFeed(Feed):
         hero = ""
         if item.hero_style == HeroStyle.VIDEO and item.hero_video:
             hero = video_html(item.hero_video[0].value)
-        elif item.hero_style != HeroStyle.TEXT_ONLY and item.image and opening_image(item) != item.image:
+        # A hero video whose document was deleted has nothing to show, so the image takes its place.
+        if not hero and item.hero_style != HeroStyle.TEXT_ONLY and item.image and opening_image(item) != item.image:
             hero = image_html(item.image, alt=alt_text(item.image_alt, item.image))
         return format_html("{}{}", hero, body_html(item))

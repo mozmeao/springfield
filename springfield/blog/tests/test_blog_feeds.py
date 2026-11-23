@@ -7,11 +7,13 @@ from datetime import UTC, datetime, timedelta
 from xml.etree import ElementTree
 
 from django.core.exceptions import ValidationError
+from django.core.files.base import ContentFile
 from django.http import Http404
 from django.test import override_settings
 
 import pytest
 from bs4 import BeautifulSoup
+from wagtail.documents.models import Document
 from wagtail.images.models import SourceImageIOError
 from wagtail.models import Locale, PageViewRestriction, Site
 
@@ -227,6 +229,42 @@ def test_feed_item_content_videos(blog_index, make_article, rf):
     assert video["src"] == "https://assets.mozilla.net/demo.webm"
     assert video["poster"].startswith("http://testserver/")
     assert video["aria-label"] == "Demo"
+
+
+def test_feed_item_content_plays_an_uploaded_video(blog_index, make_article, rf):
+    poster = get_placeholder_images()[0]
+    # The file is named like a YouTube link. It plays in the reader, not as a link to YouTube.
+    document = Document.objects.create(title="Demo", file=ContentFile(content=b"WebM video", name="demo.youtube.com.webm"))
+    make_article(content=[{"type": "media", "value": [{"type": "video", "value": {"video_file": document.pk, "alt": "Demo", "poster": poster.pk}}]}])
+
+    video = item_content(blog_index, rf).find("video")
+
+    assert video["src"].endswith(".youtube.com.webm")
+    assert video["src"] == f"http://testserver{document.file.url}"
+
+
+def test_feed_item_content_leaves_out_a_video_whose_document_is_deleted(blog_index, make_article, rf):
+    poster = get_placeholder_images()[0]
+    document = Document.objects.create(title="Demo", file=ContentFile(content=b"WebM video", name="demo.webm"))
+    make_article(content=[{"type": "media", "value": [{"type": "video", "value": {"video_file": document.pk, "alt": "Demo", "poster": poster.pk}}]}])
+    document.delete()
+
+    assert parse_feed(get_feed(blog_index, rf)).find("item").findtext(CONTENT_ENCODED) is None
+
+
+def test_feed_item_content_shows_the_image_when_the_hero_videos_document_is_deleted(blog_index, make_article, rf):
+    image = get_placeholder_images()[0]
+    document = Document.objects.create(title="Demo", file=ContentFile(content=b"WebM video", name="demo.webm"))
+    article = make_article(
+        image=image,
+        hero_style=HeroStyle.VIDEO,
+        hero_video=[{"type": "video", "value": {"video_file": document.pk, "alt": "Demo", "poster": image.pk}}],
+    )
+    document.delete()
+
+    hero = item_content(blog_index, rf).find("figure")
+
+    assert hero.img["alt"] == article.image_alt
 
 
 def make_card_article(make_article, card_content):

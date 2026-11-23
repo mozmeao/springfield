@@ -1,0 +1,70 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+from django.conf import settings
+from django.core.exceptions import ValidationError
+from django.template.defaultfilters import filesizeformat
+
+from wagtail.documents.forms import BaseDocumentForm
+
+EBML_MAGIC_BYTES = b"\x1a\x45\xdf\xa3"
+WEBM_DOCTYPE_ELEMENT = b"\x42\x82\x84webm"
+# The EBML header opens the file and is a few dozen bytes long.
+EBML_HEADER_READ_SIZE = 128
+
+
+class SpringfieldDocumentForm(BaseDocumentForm):
+    """Wagtail's document form with size and content checks for WebM videos.
+
+    Documents hold any kind of file, and the Video and Animation blocks play the WebM ones.
+    The checks apply to uploads named `.webm` and leave every other upload alone, except that
+    a WebM document can only be replaced with another WebM video.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if "file" in self.fields:
+            max_size = filesizeformat(settings.WEBM_MAX_UPLOAD_SIZE_BYTES)
+            self.fields["file"].help_text = f"A video for a Video or Animation block must be a WebM file of {max_size} or less."
+
+    def clean_file(self):
+        uploaded_file = self.cleaned_data["file"]
+        if "file" not in self.changed_data:
+            return uploaded_file
+
+        # Storage cleans the name before it stores the file, so `clip.webm~` becomes `clip.webm`.
+        stored_name = self.instance.file.storage.get_valid_name(uploaded_file.name)
+        if not stored_name.lower().endswith(".webm"):
+            if (self.original_file.name or "").lower().endswith(".webm"):
+                # Pages that use the document go on playing it as a video.
+                raise ValidationError("Pages may be playing this WebM video. Replace it with another WebM video.")
+            return uploaded_file
+
+        if uploaded_file.size > settings.WEBM_MAX_UPLOAD_SIZE_BYTES:
+            raise ValidationError(
+                f"This WebM video is too big ({filesizeformat(uploaded_file.size)}). "
+                f"Reduce it to {filesizeformat(settings.WEBM_MAX_UPLOAD_SIZE_BYTES)} or less and upload it again."
+            )
+        # WebM is a subset of Matroska and both open with the same bytes, so the document type
+        # named in the header is what sets a WebM file apart.
+        header = uploaded_file.read(EBML_HEADER_READ_SIZE)
+        uploaded_file.seek(0)
+        if not (header.startswith(EBML_MAGIC_BYTES) and WEBM_DOCTYPE_ELEMENT in header):
+            raise ValidationError("This file is not a WebM video. Export the video in WebM format and upload it again.")
+        return uploaded_file
+
+    def save(self, commit=True):
+        """Save a replacement file before deleting the old one, so the replacement gets a new URL.
+
+        Stored files are cached for a month. Wagtail deletes the old file first, which lets a
+        replacement with the same name take over its URL.
+        """
+        replaced_file = self.original_file if commit and "file" in self.changed_data else None
+        if replaced_file:
+            # With no original file, Wagtail's form deletes nothing.
+            self.original_file = None
+        document = super().save(commit=commit)
+        if replaced_file:
+            replaced_file.storage.delete(replaced_file.name)
+        return document

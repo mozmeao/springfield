@@ -9,6 +9,7 @@ import os
 from io import BytesIO, StringIO
 
 from django.conf import settings
+from django.core.files.base import ContentFile
 from django.core.management import call_command
 from django.core.management.base import CommandError
 
@@ -16,6 +17,7 @@ import pytest
 import responses
 from PIL import Image
 from responses import matchers
+from wagtail.documents.models import Document
 from wagtail.models import Locale, Page, Revision, Site
 from wagtail.utils.file import hash_filelike
 
@@ -1187,6 +1189,24 @@ def test_a_translation_missing_its_body_images_gets_a_step_linking_to_wordpress(
 
     step = f"de: The body images don't match [WordPress]({WORDPRESS}/de/?p=201) (1 there, 0 here). Swap them in the editor"
     assert f"- [ ] {step}" in run.text("hand-steps.md")
+
+
+@responses.activate
+@pytest.mark.parametrize("language, check, found", [("en-US", "youtube", "([None], [])"), ("de", "translation youtube", "None")])
+def test_an_uploaded_hero_video_fails_the_youtube_check(tmp_path, blog, language, check, found):
+    serve_post_images()
+    mock_translation()
+    data = sync_data(sync_post(translations=[translated_post()]))
+    run_sync(tmp_path / "run", data, export_post())
+    document = Document.objects.create(title="Demo", file=ContentFile(content=b"WebM video", name="demo.webm"))
+    hero_video = [{"type": "video", "value": {"video_file": document.pk, "alt": "Demo"}}]
+    page = created_page() if language == "en-US" else translation_of(created_page())
+    publish_change(page, lambda draft: setattr(draft, "hero_video", hero_video))
+
+    run, _ = failing_run(tmp_path / "check", data, export_post(), check_only=True)
+
+    youtube = check_results(run)[(language, check)]
+    assert (youtube["result"], youtube["found"]) == ("fail", found)
 
 
 @responses.activate
