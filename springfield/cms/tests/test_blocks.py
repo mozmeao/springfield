@@ -7452,6 +7452,19 @@ def test_code_block_restores_translated_prompt_keeping_line_breaks():
     assert restored["language"] == "prompt"
 
 
+def test_code_block_translation_round_trip_keeps_literal_tags_and_entities():
+    block = CodeBlock()
+    prompt = "Summarize <context>the page</context> & keep &amp; as written."
+    caption = "Uses <b> & &lt;"
+    value = block.to_python({"language": "prompt", "code": prompt, "caption": caption})
+
+    segments = StreamFieldSegmentExtractor(None).handle_block(block, value)
+    restored = block.restore_translated_segments(block.to_python({"language": "prompt", "code": "", "caption": ""}), segments)
+
+    assert restored["code"] == prompt
+    assert restored["caption"] == caption
+
+
 def test_code_block_saved_without_a_caption_can_be_translated():
     """Blocks saved before the caption field existed have no caption key."""
     block = CodeBlock()

@@ -130,7 +130,6 @@
     padding: 0;
 }
 
-/* Code block: monospace editing for the code field. */
 .fl-admin-code-block [data-contentpath='code'] textarea {
     font-family:
         ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas,

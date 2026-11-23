@@ -2,6 +2,8 @@
 
 - The video block's Poster image is optional for YouTube videos. Leave it empty and, when you save, the video's YouTube thumbnail is added to the "YouTube Thumbnails" image collection and filled in as the poster. If you change the video URL, the thumbnail changes with it. Choose your own image to use that instead. assets.mozilla.net videos still need a poster image.
 - Drafts save with an incomplete video block. The poster is checked when you publish.
+- The Code block has a Language field. Pick a programming language to colour the code and show its name above it; leave it on Plain text for no colours. Every Code block has a Copy button and an optional Caption.
+- Set Language to Prompt or Model output to show an AI prompt or reply. These wrap long lines, and their text is sent for translation; code isn't.
 
 ## 2026-11-19
 

@@ -89,7 +89,6 @@
     padding: var(--token-spacing-sm) var(--token-spacing-lg);
 }
 
-/* Prompts and model output are prose, so they wrap instead of scrolling. */
 .fl-code-block-prompt,
 .fl-code-block-output {
     background: var(--code-block-prose-bg);
@@ -113,7 +112,6 @@
     line-height: 1.5;
 }
 
-/* Syntax colours, from the Pygments token classes in highlight_code(). */
 .fl-code-block
     :is(
         .tok-k,
