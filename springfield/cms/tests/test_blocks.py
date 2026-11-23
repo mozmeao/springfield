@@ -65,6 +65,7 @@ from springfield.cms.blocks import (
     ImageVariantsBlock,
     ImpactDashBlock,
     MobileStoreQRCodeBlock,
+    NotificationBlock,
     OverridableQRCodeURLBlock,
     QRCodeBlock,
     QRCodeModalButtonBlock,
@@ -307,9 +308,10 @@ def _render_context(request, block_text="Heading", block_position="block-1-intro
     }
 
 
-def _render_button(btn_type, request, **label_kwargs):
+def _render_button(btn_type, request, size="", **label_kwargs):
     snippet_pk = get_set_as_default_snippet().id if btn_type == "set_as_default_button" else None
     block, raw = _button_block_and_value(btn_type, snippet_pk=snippet_pk, **label_kwargs)
+    raw["settings"]["size"] = size
     bound = block.to_python(raw)
     return block.render(bound, context=_render_context(request))
 
@@ -1131,6 +1133,16 @@ class TestButtonBlockLabelRendering:
         """
         html = _render_button(btn_type, rf.get("/"))
         assert "None" not in html
+
+
+class TestButtonBlockSizeRendering:
+    """Tests that every button template applies the block's size setting."""
+
+    @pytest.mark.parametrize("btn_type", _BUTTON_BLOCK_TYPES_NOT_DOWNLOAD)
+    def test_large_size_renders_large_button(self, btn_type, rf):
+        html = _render_button(btn_type, rf.get("/"), size="large", custom_label="Large button")
+        button = BeautifulSoup(html, "html.parser").find(class_="fl-button")
+        assert "fl-button-large" in button["class"]
 
 
 class TestButtonBlockCleanComposition:
@@ -4087,6 +4099,16 @@ def test_notification_block(index_page, rf):
                 assert message in div.get_text()
             else:
                 assert message in heading_el.get_text()
+
+
+def test_notification_block_anchor_id_is_the_wrapper_id(rf):
+    block = NotificationBlock()
+    value = block.to_python({"settings": {"show_to": SHOW_TO_ALL, "anchor_id": "update-notice"}, "message": "<p>Message</p>"})
+
+    html = block.render(value, context={"request": rf.get("/")})
+
+    wrapper = BeautifulSoup(html, "html.parser").find("div", class_="fl-notification-wrapper")
+    assert wrapper["id"] == "update-notice"
 
 
 def test_two_column_cards_block(index_page, rf):

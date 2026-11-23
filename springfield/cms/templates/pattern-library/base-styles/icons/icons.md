@@ -1,0 +1,3 @@
+The `icon` component renders one of Flare's icons as a mask, so it's sized by font-size and colored by the surrounding text color. The browser logos (Brave, Chrome, Edge, Firefox, Opera, Safari) are the exception: they keep their own full-color artwork. Mark an icon **hidden** when it's decorative next to text, or give it an **aria_label** when it stands alone.
+
+There's no icon block: editors pick icons from the icon chooser in notifications, icon lists, buttons, tags, tabs, cards, the Card Gallery, article cards, roadmap items and navigation links. The page lists every icon in the icon folder, grouped by platform and size — the same set the chooser offers.
