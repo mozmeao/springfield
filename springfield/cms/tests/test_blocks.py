@@ -693,24 +693,30 @@ def assert_article_card_attributes(
     assert description_element and description_element.get_text().strip() == description_text.strip()
 
 
-def assert_video_attributes(video_element: BeautifulSoup, video_data: dict):
+# Written out rather than worked out with get_youtube_video_id, which these tests check.
+FIXTURE_YOUTUBE_VIDEO_IDS = {
+    "https://www.youtube.com/watch?v=F-nFQryDB0s&list=PLFlAJDI87Jg3WeEerUpaKQNaYoDlIwPbG": "F-nFQryDB0s",
+    "https://www.youtube.com/watch?v=firefoxdemo": "firefoxdemo",
+}
+
+
+def assert_video_attributes(video_element: BeautifulSoup, video_data: dict, expected_video_id: str | None = None):
     """
     Compares the rendered video element with the expected video data.
+
+    A YouTube video's ID is `expected_video_id`, or else looked up in FIXTURE_YOUTUBE_VIDEO_IDS.
     """
     video_url = video_data["value"]["video_url"]
     alt = video_data["value"]["alt"]
     poster = video_data["value"]["poster"]
 
-    youtube_id = get_youtube_video_id(video_url)
-
     button = video_element.find("button", class_="fl-video-play")
     assert button and button["aria-label"] == alt
 
-    if youtube_id:
-        assert button["data-video-id"] == youtube_id
-    else:
-        assert "assets.mozilla.net" in video_url
+    if "assets.mozilla.net" in video_url:
         assert button["data-video-url"] == video_url
+    else:
+        assert button["data-video-id"] == (expected_video_id or FIXTURE_YOUTUBE_VIDEO_IDS[video_url])
 
     if poster:
         image = SpringfieldImage.objects.get(id=poster)

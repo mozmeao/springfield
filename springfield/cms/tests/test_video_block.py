@@ -13,6 +13,7 @@ import pytest
 import requests
 import responses
 from bs4 import BeautifulSoup
+from freezegun import freeze_time
 from PIL import Image
 from wagtail.blocks import StructBlockValidationError
 from wagtail.utils.file import hash_filelike
@@ -86,18 +87,23 @@ def editor_request():
     current_request.reset(token)
 
 
+@pytest.fixture(autouse=True)
+def mocked_responses():
+    """Mock every request, so a test that reaches YouTube without mocking it fails."""
+    with responses.mock:
+        yield
+
+
 @pytest.fixture
-def clock():
-    """Stands in for time.monotonic(). Move it forward with `clock.now = seconds`."""
-    clock = SimpleNamespace(now=0.0)
-    with mock.patch("springfield.cms.blocks.time.monotonic", side_effect=lambda: clock.now):
-        yield clock
+def frozen_clock():
+    """Stops the clock. Move it forward with `frozen_clock.tick(seconds)`."""
+    with freeze_time() as frozen_time:
+        yield frozen_time
 
 
 # Filling an empty poster with the YouTube thumbnail
 
 
-@responses.activate
 def test_empty_poster_gets_the_youtube_thumbnail(editor_request):
     mock_thumbnail(MAXRES_URL)
 
@@ -111,7 +117,6 @@ def test_empty_poster_gets_the_youtube_thumbnail(editor_request):
     assert [call.request.url for call in responses.calls] == [MAXRES_URL]
 
 
-@responses.activate
 def test_thumbnail_falls_back_to_hqdefault():
     responses.add(responses.GET, MAXRES_URL, status=404)
     mock_thumbnail(HQ_URL)
@@ -122,7 +127,6 @@ def test_thumbnail_falls_back_to_hqdefault():
     assert [call.request.url for call in responses.calls] == [MAXRES_URL, HQ_URL]
 
 
-@responses.activate
 def test_thumbnail_is_titled_with_the_video_id_without_alt_text():
     mock_thumbnail(MAXRES_URL)
 
@@ -132,7 +136,6 @@ def test_thumbnail_is_titled_with_the_video_id_without_alt_text():
     assert poster.title == f"YouTube thumbnail: {VIDEO_ID}"
 
 
-@responses.activate
 @pytest.mark.parametrize(
     "video_url",
     [f"https://youtu.be/{VIDEO_ID}#t=42", f"https://www.youtube.com/shorts/{VIDEO_ID}", f"https://www.youtube-nocookie.com/embed/{VIDEO_ID}"],
@@ -145,7 +148,6 @@ def test_thumbnail_for_other_youtube_links(video_url):
     assert poster.filename.startswith(f"{VIDEO_ID}-maxresdefault")
 
 
-@responses.activate
 def test_stored_thumbnail_is_reused_without_downloading():
     stored_thumbnail = create_stored_thumbnail(VIDEO_ID)
 
@@ -158,7 +160,6 @@ def test_stored_thumbnail_is_reused_without_downloading():
 # Keeping or replacing a poster that is already set
 
 
-@responses.activate
 @pytest.mark.parametrize("video_url", [YOUTUBE_URL, SELF_HOSTED_URL])
 def test_editors_poster_is_kept(video_url, editor_poster):
     poster = VideoBlock().clean(build_video_value(video_url=video_url, poster=editor_poster))["poster"]
@@ -167,7 +168,6 @@ def test_editors_poster_is_kept(video_url, editor_poster):
     assert len(responses.calls) == 0
 
 
-@responses.activate
 def test_image_named_like_a_thumbnail_outside_the_collection_is_kept():
     imported_poster = create_image(f"{OTHER_VIDEO_ID}-maxresdefault.jpg")
 
@@ -177,7 +177,6 @@ def test_image_named_like_a_thumbnail_outside_the_collection_is_kept():
     assert len(responses.calls) == 0
 
 
-@responses.activate
 def test_thumbnail_of_the_current_video_is_kept():
     stored_thumbnail = create_stored_thumbnail(VIDEO_ID)
 
@@ -187,7 +186,6 @@ def test_thumbnail_of_the_current_video_is_kept():
     assert len(responses.calls) == 0
 
 
-@responses.activate
 def test_changing_the_youtube_video_changes_its_thumbnail():
     old_thumbnail = create_stored_thumbnail(OTHER_VIDEO_ID)
     mock_thumbnail(MAXRES_URL)
@@ -216,7 +214,6 @@ def test_publishing_a_self_hosted_video_needs_a_poster():
     assert get_error_fields(exc_info) == {"alt", "poster"}
 
 
-@responses.activate
 def test_publishing_a_youtube_link_without_a_video_reports_the_link():
     with pytest.raises(StructBlockValidationError) as exc_info:
         VideoBlock().clean(build_video_value(video_url=YOUTUBE_CHANNEL_URL))
@@ -232,7 +229,6 @@ def test_draft_saves_without_a_poster(video_url):
     assert value["poster"] is None
 
 
-@responses.activate
 def test_blog_hero_video_gets_the_youtube_thumbnail():
     mock_thumbnail(MAXRES_URL)
     stream_block = BlogArticlePage._meta.get_field("hero_video").stream_block
@@ -245,7 +241,6 @@ def test_blog_hero_video_gets_the_youtube_thumbnail():
 # When the thumbnail can't be stored, publishing reports it on the poster and a draft saves without one
 
 
-@responses.activate
 def test_youtube_without_a_thumbnail():
     responses.add(responses.GET, MAXRES_URL, status=404)
     responses.add(responses.GET, HQ_URL, status=404)
@@ -258,7 +253,6 @@ def test_youtube_without_a_thumbnail():
     assert draft_value["poster"] is None
 
 
-@responses.activate
 def test_youtube_unreachable_is_tried_once():
     responses.add(responses.GET, MAXRES_URL, body=requests.ConnectionError("down"))
 
@@ -269,7 +263,6 @@ def test_youtube_unreachable_is_tried_once():
     assert [call.request.url for call in responses.calls] == [MAXRES_URL]
 
 
-@responses.activate
 def test_storage_failure():
     mock_thumbnail(MAXRES_URL)
 
@@ -283,10 +276,9 @@ def test_storage_failure():
 # One save gets a limited time for all of its thumbnail downloads
 
 
-@responses.activate
-def test_downloads_stop_once_a_save_runs_out_of_time(editor_request, clock):
+def test_downloads_stop_once_a_save_runs_out_of_time(editor_request, frozen_clock):
     def slow_not_found(request):
-        clock.now = 11
+        frozen_clock.tick(11)
         return 404, {}, ""
 
     responses.add_callback(responses.GET, MAXRES_URL, callback=slow_not_found)
@@ -301,10 +293,9 @@ def test_downloads_stop_once_a_save_runs_out_of_time(editor_request, clock):
     assert [call.request.url for call in responses.calls] == [MAXRES_URL]
 
 
-@responses.activate
-def test_download_stops_when_the_body_runs_out_of_time(editor_request, clock):
+def test_download_stops_when_the_body_runs_out_of_time(editor_request, frozen_clock):
     def slow_body(request):
-        clock.now = 11
+        frozen_clock.tick(11)
         return 200, {"Content-Type": "image/jpeg"}, build_jpeg_bytes()
 
     responses.add_callback(responses.GET, MAXRES_URL, callback=slow_body)
@@ -328,7 +319,7 @@ def test_render_with_poster(video_url, editor_poster):
 
     soup = BeautifulSoup(VideoBlock().render(VideoBlock().to_python(data)), "html.parser")
 
-    assert_video_attributes(soup.find("div", class_="fl-video"), {"value": data})
+    assert_video_attributes(soup.find("div", class_="fl-video"), {"value": data}, expected_video_id=VIDEO_ID)
 
 
 @pytest.mark.parametrize("video_url", [YOUTUBE_URL, SELF_HOSTED_URL])
@@ -338,6 +329,6 @@ def test_render_without_poster(video_url):
     soup = BeautifulSoup(VideoBlock().render(VideoBlock().to_python(data)), "html.parser")
 
     video_element = soup.find("div", class_="fl-video")
-    assert_video_attributes(video_element, {"value": data})
+    assert_video_attributes(video_element, {"value": data}, expected_video_id=VIDEO_ID)
     assert not video_element.find("button", class_="fl-video-play").has_attr("data-video-poster")
     assert video_element.find("img", class_="fl-video-poster") is None
