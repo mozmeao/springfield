@@ -233,7 +233,10 @@
         position: relative;
     }
 
-    .c-form:has(#release option[value='esr']:checked) .c-release-logo::after {
+    :is(
+        .c-form:has(#release option[value='esr']:checked),
+        .c-results-logos[data-release='esr']
+    ) .c-release-logo::after {
         align-items: center;
         background-color: var(--fl-theme-background);
         border-radius: var(--token-border-radius-2xs);
@@ -268,6 +271,25 @@
         &:has(option[value^='linux']:checked) { --c-platform-logo: url('../img/firefox/download/all-form/linux.svg'); }
 
         &:has(option[value='android']:checked) { --c-platform-logo: url('../img/firefox/download/all-form/android.svg'); }
+    }
+
+    /* The result page has no selects to read, so it names the selection instead. */
+    .c-result .c-results-logos {
+        &:is([data-release='stable'], [data-release='esr']) { --c-release-logo: url('../img/logos/firefox/firefox-logo.svg'); }
+
+        &[data-release='beta'] { --c-release-logo: url('../img/logos/firefox/firefox-logo-beta.svg'); }
+
+        &[data-release='dev'] { --c-release-logo: url('../img/logos/firefox/firefox-logo-developer.svg'); }
+
+        &[data-release='nightly'] { --c-release-logo: url('../img/logos/firefox/firefox-logo-nightly.svg'); }
+
+        &[data-platform='windows'] { --c-platform-logo: url('../img/firefox/download/all-form/windows.svg'); }
+
+        &:is([data-platform='macos'], [data-platform='ios']) { --c-platform-logo: url('../img/firefox/download/all-form/apple.svg'); }
+
+        &[data-platform='linux'] { --c-platform-logo: url('../img/firefox/download/all-form/linux.svg'); }
+
+        &[data-platform='android'] { --c-platform-logo: url('../img/firefox/download/all-form/android.svg'); }
     }
 
     .c-download-options:not([hidden]) {
@@ -401,9 +423,8 @@
         text-align: center;
     }
 
-    .c-result-logo {
-        block-size: 100px;
-        inline-size: 100px;
+    .c-result .c-support-links {
+        margin-block-start: var(--token-spacing-xl);
     }
 
     .c-result-summary {

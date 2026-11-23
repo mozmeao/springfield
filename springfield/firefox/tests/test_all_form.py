@@ -834,11 +834,11 @@ class TestDownloadOptionList:
         assert "microsoft-store" not in options
         assert options["primary"]["href"] == f"{BOUNCER}?os=win64&product=firefox-msi-latest-ssl&lang=de"
 
-    def test_linux_offers_apt_as_an_aside(self):
+    def test_linux_offers_apt_as_an_alternative_download(self):
         options = options_for(os="linux64", release="stable", language="de")
         assert options["apt"]["href"] == all_form.LINUX_APT_URL
-        # An aside sits alongside the downloads and never gets an `or` before it.
-        assert options["apt"]["group"] == all_form.GROUP_ASIDE
+        # A download-group option, so an `or` separates it from the direct download.
+        assert options["apt"]["group"] == all_form.GROUP_DOWNLOAD
 
     def test_esr_offers_esr_115(self):
         with secondary_esr_builds():
@@ -955,14 +955,10 @@ class TestDownloadOptionsContext:
         assert ctx["release_label"] == "Firefox"
         assert ctx["language_label"].startswith("German")
 
-    @pytest.mark.parametrize(
-        "release,logo",
-        [("stable", "firefox"), ("esr", "firefox"), ("beta", "firefox-beta"), ("dev", "firefox-developer"), ("nightly", "firefox-nightly")],
-    )
-    def test_one_logo_per_release(self, release, logo):
-        # The result page has no controls, so it renders the single right logo
-        # rather than all four and a CSS rule to pick between them.
-        assert all_form.get_logo(release)["key"] == logo
+    def test_names_the_platform_family_for_the_logos(self):
+        ctx = all_form.get_download_options(all_form.parse_selection({"os": "win64-msi", "release": "esr", "language": "de"}))
+        assert ctx["platform_family"] == "windows"
+        assert ctx["release"] == "esr"
 
     def test_esr_version_omits_the_esr_suffix(self):
         # latest_version("esr") returns e.g. "140.12.0esr", which is not a label.
@@ -1174,6 +1170,9 @@ class TestResultView:
         response = client.get(RESULT_URL, {"os": "android", "release": "beta"})
         assert b'<figure class="c-qr-code" data-os="android" data-release="beta">' in response.content
         assert b"to get Firefox Beta for Android." in response.content
+        # Scanning leads, then the store link as the alternative.
+        content = response.content.decode()
+        assert content.index('<figure class="c-qr-code"') < content.index("c-qr-code-divider") < content.index('data-download-option="primary"')
 
     @override_switch("ALL_FORM", active=True)
     @pytest.mark.parametrize("query", [{"os": "ios", "release": "beta"}, {"os": "win64", "release": "stable", "language": "de"}])

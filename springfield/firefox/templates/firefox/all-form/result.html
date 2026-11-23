@@ -18,8 +18,11 @@
     <div class="c-result">
       <h1 class="fl-heading fl-heading-size-3 fl-text-align-center">{{ release_label }} for {{ os_label }}</h1>
 
-      {# One logo: this page has no controls, so there is nothing to swap to. #}
-      <img class="c-result-logo" src="{{ static(logo.file) }}" alt="{{ logo.alt }}" width="100" height="100">
+      {# The same logos as the form; the heading already names them, so they are decorative. #}
+      <div class="c-results-logos" data-platform="{{ platform_family }}" data-release="{{ release }}" aria-hidden="true">
+        <div class="c-platform-logo"></div>
+        <div class="c-release-logo"></div>
+      </div>
 
       <p class="c-result-summary">
         {%- if is_mobile -%}
@@ -34,11 +37,11 @@
       {% endif %}
 
       <div class="c-download-options">
-        {% include "firefox/all-form/_download-options.html" %}
         {% if qr_code %}
-          <div class="c-or-divider c-qr-code-divider">{{ copy.divider }}</div>
           {% include "firefox/all-form/_qr-code.html" %}
+          <div class="c-or-divider c-qr-code-divider">{{ copy.divider }}</div>
         {% endif %}
+        {% include "firefox/all-form/_download-options.html" %}
       </div>
 
       <div class="c-support-links">

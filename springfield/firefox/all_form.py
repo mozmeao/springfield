@@ -241,26 +241,6 @@ ESR_115_RECOMMENDATIONS = {
 # Duplicated in all-form.js, which switches on these keys. Nothing else is.
 # ---------------------------------------------------------------------------
 
-# Only the result page renders these. The form page sets its logo in CSS, from
-# which release option is `:checked`.
-LOGOS = (
-    {"key": "firefox", "file": "img/logos/firefox/firefox-logo.svg", "alt": "Firefox"},
-    {"key": "firefox-beta", "file": "img/logos/firefox/firefox-logo-beta.svg", "alt": "Firefox Beta"},
-    {"key": "firefox-developer", "file": "img/logos/firefox/firefox-logo-developer.svg", "alt": "Firefox Developer Edition"},
-    {"key": "firefox-nightly", "file": "img/logos/firefox/firefox-logo-nightly.svg", "alt": "Firefox Nightly"},
-)
-
-# Which logo a release shows. ESR ships under the standard logo. The form page
-# does not use this — its CSS keys off the select instead — but the result page
-# has no controls, so one logo is rendered and this picks it.
-RELEASE_LOGOS = {
-    "stable": "firefox",
-    "esr": "firefox",
-    "beta": "firefox-beta",
-    "dev": "firefox-developer",
-    "nightly": "firefox-nightly",
-}
-
 OPTION_FALLBACK = "fallback"
 OPTION_APT = "apt"
 OPTION_ESR_NEXT = "esr-next"
@@ -278,7 +258,7 @@ GROUP_ASIDE = "aside"
 
 _OPTION_GROUPS = {
     OPTION_FALLBACK: GROUP_ASIDE,
-    OPTION_APT: GROUP_ASIDE,
+    OPTION_APT: GROUP_DOWNLOAD,
     OPTION_ESR_NEXT: GROUP_DOWNLOAD,
     OPTION_PRIMARY: GROUP_DOWNLOAD,
     OPTION_ESR_115: GROUP_DOWNLOAD,
@@ -736,12 +716,6 @@ def get_download_option_list(os_value, release, language):
     return options
 
 
-def get_logo(release):
-    """The one logo the result page shows."""
-    key = RELEASE_LOGOS[release]
-    return next(logo for logo in LOGOS if logo["key"] == key)
-
-
 def get_support_links(os_value, release):
     """
     The row of links under the download options, for the result page.
@@ -1027,6 +1001,7 @@ def get_download_options(selection, campaign_params=None):
         "qr_code": get_qr_code(os_value, release),
         "support_links": get_support_links(os_value, release),
         "copy": MESSAGES,
-        "logo": get_logo(release),
+        "platform_family": get_platform_family(os_value),
+        "release": release,
         "form_url": form_url({"os": os_value, "release": release, "language": selection.language} | (campaign_params or {})),
     }
