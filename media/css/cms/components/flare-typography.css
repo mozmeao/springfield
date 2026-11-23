@@ -22,6 +22,7 @@
    so a card might have h3 on one page and h2 on another, and they
    need to look consistent everywhere. */
 .fl-heading-size-1,
+.fl-heading-size-1-small,
 .fl-rich-text h1,
 .fl-heading-size-2,
 .fl-heading-lg,
@@ -97,7 +98,14 @@
     font-size: var(--fl-theme-font-size-heading-xl);
 }
 
-.fl-heading-size-2,
+.fl-heading-size-1-small {
+    font-size: var(--fl-h1-small);
+}
+
+.fl-heading-size-2 {
+    font-size: var(--fl-h2);
+}
+
 .fl-heading-lg {
     font-size: var(--fl-theme-font-size-heading-lg);
 }
