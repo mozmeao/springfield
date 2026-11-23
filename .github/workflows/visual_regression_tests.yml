@@ -47,16 +47,17 @@ jobs:
         run: cd tests/playwright && npm ci && npx playwright install --with-deps chromium
       - name: Build frontend assets
         run: npm ci && npm run build
-      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
-      - name: Build Docker image
+      # Pull the images the last main build pushed, then build the `app` service (the devapp
+      # target, tagged springfield_test:latest). BuildKit reuses the pulled images' layers for any
+      # step whose inputs are unchanged; see `cache_from` in docker-compose.yml. The pull is
+      # allowed to fail (for example on Docker Hub rate limits), which leaves the build uncached.
+      # `docker compose` needs .env to exist, and GIT_COMMIT is blank so the tag stays `latest`.
+      - name: Pull previous images to use as build cache
         run: |
-          docker buildx build \
-            --target devapp \
-            --tag mozmeao/springfield_test:latest \
-            --cache-from type=gha \
-            --cache-to type=gha,mode=max \
-            --load \
-            .
+          cp .env-dist .env
+          GIT_COMMIT= docker compose pull --ignore-pull-failures app builder assets app-base
+      - name: Build Docker image
+        run: GIT_COMMIT= docker compose build app
       - name: Start Django server
         run: |
           docker run -d \
