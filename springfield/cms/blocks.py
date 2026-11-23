@@ -33,6 +33,7 @@ from lib.l10n_utils.fluent import ftl, ftl_lazy
 from springfield.base.i18n import normalize_language, split_path_and_normalize_language
 from springfield.cms.icon_utils import icon_css_name, icon_value_fn
 from springfield.cms.models.locale import SpringfieldLocale
+from springfield.cms.qr_code_urls import QR_CODE_URL_HELP_TEXT, QR_CODE_URL_LABEL, normalize_qr_code_url, validate_qr_code_url
 from springfield.cms.rich_text import RichTextBlock
 from springfield.cms.views import wagtail_serve_with_locale_fallback
 
@@ -156,16 +157,19 @@ VIDEO_ASPECT_RATIO_CHOICES = [
 
 UITOUR_BUTTON_NEW_TAB = "open_new_tab"
 UITOUR_BUTTON_NEW_TAB_CUSTOMIZE = "open_new_tab_customize"
+UITOUR_BUTTON_NEW_TAB_CUSTOMIZE_WIDGETS = "open_new_tab_customize_widgets"
 UITOUR_BUTTON_ABOUT_PREFERENCES = "open_about_preferences"
 UITOUR_BUTTON_ABOUT_PREFERENCES_GENERAL = "open_about_preferences_general"
 UITOUR_BUTTON_ABOUT_PREFERENCES_HOME = "open_about_preferences_home"
 UITOUR_BUTTON_ABOUT_PREFERENCES_SEARCH = "open_about_preferences_search"
 UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY = "open_about_preferences_privacy"
+UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY_VPN = "open_about_preferences_privacy_vpn"
 UITOUR_BUTTON_ABOUT_PREFERENCES_AI = "open_about_preferences_ai"
 UITOUR_BUTTON_ABOUT_PREFERENCES_EXPERIMENTAL = "open_about_preferences_experimental"
 UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC = "open_about_preferences_sync"
 UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC_IMPORT_BROWSER_DATA = "open_about_preferences_sync_import_browser_data"
 UITOUR_BUTTON_ABOUT_PREFERENCES_MORE_FROM_MOZILLA = "open_about_preferences_more_from_mozilla"
+UITOUR_BUTTON_ABOUT_PREFERENCES_ABOUT = "open_about_preferences_about"
 UITOUR_BUTTON_PROTECTIONS_REPORT = "open_protections_report"
 UITOUR_BUTTON_SMART_WINDOW = "open_smart_window"
 UITOUR_BUTTON_PIN_TO_TASKBAR = "pin_to_taskbar"
@@ -175,11 +179,13 @@ UITOUR_TREATMENT_TAG_PREF_PREFIX = "browser.uitour.treatment."
 UITOUR_BUTTON_CHOICES = (
     (UITOUR_BUTTON_NEW_TAB, "Open New Tab"),
     (UITOUR_BUTTON_NEW_TAB_CUSTOMIZE, "Open New Tab - Customization Panel"),
+    (UITOUR_BUTTON_NEW_TAB_CUSTOMIZE_WIDGETS, "Open New Tab - Widgets Panel"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES, "Open Preferences"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES_GENERAL, "Open Preferences - General"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES_HOME, "Open Preferences - Home"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES_SEARCH, "Open Preferences - Search"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY, "Open Preferences - Privacy"),
+    (UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY_VPN, "Open Preferences - Privacy (VPN)"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES_AI, "Open Preferences - AI Controls"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES_EXPERIMENTAL, "Open Preferences - Experimental"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC, "Open Preferences - Sync"),
@@ -188,6 +194,7 @@ UITOUR_BUTTON_CHOICES = (
         UITOUR_BUTTON_ABOUT_PREFERENCES_MORE_FROM_MOZILLA,
         "Open Preferences - More From Mozilla",
     ),
+    (UITOUR_BUTTON_ABOUT_PREFERENCES_ABOUT, "Open Preferences - About (Firefox Updates)"),
     (UITOUR_BUTTON_PROTECTIONS_REPORT, "Open Protections Report"),
     (UITOUR_BUTTON_SMART_WINDOW, "Open Smart Window"),
     (UITOUR_BUTTON_PIN_TO_TASKBAR, "Pin to Taskbar (Windows and Mac only)"),
@@ -198,16 +205,19 @@ UITOUR_BUTTON_CHOICES = (
 UI_TOUR_CLASSES = {
     UITOUR_BUTTON_NEW_TAB: "ui-tour-open-new-tab",
     UITOUR_BUTTON_NEW_TAB_CUSTOMIZE: "ui-tour-open-new-tab-customize",
+    UITOUR_BUTTON_NEW_TAB_CUSTOMIZE_WIDGETS: "ui-tour-open-new-tab-customize-widgets",
     UITOUR_BUTTON_ABOUT_PREFERENCES: "ui-tour-open-about-preferences",
     UITOUR_BUTTON_ABOUT_PREFERENCES_GENERAL: "ui-tour-open-about-preferences-general",
     UITOUR_BUTTON_ABOUT_PREFERENCES_HOME: "ui-tour-open-about-preferences-home",
     UITOUR_BUTTON_ABOUT_PREFERENCES_SEARCH: "ui-tour-open-about-preferences-search",
     UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY: "ui-tour-open-about-preferences-privacy",
+    UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY_VPN: "ui-tour-open-about-preferences-privacy-vpn",
     UITOUR_BUTTON_ABOUT_PREFERENCES_AI: "ui-tour-open-about-preferences-ai",
     UITOUR_BUTTON_ABOUT_PREFERENCES_EXPERIMENTAL: "ui-tour-open-about-preferences-experimental",
     UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC: "ui-tour-open-about-preferences-sync",
     UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC_IMPORT_BROWSER_DATA: "ui-tour-open-about-preferences-sync-importBrowserData",
     UITOUR_BUTTON_ABOUT_PREFERENCES_MORE_FROM_MOZILLA: "ui-tour-open-about-preferences-moreFromMozilla",
+    UITOUR_BUTTON_ABOUT_PREFERENCES_ABOUT: "ui-tour-open-about-preferences-about",
     UITOUR_BUTTON_PROTECTIONS_REPORT: "ui-tour-open-protections-report",
     UITOUR_BUTTON_SMART_WINDOW: "ui-tour-open-smart-window",
     UITOUR_BUTTON_PIN_TO_TASKBAR: "ui-tour-pin-to-taskbar",
@@ -289,6 +299,28 @@ def icon_display_label(stem: str) -> str:
     """
     css_name = icon_css_name(stem)
     return _ICON_LABEL_OVERRIDES.get(css_name) or css_name.replace("-", " ").title()
+
+
+class QRCodeURLBlock(blocks.CharBlock):
+    def __init__(self, required=True, help_text=QR_CODE_URL_HELP_TEXT, **kwargs):
+        kwargs.setdefault("label", QR_CODE_URL_LABEL)
+        super().__init__(required=required, help_text=help_text, validators=[validate_qr_code_url], **kwargs)
+
+    def clean(self, value):
+        return super().clean(normalize_qr_code_url(value))
+
+
+class OverridableQRCodeURLBlock(blocks.URLBlock):
+    """A QR Code URL field that stays a URLBlock, so each locale overrides it instead of translating it."""
+
+    def __init__(self, required=True, help_text=QR_CODE_URL_HELP_TEXT, **kwargs):
+        kwargs.setdefault("label", QR_CODE_URL_LABEL)
+        super().__init__(required=required, help_text=help_text, **kwargs)
+        # Django's URLField would add http:// itself and reject tel: and mailto: links.
+        self.field = forms.CharField(required=required, help_text=help_text, validators=[validate_qr_code_url])
+
+    def clean(self, value):
+        return super().clean(normalize_qr_code_url(value))
 
 
 class UntranslatableCharBlock(blocks.CharBlock):
@@ -1029,7 +1061,7 @@ def SetAsDefaultButtonBlock(themes=BUTTON_THEMES, **kwargs):
 def QRCodeModalButtonBlock(themes=BUTTON_THEMES, **kwargs):
     class _QRCodeModalButtonBlock(LabelSourceMixin, blocks.StructBlock):
         settings = BaseButtonSettings(themes=themes)
-        url = blocks.URLBlock(label="QR Code URL", help_text="URL to encode as a QR code")
+        url = OverridableQRCodeURLBlock()
         heading = blocks.CharBlock(label="Modal heading")
         content = blocks.CharBlock(label="Modal caption", required=False)
 
@@ -1466,9 +1498,9 @@ class ComparisonTableBlock(blocks.StructBlock):
 # comparison table above takes.
 
 COMPARISON_RESULT_CHOICES = (
-    ("yes", "Yes"),
-    ("no", "No"),
-    ("limited", "Limited"),
+    ("yes", ftl_lazy("browser-comparison-result-yes", ftl_files=["cms/browser-comparison"])),
+    ("no", ftl_lazy("browser-comparison-result-no", ftl_files=["cms/browser-comparison"])),
+    ("limited", ftl_lazy("browser-comparison-result-limited", ftl_files=["cms/browser-comparison"])),
 )
 
 COMPARISON_RESULT_ICONS = {
@@ -1763,7 +1795,7 @@ def AnimationBlock(required=True, *args, **kwargs):
 
 
 class QRCodeBlock(blocks.StructBlock):
-    data = blocks.CharBlock(label="QR Code Data", help_text="The URL or text encoded in the QR code.")
+    data = QRCodeURLBlock()
     background = ImageChooserBlock(
         required=False,
         help_text="This QR Code background should be 1200x675, expecting a 300px square directly in the center. "
@@ -1828,6 +1860,7 @@ class SharingLinksBlock(blocks.StructBlock):
     copy_label = blocks.CharBlock(default="Copy link", label="Share this button label", help_text="Label for the button that copies the link.")
     copy_success_label = blocks.CharBlock(default="Link copied!", help_text="Label shown briefly after the link is copied.")
     url = blocks.URLBlock(label="Share this URL", help_text="The link that is copied, emailed and encoded in the QR code.")
+    show_url = blocks.BooleanBlock(required=False, default=True, label="Show URL", help_text="Show the URL as a link above the buttons.")
     email_label = blocks.CharBlock(
         default="Share by email",
         help_text="Read by screen readers for the email button, which only shows an icon.",
@@ -1858,7 +1891,7 @@ class SharingLinksBlock(blocks.StructBlock):
         template = "cms/blocks/sharing-links.html"
         form_layout = blocks.BlockGroup(
             children=["copy_label", "url", "email_subject", "email_body", "qr_heading", "qr_text"],
-            settings=["copy_success_label", "email_label", "qr_label", "analytics_id"],
+            settings=["show_url", "copy_success_label", "email_label", "qr_label", "analytics_id"],
         )
 
 
@@ -3188,6 +3221,7 @@ def SectionBlock(allow_uitour=False, require_heading=True, *args, **kwargs):
                     "media_content",
                     MediaContentBlock(allow_uitour=allow_uitour),
                 ),
+                ("form_content", FormContentBlock()),
                 ("cards_list", CardsListBlock(allow_uitour=allow_uitour)),
                 ("step_cards", StepCardListBlock(allow_uitour=allow_uitour)),
                 ("article_cards_list", ArticleCardsListBlock()),
@@ -3676,7 +3710,7 @@ def HomeKitBannerBlock(allow_uitour=False, *args, **kwargs):
     class _HomeKitBannerBlock(blocks.StructBlock):
         settings = HomeKitBannerSettings()
         heading = HeadingBlock()
-        qr_code = blocks.CharBlock(required=False, help_text="QR Code Data or URL.")
+        qr_code = QRCodeURLBlock(required=False)
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
             min_num=0,
@@ -3701,10 +3735,7 @@ class MobileStoreQRCodeBlock(RequireAltTextMixin, blocks.StructBlock):
     alt_text_fields = ("mobile_image",)
 
     heading = HeadingBlock()
-    qr_code_data = blocks.CharBlock(
-        label="QR Code Data",
-        help_text="The URL or text encoded in the QR code.",
-    )
+    qr_code_data = QRCodeURLBlock()
     mobile_image = ImageChooserBlock(
         label="Mobile Image",
         help_text="Image shown on mobile instead of the QR code.",
@@ -4242,6 +4273,15 @@ class ContactFormBlock(blocks.StructBlock):
             return "The selected contact page has no public URL."
         return None
 
+    def get_shown_contact_page(self, value):
+        """The chosen contact page in the active locale, or None when its form may not be shown."""
+        contact_page = value.get("contact_page")
+        if contact_page:
+            contact_page = contact_page.localized
+            if not self.contact_page_is_invalid(contact_page):
+                return contact_page
+        return None
+
     def clean(self, value):
         cleaned = super().clean(value)
         contact_page = cleaned["contact_page"]
@@ -4255,12 +4295,8 @@ class ContactFormBlock(blocks.StructBlock):
         # Set on every render so a `form_url` from the parent context never leaks in.
         context["form_url"] = None
         request = context.get("request")
-        contact_page = value.get("contact_page")
+        contact_page = self.get_shown_contact_page(value)
         if not (request and contact_page):
-            return context
-
-        contact_page = contact_page.localized
-        if self.contact_page_is_invalid(contact_page):
             return context
 
         request.needs_htmx = True
@@ -4276,6 +4312,55 @@ class ContactFormBlock(blocks.StructBlock):
         else:
             params.pop("two_column", None)
         context["form_url"] = f"{contact_page.url}?{params.urlencode()}"
+        return context
+
+
+class FormContentBlock(blocks.StructBlock):
+    """A contact page's form beside a heading and content. On mobile the form always follows the content."""
+
+    form_before = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        label="Form Before",
+        help_text="Place the form before the text content on desktop. On mobile the form always comes after the content.",
+    )
+    show_to = ConditionalDisplayBlock(
+        label="Show To",
+        help_text="Control which users can see this content block",
+    )
+    form = ContactFormBlock()
+    heading = HeadingBlock(required=False)
+    content = blocks.StreamBlock(
+        [
+            ("tags", TagsBlock(min_num=0, max_num=3, default=[])),
+            ("rich_text", RichTextBlock(features=EXPANDED_TEXT_FEATURES, template="cms/blocks/rich_text_block_body.html")),
+            (
+                "buttons",
+                MixedButtonsBlock(
+                    button_types=get_button_types(allow_uitour=True),
+                    min_num=0,
+                    max_num=2,
+                    required=False,
+                ),
+            ),
+            ("sharing_links", SharingLinksBlock()),
+        ]
+    )
+
+    class Meta:
+        icon = "form"
+        label = "Form + Content"
+        label_format = "{heading}"
+        template = "cms/blocks/form-content.html"
+        form_layout = blocks.BlockGroup(
+            children=["form", "heading", "content"],
+            settings=["form_before", "show_to"],
+        )
+
+    def get_context(self, value, parent_context=None):
+        context = super().get_context(value, parent_context=parent_context)
+        # The block is built around its form, so it is hidden entirely when the form can't be shown.
+        context["form_is_shown"] = self.child_blocks["form"].get_shown_contact_page(value["form"]) is not None
         return context
 
 

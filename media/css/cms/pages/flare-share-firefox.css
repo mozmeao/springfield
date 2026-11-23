@@ -13,7 +13,7 @@
         background: var(--token-color-purple);
         border-radius: var(--token-border-radius-xl);
         gap: 0;
-        margin-block: var(--token-spacing-lg) var(--fl-section-v-padding);
+        margin-block: var(--token-layout-xs) var(--fl-section-v-padding);
         max-inline-size: calc(100% - var(--token-spacing-lg) * 2);
         padding: var(--token-layout-sm) var(--token-spacing-lg);
     }

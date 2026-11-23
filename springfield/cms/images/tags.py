@@ -17,9 +17,9 @@ from taggit.models import Tag, TaggedItem
 from wagtail.admin.ui.tables import BaseColumn
 from wagtail.admin.views.generic import DeleteView, IndexView
 from wagtail.admin.viewsets.model import ModelViewSet
-from wagtail.images.permissions import permission_policy as image_permission_policy
 from wagtail.models import Collection
 from wagtail.permission_policies.base import BasePermissionPolicy
+from wagtail.permissions import policy_registry, register_permission_policy
 from wagtail.search import index as search_index
 
 from springfield.cms.images.views import InlineFieldColumn, InlineSaveColumn
@@ -32,6 +32,7 @@ def user_can_change_every_image(user):
     # An image nobody owns, because the policy lets users who can only add images change the
     # ones they uploaded.
     unowned_root_image = SpringfieldImage(collection=Collection.get_first_root_node())
+    image_permission_policy = policy_registry.get_by_type(SpringfieldImage)
     return image_permission_policy.user_has_permission_for_instance(user, "change", unowned_root_image)
 
 
@@ -41,6 +42,10 @@ class ImageTagPermissionPolicy(BasePermissionPolicy):
 
     def user_has_permission(self, user, action):
         return action in ("change", "delete") and user_can_change_every_image(user)
+
+
+image_tag_permission_policy = ImageTagPermissionPolicy(Tag)
+register_permission_policy(Tag, image_tag_permission_policy)
 
 
 def get_image_tags():
@@ -172,7 +177,7 @@ class ImageTagViewSet(ModelViewSet):
     icon = "tag"
     menu_label = gettext_lazy("Image tags")
     add_to_settings_menu = True
-    permission_policy = ImageTagPermissionPolicy(Tag)
+    permission_policy = image_tag_permission_policy
     form_fields = ["name"]
     copy_view_enabled = False
     index_view_class = ImageTagIndexView

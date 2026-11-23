@@ -1,0 +1,3 @@
+The `intro` component opens a page or section: superheading, heading, subheading, tags, body, buttons and optional media — an image, video, animation or QR code. It's the Intro block on free-form, article theme, roadmap, contact, referral hub and share pages.
+
+Editors choose a **layout**: vertical centers everything with the media after the text, while left or right puts the media beside it. **slim** tightens the spacing and **full_width** uses all the horizontal space. Set **anchor_id** whenever the intro is linked from elsewhere. Media above the text in the vertical layout is template-only; the block doesn't offer it.

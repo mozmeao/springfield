@@ -11,7 +11,7 @@
 {% block body_class %}fl-share-firefox-page{% endblock %}
 
 {% block flare_header %}
-  {% with hide_nav_download_button=True, theme="dark" %}
+  {% with hide_nav_download_button=not page.show_nav_cta, theme="dark" %}
     {% include 'cms/includes/site-header.html' %}
   {% endwith %}
 {% endblock %}
@@ -54,4 +54,8 @@
 </div>
 {% endblock %}
 
-{% block pre_footer %}{% endblock %}
+{% block pre_footer %}
+  {% if page.show_pre_footer %}
+    {{ super() }}
+  {% endif %}
+{% endblock pre_footer %}

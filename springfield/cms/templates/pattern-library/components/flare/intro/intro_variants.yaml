@@ -10,7 +10,6 @@ context:
         superheading_text: Superheading
         subheading_text: Subheading
         alignment_class: text-center
-        subheading_size: 3
       tags:
         - text: Privacy
           color: purple
@@ -47,7 +46,6 @@ context:
         superheading_text: Superheading
         subheading_text: Subheading
         alignment_class: text-center
-        subheading_size: 3
       tags:
         - text: Featured
           color: orange
@@ -77,7 +75,6 @@ context:
         superheading_text: Superheading
         subheading_text: Subheading
         alignment_class: text-center
-        subheading_size: 3
       tags:
         - text: Privacy
           color: purple
@@ -110,7 +107,6 @@ context:
         superheading_text: Superheading
         subheading_text: Subheading
         alignment_class: text-start
-        subheading_size: 3
       tags:
         - text: Privacy
           color: purple
@@ -146,7 +142,6 @@ context:
         superheading_text: Superheading
         subheading_text: Subheading
         alignment_class: text-start
-        subheading_size: 3
       tags:
         - text: Featured
           color: orange
@@ -178,7 +173,6 @@ context:
         superheading_text: Superheading
         subheading_text: Subheading
         alignment_class: text-center
-        subheading_size: 3
       tags:
         - text: Video
           color: blue

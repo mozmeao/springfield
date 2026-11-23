@@ -38,7 +38,7 @@ def assert_floating_qr_snippet_rendered(soup, open=True, svg=True):
     aside = _get_floating_qr_aside(soup)
     assert aside, "Floating QR code snippet <aside> should be rendered"
     assert "js-qr-code-floating-snippet" in aside.get("class", []), "Floating QR code snippet JS class should be applied"
-    assert "Get Firefox on your phone" in aside.get_text()
+    assert "Floating QR code snippet" in aside.get_text()
     assert aside.has_attr("data-open-behavior"), "Aside should carry the resolved open behavior for the JS"
     assert aside.has_attr("data-open-delay"), "Aside should carry the resolved open delay for the JS"
     button = aside.find("button", class_="fl-qr-code-floating-button")

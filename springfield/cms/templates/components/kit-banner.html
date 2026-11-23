@@ -20,7 +20,7 @@
     >
     {% if qr_code and qr_code.strip() %}
       <div class="fl-banner-kit-qr" role="img" aria-label="QR Code">
-        {{ qrcode(qr_code, 12) }}
+        {{ qrcode_rounded_svg(qr_code, 12) }}
       </div>
     {% endif %}
     <div class="fl-banner-content">

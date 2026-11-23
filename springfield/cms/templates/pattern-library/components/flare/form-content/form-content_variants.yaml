@@ -1,0 +1,81 @@
+name: "Form Content variants"
+context:
+  variants:
+    - title: Form Content (Form After)
+      testid: "form-content-form-after"
+      form_before: false
+      two_column: false
+      heading:
+        level: h3
+        superheading_text: Eyebrow
+        heading_text: Form Content with Form After
+      body: By default the form comes after the content on every screen size.
+      buttons:
+        - label: Learn More
+          link: testurl
+          external: false
+          icon_name: forward
+          icon_position: right
+      fields:
+        - {type: text, name: first-name, label: First name, required: true}
+        - {type: text, name: last-name, label: Last name, required: true}
+        - {type: email, name: email, label: Business email, required: true}
+        - {type: select, name: country, label: Country or region, required: true, options: [Canada, Mexico, United States]}
+        - type: fieldset
+          name: enquiry
+          legend: Your enquiry
+          help_text: Tell us how we can help.
+          fields:
+            - {type: textarea, name: message, label: Message}
+        - {type: checkbox, name: consent, label: I agree to be contacted about my enquiry, required: true}
+
+    - title: Form Content (Form Before)
+      testid: "form-content-form-before"
+      form_before: true
+      two_column: false
+      heading:
+        level: h3
+        superheading_text: Eyebrow
+        heading_text: Form Content with Form First
+      body: The form sits before the content on desktop. On mobile it always comes after the content.
+      fields:
+        - type: fieldset
+          name: organization
+          legend: Your organization
+          help_text: Tell us where you work.
+          fields:
+            - {type: text, name: company, label: Company, required: true}
+            - {type: text, name: job-title, label: Job title}
+        - {type: text, name: full-name, label: Full name, required: true}
+        - {type: email, name: email, label: Business email, required: true}
+        - {type: tel, name: phone, label: Phone number}
+        - {type: checkbox_group, name: products, label: "Products you're interested in", options: [Firefox, Firefox for Enterprise, Mozilla VPN]}
+
+    - title: Form Content (Two Column Form)
+      testid: "form-content-two-column-form"
+      form_before: false
+      two_column: true
+      heading:
+        level: h3
+        heading_text: Form Content with a Two Column Form
+      body: The form fields are laid out in two columns on large screens.
+      fields:
+        - type: fieldset
+          name: organization
+          legend: Your organization
+          help_text: Tell us where you work.
+          fields:
+            - {type: text, name: company, label: Company, required: true}
+            - {type: select, name: company-size, label: Company size, options: [1-50, 51-500, 500+]}
+        - {type: text, name: first-name, label: First name, required: true}
+        - {type: text, name: last-name, label: Last name, required: true}
+        - {type: email, name: email, label: Business email, required: true}
+        - {type: tel, name: phone, label: Phone number}
+        - type: fieldset
+          name: enquiry
+          legend: Your enquiry
+          help_text: Tell us what you need so we can route it to the right team.
+          fields:
+            - {type: checkbox_group, name: products, label: "Products you're interested in", required: true, options: [Firefox, Firefox for Enterprise, Mozilla VPN]}
+            - {type: textarea, name: message, label: Message}
+        - {type: checkbox, name: newsletter, label: Send me product news}

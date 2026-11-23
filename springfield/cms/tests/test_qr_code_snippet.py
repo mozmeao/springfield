@@ -27,7 +27,7 @@ def assert_qr_snippet_rendered(soup, show_close_button=True):
     assert aside, "QR code snippet <aside> should be rendered"
     assert "js-qr-code-snippet" in aside.get("class", []), "QR code snippet JS class should be applied"
     assert aside.find("div", class_="fl-qr-code-snippet-kit"), "QR code SVG wrapper should be rendered"
-    assert "Get Firefox on your phone" in aside.get_text()
+    assert "scan to get Firefox on your phone" in aside.get_text()
     if show_close_button:
         assert aside.find("button", class_="fl-qr-code-snippet-close"), "Close button should be rendered when closable=True"
     else:

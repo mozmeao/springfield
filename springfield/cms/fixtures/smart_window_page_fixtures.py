@@ -17,9 +17,9 @@ def get_smart_window_sliding_carousel() -> dict:
             "type": "item",
             "value": {
                 "heading": heading_value(
-                    heading_text="Lorem ipsum dolor sit amet",
-                    superheading_text="Lorem",
-                    subheading_text="Consectetur adipiscing elit, sed do eiusmod tempor.",
+                    heading_text="Each slide pairs a heading with an animation",
+                    superheading_text="Sliding carousel",
+                    subheading_text="Use the arrows or swipe to move between slides.",
                     block_key="swph",
                 ),
                 "media": [animation_block(poster_image_id=img, block_id="swpsc01-0000-0000-0000-000000000010", show_pause_button=True)],
@@ -30,9 +30,9 @@ def get_smart_window_sliding_carousel() -> dict:
             "type": "item",
             "value": {
                 "heading": heading_value(
-                    heading_text="Sed do eiusmod tempor incididunt",
-                    superheading_text="Ipsum",
-                    subheading_text="Ut labore et dolore magna aliqua.",
+                    heading_text="Animations loop until the visitor pauses",
+                    superheading_text="Autoplay",
+                    subheading_text="Each slide shows a pause button over the animation.",
                     block_key="swph",
                 ),
                 "media": [animation_block(poster_image_id=dark, block_id="swpsc01-0000-0000-0000-000000000020", show_pause_button=True)],
@@ -43,9 +43,9 @@ def get_smart_window_sliding_carousel() -> dict:
             "type": "item",
             "value": {
                 "heading": heading_value(
-                    heading_text="Quis nostrud exercitation ullamco",
-                    superheading_text="Dolor",
-                    subheading_text="Duis aute irure dolor in reprehenderit.",
+                    heading_text="Posters can alternate light and dark",
+                    superheading_text="Dark mode",
+                    subheading_text="This slide uses the dark-mode placeholder image.",
                     block_key="swph",
                 ),
                 "media": [animation_block(poster_image_id=img, block_id="swpsc01-0000-0000-0000-000000000030", show_pause_button=True)],
@@ -56,9 +56,9 @@ def get_smart_window_sliding_carousel() -> dict:
             "type": "item",
             "value": {
                 "heading": heading_value(
-                    heading_text="Ut enim ad minim veniam",
-                    superheading_text="Amet",
-                    subheading_text="Excepteur sint occaecat cupidatat non proident.",
+                    heading_text="Keep slide headings short",
+                    superheading_text="Rhythm",
+                    subheading_text="Long headings crowd the animation beside them.",
                     block_key="swph",
                 ),
                 "media": [animation_block(poster_image_id=dark, block_id="swpsc01-0000-0000-0000-000000000040", show_pause_button=True)],
@@ -69,9 +69,9 @@ def get_smart_window_sliding_carousel() -> dict:
             "type": "item",
             "value": {
                 "heading": heading_value(
-                    heading_text="Sunt in culpa qui officia deserunt",
-                    superheading_text="Sit",
-                    subheading_text="Mollit anim id est laborum.",
+                    heading_text="End on the strongest capability",
+                    superheading_text="Wrap up",
+                    subheading_text="The last slide is the one visitors remember.",
                     block_key="swph",
                 ),
                 "media": [animation_block(poster_image_id=img, block_id="swpsc01-0000-0000-0000-000000000050", show_pause_button=True)],
@@ -102,10 +102,10 @@ def get_smart_window_line_cards() -> dict:
                 {
                     "type": "item",
                     "value": {
-                        "superheading": '<p data-block-key="swplc1s">Lorem</p>',
-                        "headline": '<p data-block-key="swplc1h">Lorem ipsum dolor sit amet</p>',
-                        "content": '<p data-block-key="swplc1c">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod '
-                        "tempor incididunt ut labore.</p>",
+                        "superheading": '<p data-block-key="swplc1s">Line cards</p>',
+                        "headline": '<p data-block-key="swplc1h">A compact row of headline-and-text cards</p>',
+                        "content": '<p data-block-key="swplc1c">Line Cards suit short, parallel points that do not need an image — '
+                        "two or three reads best.</p>",
                         "buttons": [],
                     },
                     "id": "swplc01-0000-0000-0000-000000000001",
@@ -113,10 +113,9 @@ def get_smart_window_line_cards() -> dict:
                 {
                     "type": "item",
                     "value": {
-                        "superheading": '<p data-block-key="swplc2s">Ipsum</p>',
-                        "headline": '<p data-block-key="swplc2h">Consectetur adipiscing elit</p>',
-                        "content": '<p data-block-key="swplc2c">Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi '
-                        "ut aliquip.</p>",
+                        "superheading": '<p data-block-key="swplc2s">Keep it brief</p>',
+                        "headline": '<p data-block-key="swplc2h">One idea per card</p>',
+                        "content": '<p data-block-key="swplc2c">Give each card a single takeaway so the row stays scannable at a glance.</p>',
                         "buttons": [],
                     },
                     "id": "swplc01-0000-0000-0000-000000000002",
@@ -146,15 +145,15 @@ def get_smart_window_illustration_cards() -> dict:
                     {
                         "type": "heading",
                         "value": {
-                            "superheading_text": '<p data-block-key="swpic1e">Lorem</p>',
-                            "heading_text": '<p data-block-key="swpic1h">Lorem ipsum dolor sit amet</p>',
+                            "superheading_text": '<p data-block-key="swpic1e">Illustration cards</p>',
+                            "heading_text": '<p data-block-key="swpic1h">Cards can lead with an animation</p>',
                             "subheading_text": "",
                         },
                         "id": "swpic01-0000-0000-0000-000000000013",
                     },
                     {
                         "type": "content",
-                        "value": '<p data-block-key="swpic1c">Consectetur adipiscing elit.</p>',
+                        "value": '<p data-block-key="swpic1c">The media area sits above the heading and body copy.</p>',
                         "id": "swpic01-0000-0000-0000-000000000014",
                     },
                 ],
@@ -176,15 +175,15 @@ def get_smart_window_illustration_cards() -> dict:
                     {
                         "type": "heading",
                         "value": {
-                            "superheading_text": '<p data-block-key="swpic2e">Ipsum</p>',
-                            "heading_text": '<p data-block-key="swpic2h">Sed do eiusmod tempor incididunt</p>',
+                            "superheading_text": '<p data-block-key="swpic2e">Consistent media</p>',
+                            "heading_text": '<p data-block-key="swpic2h">Give every card the same media type</p>',
                             "subheading_text": "",
                         },
                         "id": "swpic01-0000-0000-0000-000000000023",
                     },
                     {
                         "type": "content",
-                        "value": '<p data-block-key="swpic2c">Ut labore et dolore magna aliqua ut enim ad minim veniam.</p>',
+                        "value": '<p data-block-key="swpic2c">Mixing images and animations across a row makes the cards look uneven.</p>',
                         "id": "swpic01-0000-0000-0000-000000000024",
                     },
                 ],
@@ -206,15 +205,15 @@ def get_smart_window_illustration_cards() -> dict:
                     {
                         "type": "heading",
                         "value": {
-                            "superheading_text": '<p data-block-key="swpic3e">Dolor</p>',
-                            "heading_text": '<p data-block-key="swpic3h">Quis nostrud exercitation ullamco</p>',
+                            "superheading_text": '<p data-block-key="swpic3e">Three across</p>',
+                            "heading_text": '<p data-block-key="swpic3h">Three cards fit a row comfortably</p>',
                             "subheading_text": "",
                         },
                         "id": "swpic01-0000-0000-0000-000000000033",
                     },
                     {
                         "type": "content",
-                        "value": '<p data-block-key="swpic3c">Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore.</p>',
+                        "value": '<p data-block-key="swpic3c">On narrow screens the cards stack into a single column automatically.</p>',
                         "id": "swpic01-0000-0000-0000-000000000034",
                     },
                 ],
@@ -245,45 +244,45 @@ def get_smart_window_testimonial_cards() -> dict:
     cards = [
         testimonial_card(
             block_id="swptc01-0000-0000-0000-000000000001",
-            content='<p data-block-key="swptc1c">Lorem ipsum dolor sit amet, consectetur adipiscing elit,'
-            " sed do eiusmod tempor incididunt ut labore et dolore.</p>",
+            content='<p data-block-key="swptc1c">A testimonial card holds a short quote, a name, an optional role, '
+            "and an optional portrait. Keep the quote to a sentence or two.</p>",
             attribution='<p data-block-key="swptc1a">Layla Hassan</p>',
             attribution_role='<p data-block-key="swptc1r">Product Designer</p>',
             attribution_image=_image,
         ),
         testimonial_card(
             block_id="swptc01-0000-0000-0000-000000000002",
-            content='<p data-block-key="swptc2c">Ut enim ad minim veniam, quis nostrud exercitation '
-            "ullamco laboris nisi ut aliquip ex ea commodo.</p>",
+            content='<p data-block-key="swptc2c">This card has no portrait, so it falls back to showing just the quote '
+            "and attribution. Cards in one row can mix the two.</p>",
             attribution='<p data-block-key="swptc2a">Marcus Osei</p>',
             attribution_role='<p data-block-key="swptc2r">Software Engineer</p>',
             attribution_image=_no_image,
         ),
         testimonial_card(
             block_id="swptc01-0000-0000-0000-000000000003",
-            content='<p data-block-key="swptc3c">Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat.</p>',
+            content='<p data-block-key="swptc3c">The scrolling row holds more cards than fit on screen; visitors swipe to see the rest.</p>',
             attribution='<p data-block-key="swptc3a">Priya Nair</p>',
             attribution_role='<p data-block-key="swptc3r">Journalist</p>',
             attribution_image=_image,
         ),
         testimonial_card(
             block_id="swptc01-0000-0000-0000-000000000004",
-            content='<p data-block-key="swptc4c">Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim.</p>',
+            content='<p data-block-key="swptc4c">The role line is optional too. Leave it blank when the person&rsquo;s name '
+            "is enough on its own.</p>",
             attribution='<p data-block-key="swptc4a">Tom Reyes</p>',
             attribution_role="",
             attribution_image=_no_image,
         ),
         testimonial_card(
             block_id="swptc01-0000-0000-0000-000000000005",
-            content='<p data-block-key="swptc5c">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>',
+            content='<p data-block-key="swptc5c">Short quotes keep the cards the same height and the row tidy.</p>',
             attribution='<p data-block-key="swptc5a">Yuki Tanaka</p>',
             attribution_role='<p data-block-key="swptc5r">UX Researcher</p>',
             attribution_image=_image,
         ),
         testimonial_card(
             block_id="swptc01-0000-0000-0000-000000000006",
-            content='<p data-block-key="swptc6c">Sed ut perspiciatis unde omnis iste natus error sit '
-            "voluptatem accusantium doloremque laudantium.</p>",
+            content='<p data-block-key="swptc6c">Aim for a handful of real quotes rather than a long list of weak ones.</p>',
             attribution='<p data-block-key="swptc6a">Ana Ferreira</p>',
             attribution_role='<p data-block-key="swptc6r">Student</p>',
             attribution_image=_no_image,
@@ -303,12 +302,12 @@ def get_smart_window_page_content() -> list[dict]:
     return [
         get_smart_window_sliding_carousel(),
         section(
-            heading_text="Lorem ipsum dolor sit amet",
+            heading_text="Sections group the blocks below a heading",
             content_blocks=[get_smart_window_line_cards()],
             section_id="swpsec1-0000-0000-0000-000000000001",
         ),
         section(
-            heading_text="Consectetur adipiscing elit",
+            heading_text="A second section, this one holding cards",
             content_blocks=[get_smart_window_illustration_cards()],
             section_id="swpsec2-0000-0000-0000-000000000001",
         ),
@@ -328,20 +327,24 @@ def get_smart_window_test_page() -> SmartWindowPage:
         parent=index_page,
         defaults={
             "title": "Smart Window Page",
-            "heading_text": '<p data-block-key="swph">Lorem ipsum dolor sit amet</p>',
-            "subheading_text": '<p data-block-key="swps">Consectetur adipiscing elit, sed do eiusmod tempor incididunt.</p>',
+            "heading_text": '<p data-block-key="swph">Meet the Firefox Smart Window</p>',
+            "subheading_text": '<p data-block-key="swps">The hero heading, subheading and animation at the top are page fields, '
+            "not blocks — the stream below fills in the rest of the page.</p>",
             "image": image,
             "image_alt": "A numbered grid, standing in for a real image",
         },
     )
 
-    page.heading_text = '<p data-block-key="swph">Lorem ipsum dolor sit amet</p>'
-    page.subheading_text = '<p data-block-key="swps">Consectetur adipiscing elit, sed do eiusmod tempor incididunt.</p>'
+    page.heading_text = '<p data-block-key="swph">Meet the Firefox Smart Window</p>'
+    page.subheading_text = (
+        '<p data-block-key="swps">The hero heading, subheading and animation at the top are page fields, '
+        "not blocks — the stream below fills in the rest of the page.</p>"
+    )
     page.image = image
     page.image_alt = "A numbered grid, standing in for a real image"
     page.image_dark_mode = dark_image
     page.animation = ANIMATION_URL
-    page.animation_alt = "Lorem ipsum animation."
+    page.animation_alt = "A looping placeholder animation."
     page.show_smart_window_button = "allowed_territories"
     page.redirect_page = explainer_page
     page.content = get_smart_window_page_content()

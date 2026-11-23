@@ -1,6 +1,5 @@
 name: "Card - Pictogram"
 context:
-  grid_four: true
   cards:
     - pictogram: "/media/img/firefox/flare/ai-sticker.png"
       expand_link: false
