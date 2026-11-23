@@ -85,9 +85,9 @@ from springfield.cms.blocks import (
     UntranslatableCharBlock,
     UUIDBlock,
     VideoModalButtonBlock,
+    get_youtube_video_id,
     icon_display_label,
     validate_youtube_url,
-    youtube_video_id,
 )
 from springfield.cms.fixtures.article_page_fixtures import (
     get_article_pages,
@@ -701,9 +701,7 @@ def assert_video_attributes(video_element: BeautifulSoup, video_data: dict):
     alt = video_data["value"]["alt"]
     poster = video_data["value"]["poster"]
 
-    youtube_id = None
-    if "youtube.com" in video_url or "youtu.be" in video_url:
-        youtube_id = youtube_video_id(video_url) or video_url.split("watch?v=")[-1].split("youtu.be/")[-1].split("&")[0].split("?")[0]
+    youtube_id = get_youtube_video_id(video_url)
 
     button = video_element.find("button", class_="fl-video-play")
     assert button and button["aria-label"] == alt
@@ -7270,12 +7268,13 @@ def test_sharing_links_block(index_page, rf):
         ("https://m.youtube.com/watch?v=aqz-KE-bpKQ", "aqz-KE-bpKQ"),
         ("https://www.youtube.com/@firefox", None),
         ("https://www.youtube.com/watch", None),
+        ("https://www.youtube.com/watch?v=../../evil", None),
         ("https://example.com/watch?v=aqz-KE-bpKQ", None),
         ("", None),
     ],
 )
-def test_youtube_video_id(url, expected):
-    assert youtube_video_id(url) == expected
+def test_get_youtube_video_id(url, expected):
+    assert get_youtube_video_id(url) == expected
 
 
 def test_validate_youtube_url_rejects_non_video_urls():

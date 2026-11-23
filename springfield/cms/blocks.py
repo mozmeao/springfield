@@ -277,33 +277,45 @@ def validate_video_url(value):
     return value
 
 
-def youtube_video_id(url):
-    """Return the video ID from a YouTube watch, youtu.be, shorts or embed URL, or None."""
+YOUTUBE_VIDEO_ID_PATTERN = re.compile(r"^[A-Za-z0-9_-]+$")
+
+
+def get_youtube_video_id(url):
+    """Return the video ID from a YouTube watch, youtu.be, shorts or embed URL, or None.
+
+    Only IDs made of the characters YouTube uses are returned, so one is safe to put in a URL or file name.
+    """
     parsed = urlparse(url or "")
     host = parsed.netloc.lower().removeprefix("www.").removeprefix("m.")
+    video_id = None
     if host == "youtu.be":
-        return parsed.path.strip("/").split("/")[0] or None
-    if host in ("youtube.com", "youtube-nocookie.com"):
-        if parsed.path == "/watch":
-            return QueryDict(parsed.query).get("v") or None
+        video_id = parsed.path.strip("/").split("/")[0]
+    elif host in ("youtube.com", "youtube-nocookie.com"):
         path_segments = parsed.path.strip("/").split("/")
-        if len(path_segments) >= 2 and path_segments[0] in ("shorts", "embed") and path_segments[1]:
-            return path_segments[1]
-    return None
+        if parsed.path == "/watch":
+            video_id = QueryDict(parsed.query).get("v")
+        elif len(path_segments) >= 2 and path_segments[0] in ("shorts", "embed"):
+            video_id = path_segments[1]
+    return video_id if video_id and YOUTUBE_VIDEO_ID_PATTERN.match(video_id) else None
+
+
+YOUTUBE_HOSTS = ("youtube.com", "youtu.be", "youtube-nocookie.com")
+
+
+def is_youtube_url(url):
+    return any(host in url for host in YOUTUBE_HOSTS)
 
 
 def validate_youtube_url(value):
-    if value and not youtube_video_id(value):
+    if value and not get_youtube_video_id(value):
         raise ValidationError("Please provide a YouTube video URL, e.g. https://www.youtube.com/watch?v=VIDEO_ID.")
     return value
 
 
 YOUTUBE_THUMBNAIL_COLLECTION_NAME = "YouTube Thumbnails"
 YOUTUBE_THUMBNAIL_SIZES = ("maxresdefault", "hqdefault")
-# Named like the blog importer's downloads, so either one recognises the other's thumbnails.
-# Django's storage adds "_" and 7 characters when the name is taken.
+# Thumbnails are stored as "<video id>-<size>.jpg"; Django's storage adds "_" and 7 characters when the name is taken.
 YOUTUBE_THUMBNAIL_FILENAME_PATTERN = re.compile(r"^(?P<video_id>[A-Za-z0-9_-]+)-(?:maxresdefault|hqdefault)(?:_[A-Za-z0-9]{7})?\.jpg$")
-YOUTUBE_VIDEO_ID_CHARACTERS = re.compile(r"^[A-Za-z0-9_-]+$")
 # (connect, read) seconds, and a total for every thumbnail fetched while serving one save, because
 # the downloads run inside the editor's request and it has its own timeout.
 YOUTUBE_THUMBNAIL_TIMEOUT = (3, 5)
@@ -315,78 +327,6 @@ class YouTubeThumbnailUnavailable(Exception):
     """No thumbnail could be stored for a video. The message is written for the editor."""
 
 
-def is_youtube_url(url):
-    return "youtube.com" in url or "youtu.be" in url
-
-
-def thumbnail_video_id(video_url):
-    """The ID of the YouTube video at `video_url` when it is safe to build a thumbnail URL from, else None."""
-    video_id = youtube_video_id(video_url)
-    return video_id if video_id and YOUTUBE_VIDEO_ID_CHARACTERS.match(video_id) else None
-
-
-def youtube_thumbnail_collection():
-    """The image collection that YouTube thumbnails are stored in, created the first time it's needed."""
-    root = Collection.get_first_root_node()
-    collection = root.get_children().filter(name=YOUTUBE_THUMBNAIL_COLLECTION_NAME).first()
-    return collection or root.add_child(name=YOUTUBE_THUMBNAIL_COLLECTION_NAME)
-
-
-def youtube_thumbnail_video_id(image):
-    """The video ID a stored YouTube thumbnail belongs to, or None if `image` isn't one."""
-    if image.collection.name != YOUTUBE_THUMBNAIL_COLLECTION_NAME:
-        return None
-    match = YOUTUBE_THUMBNAIL_FILENAME_PATTERN.match(image.filename)
-    return match["video_id"] if match else None
-
-
-def youtube_thumbnail_seconds_left():
-    request = current_request.get()
-    if request is None:
-        return YOUTUBE_THUMBNAIL_BUDGET_SECONDS
-    deadline = getattr(request, YOUTUBE_THUMBNAIL_DEADLINE_ATTR, None)
-    if deadline is None:
-        deadline = time.monotonic() + YOUTUBE_THUMBNAIL_BUDGET_SECONDS
-        setattr(request, YOUTUBE_THUMBNAIL_DEADLINE_ATTR, deadline)
-    return deadline - time.monotonic()
-
-
-def youtube_thumbnail_out_of_time(url):
-    logger.warning("Out of time for YouTube thumbnails in this request, skipped %s", url)
-    return YouTubeThumbnailUnavailable("Ran out of time getting YouTube thumbnails for this page. Save again to get the rest.")
-
-
-def download_youtube_thumbnail(video_id):
-    """Fetch the widest thumbnail YouTube has for `video_id`, returning its bytes and size name.
-
-    Stops at the request's thumbnail deadline, overrunning it by at most one read timeout.
-    """
-    for size in YOUTUBE_THUMBNAIL_SIZES:
-        url = f"https://img.youtube.com/vi/{video_id}/{size}.jpg"
-        seconds_left = youtube_thumbnail_seconds_left()
-        if seconds_left <= 0:
-            raise youtube_thumbnail_out_of_time(url)
-        timeout = tuple(min(limit, seconds_left) for limit in YOUTUBE_THUMBNAIL_TIMEOUT)
-        try:
-            # Streamed, because a read timeout limits each read rather than the whole download.
-            with requests.get(url, timeout=timeout, stream=True) as response:
-                if response.status_code != 200 or not response.headers.get("Content-Type", "").startswith("image/"):
-                    logger.info("No YouTube thumbnail at %s (HTTP %s, %s)", url, response.status_code, response.headers.get("Content-Type", ""))
-                    continue
-                chunks = []
-                for chunk in response.iter_content(chunk_size=64 * 1024):
-                    if youtube_thumbnail_seconds_left() <= 0:
-                        raise youtube_thumbnail_out_of_time(url)
-                    chunks.append(chunk)
-                return b"".join(chunks), size
-        except requests.RequestException as exc:
-            # The next size is on the same host, so it would fail the same way.
-            logger.warning("Could not reach YouTube for the thumbnail %s: %s", url, exc)
-            raise YouTubeThumbnailUnavailable("Couldn't reach YouTube to get this video's thumbnail. Save again, or choose a poster image.") from exc
-    logger.warning("YouTube has no thumbnail for video %s", video_id)
-    raise YouTubeThumbnailUnavailable("YouTube has no thumbnail for this video. Choose a poster image.")
-
-
 def get_or_create_youtube_poster(video_id, alt):
     """Return YouTube's thumbnail for `video_id` from the YouTube Thumbnails collection, downloading it the first time.
 
@@ -396,14 +336,13 @@ def get_or_create_youtube_poster(video_id, alt):
     # Inline because springfield.cms.models imports this module.
     from springfield.cms.models import SpringfieldImage
 
-    collection = youtube_thumbnail_collection()
+    collection = get_or_create_youtube_thumbnail_collection()
     for image in SpringfieldImage.objects.filter(collection=collection, file__startswith=f"original_images/{video_id}-"):
-        if youtube_thumbnail_video_id(image) == video_id:
+        if get_stored_thumbnail_video_id(image) == video_id:
             return image
 
     content, size = download_youtube_thumbnail(video_id)
-    request = current_request.get()
-    user = getattr(request, "user", None)
+    user = getattr(current_request.get(), "user", None)
     try:
         with transaction.atomic():
             return SpringfieldImage.objects.create(
@@ -419,6 +358,69 @@ def get_or_create_youtube_poster(video_id, alt):
         # storage outage. Report it on the block instead of failing the whole save.
         logger.exception("Could not store the YouTube thumbnail for video %s", video_id)
         raise YouTubeThumbnailUnavailable("Couldn't save YouTube's thumbnail. Save again, or choose a poster image.") from exc
+
+
+def get_or_create_youtube_thumbnail_collection():
+    """The image collection that YouTube thumbnails are stored in, created the first time it's needed."""
+    root = Collection.get_first_root_node()
+    collection = root.get_children().filter(name=YOUTUBE_THUMBNAIL_COLLECTION_NAME).first()
+    return collection or root.add_child(name=YOUTUBE_THUMBNAIL_COLLECTION_NAME)
+
+
+def get_stored_thumbnail_video_id(image):
+    """The video ID of a thumbnail stored by get_or_create_youtube_poster, or None if `image` isn't one."""
+    if image.collection.name != YOUTUBE_THUMBNAIL_COLLECTION_NAME:
+        return None
+    match = YOUTUBE_THUMBNAIL_FILENAME_PATTERN.match(image.filename)
+    return match["video_id"] if match else None
+
+
+def download_youtube_thumbnail(video_id):
+    """Fetch the widest thumbnail YouTube has for `video_id`, returning its bytes and size name.
+
+    Stops at the request's thumbnail deadline, overrunning it by at most one read timeout.
+    """
+    for size in YOUTUBE_THUMBNAIL_SIZES:
+        url = f"https://img.youtube.com/vi/{video_id}/{size}.jpg"
+        timeout = tuple(min(limit, start_or_check_youtube_thumbnail_deadline(url)) for limit in YOUTUBE_THUMBNAIL_TIMEOUT)
+        try:
+            # Streamed, because a read timeout limits each read rather than the whole download.
+            with requests.get(url, timeout=timeout, stream=True) as response:
+                content_type = response.headers.get("Content-Type", "")
+                if response.status_code != 200 or not content_type.startswith("image/"):
+                    logger.info("No YouTube thumbnail at %s (HTTP %s, %s)", url, response.status_code, content_type)
+                    continue
+                chunks = []
+                for chunk in response.iter_content(chunk_size=64 * 1024):
+                    start_or_check_youtube_thumbnail_deadline(url)
+                    chunks.append(chunk)
+                return b"".join(chunks), size
+        except requests.RequestException as exc:
+            # The next size is on the same host, so it would fail the same way.
+            logger.warning("Could not reach YouTube for the thumbnail %s: %s", url, exc)
+            raise YouTubeThumbnailUnavailable("Couldn't reach YouTube to get this video's thumbnail. Save again, or choose a poster image.") from exc
+    logger.warning("YouTube has no thumbnail for video %s", video_id)
+    raise YouTubeThumbnailUnavailable("YouTube has no thumbnail for this video. Choose a poster image.")
+
+
+def start_or_check_youtube_thumbnail_deadline(url):
+    """Start the current request's thumbnail deadline on the first call, and return the seconds left before it.
+
+    Every thumbnail fetched while serving one request shares the budget. Raises YouTubeThumbnailUnavailable
+    once it has run out, naming `url` as the one skipped.
+    """
+    request = current_request.get()
+    if request is None:
+        return YOUTUBE_THUMBNAIL_BUDGET_SECONDS
+    deadline = getattr(request, YOUTUBE_THUMBNAIL_DEADLINE_ATTR, None)
+    if deadline is None:
+        deadline = time.monotonic() + YOUTUBE_THUMBNAIL_BUDGET_SECONDS
+        setattr(request, YOUTUBE_THUMBNAIL_DEADLINE_ATTR, deadline)
+    seconds_left = deadline - time.monotonic()
+    if seconds_left <= 0:
+        logger.warning("Out of time for YouTube thumbnails in this request, skipped %s", url)
+        raise YouTubeThumbnailUnavailable("Ran out of time getting YouTube thumbnails for this page. Save again to get the rest.")
+    return seconds_left
 
 
 _ICON_LABEL_OVERRIDES = {
@@ -1214,8 +1216,8 @@ def QRCodeModalButtonBlock(themes=BUTTON_THEMES, **kwargs):
 
 
 class VideoModalButtonValue(BaseButtonValue):
-    def video_id(self) -> str:
-        return youtube_video_id(self.get("video_url")) or ""
+    def get_video_id(self) -> str:
+        return get_youtube_video_id(self.get("video_url")) or ""
 
 
 def VideoModalButtonBlock(themes=BUTTON_THEMES, **kwargs):
@@ -1863,8 +1865,8 @@ class ImageCaptionBlock(blocks.StructBlock):
 
 
 class VideoValue(blocks.StructValue):
-    def video_id(self):
-        return youtube_video_id(self.get("video_url")) or ""
+    def get_video_id(self):
+        return get_youtube_video_id(self.get("video_url")) or ""
 
 
 class VideoBlock(blocks.StructBlock):
@@ -1889,48 +1891,49 @@ class VideoBlock(blocks.StructBlock):
     )
 
     def clean(self, value):
+        """Validate the video and fill in its poster: the editor's own image, or else the YouTube thumbnail.
+
+        A draft saves without a poster; one is required when the page is published.
+        """
         errors = {}
         try:
-            cleaned_value = super().clean(value)
+            value = super().clean(value)
         except StructBlockValidationError as exc:
             errors.update(exc.block_errors)
-            cleaned_value = value
 
-        # A draft saves without a poster; it is checked when the page is published.
         if "video_url" not in errors:
             try:
-                self.set_youtube_poster(cleaned_value)
+                value["poster"] = self.get_or_create_poster(value)
             except YouTubeThumbnailUnavailable as exc:
-                if not self.is_deferred_validation:
-                    errors["poster"] = ValidationError(str(exc))
+                value["poster"] = None
+                poster_errors = {"poster": ValidationError(str(exc))}
             else:
-                if not self.is_deferred_validation:
-                    errors.update(self.poster_errors(cleaned_value))
+                poster_errors = self.get_missing_poster_errors(value)
+            if not self.is_deferred_validation:
+                errors.update(poster_errors)
+
         if errors:
             raise StructBlockValidationError(block_errors=errors)
-        return cleaned_value
+        return value
 
     @staticmethod
-    def set_youtube_poster(value):
-        """Fill an empty poster, or one showing another video's thumbnail, with the YouTube video's thumbnail.
+    def get_or_create_poster(value):
+        """Return the poster to show: the editor's own image, or else the YouTube video's thumbnail, downloading and storing it if needed.
 
-        This writes to the image library during validation, so if another field on the page fails,
-        the thumbnail is already stored and the next save reuses it instead of downloading again.
+        A thumbnail of the video the block used to show is swapped for the current video's. Returns
+        None when there's neither. The thumbnail is stored during validation, so if another field on
+        the page fails, the next save reuses it instead of downloading again.
+        Raises YouTubeThumbnailUnavailable when the thumbnail can't be stored.
         """
         poster = value["poster"]
-        poster_video_id = youtube_thumbnail_video_id(poster) if poster else None
-        if poster and poster_video_id is None:
-            return
-        video_id = thumbnail_video_id(value["video_url"])
-        if poster_video_id == video_id:
-            return
-        value["poster"] = None
-        if video_id is not None:
-            value["poster"] = get_or_create_youtube_poster(video_id, value["alt"])
+        if poster and get_stored_thumbnail_video_id(poster) is None:
+            return poster
+        video_id = get_youtube_video_id(value["video_url"])
+        return get_or_create_youtube_poster(video_id, value["alt"]) if video_id else None
 
     @staticmethod
-    def poster_errors(value):
-        """Errors for a published video that still has no poster image."""
+    def get_missing_poster_errors(value):
+        """Errors for a video that has no poster image."""
         video_url = value["video_url"]
         if not video_url or value["poster"]:
             return {}

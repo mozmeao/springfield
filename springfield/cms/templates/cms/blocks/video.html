@@ -7,7 +7,7 @@
 {% set poster = image(value.poster, "width-800") if value.poster else None %}
 <include:video
   video_url="{{ value.video_url }}"
-  video_id="{{ value.video_id() }}"
+  video_id="{{ value.get_video_id() }}"
   alt="{{ value.alt }}"
   poster="{{ poster.url if poster else '' }}"
   aspect_ratio="{{ value.aspect_ratio }}"
