@@ -68,10 +68,13 @@ def image_html(image, caption="", link_url="", alt=None):
 
 def video_html(value):
     """A self-hosted video plays in the reader; a YouTube video is its poster, linked to YouTube."""
-    url = value["video_url"]
+    url = value.source_url
+    if not url:
+        # A deleted video document leaves the block without a source.
+        return ""
     poster = value.get("poster")
     poster_rendition = feed_rendition(poster)
-    if is_youtube_url(url):
+    if not value.get("video_file") and is_youtube_url(url):
         if poster_rendition is None:
             return format_html('<p><a href="{}">{}</a></p>', url, value["alt"] or url)
         return image_html(poster, link_url=url, alt=value["alt"])

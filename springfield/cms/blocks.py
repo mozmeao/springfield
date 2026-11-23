@@ -22,6 +22,7 @@ from django.db import transaction
 from django.forms.utils import ErrorList
 from django.forms.widgets import CheckboxSelectMultiple, TelInput
 from django.http import QueryDict
+from django.template.defaultfilters import filesizeformat
 from django.urls import Resolver404, resolve
 from django.utils import translation
 from django.utils.html import escape
@@ -36,6 +37,7 @@ from pygments.lexers import get_lexer_by_name
 from pygments.util import ClassNotFound
 from wagtail import blocks
 from wagtail.blocks import StructBlockValidationError
+from wagtail.documents.blocks import DocumentChooserBlock
 from wagtail.images.blocks import ImageChooserBlock
 from wagtail.models import Collection
 from wagtail.snippets.blocks import SnippetChooserBlock
@@ -598,6 +600,58 @@ class RequireAltTextMixin(blocks.StructBlock):
         if errors:
             raise StructBlockValidationError(block_errors=errors)
         return cleaned
+
+
+class VideoSourceValue(blocks.StructValue):
+    @property
+    def source_url(self):
+        """The URL the video plays from: the uploaded file when there is one, otherwise the linked video."""
+        video_file = self.get("video_file")
+        return video_file.file.url if video_file else self.get("video_url")
+
+
+class VideoSourceMixin(blocks.StructBlock):
+    """Requires the block's video to come from exactly one of its `video_file` and `video_url` fields.
+
+    `video_file` is a document chooser and only takes a `.webm` file. A block that may be saved
+    without a video sets `video_required` to False. A draft may be saved without a video.
+    """
+
+    video_required = True
+
+    def clean(self, value):
+        try:
+            cleaned = super().clean(value)
+            errors = {}
+        except StructBlockValidationError as exc:
+            # Keep validating, so the editor sees every error at once.
+            cleaned = value
+            errors = dict(exc.block_errors)
+
+        video_file = cleaned.get("video_file")
+        video_url = cleaned.get("video_url")
+        message = None
+        if video_file and video_url:
+            message = "Use either an uploaded video or a video URL, not both."
+        elif video_file and video_file.file_extension.lower() != "webm":
+            message = "This document is not a WebM video. Choose a .webm file."
+        elif video_file and video_file.get_file_size() is None:
+            # Wagtail returns no size when the document's file is missing from storage.
+            message = "This video's file can't be found. Upload it again or choose another video."
+        elif video_file and video_file.get_file_size() > settings.WEBM_MAX_UPLOAD_SIZE:
+            # The upload form checks the size, but documents uploaded before that check skipped it.
+            message = f"This WebM video is too big. Choose one of {filesizeformat(settings.WEBM_MAX_UPLOAD_SIZE)} or less."
+        elif self.video_required and not self.is_deferred_validation and not video_file and not video_url:
+            message = "Upload a video or enter a video URL."
+
+        if message:
+            errors.setdefault("video_file", ValidationError(message))
+        if errors:
+            raise StructBlockValidationError(block_errors=errors)
+        return cleaned
+
+    class Meta:
+        value_class = VideoSourceValue
 
 
 class IconChoiceBlock(ThumbnailChoiceBlock):
@@ -1871,13 +1925,19 @@ class ImageCaptionBlock(blocks.StructBlock):
         )
 
 
-class VideoValue(blocks.StructValue):
+class VideoValue(VideoSourceValue):
     def get_video_id(self):
         return get_youtube_video_id(self.get("video_url")) or ""
 
 
-class VideoBlock(blocks.StructBlock):
+class VideoBlock(VideoSourceMixin, blocks.StructBlock):
+    video_file = DocumentChooserBlock(
+        required=False,
+        label="Uploaded Video",
+        help_text="Choose a WebM video from Documents or upload a new one. Use this or the Video URL.",
+    )
     video_url = blocks.URLBlock(
+        required=False,
         label="Video URL",
         help_text="Link to a video from YouTube or assets.mozilla.net.",
         validators=[validate_video_url],
@@ -1887,7 +1947,7 @@ class VideoBlock(blocks.StructBlock):
         required=False,
         label="Poster image",
         help_text="Displayed before the video is played. Leave empty on a YouTube video to use its thumbnail, "
-        "which is added to the YouTube Thumbnails collection when you save. Required for assets.mozilla.net videos.",
+        "which is added to the YouTube Thumbnails collection when you save. Required for uploaded videos and assets.mozilla.net videos.",
     )
     aspect_ratio = blocks.ChoiceBlock(
         choices=VIDEO_ASPECT_RATIO_CHOICES,
@@ -1908,7 +1968,7 @@ class VideoBlock(blocks.StructBlock):
         except StructBlockValidationError as exc:
             errors.update(exc.block_errors)
 
-        if "video_url" not in errors:
+        if "video_url" not in errors and "video_file" not in errors:
             try:
                 value["poster"] = self.get_or_create_poster(value)
             except YouTubeThumbnailUnavailable as exc:
@@ -1942,28 +2002,35 @@ class VideoBlock(blocks.StructBlock):
     def get_missing_poster_errors(value):
         """Errors for a video that has no poster image."""
         video_url = value["video_url"]
-        if not video_url or value["poster"]:
+        if value["poster"] or not (video_url or value["video_file"]):
             return {}
-        if is_youtube_url(video_url):
+        if video_url and is_youtube_url(video_url):
             return {
                 "video_url": ValidationError(
                     "Couldn't find a video in this YouTube link, so there's no thumbnail to use. "
                     "Use a link such as https://www.youtube.com/watch?v=VIDEO_ID, or choose a poster image."
                 )
             }
-        return {"poster": ValidationError("Choose a poster image. Videos from assets.mozilla.net need one.")}
+        return {"poster": ValidationError("Choose a poster image. Uploaded videos and videos from assets.mozilla.net need one.")}
 
     class Meta:
         label = "Video"
-        label_format = "Video - {video_url}"
         template = "cms/blocks/video.html"
         value_class = VideoValue
 
 
 def AnimationBlock(required=True, *args, **kwargs):
-    class _AnimationBlock(blocks.StructBlock):
+    class _AnimationBlock(VideoSourceMixin, blocks.StructBlock):
+        video_required = required
+
+        video_file = DocumentChooserBlock(
+            required=False,
+            label="Uploaded Animation",
+            help_text="Choose a WebM video from Documents or upload a new one. Use this or the Animation URL. "
+            "For transparent/alpha-channel webm, name the file with -alpha.webm",
+        )
         video_url = blocks.URLBlock(
-            required=required,
+            required=False,
             label="Animation URL",
             help_text="Link to a webm video from assets.mozilla.net. For transparent/alpha-channel webm, name the file with -alpha.webm",
             validators=[validate_animation_url],
@@ -1999,7 +2066,6 @@ def AnimationBlock(required=True, *args, **kwargs):
 
         class Meta:
             label = "Animation"
-            label_format = "Animation - {video_url}"
             template = "cms/blocks/animation.html"
 
     return _AnimationBlock(*args, **kwargs)

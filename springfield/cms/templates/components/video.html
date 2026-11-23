@@ -4,9 +4,10 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{# props video_url="", alt="", poster="", aspect_ratio="", video_id="" #}
+{# props video_url="", alt="", poster="", aspect_ratio="", video_id="", is_uploaded_file="" #}
 
-{% if 'youtube.com' in video_url or 'youtu.be' in video_url or 'youtube-nocookie.com' in video_url %}
+{# An uploaded file plays from its own URL, whatever its name looks like. #}
+{% if not is_uploaded_file and ('youtube.com' in video_url or 'youtu.be' in video_url or 'youtube-nocookie.com' in video_url) %}
   {% set youtube_video_id = video_id or video_url.split('watch?v=')[-1].split('youtu.be/')[-1].split('&')[0].split('?')[0] %}
   <div class="fl-video" {% if aspect_ratio %}data-aspect-ratio="{{ aspect_ratio }}"{% endif %}>
     <button
@@ -28,7 +29,7 @@
       </span>
     </button>
   </div>
-{% elif 'assets.mozilla.net' in video_url %}
+{% elif is_uploaded_file or 'assets.mozilla.net' in video_url %}
   <div class="fl-video" {% if aspect_ratio %}data-aspect-ratio="{{ aspect_ratio }}"{% endif %}>
     <button
       class="fl-video-play js-video-play"
@@ -51,6 +52,6 @@
   </div>
 {% else %}
   <div class="fl-video fl-video-error">
-    <p>Video from this source cannot be embedded. Only YouTube and assets.mozilla.net videos are supported.</p>
+    <p>Video from this source cannot be embedded. Only YouTube links, assets.mozilla.net links and uploaded WebM videos are supported.</p>
   </div>
 {% endif %}
