@@ -41,6 +41,7 @@ from springfield.cms.blocks import (
     ROADMAP_TAG_ICONS,
     ROADMAP_TAG_LABELS,
     UI_TOUR_CLASSES,
+    UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY_VPN,
     UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC_IMPORT_BROWSER_DATA,
     UITOUR_BUTTON_NEW_TAB,
     UITOUR_BUTTON_SET_NEWTAB_WALLPAPER,
@@ -57,13 +58,18 @@ from springfield.cms.blocks import (
     ContactFormBlock,
     FirefoxFocusButtonBlock,
     FXAccountButtonBlock,
+    HomeKitBannerBlock,
     IconChoiceBlock,
     IconListItemValue,
     IconListWithImageBlock,
     ImageVariantsBlock,
     ImpactDashBlock,
     MobileStoreQRCodeBlock,
+    NotificationBlock,
+    OverridableQRCodeURLBlock,
+    QRCodeBlock,
     QRCodeModalButtonBlock,
+    QRCodeURLBlock,
     QuoteBlock,
     RelatedArticleBlock,
     SectionBlock,
@@ -207,6 +213,7 @@ from springfield.cms.models import (
     WhatsNewPage2026,
 )
 from springfield.cms.models.locale import SpringfieldLocale
+from springfield.cms.qr_code_urls import QR_CODE_URL_HELP_TEXT, QR_CODE_URL_LABEL
 from springfield.cms.templatetags.cms_tags import add_utm_parameters, alt_text
 from springfield.cms.tests.factories import ArticleDetailPageFactory, LocaleFactory
 from springfield.firefox.firefox_details import firefox_desktop
@@ -301,9 +308,10 @@ def _render_context(request, block_text="Heading", block_position="block-1-intro
     }
 
 
-def _render_button(btn_type, request, **label_kwargs):
+def _render_button(btn_type, request, size="", **label_kwargs):
     snippet_pk = get_set_as_default_snippet().id if btn_type == "set_as_default_button" else None
     block, raw = _button_block_and_value(btn_type, snippet_pk=snippet_pk, **label_kwargs)
+    raw["settings"]["size"] = size
     bound = block.to_python(raw)
     return block.render(bound, context=_render_context(request))
 
@@ -941,6 +949,55 @@ def test_mobile_store_qr_code_block_reports_a_blank_alt_alongside_other_field_er
     assert set(excinfo.value.block_errors) == {"qr_code_data", "mobile_image_alt"}
 
 
+def test_mobile_store_qr_code_block_adds_https_to_its_qr_code_url(placeholder_images):
+    block = MobileStoreQRCodeBlock()
+    value = block.to_python(
+        {
+            "heading": {"heading_text": '<p data-block-key="h">Get the app</p>'},
+            "qr_code_data": "www.firefox.com/mobile/",
+            "mobile_image": placeholder_images.image.id,
+            "mobile_image_alt": "Firefox in the app store",
+        }
+    )
+    assert block.clean(value)["qr_code_data"] == "https://www.firefox.com/mobile/"
+
+
+def test_qr_code_url_block_adds_https_to_a_bare_address():
+    assert QRCodeURLBlock().clean("www.firefox.com/mobile/") == "https://www.firefox.com/mobile/"
+
+
+def test_qr_code_url_block_rejects_an_invalid_url():
+    with pytest.raises(ValidationError):
+        QRCodeURLBlock().clean("javascript:alert(1)")
+
+
+def test_overridable_qr_code_url_block_keeps_tel_links_and_adds_https():
+    block = OverridableQRCodeURLBlock()
+    assert block.clean("tel:+15551234567") == "tel:+15551234567"
+    assert block.clean("www.firefox.com/") == "https://www.firefox.com/"
+
+
+def test_overridable_qr_code_url_block_is_a_url_block():
+    # wagtail-localize lets each locale override a URLBlock value instead of sending it for translation.
+    assert isinstance(OverridableQRCodeURLBlock(), blocks.URLBlock)
+
+
+@pytest.mark.parametrize(
+    "parent_block, field_name, field_block_class",
+    [
+        (QRCodeBlock(), "data", QRCodeURLBlock),
+        (MobileStoreQRCodeBlock(), "qr_code_data", QRCodeURLBlock),
+        (HomeKitBannerBlock(), "qr_code", QRCodeURLBlock),
+        (QRCodeModalButtonBlock(), "url", OverridableQRCodeURLBlock),
+    ],
+)
+def test_qr_code_fields_use_the_qr_code_url_blocks(parent_block, field_name, field_block_class):
+    field_block = parent_block.child_blocks[field_name]
+    assert type(field_block) is field_block_class
+    assert field_block.label == QR_CODE_URL_LABEL
+    assert field_block.field.help_text == QR_CODE_URL_HELP_TEXT
+
+
 def test_topic_block_renders_its_alt(placeholder_images):
     block = TopicBlock()
     value = block.to_python(
@@ -1076,6 +1133,16 @@ class TestButtonBlockLabelRendering:
         """
         html = _render_button(btn_type, rf.get("/"))
         assert "None" not in html
+
+
+class TestButtonBlockSizeRendering:
+    """Tests that every button template applies the block's size setting."""
+
+    @pytest.mark.parametrize("btn_type", _BUTTON_BLOCK_TYPES_NOT_DOWNLOAD)
+    def test_large_size_renders_large_button(self, btn_type, rf):
+        html = _render_button(btn_type, rf.get("/"), size="large", custom_label="Large button")
+        button = BeautifulSoup(html, "html.parser").find(class_="fl-button")
+        assert "fl-button-large" in button["class"]
 
 
 class TestButtonBlockCleanComposition:
@@ -4034,6 +4101,16 @@ def test_notification_block(index_page, rf):
                 assert message in heading_el.get_text()
 
 
+def test_notification_block_anchor_id_is_the_wrapper_id(rf):
+    block = NotificationBlock()
+    value = block.to_python({"settings": {"show_to": SHOW_TO_ALL, "anchor_id": "update-notice"}, "message": "<p>Message</p>"})
+
+    html = block.render(value, context={"request": rf.get("/")})
+
+    wrapper = BeautifulSoup(html, "html.parser").find("div", class_="fl-notification-wrapper")
+    assert wrapper["id"] == "update-notice"
+
+
 def test_two_column_cards_block(index_page, rf):
     variants = get_two_column_cards_variants()
     page = get_two_column_cards_test_page()
@@ -4990,6 +5067,12 @@ def test_uitour_import_browser_data_class_yields_firefox_pane():
     # ui-tour-buttons.js strips this prefix and passes the rest to openPreferences().
     css_class = UI_TOUR_CLASSES[UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC_IMPORT_BROWSER_DATA]
     assert css_class.removeprefix("ui-tour-open-about-preferences-") == "sync-importBrowserData"
+
+
+def test_uitour_privacy_vpn_class_yields_firefox_pane():
+    # ui-tour-buttons.js strips this prefix and passes the rest to openPreferences().
+    css_class = UI_TOUR_CLASSES[UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY_VPN]
+    assert css_class.removeprefix("ui-tour-open-about-preferences-") == "privacy-vpn"
 
 
 @pytest.mark.parametrize(

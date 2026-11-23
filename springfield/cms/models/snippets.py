@@ -36,9 +36,10 @@ from springfield.cms.blocks import (
     TopLevelLinkBlock,
     get_button_types,
 )
-from springfield.cms.fields import StreamField
+from springfield.cms.fields import QRCodeURLField, StreamField
 from springfield.cms.models.base import QROpenBehavior
 from springfield.cms.models.locale import SpringfieldLocale
+from springfield.cms.qr_code_urls import QR_CODE_URL_HELP_TEXT
 from springfield.cms.rich_text import RichTextField
 from springfield.cms.templatetags.cms_tags import remove_tags
 
@@ -173,7 +174,7 @@ class BannerSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, m
         use_json_field=True,
         max_num=2,
     )
-    qr_code = models.CharField(blank=True)
+    qr_code = QRCodeURLField(blank=True)
 
     panels = [
         FieldPanel("kit_theme"),
@@ -232,7 +233,7 @@ class QRCodeSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, m
         features=HEADING_TEXT_FEATURES,
         blank=True,
     )
-    qr_code = models.CharField(blank=True)
+    qr_code = QRCodeURLField(blank=True)
     closable = models.BooleanField(default=False, help_text="Whether the QR code can be closed by the user.")
 
     content = RichTextField(
@@ -356,7 +357,7 @@ class QRCodeFloatingSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippet
         features=EXPANDED_TEXT_FEATURES,
         blank=True,
     )
-    url = models.CharField(blank=True, help_text="A QR code will be generated from this URL. Not used if an image is uploaded.")
+    url = QRCodeURLField(blank=True, help_text=f"{QR_CODE_URL_HELP_TEXT} Not used if an image is uploaded.")
     image = models.ForeignKey(
         "cms.SpringfieldImage",
         null=True,

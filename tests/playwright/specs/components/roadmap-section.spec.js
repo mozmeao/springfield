@@ -8,8 +8,8 @@
 
 const openPage = require('../../scripts/open-page');
 const { test, expect } = require('@playwright/test');
-const { patternLibraryURL } = require('../visual-regression/helpers');
-const url = `${patternLibraryURL}/roadmap-list-section/roadmap-list-section.html`;
+const { contextSpecificURL } = require('../visual-regression/helpers');
+const url = `${contextSpecificURL}/roadmap-list-section/roadmap-list-section.html`;
 
 test.describe(
     `Roadmap List Section`,

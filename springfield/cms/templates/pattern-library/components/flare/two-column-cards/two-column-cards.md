@@ -1,0 +1,3 @@
+The `two-column-cards` component lays out exactly two cards side by side, for a deliberate comparison or pairing. Besides headings, text, media and buttons, cards take a Pricing Heading, Icon List, Numbered List, Timeline or Sharing Links, plus an optional tag pill.
+
+It's the Two Column Cards block, in Sections. **theme** picks light-dark, where the second card is darker than the first in both light and dark mode, or light-light, where both cards use similar light shades. **reduce_card_padding** tightens the cards, and **image_position** pins an image to an edge or corner; top positions need the media first, bottom positions last.

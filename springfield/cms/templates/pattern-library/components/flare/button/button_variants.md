@@ -1,0 +1,3 @@
+The `button` component renders most Flare buttons — a link when it has a URL, otherwise a `<button>` element; the download, UI Tour and Mozilla account buttons build their own `fl-button` markup. Editors pick its **theme** (primary, secondary, ghost, gold over dark backgrounds only, or link), **size** (default or large), an optional icon and its position, and an analytics ID that's generated when left blank.
+
+Small and square buttons aren't editor options. Templates can set small — button-style navigation links, for instance, are small ghost buttons; square exists only in the styles. Group buttons with the `buttons` wrapper, horizontal or stacked. An icon-only button keeps its label for screen readers, so it always needs one.

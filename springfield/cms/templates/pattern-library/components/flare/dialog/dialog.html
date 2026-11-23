@@ -19,7 +19,9 @@
         />
       </content:heading>
 
-      <p>{{ dialog.body }}</p>
+      <content:body>
+        <p>{{ dialog.body }}</p>
+      </content:body>
 
       <content:buttons>
         {% for button in dialog.buttons %}

@@ -931,6 +931,21 @@ def get_button_blocks() -> list[dict]:
                                 "value": {
                                     "settings": {
                                         "theme": "secondary",
+                                        "icon": "lock",
+                                        "icon_position": "left",
+                                        "analytics_id": "uitour02-0000-0000-0000-000000000023",
+                                    },
+                                    "button_type": "open_about_preferences_privacy_vpn",
+                                    "pretranslated_label": None,
+                                    "custom_label": "Preferences: Privacy (VPN)",
+                                },
+                                "id": "uitour02-0000-0000-0000-000000000023",
+                            },
+                            {
+                                "type": "uitour_button",
+                                "value": {
+                                    "settings": {
+                                        "theme": "secondary",
                                         "icon": "sparkles",
                                         "icon_position": "left",
                                         "analytics_id": "uitour02-0000-0000-0000-000000000015",
