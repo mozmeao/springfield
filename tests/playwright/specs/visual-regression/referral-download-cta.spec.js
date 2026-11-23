@@ -8,8 +8,8 @@
 
 const openPage = require('../../scripts/open-page');
 const { test } = require('@playwright/test');
-const { patternLibraryURL, expectComponentScreenshot } = require('./helpers');
-const url = `${patternLibraryURL}/referral-download-cta/referral-download-cta.html`;
+const { contextSpecificURL, expectComponentScreenshot } = require('./helpers');
+const url = `${contextSpecificURL}/referral/referral-download-cta.html`;
 
 /**
  * Simulate what referral-attribution.es6.js does on init: remove .hidden from

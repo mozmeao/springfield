@@ -5,5 +5,5 @@ context:
       label: "Yes"
     - icon_name: close-circle
       label: "No"
-    - icon_name: subtract-circle-fill
+    - icon_name: circle-semi-filled
       label: Limited

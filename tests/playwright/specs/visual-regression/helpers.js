@@ -18,5 +18,7 @@ async function expectComponentScreenshot(page, testId, snapshotName) {
 module.exports = {
     patternLibraryURL:
         '/pattern-library/render-pattern/pattern-library/components/flare',
+    contextSpecificURL:
+        '/pattern-library/render-pattern/pattern-library/context-specific',
     expectComponentScreenshot
 };

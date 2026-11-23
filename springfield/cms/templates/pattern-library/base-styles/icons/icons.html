@@ -1,0 +1,31 @@
+{#
+ This Source Code Form is subject to the terms of the Mozilla Public
+ License, v. 2.0. If a copy of the MPL was not distributed with this
+ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#}
+
+<div class="pl-frame pl-frame--white">
+  <div style="margin-bottom: 24px;">
+    <h4>Icon sizes</h4>
+    <div style="color: var(--blue-medium-blue); display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 16px; align-items: start;">
+      {% for size in sizes %}
+        <div style="text-align: center; font-size: {{ size }}px;">
+          <include:icon icon_name="globe" />
+          <div style="margin-top: 8px; font-size: 12px; line-height: 1.2;">{{ size }} px</div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  {% for group in icon_groups %}
+    <h4>{{ group.title }}</h4>
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 16px; align-items: start; margin-bottom: 24px;">
+      {% for icon in group.icons %}
+        <div style="text-align: center;">
+          <include:icon icon_name="{{ icon.icon_name }}" />
+          <div style="margin-top: 8px; font-size: 12px; line-height: 1.2;">{{ icon.name }}</div>
+        </div>
+      {% endfor %}
+    </div>
+  {% endfor %}
+</div>

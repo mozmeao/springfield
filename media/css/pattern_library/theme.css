@@ -77,6 +77,10 @@ body {
     border-right: 1px solid #ffffff25;
 }
 
+.md p {
+    max-width: 600px;
+}
+
 .header {
     background-color: var(--text-color);
 }
@@ -102,6 +106,10 @@ body {
 
 .header__title::after {
     content: "";
+}
+
+.list__button {
+    text-align: start;
 }
 
 .list__item-link {
