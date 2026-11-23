@@ -8,6 +8,7 @@ from springfield.redirects.util import mobile_app_redirector, no_redirect, platf
 
 # matches only ASCII letters (ignoring case), numbers, dashes, periods, and underscores.
 PARAM_VALUES_RE = re.compile(r"[\w.-]+", flags=re.ASCII)
+UTM_PARAM_NAMES = ("utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term")
 
 
 def firefox_mobile_faq(request, *args, **kwargs):
@@ -35,14 +36,15 @@ def validate_param_value(param: str | None) -> str | None:
 
 def mobile_app(request, *args, **kwargs):
     product = request.GET.get("product")
-    campaign = request.GET.get("campaign")
 
     if product not in {"firefox", "focus", "klar"}:
         product = "firefox"
 
-    campaign = validate_param_value(campaign)
+    utm_params = {name: validate_param_value(request.GET.get(name)) for name in UTM_PARAM_NAMES}
+    # `campaign` predates the standard utm_* params, and links already in the wild rely on it winning.
+    utm_params["utm_campaign"] = validate_param_value(request.GET.get("campaign")) or utm_params["utm_campaign"]
 
-    return mobile_app_redirector(request, product, campaign)
+    return mobile_app_redirector(request, product, utm_params)
 
 
 redirectpatterns = (

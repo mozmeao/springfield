@@ -8,8 +8,8 @@
 
 const openPage = require('../../scripts/open-page');
 const { test } = require('@playwright/test');
-const { patternLibraryURL, expectComponentScreenshot } = require('./helpers');
-const url = `${patternLibraryURL}/smart-window-instructions/smart-window-instructions.html`;
+const { contextSpecificURL, expectComponentScreenshot } = require('./helpers');
+const url = `${contextSpecificURL}/smart-window-instructions/smart-window-instructions.html`;
 
 test.describe(
     `Smart Window Instructions`,

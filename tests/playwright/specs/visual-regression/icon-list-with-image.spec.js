@@ -9,7 +9,7 @@
 const openPage = require('../../scripts/open-page');
 const { test } = require('@playwright/test');
 const { patternLibraryURL, expectComponentScreenshot } = require('./helpers');
-const url = `${patternLibraryURL}/icon-list-with-image/icon-list-with-image.html`;
+const url = `${patternLibraryURL}/icon-list/icon-list-with-image.html`;
 
 test.describe(
     `Icon List with Image`,
