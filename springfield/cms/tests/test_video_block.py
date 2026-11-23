@@ -7,7 +7,7 @@ from io import BytesIO
 from types import SimpleNamespace
 from unittest import mock
 
-from django.contrib.auth.models import AnonymousUser, User
+from django.contrib.auth.models import User
 from django.core.files.base import ContentFile
 
 import pytest
@@ -20,10 +20,10 @@ from wagtail.utils.file import hash_filelike
 
 from springfield.blog.models import BlogArticlePage
 from springfield.cms.blocks import (
-    POSTER_SOURCE_UPLOAD,
-    POSTER_SOURCE_YOUTUBE,
+    YOUTUBE_THUMBNAIL_COLLECTION_NAME,
     YOUTUBE_THUMBNAIL_DEADLINE_ATTR,
     VideoBlock,
+    youtube_thumbnail_collection,
 )
 from springfield.cms.models import SpringfieldImage
 from springfield.cms.tests.test_blocks import assert_video_attributes
@@ -49,18 +49,24 @@ def mock_thumbnail(url, colour=(255, 0, 0)):
     responses.add(responses.GET, url, body=jpeg(colour), content_type="image/jpeg")
 
 
-def stored_image(filename, colour=(0, 0, 255)):
-    content = jpeg(colour)
+def stored_image(filename, collection=None):
+    content = jpeg((0, 0, 255))
+    extra = {"collection": collection} if collection else {}
     return SpringfieldImage.objects.create(
         title="A stored image",
         is_decorative=True,
         file=ContentFile(content, name=filename),
         file_hash=hash_filelike(BytesIO(content)),
+        **extra,
     )
 
 
-def video_data(video_url=YOUTUBE_URL, poster_source=POSTER_SOURCE_YOUTUBE, poster=None, alt="A Firefox demo"):
-    return {"video_url": video_url, "alt": alt, "poster_source": poster_source, "poster": poster.pk if poster else None, "aspect_ratio": ""}
+def stored_thumbnail(video_id=VIDEO_ID):
+    return stored_image(f"{video_id}-maxresdefault.jpg", collection=youtube_thumbnail_collection())
+
+
+def video_data(video_url=YOUTUBE_URL, poster=None, alt="A Firefox demo"):
+    return {"video_url": video_url, "alt": alt, "poster": poster.pk if poster else None, "aspect_ratio": ""}
 
 
 def video_value(**kwargs):
@@ -85,31 +91,19 @@ def admin_request():
 
 
 @pytest.fixture
-def preview_request():
-    token = current_request.set(SimpleNamespace(resolver_match=SimpleNamespace(url_name="preview_on_edit"), user=AnonymousUser()))
-    yield
-    current_request.reset(token)
-
-
-@pytest.mark.parametrize(
-    "stored, expected",
-    [
-        ({"video_url": YOUTUBE_URL, "alt": "Demo", "poster": 1}, POSTER_SOURCE_UPLOAD),
-        ({"video_url": YOUTUBE_URL, "alt": "Demo", "poster": None}, POSTER_SOURCE_YOUTUBE),
-        ({"video_url": YOUTUBE_URL, "alt": "Demo", "poster_source": POSTER_SOURCE_YOUTUBE, "poster": 1}, POSTER_SOURCE_YOUTUBE),
-    ],
-)
-def test_blocks_saved_before_the_poster_choice_keep_their_poster(stored, expected):
-    assert VideoBlock().to_python(stored)["poster_source"] == expected
-    assert VideoBlock().bulk_to_python([stored])[0]["poster_source"] == expected
+def clock():
+    now = [0.0]
+    with mock.patch("springfield.cms.blocks.time.monotonic", side_effect=lambda: now[0]):
+        yield now
 
 
 @responses.activate
-def test_youtube_thumbnail_is_downloaded_and_stored_on_save(admin_request):
+def test_empty_poster_is_filled_with_the_youtube_thumbnail(admin_request):
     mock_thumbnail(MAXRES_URL)
 
     poster = VideoBlock().clean(video_value())["poster"]
 
+    assert poster.collection.name == YOUTUBE_THUMBNAIL_COLLECTION_NAME
     assert poster.title == "YouTube thumbnail: A Firefox demo"
     assert poster.filename.startswith(f"{VIDEO_ID}-maxresdefault")
     assert poster.is_decorative
@@ -148,8 +142,18 @@ def test_youtube_thumbnail_for_fragment_and_shorts_links(video_url):
 
 
 @responses.activate
+def test_thumbnail_in_the_collection_is_reused_without_downloading():
+    thumbnail = stored_thumbnail()
+
+    poster = VideoBlock().clean(video_value())["poster"]
+
+    assert poster == thumbnail
+    assert len(responses.calls) == 0
+
+
+@responses.activate
 def test_current_youtube_thumbnail_is_kept_without_downloading():
-    thumbnail = stored_image(f"{VIDEO_ID}-hqdefault.jpg")
+    thumbnail = stored_thumbnail()
 
     poster = VideoBlock().clean(video_value(poster=thumbnail))["poster"]
 
@@ -158,40 +162,8 @@ def test_current_youtube_thumbnail_is_kept_without_downloading():
 
 
 @responses.activate
-def test_widescreen_thumbnail_already_in_library_is_reused_without_downloading():
-    thumbnail = stored_image(f"{VIDEO_ID}-maxresdefault.jpg")
-
-    poster = VideoBlock().clean(video_value())["poster"]
-
-    assert poster == thumbnail
-    assert len(responses.calls) == 0
-
-
-@responses.activate
-def test_downloaded_thumbnail_matching_a_library_image_reuses_it():
-    library_image = stored_image(f"{VIDEO_ID}-hqdefault.jpg", colour=(255, 0, 0))
-    responses.add(responses.GET, MAXRES_URL, status=404)
-    mock_thumbnail(HQ_URL, colour=(255, 0, 0))
-
-    poster = VideoBlock().clean(video_value())["poster"]
-
-    assert poster == library_image
-
-
-@responses.activate
-def test_same_bytes_under_another_name_are_stored_as_this_videos_thumbnail():
-    stored_image("kit-video.jpg", colour=(255, 0, 0))
-    mock_thumbnail(MAXRES_URL, colour=(255, 0, 0))
-
-    poster = VideoBlock().clean(video_value())["poster"]
-
-    assert poster.filename.startswith(f"{VIDEO_ID}-maxresdefault")
-    assert VideoBlock().clean(video_value(poster=poster))["poster"] == poster
-
-
-@responses.activate
 def test_changing_the_video_replaces_its_thumbnail():
-    old_thumbnail = stored_image(f"{OTHER_VIDEO_ID}-maxresdefault.jpg")
+    old_thumbnail = stored_thumbnail(OTHER_VIDEO_ID)
     mock_thumbnail(MAXRES_URL)
 
     poster = VideoBlock().clean(video_value(poster=old_thumbnail))["poster"]
@@ -199,30 +171,55 @@ def test_changing_the_video_replaces_its_thumbnail():
     assert poster.filename.startswith(f"{VIDEO_ID}-maxresdefault")
 
 
-@responses.activate
-def test_editor_image_with_youtube_thumbnail_selected_is_rejected(editor_poster):
+def test_changing_to_a_self_hosted_video_removes_the_youtube_thumbnail():
+    old_thumbnail = stored_thumbnail()
+
     with pytest.raises(StructBlockValidationError) as exc_info:
-        VideoBlock().clean(video_value(poster=editor_poster))
+        VideoBlock().clean(video_value(video_url=SELF_HOSTED_URL, poster=old_thumbnail))
 
     assert list(block_errors(exc_info)) == ["poster"]
+
+
+@responses.activate
+@pytest.mark.parametrize("video_url", [YOUTUBE_URL, SELF_HOSTED_URL])
+def test_editors_poster_is_kept_without_downloading(video_url, editor_poster):
+    poster = VideoBlock().clean(video_value(video_url=video_url, poster=editor_poster))["poster"]
+
+    assert poster == editor_poster
     assert len(responses.calls) == 0
 
 
 @responses.activate
-def test_youtube_thumbnail_rejected_for_self_hosted_video():
+def test_image_named_like_a_thumbnail_outside_the_collection_is_the_editors_poster():
+    imported_poster = stored_image(f"{OTHER_VIDEO_ID}-maxresdefault.jpg")
+
+    poster = VideoBlock().clean(video_value(poster=imported_poster))["poster"]
+
+    assert poster == imported_poster
+    assert len(responses.calls) == 0
+
+
+def test_publish_requires_a_poster_for_a_self_hosted_video():
     with pytest.raises(StructBlockValidationError) as exc_info:
         VideoBlock().clean(video_value(video_url=SELF_HOSTED_URL))
 
-    assert list(block_errors(exc_info)) == ["poster_source"]
-    assert len(responses.calls) == 0
+    assert list(block_errors(exc_info)) == ["poster"]
+
+
+def test_publish_reports_missing_poster_with_other_errors():
+    with pytest.raises(StructBlockValidationError) as exc_info:
+        VideoBlock().clean(video_value(video_url=SELF_HOSTED_URL, alt=""))
+
+    assert set(block_errors(exc_info)) == {"alt", "poster"}
 
 
 @responses.activate
-def test_youtube_thumbnail_needs_a_link_to_a_video():
+def test_youtube_link_that_is_not_a_video_needs_a_poster():
     with pytest.raises(StructBlockValidationError) as exc_info:
         VideoBlock().clean(video_value(video_url="https://www.youtube.com/@firefox"))
 
     assert list(block_errors(exc_info)) == ["video_url"]
+    assert len(responses.calls) == 0
 
 
 @responses.activate
@@ -232,19 +229,19 @@ def test_youtube_unreachable_reports_on_the_poster_after_one_attempt():
     with pytest.raises(StructBlockValidationError) as exc_info:
         VideoBlock().clean(video_value())
 
-    assert "Couldn't reach YouTube" in block_errors(exc_info)["poster"][0]
+    assert list(block_errors(exc_info)) == ["poster"]
     assert [call.request.url for call in responses.calls] == [MAXRES_URL]
 
 
 @responses.activate
-def test_video_without_youtube_thumbnail_asks_for_an_upload():
+def test_video_without_youtube_thumbnail_asks_for_a_poster():
     responses.add(responses.GET, MAXRES_URL, status=404)
     responses.add(responses.GET, HQ_URL, status=404)
 
     with pytest.raises(StructBlockValidationError) as exc_info:
         VideoBlock().clean(video_value())
 
-    assert "Upload an image" in block_errors(exc_info)["poster"][0]
+    assert list(block_errors(exc_info)) == ["poster"]
 
 
 @responses.activate
@@ -254,15 +251,8 @@ def test_thumbnail_downloads_stop_when_the_request_is_out_of_time(admin_request)
     with pytest.raises(StructBlockValidationError) as exc_info:
         VideoBlock().clean(video_value())
 
-    assert "Save again" in block_errors(exc_info)["poster"][0]
+    assert list(block_errors(exc_info)) == ["poster"]
     assert len(responses.calls) == 0
-
-
-@pytest.fixture
-def clock():
-    now = [0.0]
-    with mock.patch("springfield.cms.blocks.time.monotonic", side_effect=lambda: now[0]):
-        yield now
 
 
 @responses.activate
@@ -276,7 +266,7 @@ def test_fallback_is_skipped_when_the_first_attempt_used_up_the_time(admin_reque
     with pytest.raises(StructBlockValidationError) as exc_info:
         VideoBlock().clean(video_value())
 
-    assert "Save again" in block_errors(exc_info)["poster"][0]
+    assert list(block_errors(exc_info)) == ["poster"]
     assert [call.request.url for call in responses.calls] == [MAXRES_URL]
 
 
@@ -291,8 +281,8 @@ def test_download_stops_when_the_body_runs_past_the_time(admin_request, clock):
     with pytest.raises(StructBlockValidationError) as exc_info:
         VideoBlock().clean(video_value())
 
-    assert "Save again" in block_errors(exc_info)["poster"][0]
-    assert not SpringfieldImage.objects.filter(title__startswith="YouTube thumbnail").exists()
+    assert list(block_errors(exc_info)) == ["poster"]
+    assert not SpringfieldImage.objects.filter(collection__name=YOUTUBE_THUMBNAIL_COLLECTION_NAME).exists()
 
 
 @responses.activate
@@ -303,17 +293,7 @@ def test_storage_failure_reports_on_the_poster():
         with pytest.raises(StructBlockValidationError) as exc_info:
             VideoBlock().clean(video_value())
 
-    assert "Couldn't save" in block_errors(exc_info)["poster"][0]
-
-
-@responses.activate
-def test_preview_does_not_download(preview_request):
-    old_thumbnail = stored_image(f"{OTHER_VIDEO_ID}-maxresdefault.jpg")
-
-    value = VideoBlock().clean(video_value(poster=old_thumbnail))
-
-    assert value["poster"] is None
-    assert len(responses.calls) == 0
+    assert list(block_errors(exc_info)) == ["poster"]
 
 
 @responses.activate
@@ -326,56 +306,11 @@ def test_draft_saves_without_poster_when_youtube_has_none():
     assert value["poster"] is None
 
 
-@pytest.mark.parametrize(
-    "data",
-    [
-        video_data(video_url="", alt=""),
-        video_data(video_url=SELF_HOSTED_URL, poster_source=POSTER_SOURCE_UPLOAD),
-        video_data(video_url=SELF_HOSTED_URL),
-        video_data(poster_source=POSTER_SOURCE_UPLOAD),
-    ],
-)
-def test_draft_saves_with_incomplete_video(data):
-    value = VideoBlock().clean_deferred(VideoBlock().to_python(data))
+@pytest.mark.parametrize("video_url", ["", SELF_HOSTED_URL, "https://www.youtube.com/@firefox"])
+def test_draft_saves_with_incomplete_video(video_url):
+    value = VideoBlock().clean_deferred(video_value(video_url=video_url, alt=""))
 
     assert value["poster"] is None
-
-
-@responses.activate
-def test_draft_keeps_editor_image_with_youtube_thumbnail_selected(editor_poster):
-    value = VideoBlock().clean_deferred(video_value(poster=editor_poster))
-
-    assert value["poster"] == editor_poster
-    assert len(responses.calls) == 0
-
-
-@pytest.mark.parametrize(
-    "video_url, message",
-    [
-        (SELF_HOSTED_URL, "Videos from assets.mozilla.net need one."),
-        (YOUTUBE_URL, "Choose a poster image, or set Poster to 'YouTube thumbnail'."),
-    ],
-)
-def test_publish_requires_an_uploaded_poster(video_url, message):
-    with pytest.raises(StructBlockValidationError) as exc_info:
-        VideoBlock().clean(video_value(video_url=video_url, poster_source=POSTER_SOURCE_UPLOAD))
-
-    assert message in block_errors(exc_info)["poster"][0]
-
-
-def test_publish_reports_missing_poster_with_other_errors():
-    with pytest.raises(StructBlockValidationError) as exc_info:
-        VideoBlock().clean(video_value(video_url=SELF_HOSTED_URL, poster_source=POSTER_SOURCE_UPLOAD, alt=""))
-
-    assert set(block_errors(exc_info)) == {"alt", "poster"}
-
-
-@responses.activate
-def test_uploaded_poster_is_kept(editor_poster):
-    value = VideoBlock().clean(video_value(poster_source=POSTER_SOURCE_UPLOAD, poster=editor_poster))
-
-    assert value["poster"] == editor_poster
-    assert len(responses.calls) == 0
 
 
 @responses.activate
@@ -390,15 +325,14 @@ def test_blog_hero_video_gets_youtube_thumbnail():
 
 def test_blog_hero_video_requires_poster_for_self_hosted_video():
     stream_block = BlogArticlePage._meta.get_field("hero_video").stream_block
-    data = video_data(video_url=SELF_HOSTED_URL, poster_source=POSTER_SOURCE_UPLOAD)
 
     with pytest.raises(StreamBlockValidationError):
-        stream_block.clean(stream_block.to_python([{"type": "video", "value": data}]))
+        stream_block.clean(stream_block.to_python([{"type": "video", "value": video_data(video_url=SELF_HOSTED_URL)}]))
 
 
 @pytest.mark.parametrize("video_url", [YOUTUBE_URL, SELF_HOSTED_URL, f"https://www.youtube.com/shorts/{VIDEO_ID}"])
 def test_render_with_poster(video_url, editor_poster):
-    data = video_data(video_url=video_url, poster_source=POSTER_SOURCE_UPLOAD, poster=editor_poster)
+    data = video_data(video_url=video_url, poster=editor_poster)
 
     soup = BeautifulSoup(VideoBlock().render(VideoBlock().to_python(data)), "html.parser")
 

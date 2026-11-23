@@ -19,7 +19,6 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.files.base import ContentFile
 from django.db import transaction
-from django.db.models import Q
 from django.forms.utils import ErrorList
 from django.forms.widgets import CheckboxSelectMultiple, TelInput
 from django.http import QueryDict
@@ -32,6 +31,7 @@ from product_details import product_details
 from wagtail import blocks
 from wagtail.blocks import StructBlockValidationError
 from wagtail.images.blocks import ImageChooserBlock
+from wagtail.models import Collection
 from wagtail.snippets.blocks import SnippetChooserBlock
 from wagtail.templatetags.wagtailcore_tags import richtext
 from wagtail.utils.file import hash_filelike
@@ -298,12 +298,7 @@ def validate_youtube_url(value):
     return value
 
 
-POSTER_SOURCE_YOUTUBE = "youtube"
-POSTER_SOURCE_UPLOAD = "upload"
-POSTER_SOURCE_CHOICES = [
-    (POSTER_SOURCE_YOUTUBE, "YouTube thumbnail"),
-    (POSTER_SOURCE_UPLOAD, "Upload an image"),
-]
+YOUTUBE_THUMBNAIL_COLLECTION_NAME = "YouTube Thumbnails"
 YOUTUBE_THUMBNAIL_SIZES = ("maxresdefault", "hqdefault")
 # Named like the blog importer's downloads, so either one recognises the other's thumbnails.
 # Django's storage adds "_" and 7 characters when the name is taken.
@@ -314,7 +309,6 @@ YOUTUBE_VIDEO_ID_CHARACTERS = re.compile(r"^[A-Za-z0-9_-]+$")
 YOUTUBE_THUMBNAIL_TIMEOUT = (3, 5)
 YOUTUBE_THUMBNAIL_BUDGET_SECONDS = 10
 YOUTUBE_THUMBNAIL_DEADLINE_ATTR = "youtube_thumbnail_deadline"
-PREVIEW_URL_NAMES = {"preview_on_add", "preview_on_edit"}
 
 
 class YouTubeThumbnailUnavailable(Exception):
@@ -325,14 +319,23 @@ def is_youtube_url(url):
     return "youtube.com" in url or "youtu.be" in url
 
 
-def is_preview_request():
-    request = current_request.get()
-    resolver_match = getattr(request, "resolver_match", None)
-    return resolver_match is not None and resolver_match.url_name in PREVIEW_URL_NAMES
+def thumbnail_video_id(video_url):
+    """The ID of the YouTube video at `video_url` when it is safe to build a thumbnail URL from, else None."""
+    video_id = youtube_video_id(video_url)
+    return video_id if video_id and YOUTUBE_VIDEO_ID_CHARACTERS.match(video_id) else None
+
+
+def youtube_thumbnail_collection():
+    """The image collection that YouTube thumbnails are stored in, created the first time it's needed."""
+    root = Collection.get_first_root_node()
+    collection = root.get_children().filter(name=YOUTUBE_THUMBNAIL_COLLECTION_NAME).first()
+    return collection or root.add_child(name=YOUTUBE_THUMBNAIL_COLLECTION_NAME)
 
 
 def youtube_thumbnail_video_id(image):
     """The video ID a stored YouTube thumbnail belongs to, or None if `image` isn't one."""
+    if image.collection.name != YOUTUBE_THUMBNAIL_COLLECTION_NAME:
+        return None
     match = YOUTUBE_THUMBNAIL_FILENAME_PATTERN.match(image.filename)
     return match["video_id"] if match else None
 
@@ -379,15 +382,13 @@ def download_youtube_thumbnail(video_id):
         except requests.RequestException as exc:
             # The next size is on the same host, so it would fail the same way.
             logger.warning("Could not reach YouTube for the thumbnail %s: %s", url, exc)
-            raise YouTubeThumbnailUnavailable(
-                "Couldn't reach YouTube to get this video's thumbnail. Save again, or set Poster to 'Upload an image'."
-            ) from exc
+            raise YouTubeThumbnailUnavailable("Couldn't reach YouTube to get this video's thumbnail. Save again, or choose a poster image.") from exc
     logger.warning("YouTube has no thumbnail for video %s", video_id)
-    raise YouTubeThumbnailUnavailable("YouTube has no thumbnail for this video. Set Poster to 'Upload an image' and choose one.")
+    raise YouTubeThumbnailUnavailable("YouTube has no thumbnail for this video. Choose a poster image.")
 
 
 def get_or_create_youtube_poster(video_id, alt):
-    """Return YouTube's thumbnail for `video_id` from the image library, downloading it the first time.
+    """Return YouTube's thumbnail for `video_id` from the YouTube Thumbnails collection, downloading it the first time.
 
     Stored locally so that visitors never request anything from YouTube before they play the video.
     Raises YouTubeThumbnailUnavailable when there is none to use.
@@ -395,23 +396,12 @@ def get_or_create_youtube_poster(video_id, alt):
     # Inline because springfield.cms.models imports this module.
     from springfield.cms.models import SpringfieldImage
 
-    # A library can hold only the 4:3 hqdefault for a video that also has a 16:9 maxresdefault, so
-    # only a widescreen thumbnail is reused without asking YouTube first.
-    candidates = SpringfieldImage.objects.filter(
-        Q(file__startswith=f"original_images/{video_id}-maxresdefault.") | Q(file__startswith=f"original_images/{video_id}-maxresdefault_")
-    )
-    for candidate in candidates:
-        if youtube_thumbnail_video_id(candidate) == video_id:
-            return candidate
+    collection = youtube_thumbnail_collection()
+    for image in SpringfieldImage.objects.filter(collection=collection, file__startswith=f"original_images/{video_id}-"):
+        if youtube_thumbnail_video_id(image) == video_id:
+            return image
 
     content, size = download_youtube_thumbnail(video_id)
-    file_hash = hash_filelike(BytesIO(content))
-    # An image with the same bytes under another name isn't recognised as this video's thumbnail
-    # on the next save, so only one named for this video is reused.
-    for existing in SpringfieldImage.objects.filter(file_hash=file_hash):
-        if youtube_thumbnail_video_id(existing) == video_id:
-            return existing
-
     request = current_request.get()
     user = getattr(request, "user", None)
     try:
@@ -419,15 +409,16 @@ def get_or_create_youtube_poster(video_id, alt):
             return SpringfieldImage.objects.create(
                 title=f"YouTube thumbnail: {alt or video_id}"[:255],
                 is_decorative=True,
+                collection=collection,
                 file=ContentFile(content, name=f"{video_id}-{size}.jpg"),
-                file_hash=file_hash,
+                file_hash=hash_filelike(BytesIO(content)),
                 uploaded_by_user=user if user is not None and user.is_authenticated else None,
             )
     except Exception as exc:
         # Reading the image's dimensions or writing it to storage can fail on a bad download or a
         # storage outage. Report it on the block instead of failing the whole save.
         logger.exception("Could not store the YouTube thumbnail for video %s", video_id)
-        raise YouTubeThumbnailUnavailable("Couldn't save YouTube's thumbnail. Save again, or set Poster to 'Upload an image'.") from exc
+        raise YouTubeThumbnailUnavailable("Couldn't save YouTube's thumbnail. Save again, or choose a poster image.") from exc
 
 
 _ICON_LABEL_OVERRIDES = {
@@ -1883,18 +1874,11 @@ class VideoBlock(blocks.StructBlock):
         validators=[validate_video_url],
     )
     alt = blocks.CharBlock(label="Alt Text", default="", help_text="Text for screen readers describing the video.")
-    poster_source = blocks.ChoiceBlock(
-        choices=POSTER_SOURCE_CHOICES,
-        default=POSTER_SOURCE_YOUTUBE,
-        label="Poster",
-        help_text="YouTube thumbnail: the video's own thumbnail is added to the image library when you save, "
-        "and follows the video if you change the URL. YouTube videos only. "
-        "Upload an image: choose your own. Required for assets.mozilla.net videos.",
-    )
     poster = ImageChooserBlock(
         required=False,
         label="Poster image",
-        help_text="Displayed before the video is played. Filled in for you when Poster is set to YouTube thumbnail.",
+        help_text="Displayed before the video is played. Leave empty on a YouTube video to use its thumbnail, "
+        "which is added to the YouTube Thumbnails collection when you save. Required for assets.mozilla.net videos.",
     )
     aspect_ratio = blocks.ChoiceBlock(
         choices=VIDEO_ASPECT_RATIO_CHOICES,
@@ -1904,22 +1888,6 @@ class VideoBlock(blocks.StructBlock):
         help_text="Match this to the file's real dimensions so it isn't stretched or cropped. Leave as Default if already 16:9.",
     )
 
-    @staticmethod
-    def with_poster_source(value):
-        # Blocks saved before the Poster choice existed always had an uploaded poster.
-        if isinstance(value, dict) and "poster_source" not in value:
-            return {**value, "poster_source": POSTER_SOURCE_UPLOAD if value.get("poster") else POSTER_SOURCE_YOUTUBE}
-        return value
-
-    def to_python(self, value):
-        return super().to_python(self.with_poster_source(value))
-
-    def bulk_to_python(self, values):
-        return super().bulk_to_python([self.with_poster_source(value) for value in values])
-
-    def normalize(self, value):
-        return super().normalize(self.with_poster_source(value))
-
     def clean(self, value):
         errors = {}
         try:
@@ -1928,73 +1896,52 @@ class VideoBlock(blocks.StructBlock):
             errors.update(exc.block_errors)
             cleaned_value = value
 
-        # A draft saves whatever poster settings it has; they are checked when the page is published.
-        if not self.is_deferred_validation:
-            errors.update(self.poster_errors(cleaned_value))
+        # A draft saves without a poster; it is checked when the page is published.
+        if "video_url" not in errors:
+            try:
+                self.set_youtube_poster(cleaned_value)
+            except YouTubeThumbnailUnavailable as exc:
+                if not self.is_deferred_validation:
+                    errors["poster"] = ValidationError(str(exc))
+            else:
+                if not self.is_deferred_validation:
+                    errors.update(self.poster_errors(cleaned_value))
         if errors:
             raise StructBlockValidationError(block_errors=errors)
-
-        video_id = self.youtube_thumbnail_to_fetch(cleaned_value)
-        if video_id:
-            self.set_youtube_poster(cleaned_value, video_id)
         return cleaned_value
 
     @staticmethod
-    def poster_errors(value):
-        video_url = value["video_url"]
-        if not video_url:
-            return {}
-
-        if value["poster_source"] == POSTER_SOURCE_YOUTUBE:
-            if not is_youtube_url(video_url):
-                return {"poster_source": ValidationError("YouTube thumbnail only works for YouTube videos. Set Poster to 'Upload an image'.")}
-            video_id = youtube_video_id(video_url)
-            if not (video_id and YOUTUBE_VIDEO_ID_CHARACTERS.match(video_id)):
-                return {"video_url": ValidationError("Use a link to a YouTube video, such as https://www.youtube.com/watch?v=VIDEO_ID.")}
-            if value["poster"] and youtube_thumbnail_video_id(value["poster"]) is None:
-                return {"poster": ValidationError("Remove this image to use the YouTube thumbnail, or set Poster to 'Upload an image' to keep it.")}
-            return {}
-
-        if value["poster"]:
-            return {}
-        if is_youtube_url(video_url):
-            return {"poster": ValidationError("Choose a poster image, or set Poster to 'YouTube thumbnail'.")}
-        return {"poster": ValidationError("Add a poster image. Videos from assets.mozilla.net need one.")}
-
-    @staticmethod
-    def youtube_thumbnail_to_fetch(value):
-        """The video ID whose thumbnail should become the poster, or None when the settings don't call for one."""
-        video_url = value["video_url"]
-        if value["poster_source"] != POSTER_SOURCE_YOUTUBE or not video_url or not is_youtube_url(video_url):
-            return None
-        video_id = youtube_video_id(video_url)
-        if not (video_id and YOUTUBE_VIDEO_ID_CHARACTERS.match(video_id)):
-            return None
-        # The editor's own image, left in place on a draft until they pick a setting.
-        if value["poster"] and youtube_thumbnail_video_id(value["poster"]) is None:
-            return None
-        return video_id
-
-    def set_youtube_poster(self, value, video_id):
-        """Point the poster at the current video's YouTube thumbnail, fetching it if needed.
+    def set_youtube_poster(value):
+        """Fill an empty poster, or one showing another video's thumbnail, with the YouTube video's thumbnail.
 
         This writes to the image library during validation, so if another field on the page fails,
         the thumbnail is already stored and the next save reuses it instead of downloading again.
         """
-        if value["poster"] and youtube_thumbnail_video_id(value["poster"]) == video_id:
+        poster = value["poster"]
+        poster_video_id = youtube_thumbnail_video_id(poster) if poster else None
+        if poster and poster_video_id is None:
             return
-        # The preview's form data never receives the fetched poster, so fetching there would
-        # repeat on every refresh.
-        if is_preview_request():
-            value["poster"] = None
+        video_id = thumbnail_video_id(value["video_url"])
+        if poster_video_id == video_id:
             return
-        try:
+        value["poster"] = None
+        if video_id is not None:
             value["poster"] = get_or_create_youtube_poster(video_id, value["alt"])
-        except YouTubeThumbnailUnavailable as exc:
-            if not self.is_deferred_validation:
-                raise StructBlockValidationError(block_errors={"poster": ValidationError(str(exc))}) from exc
-            # A draft can be saved without a poster. Publishing fetches it again or reports the error.
-            value["poster"] = None
+
+    @staticmethod
+    def poster_errors(value):
+        """Errors for a published video that still has no poster image."""
+        video_url = value["video_url"]
+        if not video_url or value["poster"]:
+            return {}
+        if is_youtube_url(video_url):
+            return {
+                "video_url": ValidationError(
+                    "Couldn't find a video in this YouTube link, so there's no thumbnail to use. "
+                    "Use a link such as https://www.youtube.com/watch?v=VIDEO_ID, or choose a poster image."
+                )
+            }
+        return {"poster": ValidationError("Choose a poster image. Videos from assets.mozilla.net need one.")}
 
     class Meta:
         label = "Video"

@@ -1,8 +1,8 @@
 ## 2026-11-23
 
-- Video blocks have a Poster setting. "YouTube thumbnail" (the default for new video blocks) adds the video's own thumbnail to the image library when you save, and changes with the video URL. "Upload an image" uses your own poster image, and is required for assets.mozilla.net videos. Existing videos keep their poster image.
+- The video block's Poster image is optional for YouTube videos. Leave it empty and, when you save, the video's YouTube thumbnail is added to the "YouTube Thumbnails" image collection and filled in as the poster. If you change the video URL, the thumbnail changes with it. Choose your own image to use that instead. assets.mozilla.net videos still need a poster image.
 - Drafts save with an incomplete video block. The poster is checked when you publish.
--
+
 ## 2026-11-19
 
 - Every field that sets where a QR code points is now called "QR Code URL", with the same help text: the QR Code block, Mobile Store Button / QR Code, Home Kit Banner, QR Code Modal Button, the Banner, QR Code and Floating QR Code snippets, and the page-level "Override QR Code URL". If you leave off `https://` it is added when you save, `http://` is changed to `https://`, and `tel:`, `mailto:` and `sms:` links are kept as they are. Anything else, like plain text, shows an error.

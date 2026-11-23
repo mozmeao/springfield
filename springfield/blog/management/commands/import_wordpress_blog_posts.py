@@ -58,7 +58,6 @@ from springfield.blog.models import (
     BlogTopic,
     HeroStyle,
 )
-from springfield.cms.blocks import POSTER_SOURCE_YOUTUBE
 from springfield.cms.models import SpringfieldImage
 from springfield.cms.models.images import looks_like_filename
 
@@ -966,8 +965,7 @@ class Command(BaseCommand):
                     # does not disappear from the post.
                     blocks.append(("text", video_link(value["url"])))
                     continue
-                video = {"video_url": value["url"], "alt": alt, "poster_source": POSTER_SOURCE_YOUTUBE, "poster": poster}
-                blocks.append(("media", [("video", video)]))
+                blocks.append(("media", [("video", {"video_url": value["url"], "alt": alt, "poster": poster})]))
             else:
                 blocks.append((block_type, value))
         return blocks
