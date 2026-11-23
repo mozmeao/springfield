@@ -451,6 +451,10 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
     margin-block-end: 0;
 }
 
+.fl-wnp-footer .fl-wnp-footer-title {
+    font-size: var(--fl-theme-font-size-heading-md);
+}
+
 .fl-wnp-footer-subtitle {
     font-size: var(--fl-theme-font-size-body-xs);
     margin-block-end: 0;

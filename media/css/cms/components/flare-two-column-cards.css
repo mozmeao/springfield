@@ -48,6 +48,9 @@
 }
 
 .fl-two-column-card .fl-heading {
+    font-size: var(--fl-theme-font-size-heading-sm);
+    font-variation-settings: unset;
+    line-height: 1.2;
     margin: 0;
 }
 
