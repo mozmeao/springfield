@@ -24,7 +24,7 @@
         <div class="fl-section-container">
           <include:heading
             alignment_class="text-center"
-            heading_size="fl-heading-size-2"
+            heading_size="fl-heading-size-1"
             level="h1"
             heading_text="{{ page.title }}"
             subheading_text="{{ page.sub_title }}"
@@ -39,7 +39,6 @@
                     {% set tag = article.get_tag() %}
                     <include:heading
                       level="h2"
-                      heading_size="fl-heading-size-3"
                       superheading_text="{{ tag.name if tag else '' }}"
                       heading_text="{{ article.index_page_heading or article.title }}"
                     />
@@ -78,7 +77,7 @@
         <div class="fl-section-container">
           <include:heading
             alignment_class="text-center"
-            heading_size="fl-heading-lg"
+            heading_size="fl-heading-size-2"
             level="h2"
             heading_text="{{ page.other_articles_heading|richtext|remove_p_tag }}"
             subheading_text="{{ page.other_articles_subheading|richtext|remove_p_tag }}"

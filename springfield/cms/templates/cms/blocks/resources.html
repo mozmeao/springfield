@@ -21,7 +21,6 @@
           {% if links.list_open %}</ul>{% set links.list_open = false %}{% endif %}
           <include:heading
             level="{{ subheading_level }}"
-            heading_size="fl-heading-2xs"
             heading_text="{{ item.value|richtext|remove_p_tag }}"
           />
         {% else %}

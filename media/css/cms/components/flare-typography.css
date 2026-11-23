@@ -127,67 +127,6 @@
     font-size: var(--fl-theme-font-size-heading-2xs);
 }
 
-/* On phones an H1 given a section or banner size keeps the H1 size, so it
-   stays above the page's H2s. */
-@media (--viewport-xs) {
-    h1.fl-heading-size-2,
-    h1.fl-heading-lg,
-    h1.fl-heading-md {
-        font-size: var(--fl-theme-font-size-heading-xl);
-    }
-}
-
-/* Headings size by their level, whatever size class a template passes them */
-h1:is(
-    .fl-heading-xl,
-    .fl-heading-lg,
-    .fl-heading-md,
-    .fl-heading-sm,
-    .fl-heading-2xl,
-    .fl-heading-size-2,
-    .fl-heading-size-3
-) {
-    font-size: var(--fl-h1);
-    font-variation-settings:
-        'wght' var(--token-font-weight-semibold),
-        'wdth' var(--token-font-condensed-width);
-    line-height: 0.9;
-}
-
-h2:is(
-    .fl-heading-xl,
-    .fl-heading-lg,
-    .fl-heading-md,
-    .fl-heading-sm,
-    .fl-heading-xs,
-    .fl-heading-size-1,
-    .fl-heading-size-3,
-    .fl-heading-size-5
-) {
-    font-size: var(--fl-h2);
-}
-
-h3:is(
-    .fl-heading-xl,
-    .fl-heading-md,
-    .fl-heading-sm,
-    .fl-heading-xs,
-    .fl-heading-2xs,
-    .fl-heading-size-4
-) {
-    font-size: var(--fl-h3);
-}
-
-h4:is(
-    .fl-heading-md,
-    .fl-heading-sm,
-    .fl-heading-xs,
-    .fl-heading-2xs,
-    .fl-heading-size-3
-) {
-    font-size: var(--fl-h4);
-}
-
 /* An H1 beside media takes the small H1 on desktop */
 @media (--viewport-md-up) {
     .fl-banner h1,

@@ -19,7 +19,7 @@
       {% if block.block_type == "rich_text" %}
         {{ block.value|richtext }}
       {% elif block.block_type == "heading" %}
-        {% with heading_size="fl-heading-sm" %}
+        {% with heading_size="fl-two-column-card-heading" %}
           {% include_block block %}
         {% endwith %}
       {% else %}

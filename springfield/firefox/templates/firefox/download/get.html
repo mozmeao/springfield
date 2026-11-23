@@ -53,13 +53,13 @@
       </include:notification>
       <div class="fl-section-container fl-download-support">
         <include:conditional-display platform_conditions="{{ ['windows'] }}">
-          <h1 class="fl-heading fl-heading-size-3 text-center">{{ ftl('firefox-desktop-download-almost-there') }}<br>{{ ftl('firefox-desktop-download-now-windows') }}</h1>
+          <h1 class="fl-heading text-center fl-heading-size-1">{{ ftl('firefox-desktop-download-almost-there') }}<br>{{ ftl('firefox-desktop-download-now-windows') }}</h1>
           <div class="fl-support-install">
             <p>{{ ftl('firefox-desktop-download-get-help', attrs='href="https://support.mozilla.org/kb/how-install-firefox-windows%s" rel="external noopener" data-cta-text="Get help with your installation"'|safe|format(params)) }}</p>
           </div>
         </include:conditional-display>
         <include:conditional-display platform_conditions="{{ ['osx'] }}">
-          <h1 class="fl-heading fl-heading-size-3 text-center">{{ ftl('firefox-desktop-download-almost-there') }}<br>{{ ftl('firefox-desktop-download-now-mac') }}</h1>
+          <h1 class="fl-heading text-center fl-heading-size-1">{{ ftl('firefox-desktop-download-almost-there') }}<br>{{ ftl('firefox-desktop-download-now-mac') }}</h1>
           <div class="fl-support-install">
             <p>{{ ftl('firefox-desktop-download-get-help', attrs='href="https://support.mozilla.org/kb/how-download-and-install-firefox-mac%s" rel="external noopener" data-cta-text="Get help with your installation"'|safe|format(params)) }}</p>
           </div>
@@ -78,7 +78,7 @@
     {% if options.linux.urls %}
       <section class="fl-section" data-state="linux" hidden>
         <div class="fl-section-container fl-download-support">
-          <h1 class="fl-heading fl-heading-size-3 text-center">{{ ftl('firefox-desktop-download-almost-there') }}<br>{{ ftl('firefox-desktop-download-select-linux') }}</h1>
+          <h1 class="fl-heading text-center fl-heading-size-1">{{ ftl('firefox-desktop-download-almost-there') }}<br>{{ ftl('firefox-desktop-download-select-linux') }}</h1>
           <a class="fl-button ga-product-download" href="{{ options.linux.urls.linux64 }}" data-cta-text="Download for Linux 64-bit">{{ ftl('download-button-linux-64-v2') }}</a>
         </div>
       </section>
@@ -86,7 +86,7 @@
 
     <section class="fl-section" data-state="firefox" hidden>
       <div class="fl-section-container fl-download-support">
-        <h1 class="fl-heading fl-heading-size-3 text-center">{{ ftl('partner-download-already-using-firefox') }}</h1>
+        <h1 class="fl-heading text-center fl-heading-size-1">{{ ftl('partner-download-already-using-firefox') }}</h1>
         <div class="fl-button-row">
           <include:button
             link="/{{ partner_lang }}/"
@@ -110,35 +110,35 @@
 
     <section class="fl-section" data-state="language" hidden>
       <div class="fl-section-container fl-download-support">
-        <h1 class="fl-heading fl-heading-size-3 text-center">{{ ftl('partner-download-language-not-available', partner=partner_name) }}</h1>
+        <h1 class="fl-heading text-center fl-heading-size-1">{{ ftl('partner-download-language-not-available', partner=partner_name) }}</h1>
         {{ download_firefox(force_direct=true, dom_id='partner-download-language', button_class='fl-button') }}
       </div>
     </section>
 
     <section class="fl-section" data-state="device" hidden>
       <div class="fl-section-container fl-download-support">
-        <h1 class="fl-heading fl-heading-size-3 text-center">{{ ftl('partner-download-device-not-available', partner=partner_name) }}</h1>
+        <h1 class="fl-heading text-center fl-heading-size-1">{{ ftl('partner-download-device-not-available', partner=partner_name) }}</h1>
         {{ download_firefox(force_direct=true, dom_id='partner-download-device', button_class='fl-button') }}
       </div>
     </section>
 
     <section class="fl-section" data-state="linux_language" hidden>
       <div class="fl-section-container fl-download-support">
-        <h1 class="fl-heading fl-heading-size-3 text-center">{{ ftl('partner-download-language-not-available', partner=partner_name) }}</h1>
+        <h1 class="fl-heading text-center fl-heading-size-1">{{ ftl('partner-download-language-not-available', partner=partner_name) }}</h1>
         {{ firefox_download_desktop_button_linux(id='partner-download-linux-language', flare_styles=true) }}
       </div>
     </section>
 
     <section class="fl-section" data-state="linux_device" hidden>
       <div class="fl-section-container fl-download-support">
-        <h1 class="fl-heading fl-heading-size-3 text-center">{{ ftl('partner-download-device-not-available', partner=partner_name) }}</h1>
+        <h1 class="fl-heading text-center fl-heading-size-1">{{ ftl('partner-download-device-not-available', partner=partner_name) }}</h1>
         {{ firefox_download_desktop_button_linux(id='partner-download-linux-device', flare_styles=true) }}
       </div>
     </section>
 
     <section class="fl-section" data-state="unsupported_os" hidden>
       <div class="fl-section-container fl-download-support">
-        <h1 class="fl-heading fl-heading-size-3 text-center">{{ ftl('firefox-desktop-download-interrupted') }}</h1>
+        <h1 class="fl-heading text-center fl-heading-size-1">{{ ftl('firefox-desktop-download-interrupted') }}</h1>
         <div class="fl-support-install">
           <p>{{ ftl('firefox-desktop-download-your-system-may-not', url=download_all_url) }}</p>
         </div>

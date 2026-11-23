@@ -25,7 +25,7 @@
   </div>
 
   {% if product %}
-    <h3 id="all-product-selection" class="fl-c-flow-selection fl-heading fl-heading-xs">{{ product and product.name }}
+    <h3 id="all-product-selection" class="fl-c-flow-selection fl-heading">{{ product and product.name }}
       <include:button
         theme_class="button-ghost fl-button-small load-content-partial"
         label="{{ ftl('ui-edit') }}"
@@ -48,7 +48,6 @@
       {% endset %}
       <include:heading
         level="h3"
-        heading_size="fl-heading-2xs"
         heading_text="{{ desktop_heading }}"
         class="test"
       />
@@ -72,7 +71,6 @@
       {% endset %}
       <include:heading
         level="h3"
-        heading_size="fl-heading-2xs"
         heading_text="{{ mobile_heading }}"
       />
       <ul class="c-product-list qa-mobile-list fl-c-unstyled-list">
@@ -91,7 +89,6 @@
      <content:heading>
       <include:heading
         level="h3"
-        heading_size="fl-heading-sm"
         heading_text="{{ ftl('firefox-all-learn-about-firefox') }}"
       />
     </content:heading>
@@ -100,27 +97,27 @@
 
      <ul class="fl-c-unstyled-list">
           <li>
-            <h4 class="fl-heading-xs"><a href="{{ url('firefox') }}">{{ ftl('firefox-all-product-firefox') }}</a></h4>
+            <h4><a href="{{ url('firefox') }}">{{ ftl('firefox-all-product-firefox') }}</a></h4>
             <p class="c-help-desc">{{ ftl('firefox-all-the-standard-firefox') }}</p>
           </li>
           <li>
-            <h4 class="fl-heading-xs"><a href="{{ url('firefox.channel.desktop') }}#beta">Firefox <span>Beta</span></a></h4>
+            <h4><a href="{{ url('firefox.channel.desktop') }}#beta">Firefox <span>Beta</span></a></h4>
             <p class="c-help-desc">{{ ftl('firefox-all-get-a-sneak-peek-at') }}</p>
           </li>
           <li>
-            <h4 class="fl-heading-xs"><a href="{{ url('firefox.developer.index') }}">Firefox <span>Developer Edition</span></a></h4>
+            <h4><a href="{{ url('firefox.developer.index') }}">Firefox <span>Developer Edition</span></a></h4>
             <p class="c-help-desc">{{ ftl('firefox-all-test-your-sites-against') }}</p>
           </li>
           <li>
-            <h4 class="fl-heading-xs"><a href="{{ url('firefox.channel.desktop') }}#nightly">Firefox <span>Nightly</span></a></h4>
+            <h4><a href="{{ url('firefox.channel.desktop') }}#nightly">Firefox <span>Nightly</span></a></h4>
             <p class="c-help-desc">{{ ftl('firefox-all-the-pre-alpha-version') }}</p>
           </li>
           <li>
-            <h4 class="fl-heading-xs"><a href="{{ firefox_url('desktop', 'all', 'esr') }}">Firefox <span>Extended Support Release</span></a></h4>
+            <h4><a href="{{ firefox_url('desktop', 'all', 'esr') }}">Firefox <span>Extended Support Release</span></a></h4>
             <p class="c-help-desc">{{ ftl('firefox-all-count-on-stability-and') }}</p>
           </li>
           <li>
-            <h4 class="fl-heading-xs"><a href="/{{ LANG }}/enterprise/">Firefox <span>Enterprise</span></a></h4>
+            <h4><a href="/{{ LANG }}/enterprise/">Firefox <span>Enterprise</span></a></h4>
             <p class="c-help-desc">{{ ftl('firefox-all-the-familiar-firefox-browser') }}</p>
           </li>
         </ul>
