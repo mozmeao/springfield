@@ -24,14 +24,14 @@ def get_icon_card_variants() -> list[dict]:
                         "type": "heading",
                         "value": {
                             "superheading_text": "",
-                            "heading_text": '<p data-block-key="2026kc1h">Icon Card 2026</p>',
+                            "heading_text": '<p data-block-key="2026kc1h">Icon Card</p>',
                             "subheading_text": "",
                         },
                         "id": "2026kc01-0001-0000-0000-000000000002",
                     },
                     {
                         "type": "content",
-                        "value": '<p data-block-key="2026kc1c">Without buttons, activity icon.</p>',
+                        "value": '<p data-block-key="2026kc1c">An icon in the media area, a headline, and body text, with no buttons.</p>',
                         "id": "2026kc01-0001-0000-0000-000000000003",
                     },
                 ],

@@ -20,14 +20,15 @@ def get_carousel_variants() -> list[dict]:
                 "heading": {
                     "superheading_text": "",
                     "heading_text": '<p data-block-key="ca26h1">Carousel with two slides</p>',
-                    "subheading_text": '<p data-block-key="ca26b1">The minimum number of slides is two.</p>',
+                    "subheading_text": '<p data-block-key="ca26b1">A carousel needs at least two slides and allows up to five. '
+                    "Visitors advance them at their own pace.</p>",
                 },
                 "buttons": [],
                 "slides": [
                     {
                         "type": "item",
                         "value": {
-                            "headline": '<p data-block-key="ca26sl1">First slide</p>',
+                            "headline": '<p data-block-key="ca26sl1">Each slide is one image with a short headline</p>',
                             "image": image_value(image_id=placeholder_images.image.id, dark_mode_image_id=placeholder_images.dark_image.id),
                         },
                         "id": "2026ca01-0000-0000-0000-000000000011",
@@ -35,7 +36,7 @@ def get_carousel_variants() -> list[dict]:
                     {
                         "type": "item",
                         "value": {
-                            "headline": '<p data-block-key="ca26sl2">Second slide</p>',
+                            "headline": '<p data-block-key="ca26sl2">Two slides is the minimum</p>',
                             "image": image_value(image_id=placeholder_images.dark_image.id),
                         },
                         "id": "2026ca01-0000-0000-0000-000000000012",
@@ -50,7 +51,7 @@ def get_carousel_variants() -> list[dict]:
             "value": {
                 "settings": {"show_to": SHOW_TO_ALL},
                 "heading": {
-                    "superheading_text": '<p data-block-key="ca26s2">Step by step</p>',
+                    "superheading_text": '<p data-block-key="ca26s2">With buttons</p>',
                     "heading_text": '<p data-block-key="ca26h2">Carousel with three slides and buttons</p>',
                     "subheading_text": "",
                 },
@@ -59,7 +60,7 @@ def get_carousel_variants() -> list[dict]:
                     {
                         "type": "item",
                         "value": {
-                            "headline": '<p data-block-key="ca26sl3">Step one</p>',
+                            "headline": '<p data-block-key="ca26sl3">Optional buttons render below the slides</p>',
                             "image": image_value(image_id=placeholder_images.image.id, dark_mode_image_id=placeholder_images.dark_image.id),
                         },
                         "id": "2026ca01-0000-0000-0000-000000000021",
@@ -67,7 +68,7 @@ def get_carousel_variants() -> list[dict]:
                     {
                         "type": "item",
                         "value": {
-                            "headline": '<p data-block-key="ca26sl4">Step two</p>',
+                            "headline": '<p data-block-key="ca26sl4">You can add up to two of them</p>',
                             "image": image_value(image_id=placeholder_images.mobile_image.id),
                         },
                         "id": "2026ca01-0000-0000-0000-000000000022",
@@ -75,7 +76,7 @@ def get_carousel_variants() -> list[dict]:
                     {
                         "type": "item",
                         "value": {
-                            "headline": '<p data-block-key="ca26sl5">Step three</p>',
+                            "headline": '<p data-block-key="ca26sl5">Up to five slides are allowed</p>',
                             "image": image_value(image_id=placeholder_images.dark_image.id),
                         },
                         "id": "2026ca01-0000-0000-0000-000000000023",

@@ -141,7 +141,7 @@ def get_download_index_page() -> DownloadIndexPage:
             "title": "Download Index",
         },
     )
-
+    page.title = "Download Index"
     page.save_revision().publish()
     return page
 
@@ -165,7 +165,7 @@ def get_download_page(platform) -> DownloadPage:
     page.subheading = (
         '<p data-block-key="0b474f02">Every other major browser is owned by a company that makes money from your data. Firefox sets you free.</p>'
     )
-    page.intro_footer_text = '<p data-block-key="intro-footer-text">Some note about the OS version.</p>'
+    page.intro_footer_text = '<p data-block-key="intro-footer-text">A note under the hero — use it for OS requirements or version details.</p>'
     page.featured_image = image
     page.featured_image_alt = "A numbered grid, standing in for a real image"
     page.content = with_fresh_ids([get_cards_list_section()])

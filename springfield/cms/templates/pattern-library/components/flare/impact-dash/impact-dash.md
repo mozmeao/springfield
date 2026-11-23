@@ -1,0 +1,3 @@
+The `impact-dash` component is the referral Impact Dashboard: a summary heading and message over a list of `badge` milestones — stacked on mobile, a row on desktop. Connectors join badges that have artwork, filled up to the last badge reached and half-way to the next. Without badges it drops the list; the block requires at least one.
+
+It goes in a Showcase tab as the Impact dashboard block. Only the Referral Hub page knows the referrer's install count, so use it there; on other pages every badge stays locked. Editors write a heading and message per badge, plus a locked pair for before the first one. The dashboard shows the pair for the furthest badge reached, with the count in place of the {install count} token.

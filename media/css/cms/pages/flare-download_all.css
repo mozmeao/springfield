@@ -46,6 +46,19 @@
         }
     }
 
+    /* Option labels and the help dialogs keep their own sizes on every scale */
+    .fl-c-flow-options .fl-heading:has(> .fl-c-flow-options-heading) {
+        font-size: var(--fl-theme-font-size-heading-2xs);
+    }
+
+    .fl-dialog .fl-heading {
+        font-size: var(--fl-theme-font-size-heading-sm);
+    }
+
+    .fl-dialog h4 {
+        font-size: var(--fl-theme-font-size-heading-xs);
+    }
+
     .fl-c-flow-options-heading {
         align-items: center;
         display: flex;
@@ -130,6 +143,7 @@
         align-items: center;
         display: flex;
         flex-wrap: wrap;
+        font-size: var(--fl-theme-font-size-heading-xs);
         gap: var(--token-spacing-md);
         justify-content: space-between;
         line-height: 1;

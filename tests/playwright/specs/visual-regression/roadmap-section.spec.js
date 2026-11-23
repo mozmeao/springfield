@@ -8,8 +8,8 @@
 
 const openPage = require('../../scripts/open-page');
 const { test } = require('@playwright/test');
-const { patternLibraryURL, expectComponentScreenshot } = require('./helpers');
-const url = `${patternLibraryURL}/roadmap-list-section/roadmap-list-section.html`;
+const { contextSpecificURL, expectComponentScreenshot } = require('./helpers');
+const url = `${contextSpecificURL}/roadmap-list-section/roadmap-list-section.html`;
 
 test.describe(
     `Roadmap List Section`,

@@ -118,6 +118,10 @@
     max-inline-size: 180px;
 }
 
+.fl-referral-controls .fl-dialog .fl-heading {
+    font-size: var(--fl-theme-font-size-heading-xs);
+}
+
 .fl-referral-controls-qr-label {
     font-size: var(--fl-theme-label-caps-xs);
     margin: var(--token-spacing-sm) 0 0;
