@@ -48,17 +48,23 @@ jobs:
       - name: Build frontend assets
         run: npm ci && npm run build
       # Pull the images the last main build pushed, then build the `app` service (the devapp
-      # target, tagged springfield_test:latest). BuildKit reuses the pulled images' layers for any
-      # step whose inputs are unchanged; see `cache_from` in docker-compose.yml. The pull is
-      # allowed to fail (for example on Docker Hub rate limits), which leaves the build uncached.
-      # `docker compose` needs .env to exist, and GIT_COMMIT is blank so the tag stays `latest`.
+      # target). BuildKit reuses the pulled images' layers for any step whose inputs are
+      # unchanged; see `cache_from` in docker-compose.yml. The pull is allowed to fail (for
+      # example on Docker Hub rate limits), which leaves the build uncached. `docker compose`
+      # needs .env to exist. GIT_COMMIT is blank for the pull so it fetches the `latest` tags, and
+      # set to this commit for the build so the image's data sync reruns rather than coming from
+      # the cache (see the GIT_SHA comment in the Dockerfile's devapp stage).
       - name: Pull previous images to use as build cache
         run: |
           cp .env-dist .env
           GIT_COMMIT= docker compose pull --ignore-pull-failures app builder assets app-base
       - name: Build Docker image
-        run: GIT_COMMIT= docker compose build app
+        env:
+          GIT_COMMIT: ${{ github.sha }}
+        run: docker compose build app
       - name: Start Django server
+        env:
+          GIT_COMMIT: ${{ github.sha }}
         run: |
           docker run -d \
             --name django-server \
@@ -69,7 +75,7 @@ jobs:
             -e WAGTAIL_ENABLE_ADMIN=True \
             -e REFERRAL_INVITE_CODE_KEY_V1=abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcd \
             -v $GITHUB_WORKSPACE/assets:/app/assets:ro \
-            mozmeao/springfield_test:latest \
+            "mozmeao/springfield_test:${GIT_COMMIT}" \
             python manage.py runserver 0.0.0.0:8000
       - name: Wait for Django server
         run: timeout 60 bash -c 'until curl -sf http://localhost:8000/healthz/; do sleep 2; done'

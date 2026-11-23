@@ -40,6 +40,10 @@ jobs:
         with:
           persist-credentials: false
       - name: "Run Python tests (on Docker)"
+        # A per-commit GIT_COMMIT reaches the devapp build as GIT_SHA, so the image's data sync
+        # reruns instead of being reused from the pulled images (see the Dockerfile's devapp stage).
+        env:
+          GIT_COMMIT: ${{ github.sha }}
         run: |
             make clean test-image
             CONTAINER_ID=$(docker ps -alq)

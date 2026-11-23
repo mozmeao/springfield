@@ -144,6 +144,11 @@ COPY ./tests ./tests
 # expensive run-sync-all layer cached across unrelated asset changes.
 COPY --from=assets /app/assets/img/firefox/flare/icons /app/assets/img/firefox/flare/icons
 
+# As in the release stage below: GIT_SHA changes on every CI build, so declaring it here makes
+# the network fetch in run-sync-all.sh rerun instead of being reused from the pushed image.
+ARG GIT_SHA=latest
+ENV GIT_SHA=${GIT_SHA}
+
 RUN bin/run-sync-all.sh
 
 RUN chown webdev:webdev -R .
@@ -159,10 +164,6 @@ CMD ["./bin/run-tests.sh"]
 # media
 RUN mkdir -p /app/custom-media
 RUN chown -R webdev:webdev /app/custom-media
-
-# build args
-ARG GIT_SHA=latest
-ENV GIT_SHA=${GIT_SHA}
 
 
 ########

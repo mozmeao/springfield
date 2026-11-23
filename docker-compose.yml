@@ -36,6 +36,8 @@ services:
     build:
       context: .
       target: devapp
+      args:
+        GIT_SHA: ${GIT_COMMIT:-latest}
       cache_from:
         - mozmeao/springfield_build:latest
         - mozmeao/springfield_assets:latest
