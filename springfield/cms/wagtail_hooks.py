@@ -9,6 +9,10 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
+from django.db import transaction
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.templatetags.static import static
 from django.urls import path, reverse
@@ -27,10 +31,13 @@ from wagtail.admin.rich_text.converters.html_to_contentstate import (
 )
 from wagtail.admin.ui.menus.pages import PageMenuItem
 from wagtail.admin.ui.tables import LiveStatusTagColumn, UpdatedAtColumn
+from wagtail.documents import get_document_model
 from wagtail.documents.rich_text import DocumentLinkHandler
 from wagtail.documents.rich_text.contentstate import DocumentLinkElementHandler
+from wagtail.documents.views import documents as document_admin_views, multiple as multiple_document_admin_views
 from wagtail.fields import StreamField
-from wagtail.models import Locale as WagtailLocale, TranslatableMixin
+from wagtail.log_actions import log
+from wagtail.models import Collection, CollectionViewRestriction, Locale as WagtailLocale, TranslatableMixin
 from wagtail.rich_text import LinkHandler
 from wagtail.rich_text.pages import PageLinkHandler
 from wagtail.snippets.models import register_snippet
@@ -65,12 +72,15 @@ from springfield.cms.models import (
     ScrollToSeeMoreSnippet,
     SetAsDefaultSnippet,
     SmartWindowExplainerPage,
+    StableDocumentURL,
     Tag,
     WhatsNewPage2026,
+    document_file_is_a_pdf,
+    document_is_named_a_pdf,
 )
 from springfield.cms.routing.admin import build_signal_payload
 from springfield.cms.routing.admin_views import RoutingRulesIndexView, RoutingSignalsReferenceView
-from springfield.cms.utils import get_cms_environment
+from springfield.cms.utils import current_request, get_cms_environment
 from springfield.cms.workspaces import workspaces_menu
 
 
@@ -768,6 +778,13 @@ class PencilBannerSnippetViewSet(LocaleDefaultingSnippetViewSet):
     list_display = ["title_plain", "locale", "live"]
 
 
+class StableDocumentURLViewSet(SnippetViewSet):
+    model = StableDocumentURL
+    icon = "link"
+    list_display = ["path", "label", "document", UpdatedAtColumn()]
+    search_fields = ["path", "label"]
+
+
 class PartnerRepackViewSet(SnippetViewSet):
     model = PartnerRepack
     menu_label = "Partner downloads"
@@ -784,6 +801,194 @@ def tell_editors_when_partner_downloads_reach_visitors(request, instance):
         messages.success(request, "Visitors see the change within about 20 minutes.")
 
 
+# A document can stop being servable at its stable URL without anyone touching the
+# record that holds it: its own edit form or the document listing's bulk action can
+# move it into a collection with a view restriction, a restriction can appear on its
+# collection or an ancestor, a collection can be moved under a restricted one, and
+# its file can be replaced with something that is not a PDF. Each of those deletes
+# the record rather than leaving the URL to be refused when a visitor asks for it.
+RESTRICTED_COLLECTION_REASON = "it is now in a collection that is not public"
+NOT_A_PDF_REASON = "its file is no longer a PDF"
+
+
+def retire_stable_urls(records, reason):
+    """
+    Delete stable URL records whose documents can no longer be served, recording why.
+
+    ``reason`` finishes "because ..." in the warning the editor sees, and is stored
+    with the log entry.
+    """
+    request = current_request.get()
+    editor = getattr(request, "user", None)
+    if editor is not None and not editor.is_authenticated:
+        # A log entry can only name a real user, and nothing says an anonymous
+        # request cannot reach a signal that lands here.
+        editor = None
+
+    for record in records:
+        log(
+            instance=record,
+            action="wagtail.delete",
+            user=editor,
+            deleted=True,
+            # The path is spelled out because the row is destroyed rather than
+            # unlinked: bringing the URL back means typing the path again exactly,
+            # and once the row is gone nothing else records what it was.
+            title=f"{record.label} ({record.url})",
+            data={"path": record.path, "document": record.document.title, "reason": reason},
+        )
+        record.delete()
+
+        if request is not None:
+            messages.warning(
+                request,
+                f"{record.url} no longer serves “{record.document.title}”, because {reason}. "
+                "Anyone following that URL now gets a “page not found”. To bring it back, "
+                "undo the change and add the URL again under Stable URLs.",
+            )
+
+
+def retire_stable_urls_in_a_private_collection(collection):
+    """Retire every stable URL held by a document in this collection or below it, unless the collection is public."""
+    # Asked of the collection rather than of each document, because a restriction
+    # applies to the collection it names and to everything under it, so one lookup
+    # answers for the whole subtree. A restriction further down retired its own.
+    if not collection.get_view_restrictions().exists():
+        return
+
+    retire_stable_urls(
+        StableDocumentURL.objects.filter(document__collection__in=collection.get_descendants(inclusive=True)),
+        reason=RESTRICTED_COLLECTION_REASON,
+    )
+
+
+@receiver(post_save, sender=CollectionViewRestriction)
+def retire_stable_urls_when_a_collection_is_restricted(sender, instance, **kwargs):
+    # Received on the restriction, not on the collection: making a collection private
+    # saves a restriction row and never touches the collection row.
+    retire_stable_urls_in_a_private_collection(instance.collection)
+
+
+@receiver(post_save, sender=Collection)
+def retire_stable_urls_when_a_collection_is_moved(sender, instance, **kwargs):
+    """Retire the stable URLs in a collection that has just been moved somewhere not public."""
+
+    def retire_once_the_move_has_landed():
+        # Re-read rather than trust the saved instance, which still holds the old
+        # position, and may by now describe a collection that has been deleted.
+        moved_collection = Collection.objects.filter(pk=instance.pk).first()
+        if moved_collection is not None:
+            retire_stable_urls_in_a_private_collection(moved_collection)
+
+    transaction.on_commit(retire_once_the_move_has_landed)
+
+
+@receiver(post_save, sender=get_document_model())
+def retire_the_stable_url_of_a_document_that_cannot_be_served(sender, instance, update_fields, **kwargs):
+    if update_fields is not None and set(update_fields) == {"file_hash"}:
+        return
+
+    record = StableDocumentURL.objects.filter(document=instance).first()
+    if record is None:
+        return
+
+    if instance.collection.get_view_restrictions().exists():
+        retire_stable_urls([record], reason=RESTRICTED_COLLECTION_REASON)
+    elif not (document_is_named_a_pdf(instance) and document_file_is_a_pdf(instance)):
+        retire_stable_urls([record], reason=NOT_A_PDF_REASON)
+
+
+def message_refusing_to_delete_document_because_of_stable_url(record) -> str:
+    """The message an editor is given when they try to delete a document a stable URL names."""
+    return (
+        f"“{record.document.title}” is served at {record.url}, so it cannot be deleted. "
+        "Delete that stable URL, or point it at another document, and then delete the document."
+    )
+
+
+def refuse_delete_of_document_holding_a_stable_url(wagtail_view, document_id_kwarg: str, *, as_json: bool):
+    """
+    Wrap a Wagtail document delete view so it refuses a document that a stable URL names.
+
+    The delete would fail in the database anyway, because the record's foreign key is
+    protected; this is what turns that failure into something an editor can act on.
+    Pass ``as_json=True`` for the view the uploader calls from JavaScript, which has no
+    page of its own to be redirected.
+    """
+
+    def delete_unless_a_stable_url_names_the_document(request, *args, **kwargs):
+        document_id = kwargs[document_id_kwarg]
+        record = StableDocumentURL.objects.filter(document_id=document_id).select_related("document").first()
+        if record is None:
+            return wagtail_view(request, *args, **kwargs)
+
+        if as_json:
+            return JsonResponse({"success": False, "error_message": message_refusing_to_delete_document_because_of_stable_url(record)})
+
+        messages.error(request, message_refusing_to_delete_document_because_of_stable_url(record))
+        return redirect("wagtaildocs:edit", document_id)
+
+    return delete_unless_a_stable_url_names_the_document
+
+
+@hooks.register("register_admin_urls", order=-1)
+def register_document_delete_urls():
+    """
+    The two document delete views, wrapped so neither can delete a document a stable URL names.
+
+    Registered ahead of Wagtail's own document URLs so these paths resolve to the wrapped
+    views, while the wagtaildocs URL names still reverse to the same strings. Wrapping is
+    what there is: Wagtail fires no hook before a document is deleted, and its delete views
+    take none of their own.
+
+    The confirmation page is refused on GET as well as POST, so nobody is asked to confirm
+    a delete that was never going to happen.
+    """
+    return [
+        path(
+            "documents/delete/<int:document_id>/",
+            refuse_delete_of_document_holding_a_stable_url(document_admin_views.DeleteView.as_view(), "document_id", as_json=False),
+            name="cms_document_delete",
+        ),
+        path(
+            "documents/multiple/<int:doc_id>/delete/",
+            refuse_delete_of_document_holding_a_stable_url(multiple_document_admin_views.DeleteView.as_view(), "doc_id", as_json=True),
+            name="cms_document_delete_multiple",
+        ),
+    ]
+
+
+@hooks.register("before_bulk_action")
+def react_to_a_bulk_action_on_documents_with_stable_urls(request, action_type, objects, action):
+    """
+    Retire the stable URLs a bulk move breaks, and refuse a bulk delete of a document one names.
+
+    The listing's bulk actions have no URL of their own to wrap, and this hook is the only
+    thing either of them calls before the action runs.
+    """
+    # If the action is not on the document model, then we do nothing here.
+    if action.model is not get_document_model():
+        return
+
+    if action_type == "add_to_collection":
+        # Read from the form rather than from the documents: this runs before the action
+        # does, and the action is a queryset update, so every document here still reports
+        # the collection it is leaving and sends no save signal when it arrives.
+        destination = action.cleaned_form.cleaned_data["collection"]
+        if destination.get_view_restrictions().exists():
+            retire_stable_urls(StableDocumentURL.objects.filter(document__in=objects), reason=RESTRICTED_COLLECTION_REASON)
+        return
+
+    if action_type == "delete":
+        record = StableDocumentURL.objects.filter(document__in=objects).select_related("document").first()
+        if record is not None:
+            # Returning a response abandons the whole selection, including documents in it
+            # that no stable URL names. The message names the one in the way, so the editor
+            # knows what to take out of the selection.
+            messages.error(request, message_refusing_to_delete_document_because_of_stable_url(record))
+            return redirect("wagtaildocs:index")
+
+
 for _viewset in (
     PretranslatedPhraseViewSet,
     PreFooterCTASnippetViewSet,
@@ -797,6 +1002,7 @@ for _viewset in (
     PencilBannerSnippetViewSet,
     NavigationSnippetViewSet,
     PartnerRepackViewSet,
+    StableDocumentURLViewSet,
 ):
     register_snippet(_viewset)
 

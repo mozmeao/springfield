@@ -5,19 +5,22 @@ import os
 from types import SimpleNamespace
 
 from django.contrib.auth import get_user_model
+from django.core.cache import cache
+from django.core.files.base import ContentFile
 from django.template import engines
 from django.test import override_settings
 
 import pytest
 import wagtail_factories
-from wagtail.models import Locale, Page, Revision, Site
+from wagtail.documents import get_document_model
+from wagtail.models import Collection, Locale, Page, Revision, Site
 from wagtail_localize.models import StringSegment, StringTranslation, Translation, TranslationSource
 
 from springfield.cms.blocks import DownloadFirefoxButtonBlock
 from springfield.cms.fixtures.base_fixtures import get_flare_docs_index_page, get_placeholder_images
 from springfield.cms.fixtures.homepage_fixtures import get_home_test_page
 from springfield.cms.management.commands.create_pretranslated_phrases import PHRASES
-from springfield.cms.models import PretranslatedPhrase
+from springfield.cms.models import PretranslatedPhrase, StableDocumentURL
 from springfield.cms.tests.factories import LocaleFactory, SimpleRichTextPageFactory
 
 User = get_user_model()
@@ -488,3 +491,74 @@ def prod_shape_site():
         "features": features,
         "article": article,
     }
+
+
+@pytest.fixture(autouse=True)
+def clear_stable_url_cache():
+    # The cache is process-local and nothing else clears it between tests, so
+    # a map cached by one test would be read stale by the next.
+    cache.clear()
+    yield
+    cache.clear()
+
+
+def make_document(title, filename, content, collection):
+    document = get_document_model()(title=title, collection=collection)
+    document.file.save(filename, ContentFile(content), save=False)
+    # objects.create() skips this, leaving file_hash empty, and a document with
+    # no file_hash is served without an ETag, so conditional requests stop working.
+    document._set_document_file_metadata()
+    document.save()
+    return document
+
+
+@pytest.fixture
+def stable_documents_collection(db):
+    return Collection.get_first_root_node().add_child(name="Stable documents")
+
+
+@pytest.fixture
+def pdf_document(stable_documents_collection):
+    return make_document(
+        title="Sub-processors",
+        filename="subprocessors.pdf",
+        content=b"%PDF-1.4\nfirst",
+        collection=stable_documents_collection,
+    )
+
+
+@pytest.fixture
+def second_pdf_document(stable_documents_collection):
+    return make_document(
+        title="Privacy Notice",
+        filename="privacy-notice.pdf",
+        content=b"%PDF-1.4\nprivacynotice",
+        collection=stable_documents_collection,
+    )
+
+
+@pytest.fixture
+def html_document(stable_documents_collection):
+    return make_document(
+        title="Payload",
+        filename="payload.html",
+        content=b"<p>hi</p>",
+        collection=stable_documents_collection,
+    )
+
+
+@pytest.fixture
+def document_not_pdf_claiming_to_be_pdf(stable_documents_collection):
+    """A file of HTML named .pdf, which Wagtail would report as a PDF."""
+    return make_document(
+        title="Disguised",
+        filename="disguised.pdf",
+        content=b"<p>hi</p>",
+        collection=stable_documents_collection,
+    )
+
+
+@pytest.fixture
+def assigned_document(pdf_document):
+    StableDocumentURL.objects.create(path="subprocessors", label="Firefox Enterprise Sub-processors Document", document=pdf_document)
+    return pdf_document

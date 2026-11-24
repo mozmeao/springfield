@@ -6,6 +6,7 @@ from .locale import *  # noqa
 from .snippets import *  # noqa
 from .pages import *  # noqa
 from .images import *  # noqa
+from .documents import *  # noqa
 
 # Framework-owned routing schema. Imported here so Django registers the
 # models under the `cms` app and their schema ships in the app's migrations.

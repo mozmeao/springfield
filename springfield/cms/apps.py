@@ -29,6 +29,10 @@ class CmsConfig(AppConfig):
         # Give every user full page permissions on the Flare Docs pages
         self._patch_flare_docs_page_permissions()
 
+        # Render a document's stable URL, where it has one, everywhere Wagtail
+        # renders a link to that document
+        self._patch_document_url()
+
         # Populate the User Routing signal registry with the v1 signals.
         self._register_routing_signals()
 
@@ -254,6 +258,49 @@ class CmsConfig(AppConfig):
             return [*permissions, *flare_docs_permissions]
 
         PagePermissionPolicy.get_all_permissions_for_user = get_all_permissions_for_user
+
+    @staticmethod
+    def _patch_document_url():
+        """
+        Make a document report its stable URL, where it has one, in place of Wagtail's
+        ``/_documents/<pk>/<filename>``.
+
+        Patched rather than offered as a helper because the readers are spread across
+        Wagtail, this project and a third-party block library: rich text, both link
+        blocks, ``ContactPage.document_download``, the document edit page and the
+        chooser each read ``document.url`` for themselves. A helper every one of them
+        has to remember to call enforces nothing, and an editor who is told a URL is
+        stable has no way to see which links honour it.
+        """
+
+        # Imported inline because Wagtail models cannot be imported while the app
+        # registry is still loading.
+        from django.db import DatabaseError
+
+        from wagtail.documents.models import AbstractDocument
+
+        from springfield.cms.models.documents import stable_url_for_document
+
+        # The getter itself, not the property object: this is not a subclass, so
+        # nothing in the MRO still holds Wagtail's version once it is replaced below.
+        wagtail_url = AbstractDocument.url.fget
+
+        @property
+        def url(self):
+            # An unsaved document can hold no stable URL.
+            if self.pk is None:
+                return wagtail_url(self)
+
+            try:
+                stable_url = stable_url_for_document(self)
+            except DatabaseError:
+                return wagtail_url(self)
+
+            return stable_url or wagtail_url(self)
+
+        # Patched on the abstract base so it holds for whichever concrete model
+        # WAGTAILDOCS_DOCUMENT_MODEL names.
+        AbstractDocument.url = url
 
     @staticmethod
     def _patch_image_form_field():

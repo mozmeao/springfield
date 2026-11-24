@@ -19,9 +19,9 @@
 - UI Tour buttons have an "Open Preferences - About (Firefox Updates)" action, which opens `about:preferences#about`.
 
 ## 2026-11-09
-
 - Generated QR codes now use rounded dots and corners with the Firefox logo in the middle, matching the designed QR images.
 - Fixed the QR Code block, which encoded the wrong value instead of its QR Code Data.
+- Added Stable URLs (Snippets → Stable URLs) for serving PDF documents from a consistent URL. Each record pairs a path with one document, and that document is served at `firefox.com/documents/<path>`. Every CMS link and button pointing at the document renders the stable URL instead of the document's own, so the address in print and in partner contracts keeps working.
 
 ## 2026-11-05
 - When a page's English text is edited after it has been translated, the translation editor's "Previous translations" panel shows the previous translation for that text, so it can be read and reused instead of retyped.
