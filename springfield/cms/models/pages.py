@@ -625,6 +625,18 @@ class DownloadPage(RoutingMixin, ImageAltTextMixin, UTMParamsMixin, AbstractSpri
         parent = self.get_parent() if self.pk else None
         return bool(parent and parent.specific_class is DownloadIndexPage)
 
+    def is_routing_variant(self):
+        """A download page nested under another is a routing target, reached only through its parent."""
+        parent = self.get_parent() if self.pk else None
+        return bool(parent and parent.specific_class is DownloadPage)
+
+    @property
+    def noindex(self):
+        return self.is_routing_variant()
+
+    def get_sitemap_urls(self, request=None):
+        return [] if self.is_routing_variant() else super().get_sitemap_urls(request)
+
     def clean(self):
         super().clean()
         if errors := self.clean_image_alt_text():

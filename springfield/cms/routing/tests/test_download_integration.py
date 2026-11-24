@@ -90,6 +90,19 @@ def test_a_nested_download_page_is_a_valid_target(download):
     RoutingRule(page=download.android, target=download.variant, match_all=True).full_clean()  # does not raise
 
 
+NOINDEX_TAG = '<meta name="robots" content="noindex,follow">'
+
+
+def test_only_variants_are_kept_out_of_search(client, download):
+    assert NOINDEX_TAG in client.get(download.variant.get_url()).content.decode()
+    assert NOINDEX_TAG not in client.get(download.android.get_url()).content.decode()
+
+
+def test_only_variants_are_left_out_of_the_sitemap(download):
+    assert download.variant.get_sitemap_urls() == []
+    assert len(download.android.get_sitemap_urls()) == 1
+
+
 def vary_names(response):
     return {name.strip().lower() for name in response.get("Vary", "").split(",") if name.strip()}
 
