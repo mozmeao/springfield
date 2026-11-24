@@ -1177,6 +1177,28 @@ class FreeFormPage2026Form(WagtailAdminPageForm):
         return cleaned_data
 
 
+def block_renders_a_heading(block):
+    """True when the block carries heading text, and so occupies a level in the page's
+    heading hierarchy.
+
+    Notifications are excluded: they have a headline field, but render it as plain text
+    inside the notification body rather than as a heading element.
+    """
+    if block.block_type == "notification" or not isinstance(block.value, dict):
+        return False
+    # Some blocks' heading is rich text rather than a HeadingBlock; those don't take a level.
+    heading = block.value.get("heading")
+    return bool((isinstance(heading, dict) and heading.get("heading_text")) or block.value.get("headline"))
+
+
+def block_has_display_conditions(block):
+    if not isinstance(block.value, dict):
+        return False
+    block_settings = block.value.get("settings")
+    show_to = (block_settings and block_settings.get("show_to")) or block.value.get("show_to")
+    return bool(show_to and show_to.has_conditions)
+
+
 class RenderedBlocksMixin:
     """Gives a page with upper_content and content the blocks its template renders."""
 
@@ -1184,24 +1206,43 @@ class RenderedBlocksMixin:
     def rendered_blocks(self):
         """upper_content and content as the page renders them, keyed by field name.
 
-        Each item is (block, html_id_suffix). A synced block is replaced by the inner block of the
-        live snippet for the active locale, or by None when nothing is live. html_id_suffix is "" for
-        a snippet's first placement on the page and "-2", "-3", … for repeats, so HTML ids stay unique.
+        Each item is (block, html_id_suffix, block_level, block_position). A synced block is replaced
+        by the inner block of the live snippet for the active locale, and left out when nothing is
+        live. html_id_suffix is "" for a snippet's first placement on the page and "-2", "-3", … for
+        repeats, so HTML ids stay unique. The first heading block is level 1 and later ones level 2,
+        except that a leading run of conditional heading blocks all get level 1. block_position
+        numbers blocks by their place in the stream, counting left-out ones.
         """
         placement_counts = Counter()
+        headings = 0
+        leading_conditional_run = True
         rendered = {}
         for field_name in ("upper_content", "content"):
+            # The page uses the split layout when upper_content renders anything.
+            split = field_name == "upper_content" or bool(rendered["upper_content"])
+            prefix = "upper-block-" if field_name == "upper_content" else "lower-block-" if split else "block-"
             rendered[field_name] = []
-            for block in getattr(self, field_name) or []:
+            for block_index, block in enumerate(getattr(self, field_name) or [], start=1):
                 html_id_suffix = ""
                 if block.block_type == "synced_block":
                     localized = block.value.get_localized() if block.value else None
                     block = localized.content[0] if localized and localized.content else None
-                    if block:
-                        placement_counts[localized.pk] += 1
-                        if placement_counts[localized.pk] > 1:
-                            html_id_suffix = f"-{placement_counts[localized.pk]}"
-                rendered[field_name].append((block, html_id_suffix))
+                    if not block:
+                        continue
+                    placement_counts[localized.pk] += 1
+                    if placement_counts[localized.pk] > 1:
+                        html_id_suffix = f"-{placement_counts[localized.pk]}"
+
+                # Blocks without a heading keep the layout's default level, as the template always gave them.
+                block_level = 1 if split else None
+                if block_renders_a_heading(block):
+                    conditional = block_has_display_conditions(block)
+                    block_level = 1 if headings == 0 or (leading_conditional_run and conditional) else 2
+                    headings += 1
+                    leading_conditional_run = leading_conditional_run and conditional
+
+                block_position = f"{prefix}{block_index}-{block.block_type}"
+                rendered[field_name].append((block, html_id_suffix, block_level, block_position))
         return rendered
 
 

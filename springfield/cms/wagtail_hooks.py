@@ -70,7 +70,7 @@ from springfield.cms.models import (
     Tag,
     WhatsNewPage2026,
 )
-from springfield.cms.models.pages import resolve_synced_block
+from springfield.cms.models.pages import block_has_display_conditions, block_renders_a_heading, resolve_synced_block
 from springfield.cms.routing.admin import build_signal_payload
 from springfield.cms.routing.admin_views import RoutingRulesIndexView, RoutingSignalsReferenceView
 from springfield.cms.utils import get_cms_environment
@@ -898,27 +898,6 @@ def regenerate_analytics_ids_on_copy(request, page, new_page):
 # The page types whose free form content stream supplies the page's h1. SmartWindowPage
 # is absent on purpose: it renders the same blocks below its own h1, starting at h2.
 FREEFORM_H1_PAGE_TYPES = (FreeFormPage2026, SmartWindowExplainerPage, WhatsNewPage2026)
-
-
-def block_renders_a_heading(block):
-    """True when the block carries heading text, and so occupies a level in the page's
-    heading hierarchy.
-
-    Notifications are excluded: they have a headline field, but render it as plain text
-    inside the notification body rather than as a heading element.
-    """
-    if block.block_type == "notification" or not isinstance(block.value, dict):
-        return False
-    heading = block.value.get("heading")
-    return bool((heading and heading.get("heading_text")) or block.value.get("headline"))
-
-
-def block_has_display_conditions(block):
-    if not isinstance(block.value, dict):
-        return False
-    block_settings = block.value.get("settings")
-    show_to = (block_settings and block_settings.get("show_to")) or block.value.get("show_to")
-    return bool(show_to and show_to.has_conditions)
 
 
 def leading_conditional_blocks(page):

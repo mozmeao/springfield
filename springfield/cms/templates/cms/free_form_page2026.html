@@ -14,7 +14,7 @@
 {% endblock %}
 
 {% block flare_header %}
-  {% set theme = "dark" if page.upper_content and not page.theme == "enterprise" else None %}
+  {% set theme = "dark" if page.rendered_blocks["upper_content"] and not page.theme == "enterprise" else None %}
   {% set theme = "light" if page.theme == "enterprise" else theme %}
 
   {% set hide_nav_cta = not page.show_nav_cta %}
@@ -26,79 +26,26 @@
 
 {% block content %}
 <div class="fl-page fl-freeform-page">
-  {% if page.upper_content %}
+  {% if page.rendered_blocks["upper_content"] %}
     <div class="fl-main has-gradient-bottom">
-      {% set ns = namespace(headings=0, leading_conditional_run=True) %}
-      {% set block_level = 1 %}
-
       <div class="fl-split-page-upper has-gradient-bottom no-gap">
-        {% for block, html_id_suffix in page.rendered_blocks["upper_content"] %}
-          {% if block %}
-            {% set block_index = loop.index %}
-            {% set block_type = block.block_type %}
-            {% set block_position = "upper-block-" ~ block_index ~ "-" ~ block_type %}
-
-            {% if block_type != "notification" and ((block.value.heading and block.value.heading.heading_text) or block.value.headline) %}
-              {% set show_to = (block.value.settings and block.value.settings.show_to) or block.value.show_to %}
-              {% set block_has_display_conditions = show_to and show_to.has_conditions %}
-              {% set block_level = 1 if ns.headings == 0 or (ns.leading_conditional_run and block_has_display_conditions) else 2 %}
-              {% set ns.headings = ns.headings + 1 %}
-              {% if not block_has_display_conditions %}
-                {% set ns.leading_conditional_run = False %}
-              {% endif %}
-            {% endif %}
-
-            {% include_block block %}
-          {% endif %}
+        {% for block, html_id_suffix, block_level, block_position in page.rendered_blocks["upper_content"] %}
+          {% include_block block %}
         {% endfor %}
       </div>
 
-      {% if page.content %}
+      {% if page.rendered_blocks["content"] %}
         <div class="fl-split-page-lower no-gap">
-          {% for block, html_id_suffix in page.rendered_blocks["content"] %}
-            {% if block %}
-              {% set block_index = loop.index %}
-              {% set block_type = block.block_type %}
-              {% set block_position = "lower-block-" ~ block_index ~ "-" ~ block_type %}
-
-              {% if block_type != "notification" and ((block.value.heading and block.value.heading.heading_text) or block.value.headline) %}
-                {% set show_to = (block.value.settings and block.value.settings.show_to) or block.value.show_to %}
-                {% set block_has_display_conditions = show_to and show_to.has_conditions %}
-                {% set block_level = 1 if ns.headings == 0 or (ns.leading_conditional_run and block_has_display_conditions) else 2 %}
-                {% set ns.headings = ns.headings + 1 %}
-                {% if not block_has_display_conditions %}
-                  {% set ns.leading_conditional_run = False %}
-                {% endif %}
-              {% endif %}
-
-              {% include_block block %}
-            {% endif %}
+          {% for block, html_id_suffix, block_level, block_position in page.rendered_blocks["content"] %}
+            {% include_block block %}
           {% endfor %}
-
         </div>
       {% endif %}
-      </div>
+    </div>
   {% else %}
     <div class="fl-main has-gradient-bottom">
-      {% set ns = namespace(headings=0, leading_conditional_run=True) %}
-      {% for block, html_id_suffix in page.rendered_blocks["content"] %}
-        {% if block %}
-          {% set block_index = loop.index %}
-          {% set block_type = block.block_type %}
-          {% set block_position = "block-" ~ block_index ~ "-" ~ block_type %}
-
-          {% if block_type != "notification" and ((block.value.heading and block.value.heading.heading_text) or block.value.headline) %}
-            {% set show_to = (block.value.settings and block.value.settings.show_to) or block.value.show_to %}
-            {% set block_has_display_conditions = show_to and show_to.has_conditions %}
-            {% set block_level = 1 if ns.headings == 0 or (ns.leading_conditional_run and block_has_display_conditions) else 2 %}
-            {% set ns.headings = ns.headings + 1 %}
-            {% if not block_has_display_conditions %}
-              {% set ns.leading_conditional_run = False %}
-            {% endif %}
-          {% endif %}
-
-          {% include_block block %}
-        {% endif %}
+      {% for block, html_id_suffix, block_level, block_position in page.rendered_blocks["content"] %}
+        {% include_block block %}
       {% endfor %}
     </div>
   {% endif %}

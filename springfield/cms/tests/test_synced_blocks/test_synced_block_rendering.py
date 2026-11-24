@@ -248,3 +248,36 @@ def test_qr_code_dialog_ids_are_unique_when_synced_block_placed_twice(freeform_p
     dialog_ids = [dialog["id"] for dialog in main.find_all("dialog")]
     assert len(set(dialog_ids)) == 2
     assert [trigger["data-target-id"] for trigger in main.select(".fl-dialog-trigger")] == dialog_ids
+
+
+def test_rendered_blocks_number_headings_across_split_layout(freeform_page_factory):
+    firefox_only = show_to_value(firefox="is-firefox")
+    page = freeform_page_factory(
+        upper_content=[section_item("Upper conditional", show_to=firefox_only)],
+        content=[section_item("Lower conditional", show_to=firefox_only), section_item("Everyone"), section_item("Later")],
+    )
+
+    levels_and_positions = [
+        (block_level, block_position)
+        for field_name in ("upper_content", "content")
+        for _block, _suffix, block_level, block_position in page.rendered_blocks[field_name]
+    ]
+
+    assert levels_and_positions == [
+        (1, "upper-block-1-section"),
+        (1, "lower-block-1-section"),
+        (2, "lower-block-2-section"),
+        (2, "lower-block-3-section"),
+    ]
+
+
+def test_unpublished_synced_block_alone_in_upper_content_drops_split_layout(freeform_page_factory, serve_page, synced_block_factory):
+    snippet = synced_block_factory(section_item("Synced hero"))
+    page = freeform_page_factory(upper_content=[synced_block_item(snippet)], content=[section_item("Lower heading")])
+
+    snippet.unpublish()
+    response = serve_page(page)
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    assert soup.find(class_="fl-split-page-upper") is None
+    assert heading_tag_name(response, "Lower heading") == "h1"
