@@ -2,7 +2,9 @@
 
 name: Visual regression tests
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  # Only PR runs share a group. A group holds one pending run, so a shared group for pushes to main
+  # would let a later push replace a queued one, and that change would never be tested.
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.event.pull_request.number || github.run_id }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 run-name: "Visual regression tests for ${{ github.head_ref || github.ref_name }}"
 # No paths filter here: the job must always report so it can be a required check.
@@ -43,7 +45,7 @@ jobs:
             exit 0
           fi
           git fetch --no-tags --depth=1 origin "$BASE_SHA"
-          changed_files=$(git diff --name-only "$BASE_SHA" HEAD)
+          changed_files=$(git diff --name-only --no-renames "$BASE_SHA" HEAD)
           if grep -qE "$visual_paths" <<< "$changed_files"; then
             echo "run_tests=true" >> "$GITHUB_OUTPUT"
           else
