@@ -302,17 +302,24 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
             .order_by("-article_count")
         )
 
+    def _lists_articles(self, topic=None):
+        """Whether this index has live articles to list (in `topic`, if given)."""
+        if topic:
+            return self.get_all_topics().filter(translation_key=topic.translation_key).exists()
+        return self.listed_articles().exists()
+
     def get_listing_locales(self, content_locales, topic=None):
         """Narrow this index's `content_locales` to the ones whose index lists articles (in
-        `topic`, if given), for a listing route's hreflang and language picker."""
-        listing_locales = [self.locale.language_code]
-        if len(content_locales) > 1:
+        `topic`, if given), for a listing route's hreflang and language picker.
+
+        This index counts too: an empty listing advertises only itself, so it agrees with the
+        other languages' listings that leave it out. It stays in the list so the request is
+        still served here rather than redirected to another language."""
+        own_locale = self.locale.language_code
+        listing_locales = [own_locale]
+        if len(content_locales) > 1 and self._lists_articles(topic):
             for blog_index in self.get_translations().filter(locale__language_code__in=content_locales).specific():
-                if topic:
-                    has_articles = blog_index.get_all_topics().filter(translation_key=topic.translation_key).exists()
-                else:
-                    has_articles = blog_index.listed_articles().exists()
-                if has_articles:
+                if blog_index._lists_articles(topic):
                     listing_locales.append(blog_index.locale.language_code)
         return with_alias_locales(listing_locales)
 

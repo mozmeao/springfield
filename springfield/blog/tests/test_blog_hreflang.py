@@ -114,6 +114,16 @@ def test_listing_routes_drop_a_language_with_no_live_articles(client, blog, rout
     assert "de" not in hreflangs(client, f"/en-US/blog/{route}")
 
 
+@pytest.mark.parametrize("route", ["all/", "topics/", "topics/privacy/"])
+def test_empty_listing_advertises_only_itself_and_is_not_redirected(client, blog, route):
+    """After the last German article is unpublished, the German listing agrees with the
+    English one that leaves it out, and is still served rather than redirected."""
+    blog["de_post"].unpublish()
+
+    assert hreflangs(client, f"/de/blog/{route}") == {"x-default": f"/blog/{route}", "de": f"/de/blog/{route}"}
+    assert "de" not in hreflangs(client, f"/en-US/blog/{route}")
+
+
 def test_alias_locale_is_not_listed(client, blog):
     assert hreflangs(client, "/en-GB/blog/english-only/") == {"x-default": "/blog/english-only/", "en-US": "/en-US/blog/english-only/"}
 
