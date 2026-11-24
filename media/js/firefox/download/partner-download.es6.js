@@ -245,6 +245,14 @@ PartnerDownload.navigate = (url) => {
 };
 
 /**
+ * Leave for `url` without a history entry, so Back skips this page instead of redirecting again.
+ * @param {String} url
+ */
+PartnerDownload.redirect = (url) => {
+    window.location.replace(url);
+};
+
+/**
  * Start and track the download, and point "try again" at the same build.
  * @param {HTMLAnchorElement} link - the partner build, or regular Firefox, for this machine
  */
@@ -292,7 +300,7 @@ PartnerDownload.redirectToStore = (container, link, delay) => {
         } catch (error) {
             // Analytics never blocks the redirect.
         }
-        PartnerDownload.navigate(link.href);
+        PartnerDownload.redirect(link.href);
     });
 };
 
@@ -301,6 +309,8 @@ PartnerDownload.redirectToStore = (container, link, delay) => {
  * @param {HTMLElement} container
  */
 PartnerDownload.attributeAppStoreLinks = (container) => {
+    // Not in the partner-download bundle: cms/base-flare.html loads it for every page in
+    // `stub_attribution`. Without it, the links keep the campaign they were rendered with.
     const mobileAttribution = window.Mozilla.MobileAttribution;
     if (!mobileAttribution) {
         return;
@@ -365,9 +375,12 @@ PartnerDownload.begin = () => {
                 container.dataset,
                 link
             );
+            // Phones reach 'device' before the Firefox check in getState, so check it here too:
+            // visitors already using Firefox always see the message.
             const fallbackLink =
                 container.dataset.mode === 'immediate' &&
                 (state === 'language' || state === 'device') &&
+                !window.site.isFirefox() &&
                 PartnerDownload.findFallbackLink(
                     container,
                     window.site.platform,

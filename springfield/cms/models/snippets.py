@@ -678,7 +678,8 @@ class PartnerRepack(DraftStateMixin, RevisionMixin, models.Model):
         help_text=(
             "For visitors whose system or language isn't listed below. "
             "Choose 'straight away' when this build is only for attribution. "
-            "Phones go straight to the app store. Visitors already using Firefox always see a message."
+            "Phones go straight to the app store. Visitors already using Firefox always see a message. "
+            "A change can take up to 10 minutes to reach visitors."
         ),
     )
     windows64_url = models.URLField(

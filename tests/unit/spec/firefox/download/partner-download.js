@@ -353,6 +353,7 @@ describe('partner-download.es6.js', function () {
                 'message'
             );
             spyOn(PartnerDownload, 'navigate');
+            spyOn(PartnerDownload, 'redirect');
             spyOn(PartnerDownload, 'isX64').and.returnValue(
                 Promise.resolve(true)
             );
@@ -912,7 +913,7 @@ describe('partner-download.es6.js', function () {
 
                     await runFor(999);
                     expect(shownStates()).toEqual(['store']);
-                    expect(PartnerDownload.navigate).not.toHaveBeenCalled();
+                    expect(PartnerDownload.redirect).not.toHaveBeenCalled();
 
                     jasmine.clock().tick(1);
                     await flushPromises();
@@ -920,9 +921,11 @@ describe('partner-download.es6.js', function () {
                         `[data-state="store"] [data-download-version="${platform}"]`
                     );
                     expect(storeLink.href.startsWith(storeUrl)).toBeTrue();
-                    expect(PartnerDownload.navigate).toHaveBeenCalledOnceWith(
+                    // Replaces this page in history, so Back doesn't redirect again.
+                    expect(PartnerDownload.redirect).toHaveBeenCalledOnceWith(
                         storeLink.href
                     );
+                    expect(PartnerDownload.navigate).not.toHaveBeenCalled();
                     expect(
                         window.Mozilla.TrackProductDownload.sendEventFromURL
                     ).toHaveBeenCalledOnceWith(storeLink.href);
@@ -946,7 +949,7 @@ describe('partner-download.es6.js', function () {
                 jasmine.clock().tick(1000);
                 await flushPromises();
 
-                expect(PartnerDownload.navigate).not.toHaveBeenCalled();
+                expect(PartnerDownload.redirect).not.toHaveBeenCalled();
                 expect(
                     window.Mozilla.TrackProductDownload.sendEventFromURL
                 ).not.toHaveBeenCalled();
@@ -995,6 +998,8 @@ describe('partner-download.es6.js', function () {
             it('should show the same message as other partners to Firefox, unsupported and other systems', async function () {
                 const cases = [
                     ['osx', { isFirefox: () => true }, 'firefox'],
+                    ['android', { isFirefox: () => true }, 'device'],
+                    ['ios', { isFirefox: () => true }, 'device'],
                     ['windows', { fxSupported: false }, 'unsupported_os'],
                     ['other', {}, 'device']
                 ];
@@ -1008,6 +1013,7 @@ describe('partner-download.es6.js', function () {
                     container.remove();
                 }
                 expect(PartnerDownload.navigate).not.toHaveBeenCalled();
+                expect(PartnerDownload.redirect).not.toHaveBeenCalled();
             });
 
             it('should still download the partner build when there is one', async function () {
