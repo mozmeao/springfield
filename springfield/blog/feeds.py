@@ -17,12 +17,12 @@ from wagtail.rich_text import expand_db_html
 
 from lib.l10n_utils.fluent import ftl
 from lib.l10n_utils.templatetags.helpers import get_locale
+from springfield.cms.blocks import is_youtube_url
 from springfield.cms.templatetags.cms_tags import alt_text, remove_p_tag
 
 FTL_FILES = ["blog/blog"]
 FEED_IMAGE_FILTER = "width-1200"
 EXCERPT_WORDS = 55
-YOUTUBE_HOSTS = ("youtube.com", "youtu.be", "youtube-nocookie.com")
 
 
 class ContentEncodedFeed(Rss201rev2Feed):
@@ -71,7 +71,7 @@ def video_html(value):
     url = value["video_url"]
     poster = value.get("poster")
     poster_rendition = feed_rendition(poster)
-    if any(host in url for host in YOUTUBE_HOSTS):
+    if is_youtube_url(url):
         if poster_rendition is None:
             return format_html('<p><a href="{}">{}</a></p>', url, value["alt"] or url)
         return image_html(poster, link_url=url, alt=value["alt"])

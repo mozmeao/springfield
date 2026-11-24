@@ -31,7 +31,9 @@ from springfield.cms.fixtures.smart_window_page_fixtures import (
     get_smart_window_testimonial_cards,
 )
 from springfield.cms.fixtures.thanks_page_fixtures import get_download_support
+from springfield.cms.middleware import CurrentRequestMiddleware
 from springfield.cms.models import ArticleDetailPage, ArticleIndexPage, FreeFormPage2026, SmartWindowExplainerPage, SmartWindowPage, ThanksPage
+from springfield.cms.models.base import MarketingAttributionMode
 from springfield.cms.wagtail_hooks import warn_about_leading_conditional_blocks
 
 
@@ -705,7 +707,7 @@ def test_thanks_page_allows_at_most_two_notifications():
 def test_smart_window_marketing_attribution_renders_promoted_markup(smart_window_page: SmartWindowPage, rf):
     page = smart_window_page
     page.show_smart_window_button = "all"
-    page.enable_marketing_attribution = True
+    page.marketing_attribution_mode = MarketingAttributionMode.ALWAYS
 
     response = page.serve(rf.get(page.get_full_url()))
     assert response.status_code == 200
@@ -739,7 +741,7 @@ def test_free_form_page_marketing_attribution_renders_checkbox_in_download_butto
     """FreeFormPage2026 reaches the download button through the block wrapper, which nests
     the checkbox inside the button rather than alongside it."""
     page = get_buttons_test_page()
-    page.enable_marketing_attribution = True
+    page.marketing_attribution_mode = MarketingAttributionMode.ALWAYS
 
     response = page.serve(rf.get(page.get_full_url()))
     assert response.status_code == 200
@@ -752,6 +754,36 @@ def test_free_form_page_marketing_attribution_renders_checkbox_in_download_butto
         assert label.find_parent("div", class_="fl-download-firefox-button")
         assert "hidden" in label.get("class", [])
         assert label.find("input", class_="marketing-opt-out-checkbox-input")
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "mode, query, expect_promoted, expect_noindex",
+    [
+        (MarketingAttributionMode.DISABLED, "", False, False),
+        (MarketingAttributionMode.DISABLED, "?promoted=1", False, False),
+        (MarketingAttributionMode.ALWAYS, "", True, True),
+        (MarketingAttributionMode.ALWAYS, "?promoted=1", True, True),
+        (MarketingAttributionMode.URL_PARAM, "", False, False),
+        (MarketingAttributionMode.URL_PARAM, "?promoted=1", True, False),
+        (MarketingAttributionMode.URL_PARAM, "?promoted=true", False, False),
+    ],
+)
+def test_marketing_attribution_mode_controls_promoted_markup(rf, placeholder_images, mode, query, expect_promoted, expect_noindex):
+    """A page promoted only with ?promoted=1 renders the promoted markup for that URL alone and stays indexable."""
+    page = get_buttons_test_page()
+    page.marketing_attribution_mode = mode
+
+    # Served through the middleware so the page can read the request's query string.
+    response = CurrentRequestMiddleware(get_response=page.serve)(rf.get(page.get_full_url() + query))
+    assert response.status_code == 200
+
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    assert soup.find("html").has_attr("data-promoted-page") is expect_promoted
+    assert bool(soup.find_all("label", class_="marketing-opt-out-checkbox-label")) is expect_promoted
+    assert bool([script for script in soup.find_all("script", src=True) if "marketing_opt_out" in script["src"]]) is expect_promoted
+    assert bool(soup.find("meta", {"name": "robots"})) is expect_noindex
 
 
 # Home Page marketing attribution
@@ -776,56 +808,71 @@ def test_home_page_defaults_render_the_homepage_unchanged(site_homepage, rf):
 
 
 @pytest.mark.django_db
-def test_site_homepage_rejects_marketing_attribution_on_save(site_homepage):
-    """Saving the site's homepage with marketing attribution on is refused; a copy of it
-    elsewhere in the tree, such as a landing page, accepts it."""
+def test_site_homepage_rejects_always_promoted_on_save(site_homepage):
+    """Saving the site's homepage as always promoted is refused, while promoted only with
+    ?promoted=1 is accepted; a copy of it elsewhere in the tree, such as a landing page,
+    accepts both."""
     landing_copy = site_homepage.copy(to=site_homepage.get_parent(), update_attrs={"slug": "landing-copy", "title": "Landing copy"})
 
-    site_homepage.enable_marketing_attribution = True
+    site_homepage.marketing_attribution_mode = MarketingAttributionMode.ALWAYS
     with pytest.raises(ValidationError) as excinfo:
         site_homepage.clean()
-    assert "enable_marketing_attribution" in excinfo.value.message_dict
+    assert "marketing_attribution_mode" in excinfo.value.message_dict
 
-    landing_copy.enable_marketing_attribution = True
+    site_homepage.marketing_attribution_mode = MarketingAttributionMode.URL_PARAM
+    site_homepage.clean()
+
+    landing_copy.marketing_attribution_mode = MarketingAttributionMode.ALWAYS
     landing_copy.clean()
     assert landing_copy.marketing_attribution_active is True
     assert landing_copy.noindex is True
 
 
 @pytest.mark.django_db
-def test_site_homepage_renders_unpromoted_even_with_the_flag_set(site_homepage, rf):
-    """The flag can reach the homepage without an editor's save (a script, a data migration,
-    a promoted copy swapped in as the site root); the page still renders indexable and
-    unpromoted."""
-    site_homepage.enable_marketing_attribution = True
-    assert site_homepage.marketing_attribution_active is False
-    assert site_homepage.noindex is False
+@pytest.mark.parametrize(
+    "mode, query, expect_promoted",
+    [
+        (MarketingAttributionMode.DISABLED, "", False),
+        (MarketingAttributionMode.DISABLED, "?promoted=1", False),
+        (MarketingAttributionMode.ALWAYS, "", False),
+        (MarketingAttributionMode.ALWAYS, "?promoted=1", False),
+        (MarketingAttributionMode.URL_PARAM, "", False),
+        (MarketingAttributionMode.URL_PARAM, "?promoted=1", True),
+    ],
+)
+def test_site_homepage_is_never_hidden_from_search_engines(site_homepage, rf, mode, query, expect_promoted):
+    """The site's homepage stays indexable in every mode. It renders promoted only for ?promoted=1
+    in that mode; always promoted, which can reach it without an editor's save (a script, a data
+    migration, a promoted copy swapped in as the site root), leaves it unpromoted."""
+    site_homepage.marketing_attribution_mode = mode
 
-    response = site_homepage.serve(rf.get(site_homepage.get_full_url()))
+    # Served through the middleware so the page can read the request's query string.
+    response = CurrentRequestMiddleware(get_response=site_homepage.serve)(rf.get(site_homepage.get_full_url() + query))
     assert response.status_code == 200
 
     soup = BeautifulSoup(response.content, "html.parser")
 
-    assert not soup.find("html").has_attr("data-promoted-page")
     assert not soup.find("meta", {"name": "robots"})
-    assert not soup.find_all("label", class_="marketing-opt-out-checkbox-label")
-    assert not soup.find_all("div", class_="has-marketing-opt-out")
-    assert not [script for script in soup.find_all("script", src=True) if "marketing_opt_out" in script["src"]]
+    assert site_homepage.noindex is False
+    assert soup.find("html").has_attr("data-promoted-page") is expect_promoted
+    assert bool(soup.find_all("label", class_="marketing-opt-out-checkbox-label")) is expect_promoted
+    assert bool(soup.find_all("div", class_="has-marketing-opt-out")) is expect_promoted
+    assert bool([script for script in soup.find_all("script", src=True) if "marketing_opt_out" in script["src"]]) is expect_promoted
 
 
 @pytest.mark.django_db
 def test_promoted_landing_page_swapped_in_as_site_homepage_renders_unpromoted(rf, placeholder_images):
     """The homepage guard covers every promoted page type, not just HomePage: a promoted
-    FreeFormPage2026 made the site root refuses the flag on save and renders indexable."""
+    FreeFormPage2026 made the site root refuses always promoted on save and renders indexable."""
     page = get_buttons_test_page()
-    page.enable_marketing_attribution = True
+    page.marketing_attribution_mode = MarketingAttributionMode.ALWAYS
     site = Site.objects.get(is_default_site=True)
     site.root_page = page
     site.save()
 
     with pytest.raises(ValidationError) as excinfo:
         page.clean()
-    assert "enable_marketing_attribution" in excinfo.value.message_dict
+    assert "marketing_attribution_mode" in excinfo.value.message_dict
     assert page.noindex is False
 
     response = page.serve(rf.get(page.get_full_url()))
@@ -842,7 +889,7 @@ def test_promoted_landing_page_swapped_in_as_site_homepage_renders_unpromoted(rf
 @pytest.mark.django_db
 def test_home_page_marketing_attribution_renders_checkbox_after_download_button_row(rf):
     page = get_home_test_page()
-    page.enable_marketing_attribution = True
+    page.marketing_attribution_mode = MarketingAttributionMode.ALWAYS
 
     response = page.serve(rf.get(page.get_full_url()))
     assert response.status_code == 200

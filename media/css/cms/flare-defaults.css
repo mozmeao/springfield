@@ -54,30 +54,23 @@ h6 {
 
 h1,
 .fl-heading-size-1 {
-    font-size: var(--fl-theme-font-size-heading-xl);
+    font-size: var(--fl-h1);
 }
 
-h2,
-.fl-heading-size-2 {
+h2 {
     font-size: var(--fl-theme-font-size-heading-md);
 }
 
 h3,
 .fl-heading-size-3 {
-    font-size: var(--fl-theme-font-size-heading-sm);
+    font-size: var(--fl-h3);
 }
 
 h4,
+h5,
+h6,
 .fl-heading-size-4 {
-    font-size: var(--fl-theme-font-size-heading-xs);
-}
-
-h5 {
-    font-size: var(--fl-theme-font-size-heading-xs);
-}
-
-h6 {
-    font-size: var(--fl-theme-font-size-heading-xs);
+    font-size: var(--fl-h4);
 }
 
 p {
