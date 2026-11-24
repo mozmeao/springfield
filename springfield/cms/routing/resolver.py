@@ -72,8 +72,8 @@ def fallback_url(page, request):
 def with_visitor_query(url, request, extra=()):
     """``url`` plus the visitor's query string, minus routing's own params.
 
-    A name ``url`` already carries is never added twice. Same as ``preserveQueryString`` on
-    the client.
+    A name ``url`` already carries is never added, and a repeated name keeps its first value.
+    Same as ``preserveQueryString`` on the client.
     """
     parts = urlsplit(url)
     kept = parse_qsl(parts.query, keep_blank_values=True)
@@ -82,6 +82,7 @@ def with_visitor_query(url, request, extra=()):
         for name, value in parse_qsl(request.META.get("QUERY_STRING", ""), keep_blank_values=True):
             if name in RESERVED_ROUTING_PARAMS or name in seen:
                 continue
+            seen.add(name)
             kept.append((name, value))
     kept.extend(extra)
     return urlunsplit((parts.scheme, parts.netloc, parts.path, urlencode(kept), parts.fragment))

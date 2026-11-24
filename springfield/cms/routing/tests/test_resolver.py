@@ -299,6 +299,16 @@ def test_with_visitor_query_never_duplicates_a_name_the_url_has():
     assert with_visitor_query("/en-US/target/?lang=en", request) == "/en-US/target/?lang=en&utm_source=x"
 
 
+def test_with_visitor_query_keeps_the_first_value_of_a_repeated_name():
+    request = rf.get("/?utm_source=first&utm_source=second&utm_medium=&utm_medium=email")
+    assert with_visitor_query("/en-US/target/", request) == "/en-US/target/?utm_source=first&utm_medium="
+
+
+def test_fallback_url_keeps_the_first_value_of_a_repeated_name(routed_page):
+    request = rf.get("/?utm_source=first&utm_source=second")
+    assert fallback_url(routed_page.canonical, request).endswith("?utm_source=first&routed=1")
+
+
 def test_fallback_url_adds_the_loop_breaker(routed_page):
     request = rf.get("/?utm_source=x&routed=1")
     url = fallback_url(routed_page.canonical, request)
