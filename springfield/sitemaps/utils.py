@@ -92,8 +92,9 @@ def get_static_urls():
                     render.return_value = HttpResponse()
                     client.get("/" + settings.LANGUAGE_CODE + path)
 
-                # Exclude urls that did not call render
-                if not render.called:
+                # Exclude urls that did not render a page. The language-selection page
+                # renders without "translations": it stands in for a missing page.
+                if not render.called or "translations" not in render.call_args[0][2]:
                     continue
 
                 locales = set(render.call_args[0][2]["translations"].keys())

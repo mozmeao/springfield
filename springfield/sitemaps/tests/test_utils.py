@@ -22,6 +22,7 @@ from springfield.cms.tests.factories import (
 )
 from springfield.sitemaps.utils import (
     _path_for_cms_url,
+    get_static_urls,
     get_wagtail_urls,
     update_sitemaps,
 )
@@ -403,3 +404,11 @@ def test_update_sitemaps(
 def test_partner_download_page_is_excluded_from_static_urls():
     # `get_static_urls` matches these patterns against the path without its locale.
     assert any(re.search(pattern, "get/") for pattern in settings.NOINDEX_URLS)
+
+
+@override_settings(ROOT_URLCONF="springfield.sitemaps.tests.urls", EXTRA_INDEX_URLS={})
+def test_get_static_urls__locale_selection_page_excluded():
+    """The language-selection page, which DEV adds at /404-locale/, is not a page of its own."""
+    urls = get_static_urls()
+
+    assert urls == {"/page/": ["en-US"]}
