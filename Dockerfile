@@ -95,6 +95,9 @@ WORKDIR /app
 EXPOSE 8000
 
 COPY docker/bin/apt-install /usr/local/bin/
+# CI sets this to the ISO week, so the cached package layer, which ships in the release image,
+# picks up Debian security updates at least weekly.
+ARG APT_REFRESH_WEEK=local
 RUN apt-install ca-certificates curl gettext git libmagickwand-dev libpq-dev libxslt1.1 sqlite3
 
 # copy in Python environment
@@ -144,8 +147,8 @@ COPY ./tests ./tests
 # expensive run-sync-all layer cached across unrelated asset changes.
 COPY --from=assets /app/assets/img/firefox/flare/icons /app/assets/img/firefox/flare/icons
 
-# As in the release stage below: GIT_SHA changes on every CI build, so declaring it here makes
-# the network fetch in run-sync-all.sh rerun instead of being reused from the pushed image.
+# GIT_SHA changes on every CI build, so the network fetch below reruns rather than being reused
+# from the pushed image. Local builds keep the default and stay cached.
 ARG GIT_SHA=latest
 ENV GIT_SHA=${GIT_SHA}
 
@@ -182,11 +185,7 @@ ENV DEMO_SERVER_ADMIN_USERS=${DEMO_SERVER_ADMIN_USERS}
 # the expensive run-sync-all layer cached across unrelated asset changes.
 COPY --from=assets /app/assets/img/firefox/flare/icons /app/assets/img/firefox/flare/icons
 
-# The next step fetches the database and the l10n repo over the network. BuildKit judges a RUN
-# by its text and its parent layer alone, so with the pushed images acting as a cache it would
-# reuse the data layer from the previous build. Declaring GIT_SHA here gives this step, and every
-# step after it, an input that changes on each CI build, so they always run. Local builds leave
-# GIT_SHA at its default and keep the layer cached.
+# As in devapp: rerun the network fetch below on every CI build.
 ARG GIT_SHA=latest
 ENV GIT_SHA=${GIT_SHA}
 

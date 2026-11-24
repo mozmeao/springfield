@@ -47,13 +47,8 @@ jobs:
         run: cd tests/playwright && npm ci && npx playwright install --with-deps chromium
       - name: Build frontend assets
         run: npm ci && npm run build
-      # Pull the images the last main build pushed, then build the `app` service (the devapp
-      # target). BuildKit reuses the pulled images' layers for any step whose inputs are
-      # unchanged; see `cache_from` in docker-compose.yml. The pull is allowed to fail (for
-      # example on Docker Hub rate limits), which leaves the build uncached. `docker compose`
-      # needs .env to exist. GIT_COMMIT is blank for the pull so it fetches the `latest` tags, and
-      # set to this commit for the build so the image's data sync reruns rather than coming from
-      # the cache (see the GIT_SHA comment in the Dockerfile's devapp stage).
+      # The pulled images are the build cache (see docker-compose.yml); a failed pull only means
+      # an uncached build. GIT_COMMIT is blank to pull the `latest` tags, then set for the build.
       - name: Pull previous images to use as build cache
         run: |
           cp .env-dist .env
@@ -61,7 +56,7 @@ jobs:
       - name: Build Docker image
         env:
           GIT_COMMIT: ${{ github.sha }}
-        run: docker compose build app
+        run: APT_REFRESH_WEEK="$(date -u +%G-%V)" docker compose build app
       - name: Start Django server
         env:
           GIT_COMMIT: ${{ github.sha }}
