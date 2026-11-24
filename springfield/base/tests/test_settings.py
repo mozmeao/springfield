@@ -8,6 +8,7 @@ from importlib import reload
 from unittest import mock
 
 from django.conf import settings
+from django.db import ProgrammingError
 from django.test import override_settings
 
 import pytest
@@ -94,6 +95,17 @@ def test_lazy_langs_uses_product_details_after_apps_ready(mocker):
 
     result = lazy_langs()
     assert result == [("en-US", "English (US)"), ("de", "Deutsch")]
+
+
+@override_settings(DEV=True)
+def test_lazy_langs_falls_back_to_codes_before_product_details_is_migrated(mocker):
+    mocker.patch("springfield.settings.base.DEV_LANGUAGES", ["en-US", "de"])
+    mocker.patch("springfield.settings.base.apps.ready", True)
+    product_details = mocker.patch("product_details.product_details")
+    type(product_details).languages = mock.PropertyMock(side_effect=ProgrammingError('relation "product_details_productdetailsfile" does not exist'))
+
+    result = lazy_langs()
+    assert result == [("en-US", "en-US"), ("de", "de")]
 
 
 @pytest.mark.parametrize(

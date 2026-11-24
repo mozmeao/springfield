@@ -456,9 +456,18 @@ def lazy_langs():
 
     # Deferred: must stay below the apps.ready guard above, otherwise this
     # reintroduces the startup DB access that guard exists to avoid.
+    from django.db import DatabaseError
+
     from product_details import product_details
 
-    return [(lang, product_details.languages[lang]["native"]) for lang in langs if lang in product_details.languages]
+    try:
+        languages = product_details.languages
+    except DatabaseError:
+        # A new or reset database has no product-details table until migrate runs,
+        # and migrate's own system checks read LANGUAGES.
+        return [(lang, lang) for lang in langs]
+
+    return [(lang, languages[lang]["native"]) for lang in langs if lang in languages]
 
 
 def language_url_map_with_fallbacks():
