@@ -91,7 +91,6 @@ def get_locale(language_code):
 
 @pytest.fixture
 def serve_page(client):
-    """Return a function that requests a page through the test client and returns its response."""
 
     def serve(page):
         return client.get(page.url)

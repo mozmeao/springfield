@@ -1233,7 +1233,7 @@ class RenderedBlocksMixin:
                     if placement_counts[localized.pk] > 1:
                         html_id_suffix = f"-{placement_counts[localized.pk]}"
 
-                # Blocks without a heading keep the layout's default level, as the template always gave them.
+                # Blocks without a heading keep the layout's default level.
                 block_level = 1 if split else None
                 if block_renders_a_heading(block):
                     conditional = block_has_display_conditions(block)

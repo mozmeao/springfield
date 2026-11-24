@@ -15,7 +15,7 @@ import springfield.cms.models.snippets
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0169_qr_code_url_fields"),
+        ("cms", "0169_freeformpage2026_marketing_attribution_mode_and_more"),
         ("wagtailcore", "0098_apitoken"),
     ]
 

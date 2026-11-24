@@ -907,7 +907,10 @@ def leading_conditional_blocks(page):
     the page's only h1 and every heading block after it drops to h2.
     """
     leading = []
-    blocks = [resolved for block in [*page.upper_content, *page.content] if (resolved := resolve_synced_block(block))]
+    blocks = []
+    for block in [*page.upper_content, *page.content]:
+        if resolved := resolve_synced_block(block):
+            blocks.append(resolved)
     for block in blocks:
         if not block_renders_a_heading(block):
             continue

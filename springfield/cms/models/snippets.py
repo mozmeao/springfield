@@ -211,7 +211,7 @@ SYNCED_BLOCK_TYPES = ("comparison_table", "cards_list", "section")
 
 
 class SyncedBlockSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
-    """One block that editors maintain in one place and show on many FreeFormPage2026 pages."""
+    """A single block that editors maintain in one place and show on many pages."""
 
     name = models.CharField(max_length=255)
     content = StreamField(

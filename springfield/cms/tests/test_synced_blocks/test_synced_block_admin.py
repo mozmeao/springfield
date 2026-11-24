@@ -115,7 +115,7 @@ def test_preview_renders_block_as_on_page(freeform_page_factory, make_block, rf,
         preview_response.render()
 
     preview_html = BeautifulSoup(preview_response.content, "html.parser")
-    # Store links carry the page's campaign, which a preview has no page to take from.
+    # Store links carry the page's campaign, but the preview has no page to take that campaign from.
     for store_link in [*block_html.select(".fl-store-button"), *preview_html.select(".fl-store-button")]:
         store_link.decompose()
     assert collapse_whitespace(block_html) in collapse_whitespace(preview_html)
@@ -155,20 +155,33 @@ def test_deleting_a_used_synced_block_is_blocked(admin_client, freeform_page_fac
     response = getattr(admin_client, method)(delete_url(snippet), follow=True)
 
     assert SyncedBlockSnippet.objects.filter(pk=snippet.pk).exists()
-    assert any("Shared section" in str(message) and "used on 1 page" in str(message) for message in response.context["messages"])
+    messages = [str(message) for message in response.context["messages"]]
+    expected_message = '"Shared section" is used on 1 page. Remove it from those pages before deleting it.'
+    assert expected_message in messages
 
 
-def test_deleting_a_translation_of_a_used_synced_block_warns_then_deletes(
+def test_deleting_a_translation_of_a_used_synced_block_warns(
     admin_client, freeform_page_factory, synced_block_factory, synced_block_translation_factory
 ):
     english, french = english_snippet_with_french_translation(synced_block_factory, synced_block_translation_factory)
     freeform_page_factory(content=[synced_block_item(english)], locale=get_locale("fr"))
 
-    confirm_response = admin_client.get(delete_url(french))
+    response = admin_client.get(delete_url(french))
 
-    assert confirm_response.status_code == 200
-    assert any("fall back" in str(message) for message in confirm_response.context["messages"])
+    assert response.status_code == 200
+    messages = [str(message) for message in response.context["messages"]]
+    expected_message = 'Pages in French that show "Section partagée" will fall back to another language once it is deleted.'
+    assert expected_message in messages
+
+
+def test_deleting_a_translation_of_a_used_synced_block_is_permitted(
+    admin_client, freeform_page_factory, synced_block_factory, synced_block_translation_factory
+):
+    english, french = english_snippet_with_french_translation(synced_block_factory, synced_block_translation_factory)
+    freeform_page_factory(content=[synced_block_item(english)], locale=get_locale("fr"))
+
     admin_client.post(delete_url(french))
+
     assert not SyncedBlockSnippet.objects.filter(pk=french.pk).exists()
 
 
