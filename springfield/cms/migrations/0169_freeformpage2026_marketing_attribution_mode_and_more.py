@@ -56,7 +56,7 @@ def copy_enabled_flag_to_mode(apps):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0168_import_image_alt_text"),
+        ("cms", "0169_qr_code_url_fields"),
     ]
 
     operations = [
