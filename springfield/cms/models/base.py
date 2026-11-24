@@ -38,6 +38,14 @@ class QROpenBehavior(models.TextChoices):
     DELAYED = "delayed", "Closed, then opens automatically"
 
 
+class MarketingAttributionMode(models.TextChoices):
+    """When a page renders as an externally promoted landing page."""
+
+    DISABLED = "", "Disabled"
+    ALWAYS = "enabled", "Enabled (always promoted)"
+    URL_PARAM = "param", "Enabled only with ?promoted=1"
+
+
 def _sample_rates_in_raw_block_data(data):
     """Recursively yield every sample rate set inside a block's raw StreamField data.
     Walks the raw (unparsed) JSON-ish data rather than resolved block values to avoid
@@ -85,19 +93,26 @@ class ImageAltTextMixin:
 class PromotedPageMixin(models.Model):
     """Mixin for pages that can receive externally promoted traffic (e.g. Google Ads, Meta)."""
 
-    enable_marketing_attribution = models.BooleanField(
-        default=False,
+    marketing_attribution_mode = models.CharField(
+        max_length=16,
+        choices=MarketingAttributionMode,
+        blank=True,
+        default=MarketingAttributionMode.DISABLED,
+        verbose_name="Marketing attribution",
         help_text=(
-            "Enable marketing attribution for externally promoted pages. "
-            "Adds the 'Share how you discovered Firefox' opt-out checkbox, "
-            "consent banner support for EU visitors, and stub attribution "
-            "for CPA tracking. Must not be used together with the 'Set as "
-            "default browser' checkbox on download buttons."
+            "Treat this page as an externally promoted landing page: adds the 'Share how you "
+            "discovered Firefox' opt-out checkbox, consent banner support for EU visitors, and "
+            "stub attribution for CPA tracking. Pick 'only with ?promoted=1' for a page that "
+            "serves both organic and paid traffic; paid links must then add ?promoted=1. Must "
+            "not be used together with the 'Set as default browser' checkbox on download buttons."
         ),
     )
+    # Deprecated: superseded by `marketing_attribution_mode`, which is backfilled and the only
+    # field read. Kept so the column can be dropped in a separate, deploy-safe follow-up migration.
+    enable_marketing_attribution = models.BooleanField(default=False)
 
     promoted_panels = [
-        FieldPanel("enable_marketing_attribution"),
+        FieldPanel("marketing_attribution_mode"),
     ]
 
     class Meta:
@@ -111,22 +126,32 @@ class PromotedPageMixin(models.Model):
 
     @property
     def marketing_attribution_active(self):
-        """Whether the page renders with marketing attribution. Templates read this rather
-        than the field: a site's homepage never does, even with the field set."""
+        """Whether the current request renders the page with marketing attribution. Templates
+        read this rather than the field: a site's homepage is never always promoted, since that
+        would hide it from search engines."""
+        if self.marketing_attribution_mode == MarketingAttributionMode.URL_PARAM:
+            request = current_request.get()
+            return request is not None and request.GET.get("promoted") == "1"
         # Checked when rendering as well as in clean(), which only runs on an editor's save:
         # a script, a data migration or a promoted page swapped in as the site root can
-        # still carry the flag onto the real homepage.
-        return self.enable_marketing_attribution and not self.is_site_homepage
+        # still carry the setting onto the real homepage.
+        return self.marketing_attribution_mode == MarketingAttributionMode.ALWAYS and not self.is_site_homepage
 
     @property
     def noindex(self):
-        return self.marketing_attribution_active
+        # Pages that are promoted only with ?promoted=1 stay indexable so their organic version can rank.
+        return self.marketing_attribution_mode == MarketingAttributionMode.ALWAYS and self.marketing_attribution_active
 
     def clean(self):
         super().clean()
-        if self.enable_marketing_attribution and self.is_site_homepage:
+        if self.marketing_attribution_mode == MarketingAttributionMode.ALWAYS and self.is_site_homepage:
             raise ValidationError(
-                {"enable_marketing_attribution": "Marketing attribution can't be turned on for the site's homepage. Use a copy of the homepage."}
+                {
+                    "marketing_attribution_mode": (
+                        "The site's homepage can't be always promoted, as that would hide it from search engines. "
+                        "Use 'Enabled only with ?promoted=1' or a copy of the homepage."
+                    )
+                }
             )
 
 
