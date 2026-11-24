@@ -829,3 +829,16 @@ def test_lang_code_fixup_would_redirect_root_without_our_middleware(rf):
     assert response is not None
     assert response.status_code == 302
     assert response["Location"].startswith("/en-GB")
+
+
+@pytest.mark.django_db
+def test_SpringfieldLocaleMiddleware_leaves_non_localised_404s_alone(client):
+    assert client.get("/healthz/missing/").status_code == 404
+
+
+@pytest.mark.django_db
+def test_SpringfieldLocaleMiddleware_still_redirects_localised_404s(client):
+    response = client.get("/missing-page/")
+
+    assert response.status_code == 302
+    assert response["Location"] == "/en-US/missing-page/"

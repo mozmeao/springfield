@@ -5,8 +5,7 @@
 import json
 
 from django.contrib.auth.models import Group, Permission, User
-from django.test import Client, RequestFactory
-from django.urls import resolve
+from django.test import Client
 
 import pytest
 from waffle.testutils import override_switch
@@ -63,28 +62,13 @@ def live_freeform_page(minimal_site):
     )
 
 
-# Django's LocaleMiddleware redirects a 404 to its /en-US/ form first, so this follows redirects.
 @pytest.mark.parametrize("switch_state", [None, False])
 def test_api_is_not_served_unless_switch_is_on(client, api_headers, switch_state):
     if switch_state is None:
-        response = client.get(f"{API_ROOT}pages/", headers=api_headers, follow=True)
+        response = client.get(f"{API_ROOT}pages/", headers=api_headers)
     else:
         with override_switch(WAGTAIL_API_SWITCH, active=switch_state):
-            response = client.get(f"{API_ROOT}pages/", headers=api_headers, follow=True)
-
-    assert response.status_code == 404
-
-
-@pytest.mark.parametrize(
-    "path, switch_state",
-    [("pages/", False), ("docs/", True)],
-    ids=["switch_off", "docs_disabled"],
-)
-def test_api_404s_are_never_cached(path, switch_state):
-    full_path = f"{API_ROOT}{path}"
-
-    with override_switch(WAGTAIL_API_SWITCH, active=switch_state):
-        response = resolve(full_path).func(RequestFactory().get(full_path))
+            response = client.get(f"{API_ROOT}pages/", headers=api_headers)
 
     assert response.status_code == 404
     assert response["Cache-Control"] == NEVER_CACHE
@@ -109,7 +93,19 @@ def test_draft_read_is_never_cached(client, api_headers, live_freeform_page):
 @override_switch(WAGTAIL_API_SWITCH, active=True)
 def test_docs_and_schema_are_not_served(client):
     for path in ("docs/", "openapi.json"):
-        assert client.get(f"{API_ROOT}{path}", follow=True).status_code == 404
+        response = client.get(f"{API_ROOT}{path}")
+
+        assert response.status_code == 404
+        assert response["Cache-Control"] == NEVER_CACHE
+
+
+@override_switch(WAGTAIL_API_SWITCH, active=True)
+def test_missing_page_returns_api_404(client, api_headers):
+    response = client.get(f"{API_ROOT}pages/999999/", headers=api_headers)
+
+    assert response.status_code == 404
+    assert response["Content-Type"].startswith("application/")
+    assert response["Cache-Control"] == NEVER_CACHE
 
 
 @override_switch(WAGTAIL_API_SWITCH, active=True)
@@ -198,7 +194,6 @@ def test_copy_is_not_served(client, api_headers, live_freeform_page):
         data="{}",
         content_type="application/json",
         headers=api_headers,
-        follow=True,
     )
 
     assert response.status_code == 404

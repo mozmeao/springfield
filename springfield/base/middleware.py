@@ -147,6 +147,9 @@ class SpringfieldLocaleMiddleware(DjangoLocaleMiddleware):
         if is_root_path_with_no_language_clues(request):
             # Skip using Django's LocaleMiddleware on the response cycle too
             return response
+        if response.status_code == 404 and not path_needs_lang_code(request.path_info):
+            # A miss outside the localised site has no /en-US/ version to redirect to
+            return response
 
         with normalized_get_language():
             with simplified_check_for_language():
