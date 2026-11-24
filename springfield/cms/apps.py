@@ -223,12 +223,13 @@ class CmsConfig(AppConfig):
     @staticmethod
     def _patch_flare_docs_page_permissions():
         """
-        Give every active user all page permissions on each ``FlareDocsIndexPage`` and
-        the pages below it.
+        Give every active user who can sign in to the admin all page permissions on each
+        ``FlareDocsIndexPage`` and the pages below it.
 
         Staging and dev environments have the same users and groups from production, with
         permissions restricted to certain areas of the site tree. The documentation pages
-        should be available to all users for training purposes.
+        should be available to all users for training purposes. Users without admin access,
+        such as API token owners, keep only their own permissions.
         """
 
         # Imported inline because Wagtail models can't be imported while the app registry is loading.
@@ -245,6 +246,8 @@ class CmsConfig(AppConfig):
         def get_all_permissions_for_user(self: PagePermissionPolicy, user: AbstractBaseUser) -> list[GroupPagePermission]:
             permissions = original_get_all_permissions_for_user(self, user)
             if not user.is_active or user.is_anonymous or user.is_superuser:
+                return permissions
+            if not user.has_perm("wagtailadmin.access_admin"):
                 return permissions
 
             page_permissions = Permission.objects.filter(content_type__app_label="wagtailcore", codename__in=Page.permission_codenames)

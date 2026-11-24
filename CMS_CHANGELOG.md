@@ -1,3 +1,7 @@
+## 2026-11-23
+
+- Added Settings → API tokens, for creating tokens for Wagtail's page API. The API is off unless the `WAGTAIL_API_ENABLED` switch is on, and a token can only do what its owner can do in the CMS.
+
 ## 2026-11-09
 
 - Generated QR codes now use rounded dots and corners with the Firefox logo in the middle, matching the designed QR images.

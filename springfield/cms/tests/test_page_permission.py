@@ -67,7 +67,10 @@ def editor(editor_group):
 
 @pytest.fixture
 def user_without_groups():
-    return User.objects.create_user(username="docs-editor", email="docs-editor@example.com", password="pass")
+    """A user who can sign in to the admin but has no page permissions of their own."""
+    user = User.objects.create_user(username="docs-editor", email="docs-editor@example.com", password="pass")
+    user.user_permissions.add(Permission.objects.get(content_type__app_label="wagtailadmin", codename="access_admin"))
+    return user
 
 
 @pytest.fixture

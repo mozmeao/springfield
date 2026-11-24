@@ -3,13 +3,16 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 """
-Wagtail's v3 API, served only while the `wagtail_api` waffle switch is on.
+Wagtail's v3 API, served only while the `WAGTAIL_API_ENABLED` waffle switch is on.
 
 The switch lets the API be turned on for a working session and off again without a deploy.
-No response is cacheable, so drafts never reach a shared cache and turning the switch off takes effect at once.
+No response is cacheable, so drafts never reach a shared cache and turning the switch on or off takes effect at once.
+The copy endpoint is left out because it skips the hook that gives copied pages their own analytics IDs.
 """
 
-from django.http import Http404
+import functools
+
+from django.http import Http404, HttpResponseNotFound
 from django.views.decorators.cache import never_cache
 
 import waffle
@@ -20,15 +23,23 @@ WAGTAIL_API_SWITCH = "WAGTAIL_API_ENABLED"
 
 
 def require_wagtail_api_switch(view_func):
+    @functools.wraps(view_func)
     def switched_view(request, *args, **kwargs):
         # Raw switch_is_active, not springfield.base.waffle.switch, which treats a missing switch as on when DEV=True.
         if not waffle.switch_is_active(WAGTAIL_API_SWITCH):
-            raise Http404
-        return view_func(request, *args, **kwargs)
+            return HttpResponseNotFound()
+        try:
+            return view_func(request, *args, **kwargs)
+        except Http404:
+            # Returned rather than raised, so never_cache marks it too
+            return HttpResponseNotFound()
 
     return switched_view
 
 
+EXCLUDED_URL_NAMES = {"pages_actions_copy"}
+
 app_name = api.urls_namespace
-urlpatterns = decorate_urlpatterns(api.urls[0], require_wagtail_api_switch)
+urlpatterns = [pattern for pattern in api.urls[0] if pattern.name not in EXCLUDED_URL_NAMES]
+urlpatterns = decorate_urlpatterns(urlpatterns, require_wagtail_api_switch)
 urlpatterns = decorate_urlpatterns(urlpatterns, never_cache)

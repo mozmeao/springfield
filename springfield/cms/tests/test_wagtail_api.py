@@ -5,7 +5,8 @@
 import json
 
 from django.contrib.auth.models import Group, Permission, User
-from django.test import Client
+from django.test import Client, RequestFactory
+from django.urls import resolve
 
 import pytest
 from waffle.testutils import override_switch
@@ -13,7 +14,7 @@ from wagtail.models import APIToken, GroupPagePermission
 
 from springfield.cms.fixtures.snippet_fixtures import get_pencil_banner_snippet
 from springfield.cms.models import FreeFormPage2026
-from springfield.cms.tests.factories import FreeFormPage2026Factory
+from springfield.cms.tests.factories import FlareDocsIndexPageFactory, FreeFormPage2026Factory
 from springfield.cms.wagtail_api import WAGTAIL_API_SWITCH
 
 pytestmark = [pytest.mark.django_db]
@@ -72,6 +73,21 @@ def test_api_is_not_served_unless_switch_is_on(client, api_headers, switch_state
             response = client.get(f"{API_ROOT}pages/", headers=api_headers, follow=True)
 
     assert response.status_code == 404
+
+
+@pytest.mark.parametrize(
+    "path, switch_state",
+    [("pages/", False), ("docs/", True)],
+    ids=["switch_off", "docs_disabled"],
+)
+def test_api_404s_are_never_cached(path, switch_state):
+    full_path = f"{API_ROOT}{path}"
+
+    with override_switch(WAGTAIL_API_SWITCH, active=switch_state):
+        response = resolve(full_path).func(RequestFactory().get(full_path))
+
+    assert response.status_code == 404
+    assert response["Cache-Control"] == NEVER_CACHE
 
 
 @override_switch(WAGTAIL_API_SWITCH, active=True)
@@ -173,3 +189,28 @@ def test_draft_only_token_cannot_publish(client, draft_only_headers, live_freefo
     live_freeform_page.refresh_from_db()
     assert live_freeform_page.live is True
     assert "Live copy" in live_freeform_page.content[0].value.source
+
+
+@override_switch(WAGTAIL_API_SWITCH, active=True)
+def test_copy_is_not_served(client, api_headers, live_freeform_page):
+    response = client.post(
+        f"{API_ROOT}pages/{live_freeform_page.id}/actions/copy/",
+        data="{}",
+        content_type="application/json",
+        headers=api_headers,
+        follow=True,
+    )
+
+    assert response.status_code == 404
+    assert FreeFormPage2026.objects.count() == 1
+
+
+@override_switch(WAGTAIL_API_SWITCH, active=True)
+def test_draft_only_token_cannot_publish_flare_docs(client, draft_only_headers, minimal_site):
+    docs_page = FlareDocsIndexPageFactory(parent=minimal_site.root_page, slug="flare-docs", live=False)
+
+    response = client.post(f"{API_ROOT}pages/{docs_page.id}/actions/publish/", headers=draft_only_headers)
+
+    assert response.status_code == 403
+    docs_page.refresh_from_db()
+    assert docs_page.live is False

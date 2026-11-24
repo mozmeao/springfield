@@ -1435,7 +1435,7 @@ if WAGTAIL_ENABLE_ADMIN:
         "django.contrib.admin",
         # wagtail_localize_smartling > 0.10 needs django.contrib.humanize
         "django.contrib.humanize",
-        # Wagtail's v3 API and its "API tokens" admin screen; the API itself is served only while the `wagtail_api` switch is on
+        # Wagtail's v3 API and its "API tokens" admin screen; the API itself is served only while the `WAGTAIL_API_ENABLED` switch is on
         "wagtail.api.v3",
     ]
 
