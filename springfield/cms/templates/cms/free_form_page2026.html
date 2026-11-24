@@ -32,31 +32,11 @@
       {% set block_level = 1 %}
 
       <div class="fl-split-page-upper has-gradient-bottom no-gap">
-        {% for block in page.upper_content %}
-          {% set block_index = loop.index %}
-          {% set block_type = block.block_type %}
-          {% set block_position = "upper-block-" ~ block_index ~ "-" ~ block_type %}
-
-          {% if block_type != "notification" and ((block.value.heading and block.value.heading.heading_text) or block.value.headline) %}
-            {% set show_to = (block.value.settings and block.value.settings.show_to) or block.value.show_to %}
-            {% set block_has_display_conditions = show_to and show_to.has_conditions %}
-            {% set block_level = 1 if ns.headings == 0 or (ns.leading_conditional_run and block_has_display_conditions) else 2 %}
-            {% set ns.headings = ns.headings + 1 %}
-            {% if not block_has_display_conditions %}
-              {% set ns.leading_conditional_run = False %}
-            {% endif %}
-          {% endif %}
-
-          {% include_block block %}
-        {% endfor %}
-      </div>
-
-      {% if page.content %}
-        <div class="fl-split-page-lower no-gap">
-          {% for block in page.content %}
+        {% for block, html_id_suffix in page.rendered_blocks["upper_content"] %}
+          {% if block %}
             {% set block_index = loop.index %}
             {% set block_type = block.block_type %}
-            {% set block_position = "lower-block-" ~ block_index ~ "-" ~ block_type %}
+            {% set block_position = "upper-block-" ~ block_index ~ "-" ~ block_type %}
 
             {% if block_type != "notification" and ((block.value.heading and block.value.heading.heading_text) or block.value.headline) %}
               {% set show_to = (block.value.settings and block.value.settings.show_to) or block.value.show_to %}
@@ -69,6 +49,30 @@
             {% endif %}
 
             {% include_block block %}
+          {% endif %}
+        {% endfor %}
+      </div>
+
+      {% if page.content %}
+        <div class="fl-split-page-lower no-gap">
+          {% for block, html_id_suffix in page.rendered_blocks["content"] %}
+            {% if block %}
+              {% set block_index = loop.index %}
+              {% set block_type = block.block_type %}
+              {% set block_position = "lower-block-" ~ block_index ~ "-" ~ block_type %}
+
+              {% if block_type != "notification" and ((block.value.heading and block.value.heading.heading_text) or block.value.headline) %}
+                {% set show_to = (block.value.settings and block.value.settings.show_to) or block.value.show_to %}
+                {% set block_has_display_conditions = show_to and show_to.has_conditions %}
+                {% set block_level = 1 if ns.headings == 0 or (ns.leading_conditional_run and block_has_display_conditions) else 2 %}
+                {% set ns.headings = ns.headings + 1 %}
+                {% if not block_has_display_conditions %}
+                  {% set ns.leading_conditional_run = False %}
+                {% endif %}
+              {% endif %}
+
+              {% include_block block %}
+            {% endif %}
           {% endfor %}
 
         </div>
@@ -77,22 +81,24 @@
   {% else %}
     <div class="fl-main has-gradient-bottom">
       {% set ns = namespace(headings=0, leading_conditional_run=True) %}
-      {% for block in page.content %}
-        {% set block_index = loop.index %}
-        {% set block_type = block.block_type %}
-        {% set block_position = "block-" ~ block_index ~ "-" ~ block_type %}
+      {% for block, html_id_suffix in page.rendered_blocks["content"] %}
+        {% if block %}
+          {% set block_index = loop.index %}
+          {% set block_type = block.block_type %}
+          {% set block_position = "block-" ~ block_index ~ "-" ~ block_type %}
 
-        {% if block_type != "notification" and ((block.value.heading and block.value.heading.heading_text) or block.value.headline) %}
-          {% set show_to = (block.value.settings and block.value.settings.show_to) or block.value.show_to %}
-          {% set block_has_display_conditions = show_to and show_to.has_conditions %}
-          {% set block_level = 1 if ns.headings == 0 or (ns.leading_conditional_run and block_has_display_conditions) else 2 %}
-          {% set ns.headings = ns.headings + 1 %}
-          {% if not block_has_display_conditions %}
-            {% set ns.leading_conditional_run = False %}
+          {% if block_type != "notification" and ((block.value.heading and block.value.heading.heading_text) or block.value.headline) %}
+            {% set show_to = (block.value.settings and block.value.settings.show_to) or block.value.show_to %}
+            {% set block_has_display_conditions = show_to and show_to.has_conditions %}
+            {% set block_level = 1 if ns.headings == 0 or (ns.leading_conditional_run and block_has_display_conditions) else 2 %}
+            {% set ns.headings = ns.headings + 1 %}
+            {% if not block_has_display_conditions %}
+              {% set ns.leading_conditional_run = False %}
+            {% endif %}
           {% endif %}
-        {% endif %}
 
-        {% include_block block %}
+          {% include_block block %}
+        {% endif %}
       {% endfor %}
     </div>
   {% endif %}

@@ -3,6 +3,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import json
+from collections import defaultdict
 from uuid import uuid4
 
 from django.conf import settings
@@ -26,11 +27,11 @@ from wagtail.admin.rich_text.converters.html_to_contentstate import (
     PageLinkElementHandler,
 )
 from wagtail.admin.ui.menus.pages import PageMenuItem
-from wagtail.admin.ui.tables import LiveStatusTagColumn, UpdatedAtColumn
+from wagtail.admin.ui.tables import LiveStatusTagColumn, UpdatedAtColumn, UsageCountColumn
 from wagtail.documents.rich_text import DocumentLinkHandler
 from wagtail.documents.rich_text.contentstate import DocumentLinkElementHandler
 from wagtail.fields import StreamField
-from wagtail.models import Locale as WagtailLocale, TranslatableMixin
+from wagtail.models import Locale as WagtailLocale, ReferenceIndex, TranslatableMixin
 from wagtail.rich_text import LinkHandler
 from wagtail.rich_text.pages import PageLinkHandler
 from wagtail.snippets.models import register_snippet
@@ -65,9 +66,11 @@ from springfield.cms.models import (
     ScrollToSeeMoreSnippet,
     SetAsDefaultSnippet,
     SmartWindowExplainerPage,
+    SyncedBlockSnippet,
     Tag,
     WhatsNewPage2026,
 )
+from springfield.cms.models.pages import resolve_synced_block
 from springfield.cms.routing.admin import build_signal_payload
 from springfield.cms.routing.admin_views import RoutingRulesIndexView, RoutingSignalsReferenceView
 from springfield.cms.utils import get_cms_environment
@@ -768,6 +771,50 @@ class PencilBannerSnippetViewSet(LocaleDefaultingSnippetViewSet):
     list_display = ["title_plain", "locale", "live"]
 
 
+def pages_referencing(snippets):
+    """The ids of the pages referencing each snippet, keyed by the snippet's pk as a string."""
+    pages = defaultdict(set)
+    for to_object_id, object_id in ReferenceIndex.get_references_to_in_bulk(snippets).values_list("to_object_id", "object_id"):
+        pages[to_object_id].add(object_id)
+    return pages
+
+
+def synced_block_translations(snippets):
+    """Every translation of the given synced blocks, the given ones included."""
+    translation_keys = {snippet.translation_key for snippet in snippets}
+    return list(SyncedBlockSnippet.objects.filter(translation_key__in=translation_keys).only("translation_key", "locale"))
+
+
+class SyncedBlockIndexView(LocaleDefaultingIndexView):
+    def get_table(self, object_list):
+        # Translated pages keep referencing the default-locale snippet, so usage is counted
+        # across all translations of a synced block and a page placing it twice counts once.
+        translations = synced_block_translations(object_list)
+        pages_by_snippet = pages_referencing(translations)
+        default_locale_id = WagtailLocale.get_default().pk
+        pages_by_translation_key = defaultdict(set)
+        default_locale_pks = {}
+        for translation in translations:
+            pages_by_translation_key[translation.translation_key] |= pages_by_snippet[str(translation.pk)]
+            if translation.locale_id == default_locale_id:
+                default_locale_pks[translation.translation_key] = translation.pk
+        for snippet in object_list:
+            snippet.usage_count = len(pages_by_translation_key[snippet.translation_key])
+            # shortcut: links to the default-locale snippet's usage page, which misses pages that chose a
+            # translation directly; list every translation's references in a custom usage view if editors need them.
+            usage_pk = default_locale_pks.get(snippet.translation_key, snippet.pk)
+            snippet.usage_url = reverse("wagtailsnippets_cms_syncedblocksnippet:usage", args=[usage_pk])
+        return super().get_table(object_list)
+
+
+class SyncedBlockSnippetViewSet(LocaleDefaultingSnippetViewSet):
+    model = SyncedBlockSnippet
+    index_view_class = SyncedBlockIndexView
+    menu_label = "Synced blocks"
+    list_display = ["name", "block_type", "locale", LiveStatusTagColumn(), UsageCountColumn("usage_count", label="Usage")]
+    search_fields = ["name"]
+
+
 class PartnerRepackViewSet(SnippetViewSet):
     model = PartnerRepack
     menu_label = "Partner downloads"
@@ -796,6 +843,7 @@ for _viewset in (
     ScrollToSeeMoreSnippetViewSet,
     PencilBannerSnippetViewSet,
     NavigationSnippetViewSet,
+    SyncedBlockSnippetViewSet,
     PartnerRepackViewSet,
 ):
     register_snippet(_viewset)
@@ -880,7 +928,7 @@ def leading_conditional_blocks(page):
     the page's only h1 and every heading block after it drops to h2.
     """
     leading = []
-    blocks = list(page.upper_content) + list(page.content)
+    blocks = [resolved for block in [*page.upper_content, *page.content] if (resolved := resolve_synced_block(block))]
     for block in blocks:
         if not block_renders_a_heading(block):
             continue
@@ -912,6 +960,37 @@ def warn_about_leading_conditional_blocks(request, page):
         "Check that their display conditions cover every visitor exactly once — overlapping conditions show more than "
         "one h1, and gaps leave visitors with none.",
     )
+
+
+@hooks.register("before_delete_snippet")
+def protect_used_synced_blocks(request, instances):
+    """Refuse to delete a synced block that pages still reference, since they would lose the block in
+    every language, and warn before deleting a translation, since its pages fall back to another language."""
+    if not instances or not isinstance(instances[0], SyncedBlockSnippet):
+        return None
+
+    pages_by_snippet = pages_referencing(instances)
+    used_snippets = [snippet for snippet in instances if pages_by_snippet[str(snippet.pk)]]
+    for snippet in used_snippets:
+        page_count = len(pages_by_snippet[str(snippet.pk)])
+        messages.error(
+            request,
+            f'"{snippet}" is used on {page_count} page{"" if page_count == 1 else "s"}. Remove it from those pages before deleting it.',
+        )
+    if used_snippets:
+        return redirect("wagtailsnippets_cms_syncedblocksnippet:list")
+
+    if request.method == "GET":
+        translations = synced_block_translations(instances)
+        pages_by_translation = pages_referencing(translations)
+        used_translation_keys = {translation.translation_key for translation in translations if pages_by_translation[str(translation.pk)]}
+        for snippet in instances:
+            if snippet.translation_key in used_translation_keys:
+                messages.warning(
+                    request,
+                    f'Pages in {snippet.locale.get_display_name()} that show "{snippet}" will fall back to another language once it is deleted.',
+                )
+    return None
 
 
 @hooks.register("register_admin_urls")

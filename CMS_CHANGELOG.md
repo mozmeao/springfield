@@ -1,5 +1,6 @@
 ## 2026-11-24
 
+- New "Synced blocks" snippet: one Comparison Table, Cards List or Section that you edit once and place on many Free Form 2026 pages with the "Synced Block" block. Publishing the snippet updates every page that uses it, and pages show the snippet's published translation for their language, falling back to English. Saving a page fails if a synced block is unpublished or uses an anchor ID already taken on the page. The snippet listing shows how many pages use each synced block, in any language. A synced block can't be deleted while pages use it, and deleting a translation warns that its pages will fall back to another language.
 - The "Enable marketing attribution" checkbox on the Promote tab (Free Form, Home and Smart Window pages) is now a "Marketing attribution" setting with three options: Disabled, Enabled (always promoted), and Enabled only with ?promoted=1. Pages that had the checkbox ticked are set to Enabled (always promoted).
 - "Enabled only with ?promoted=1" shows the opt-out checkbox and consent banner only to visitors whose URL has `?promoted=1`, and keeps the page in search results. Paid links to these pages must add `?promoted=1`. It's the only option allowed on the site's homepage.
 

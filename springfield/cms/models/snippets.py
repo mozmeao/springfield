@@ -35,6 +35,7 @@ from springfield.cms.blocks import (
     SpringfieldLinkBlock,
     TopLevelLinkBlock,
     get_button_types,
+    get_freeform_page_blocks,
 )
 from springfield.cms.fields import QRCodeURLField, StreamField
 from springfield.cms.models.base import QROpenBehavior
@@ -204,6 +205,63 @@ class BannerSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, m
 
     def get_preview_template(self, request, mode_name):
         return "cms/snippets/banner-snippet-preview.html"
+
+
+SYNCED_BLOCK_TYPES = ("comparison_table", "cards_list", "section")
+
+
+class SyncedBlockSnippet(FluentPreviewableMixin, BaseDraftTranslatableSnippetMixin, models.Model):
+    """One block that editors maintain in one place and show on many FreeFormPage2026 pages."""
+
+    name = models.CharField(max_length=255)
+    content = StreamField(
+        [(block_name, block) for block_name, block in get_freeform_page_blocks(allow_uitour=True) if block_name in SYNCED_BLOCK_TYPES],
+        use_json_field=True,
+        min_num=1,
+        max_num=1,
+    )
+
+    panels = [
+        FieldPanel("name"),
+        FieldPanel("content"),
+    ]
+
+    class Meta(BaseDraftTranslatableSnippetMixin.Meta):
+        verbose_name = "Synced block"
+        verbose_name_plural = "Synced blocks"
+
+    def __str__(self):
+        return self.name
+
+    def clean(self):
+        super().clean()
+        # The model StreamField does not enforce min_num/max_num outside the admin form.
+        if len(self.content) != 1:
+            raise ValidationError({"content": "A synced block holds exactly one block."})
+
+    @property
+    def block_type(self):
+        return self.content[0].block.label if self.content else ""
+
+    def get_localized(self):
+        """The live translation for the active locale, else for its fallback locale, else the live
+        default-locale version; None when none of them is live."""
+        active_language_code = self.active_locale.language_code
+        candidates = [
+            active_language_code,
+            getattr(settings, "FALLBACK_LOCALES", {}).get(active_language_code),
+            SpringfieldLocale.get_default().language_code,
+        ]
+        live_translations = {
+            snippet.locale.language_code: snippet
+            for snippet in SyncedBlockSnippet.objects.live()
+            .filter(translation_key=self.translation_key, locale__language_code__in=candidates)
+            .select_related("locale")
+        }
+        return next((live_translations[code] for code in candidates if code in live_translations), None)
+
+    def get_preview_template(self, request, mode_name):
+        return "cms/snippets/synced-block-preview.html"
 
 
 class Tag(BaseDraftTranslatableSnippetMixin, models.Model):

@@ -11,6 +11,7 @@ import json
 import re
 import time
 import uuid
+from collections import Counter
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -26,6 +27,7 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import translation
 from django.utils.cache import add_never_cache_headers
+from django.utils.functional import cached_property
 
 import requests
 from django_htmx.http import HttpResponseClientRedirect
@@ -33,6 +35,8 @@ from modelcluster.fields import ParentalKey
 from sentry_sdk import capture_message, new_scope
 from wagtail.admin.forms import WagtailAdminPageForm
 from wagtail.admin.panels import FieldPanel, FieldRowPanel, InlinePanel, MultiFieldPanel, TitleFieldPanel
+from wagtail.blocks import StructValue
+from wagtail.blocks.stream_block import StreamBlockValidationError
 from wagtail.models import Orderable, Page as WagtailBasePage
 from wagtail.rich_text import RichText
 from wagtail.search import index
@@ -58,38 +62,29 @@ from springfield.cms.blocks import (
     CheckboxFieldBlock,
     CheckboxGroupFieldBlock,
     ComparisonTableBlock,
-    ContactFormBlock,
     CountrySelectFieldBlock,
     DownloadSupportBlock,
     EmailFieldBlock,
-    EnterpriseDownloadBlock,
-    FeaturedImageSectionBlock,
     FieldsetAndLegendBlock,
-    FormContentBlock,
     HiddenFieldBlock,
     HomeKitBannerBlock,
     IconChoiceBlock,
-    ImageCaptionBlock,
     IntroBlock,
     KitBannerBlock,
     KitIntroBlock,
-    LineCardsBlock,
     LocalizedLiveSnippetChooserBlock,
-    MediaContentBlock,
-    MobileStoreQRCodeBlock,
     NotificationBlock,
     PhoneFieldBlock,
     RelatedArticlesListBlock,
-    ResourcesBlock,
     RoadmapListSectionBlock,
     SectionBlock,
     SelectFieldBlock,
     ShowcaseBlock,
-    SlidingCarouselBlock,
+    SyncedBlockChooserBlock,
     TextAreaFieldBlock,
     TextFieldBlock,
-    TopicListBlock,
     VideoBlock,
+    get_freeform_page_blocks,
     validate_animation_url,
 )
 from springfield.cms.fields import QRCodeURLField, StreamField
@@ -1123,67 +1118,91 @@ class ArticleThemePage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         return [snippet for snippet in snippets if snippet]
 
 
-def _get_freeform_page_blocks(allow_uitour=True, allow_kit_intro=False):
-    """Factory function to create block list for FreeFormPage2026 with appropriate button types.
+UPPER_FREEFORM_PAGE_BLOCKS = get_freeform_page_blocks(allow_uitour=True, allow_kit_intro=True)
+LOWER_FREEFORM_PAGE_BLOCKS = get_freeform_page_blocks(allow_uitour=True, allow_kit_intro=False)
+SYNCED_BLOCK = ("synced_block", SyncedBlockChooserBlock(label="Synced Block", group="Main"))
 
-    Args:
-        allow_uitour: If True, allows both regular buttons and UI Tour buttons in blocks.
-                      If False, only allows regular buttons.
 
-    Returns:
-        List of tuples containing block names and instances configured
-        with the appropriate button types.
+def resolve_synced_block(block):
+    """The block a stream child stands for: a synced block's inner block, else the child itself.
+
+    None when a synced block's snippet was deleted.
     """
-    base_blocks = [
-        ("notification", NotificationBlock(group="Notification")),
-        ("intro", IntroBlock(allow_uitour=allow_uitour, group="Intro")),
-        ("section", SectionBlock(allow_uitour=allow_uitour, group="Main")),
-        ("showcase", ShowcaseBlock(group="Media")),
-        ("carousel", CarouselBlock(group="Media")),
-        ("sliding_carousel", SlidingCarouselBlock(group="Media")),
-        ("card_gallery", CardGalleryBlock(group="Media")),
-        ("media_content", MediaContentBlock(group="Media", template="cms/blocks/sections/media-content-section.html")),
-        (
-            "form_content",
-            FormContentBlock(group="Main", template="cms/blocks/sections/form-content-section.html"),
-        ),
-        ("cards_list", CardsListBlock(template="cms/blocks/sections/cards-list-section.html", allow_uitour=allow_uitour, group="Main")),
-        ("featured_image_section", FeaturedImageSectionBlock(allow_uitour=allow_uitour, group="Media")),
-        ("mobile_store_qr_code", MobileStoreQRCodeBlock(group="Media")),
-        ("banner", BannerBlock(allow_uitour=allow_uitour, group="Banners")),
-        ("topic_list", TopicListBlock(allow_uitour=allow_uitour, group="Main")),
-        ("line_cards", LineCardsBlock(allow_uitour=allow_uitour, template="cms/blocks/sections/line-cards-section.html", group="Main")),
-        ("resources", ResourcesBlock(template="cms/blocks/sections/resources-section.html", group="Main")),
-        ("button_row", ButtonRowBlock(allow_uitour=allow_uitour, group="Main")),
-        ("comparison_table", ComparisonTableBlock(group="Main")),
-        ("browser_comparison_table", BrowserComparisonTableBlock(group="Main")),
-        ("enterprise_download", EnterpriseDownloadBlock(group="Main")),
-        ("contact_form", ContactFormBlock(template="cms/blocks/sections/contact-form-section.html", group="Main")),
-        ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour, group="Banners")),
-        (
-            "banner_snippet",
-            LocalizedLiveSnippetChooserBlock(
-                target_model="cms.BannerSnippet",
-                template="cms/snippets/banner-snippet.html",
-                label="Banner Snippet",
-                group="Banners",
-            ),
-        ),
-        ("image_caption", ImageCaptionBlock(group="Media")),
-        (
-            "rich_text",
-            RichTextBlock(features=settings.WAGTAIL_RICHTEXT_FEATURES_FULL, group="Main", template="cms/blocks/sections/rich-text-section.html"),
-        ),
-    ]
-    if allow_kit_intro:
-        return base_blocks + [
-            ("kit_intro", KitIntroBlock(allow_uitour=allow_uitour, group="Intro")),
-        ]
-    return base_blocks
+    if block.block_type != "synced_block":
+        return block
+    return block.value.content[0] if block.value and block.value.content else None
 
 
-UPPER_FREEFORM_PAGE_BLOCKS = _get_freeform_page_blocks(allow_uitour=True, allow_kit_intro=True)
-LOWER_FREEFORM_PAGE_BLOCKS = _get_freeform_page_blocks(allow_uitour=True, allow_kit_intro=False)
+def block_anchor_id(block):
+    block_settings = block.value.get("settings") if isinstance(block.value, StructValue) else None
+    return (block_settings or {}).get("anchor_id") or ""
+
+
+def synced_block_errors(upper_content, content):
+    """Problems with the synced blocks in a FreeFormPage2026's two stream areas, keyed by field name, then block index."""
+    areas = {"upper_content": upper_content or [], "content": content or []}
+    anchor_id_counts = Counter(
+        block_anchor_id(resolved) for blocks in areas.values() for block in blocks if (resolved := resolve_synced_block(block))
+    )
+
+    errors = {}
+    for field_name, blocks in areas.items():
+        for block_index, block in enumerate(blocks):
+            if block.block_type != "synced_block" or block.value is None:
+                continue
+            snippet = block.value
+            messages = []
+            if not snippet.live:
+                messages.append(f"{snippet.name}: The selected snippet is not published.")
+            anchor_id = block_anchor_id(resolve_synced_block(block)) if snippet.content else ""
+            if anchor_id and anchor_id_counts[anchor_id] > 1:
+                messages.append(f'{snippet.name}: anchor ID "{anchor_id}" is already used by another block on this page.')
+            if messages:
+                errors.setdefault(field_name, {})[block_index] = messages
+    return errors
+
+
+class FreeFormPage2026Form(WagtailAdminPageForm):
+    """Admin form for FreeFormPage2026 that checks its synced blocks on every editor save."""
+
+    def clean(self):
+        cleaned_data = super().clean()
+        errors = synced_block_errors(cleaned_data.get("upper_content"), cleaned_data.get("content"))
+        for field_name, block_errors in errors.items():
+            # One error per field, because the StreamField widget shows only the first.
+            self.add_error(
+                field_name,
+                StreamBlockValidationError(block_errors={block_index: ValidationError(messages) for block_index, messages in block_errors.items()}),
+            )
+        return cleaned_data
+
+
+class RenderedBlocksMixin:
+    """Gives a page with upper_content and content the blocks its template renders."""
+
+    @cached_property
+    def rendered_blocks(self):
+        """upper_content and content as the page renders them, keyed by field name.
+
+        Each item is (block, html_id_suffix). A synced block is replaced by the inner block of the
+        live snippet for the active locale, or by None when nothing is live. html_id_suffix is "" for
+        a snippet's first placement on the page and "-2", "-3", … for repeats, so HTML ids stay unique.
+        """
+        placement_counts = Counter()
+        rendered = {}
+        for field_name in ("upper_content", "content"):
+            rendered[field_name] = []
+            for block in getattr(self, field_name) or []:
+                html_id_suffix = ""
+                if block.block_type == "synced_block":
+                    localized = block.value.get_localized() if block.value else None
+                    block = localized.content[0] if localized and localized.content else None
+                    if block:
+                        placement_counts[localized.pk] += 1
+                        if placement_counts[localized.pk] > 1:
+                            html_id_suffix = f"-{placement_counts[localized.pk]}"
+                rendered[field_name].append((block, html_id_suffix))
+        return rendered
 
 
 class PencilBannerPlacement(Orderable):
@@ -1251,19 +1270,27 @@ class ArticleDetailPagePencilBannerPlacement(Orderable):
 
 
 class FreeFormPage2026(
-    PageThemeMixin, PreFooterImageMixin, PromotedPageMixin, UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfieldCMSPage
+    RenderedBlocksMixin,
+    PageThemeMixin,
+    PreFooterImageMixin,
+    PromotedPageMixin,
+    UTMParamsMixin,
+    QRCodeFloatingSnippetMixin,
+    AbstractSpringfieldCMSPage,
 ):
     """A flexible 2026 page type with optional upper/lower split layout."""
 
+    base_form_class = FreeFormPage2026Form
+
     upper_content = StreamField(
-        UPPER_FREEFORM_PAGE_BLOCKS,
+        [*UPPER_FREEFORM_PAGE_BLOCKS, SYNCED_BLOCK],
         use_json_field=True,
         blank=True,
         null=True,
         help_text="Optional upper content. If present, the page will use a split layout.",
     )
     content = StreamField(
-        LOWER_FREEFORM_PAGE_BLOCKS,
+        [*LOWER_FREEFORM_PAGE_BLOCKS, SYNCED_BLOCK],
         use_json_field=True,
         blank=True,
         null=True,
@@ -1397,7 +1424,9 @@ class WhatsNewIndexPage(AbstractSpringfieldCMSPage):
         return redirect(f"/{active_language}/")
 
 
-class WhatsNewPage2026(RoutingMixin, PageThemeMixin, PreFooterImageMixin, UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfieldCMSPage):
+class WhatsNewPage2026(
+    RenderedBlocksMixin, RoutingMixin, PageThemeMixin, PreFooterImageMixin, UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfieldCMSPage
+):
     """A 2026 version of the What's New page with optional upper/lower split layout."""
 
     # Routing target variants are nested child WhatsNewPage2026 pages, so the type can
