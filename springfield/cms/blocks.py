@@ -4,8 +4,12 @@
 
 from __future__ import annotations
 
+import logging
+import re
+import time
 from copy import deepcopy
 from decimal import Decimal
+from io import BytesIO
 from typing import TYPE_CHECKING
 from urllib.parse import urlparse
 from uuid import uuid4
@@ -13,27 +17,41 @@ from uuid import uuid4
 from django import forms
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.files.base import ContentFile
+from django.db import transaction
 from django.forms.utils import ErrorList
 from django.forms.widgets import CheckboxSelectMultiple, TelInput
 from django.http import QueryDict
 from django.urls import Resolver404, resolve
 from django.utils import translation
+from django.utils.html import escape
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
+import requests
 from product_details import product_details
+from pygments import highlight
+from pygments.formatters import HtmlFormatter
+from pygments.lexers import get_lexer_by_name
+from pygments.util import ClassNotFound
 from wagtail import blocks
 from wagtail.blocks import StructBlockValidationError
 from wagtail.images.blocks import ImageChooserBlock
+from wagtail.models import Collection
 from wagtail.snippets.blocks import SnippetChooserBlock
 from wagtail.templatetags.wagtailcore_tags import richtext
+from wagtail.utils.file import hash_filelike
 from wagtail_link_block.blocks import LinkBlock, URLValue
+from wagtail_localize.segments import StringSegmentValue
 from wagtail_thumbnail_choice_block import ThumbnailChoiceBlock
 
 from lib.l10n_utils.fluent import ftl, ftl_lazy
 from springfield.base.i18n import normalize_language, split_path_and_normalize_language
 from springfield.cms.icon_utils import icon_css_name, icon_value_fn
 from springfield.cms.models.locale import SpringfieldLocale
+from springfield.cms.qr_code_urls import QR_CODE_URL_HELP_TEXT, QR_CODE_URL_LABEL, normalize_qr_code_url, validate_qr_code_url
 from springfield.cms.rich_text import RichTextBlock
+from springfield.cms.utils import current_request
 from springfield.cms.views import wagtail_serve_with_locale_fallback
 
 if TYPE_CHECKING:
@@ -42,6 +60,8 @@ if TYPE_CHECKING:
         ArticleThemePage,
         SpringfieldImage,
     )
+
+logger = logging.getLogger(__name__)
 
 HEADING_TEXT_FEATURES = [
     "bold",
@@ -162,11 +182,13 @@ UITOUR_BUTTON_ABOUT_PREFERENCES_GENERAL = "open_about_preferences_general"
 UITOUR_BUTTON_ABOUT_PREFERENCES_HOME = "open_about_preferences_home"
 UITOUR_BUTTON_ABOUT_PREFERENCES_SEARCH = "open_about_preferences_search"
 UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY = "open_about_preferences_privacy"
+UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY_VPN = "open_about_preferences_privacy_vpn"
 UITOUR_BUTTON_ABOUT_PREFERENCES_AI = "open_about_preferences_ai"
 UITOUR_BUTTON_ABOUT_PREFERENCES_EXPERIMENTAL = "open_about_preferences_experimental"
 UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC = "open_about_preferences_sync"
 UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC_IMPORT_BROWSER_DATA = "open_about_preferences_sync_import_browser_data"
 UITOUR_BUTTON_ABOUT_PREFERENCES_MORE_FROM_MOZILLA = "open_about_preferences_more_from_mozilla"
+UITOUR_BUTTON_ABOUT_PREFERENCES_ABOUT = "open_about_preferences_about"
 UITOUR_BUTTON_PROTECTIONS_REPORT = "open_protections_report"
 UITOUR_BUTTON_SMART_WINDOW = "open_smart_window"
 UITOUR_BUTTON_PIN_TO_TASKBAR = "pin_to_taskbar"
@@ -182,6 +204,7 @@ UITOUR_BUTTON_CHOICES = (
     (UITOUR_BUTTON_ABOUT_PREFERENCES_HOME, "Open Preferences - Home"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES_SEARCH, "Open Preferences - Search"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY, "Open Preferences - Privacy"),
+    (UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY_VPN, "Open Preferences - Privacy (VPN)"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES_AI, "Open Preferences - AI Controls"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES_EXPERIMENTAL, "Open Preferences - Experimental"),
     (UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC, "Open Preferences - Sync"),
@@ -190,6 +213,7 @@ UITOUR_BUTTON_CHOICES = (
         UITOUR_BUTTON_ABOUT_PREFERENCES_MORE_FROM_MOZILLA,
         "Open Preferences - More From Mozilla",
     ),
+    (UITOUR_BUTTON_ABOUT_PREFERENCES_ABOUT, "Open Preferences - About (Firefox Updates)"),
     (UITOUR_BUTTON_PROTECTIONS_REPORT, "Open Protections Report"),
     (UITOUR_BUTTON_SMART_WINDOW, "Open Smart Window"),
     (UITOUR_BUTTON_PIN_TO_TASKBAR, "Pin to Taskbar (Windows and Mac only)"),
@@ -206,11 +230,13 @@ UI_TOUR_CLASSES = {
     UITOUR_BUTTON_ABOUT_PREFERENCES_HOME: "ui-tour-open-about-preferences-home",
     UITOUR_BUTTON_ABOUT_PREFERENCES_SEARCH: "ui-tour-open-about-preferences-search",
     UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY: "ui-tour-open-about-preferences-privacy",
+    UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY_VPN: "ui-tour-open-about-preferences-privacy-vpn",
     UITOUR_BUTTON_ABOUT_PREFERENCES_AI: "ui-tour-open-about-preferences-ai",
     UITOUR_BUTTON_ABOUT_PREFERENCES_EXPERIMENTAL: "ui-tour-open-about-preferences-experimental",
     UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC: "ui-tour-open-about-preferences-sync",
     UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC_IMPORT_BROWSER_DATA: "ui-tour-open-about-preferences-sync-importBrowserData",
     UITOUR_BUTTON_ABOUT_PREFERENCES_MORE_FROM_MOZILLA: "ui-tour-open-about-preferences-moreFromMozilla",
+    UITOUR_BUTTON_ABOUT_PREFERENCES_ABOUT: "ui-tour-open-about-preferences-about",
     UITOUR_BUTTON_PROTECTIONS_REPORT: "ui-tour-open-protections-report",
     UITOUR_BUTTON_SMART_WINDOW: "ui-tour-open-smart-window",
     UITOUR_BUTTON_PIN_TO_TASKBAR: "ui-tour-pin-to-taskbar",
@@ -253,30 +279,155 @@ def validate_animation_url(value):
 
 
 def validate_video_url(value):
-    if value and "youtube.com" not in value and "youtu.be" not in value and "assets.mozilla.net" not in value:
+    if value and not is_youtube_url(value) and "assets.mozilla.net" not in value:
         raise ValidationError("Please provide a valid YouTube or assets.mozilla.net URL for the video.")
     return value
 
 
-def youtube_video_id(url):
-    """Return the video ID from a YouTube watch, youtu.be, shorts or embed URL, or None."""
+YOUTUBE_VIDEO_ID_PATTERN = re.compile(r"^[A-Za-z0-9_-]+$")
+
+
+def get_youtube_video_id(url):
+    """Return the video ID from a YouTube watch, youtu.be, shorts or embed URL, or None.
+
+    Only IDs made of the characters YouTube uses are returned, so one is safe to put in a URL or file name.
+    """
     parsed = urlparse(url or "")
     host = parsed.netloc.lower().removeprefix("www.").removeprefix("m.")
+    video_id = None
     if host == "youtu.be":
-        return parsed.path.strip("/").split("/")[0] or None
-    if host in ("youtube.com", "youtube-nocookie.com"):
-        if parsed.path == "/watch":
-            return QueryDict(parsed.query).get("v") or None
+        video_id = parsed.path.strip("/").split("/")[0]
+    elif host in ("youtube.com", "youtube-nocookie.com"):
         path_segments = parsed.path.strip("/").split("/")
-        if len(path_segments) >= 2 and path_segments[0] in ("shorts", "embed") and path_segments[1]:
-            return path_segments[1]
-    return None
+        if parsed.path == "/watch":
+            video_id = QueryDict(parsed.query).get("v")
+        elif len(path_segments) >= 2 and path_segments[0] in ("shorts", "embed"):
+            video_id = path_segments[1]
+    return video_id if video_id and YOUTUBE_VIDEO_ID_PATTERN.match(video_id) else None
+
+
+YOUTUBE_HOSTS = ("youtube.com", "youtu.be", "youtube-nocookie.com")
+
+
+def is_youtube_url(url):
+    return any(host in url for host in YOUTUBE_HOSTS)
 
 
 def validate_youtube_url(value):
-    if value and not youtube_video_id(value):
+    if value and not get_youtube_video_id(value):
         raise ValidationError("Please provide a YouTube video URL, e.g. https://www.youtube.com/watch?v=VIDEO_ID.")
     return value
+
+
+YOUTUBE_THUMBNAIL_COLLECTION_NAME = "YouTube Thumbnails"
+YOUTUBE_THUMBNAIL_SIZES = ("maxresdefault", "hqdefault")
+# Thumbnails are stored as "<video id>-<size>.jpg"; Django's storage adds "_" and 7 characters when the name is taken.
+YOUTUBE_THUMBNAIL_FILENAME_PATTERN = re.compile(r"^(?P<video_id>[A-Za-z0-9_-]+)-(?:maxresdefault|hqdefault)(?:_[A-Za-z0-9]{7})?\.jpg$")
+# (connect, read) seconds, and a total for every thumbnail fetched while serving one save, because
+# the downloads run inside the editor's request and it has its own timeout.
+YOUTUBE_THUMBNAIL_TIMEOUT = (3, 5)
+YOUTUBE_THUMBNAIL_BUDGET_SECONDS = 10
+YOUTUBE_THUMBNAIL_DEADLINE_ATTR = "youtube_thumbnail_deadline"
+
+
+class YouTubeThumbnailUnavailable(Exception):
+    """No thumbnail could be stored for a video. The message is written for the editor."""
+
+
+def get_or_create_youtube_poster(video_id, alt):
+    """Return YouTube's thumbnail for `video_id` from the YouTube Thumbnails collection, downloading it the first time.
+
+    Stored locally so that visitors never request anything from YouTube before they play the video.
+    Raises YouTubeThumbnailUnavailable when there is none to use.
+    """
+    # Inline because springfield.cms.models imports this module.
+    from springfield.cms.models import SpringfieldImage
+
+    collection = get_or_create_youtube_thumbnail_collection()
+    for image in SpringfieldImage.objects.filter(collection=collection, file__startswith=f"original_images/{video_id}-"):
+        if get_stored_thumbnail_video_id(image) == video_id:
+            return image
+
+    content, size = download_youtube_thumbnail(video_id)
+    user = getattr(current_request.get(), "user", None)
+    try:
+        with transaction.atomic():
+            return SpringfieldImage.objects.create(
+                title=f"YouTube thumbnail: {alt or video_id}"[:255],
+                is_decorative=True,
+                collection=collection,
+                file=ContentFile(content, name=f"{video_id}-{size}.jpg"),
+                file_hash=hash_filelike(BytesIO(content)),
+                uploaded_by_user=user if user is not None and user.is_authenticated else None,
+            )
+    except Exception as exc:
+        # Reading the image's dimensions or writing it to storage can fail on a bad download or a
+        # storage outage. Report it on the block instead of failing the whole save.
+        logger.exception("Could not store the YouTube thumbnail for video %s", video_id)
+        raise YouTubeThumbnailUnavailable("Couldn't save YouTube's thumbnail. Save again, or choose a poster image.") from exc
+
+
+def get_or_create_youtube_thumbnail_collection():
+    """The image collection that YouTube thumbnails are stored in, created the first time it's needed."""
+    root = Collection.get_first_root_node()
+    collection = root.get_children().filter(name=YOUTUBE_THUMBNAIL_COLLECTION_NAME).first()
+    return collection or root.add_child(name=YOUTUBE_THUMBNAIL_COLLECTION_NAME)
+
+
+def get_stored_thumbnail_video_id(image):
+    """The video ID of a thumbnail stored by get_or_create_youtube_poster, or None if `image` isn't one."""
+    if image.collection.name != YOUTUBE_THUMBNAIL_COLLECTION_NAME:
+        return None
+    match = YOUTUBE_THUMBNAIL_FILENAME_PATTERN.match(image.filename)
+    return match["video_id"] if match else None
+
+
+def download_youtube_thumbnail(video_id):
+    """Fetch the widest thumbnail YouTube has for `video_id`, returning its bytes and size name.
+
+    Stops at the request's thumbnail deadline, overrunning it by at most one read timeout.
+    """
+    for size in YOUTUBE_THUMBNAIL_SIZES:
+        url = f"https://img.youtube.com/vi/{video_id}/{size}.jpg"
+        timeout = tuple(min(limit, start_or_check_youtube_thumbnail_deadline(url)) for limit in YOUTUBE_THUMBNAIL_TIMEOUT)
+        try:
+            # Streamed, because a read timeout limits each read rather than the whole download.
+            with requests.get(url, timeout=timeout, stream=True) as response:
+                content_type = response.headers.get("Content-Type", "")
+                if response.status_code != 200 or not content_type.startswith("image/"):
+                    logger.info("No YouTube thumbnail at %s (HTTP %s, %s)", url, response.status_code, content_type)
+                    continue
+                chunks = []
+                for chunk in response.iter_content(chunk_size=64 * 1024):
+                    start_or_check_youtube_thumbnail_deadline(url)
+                    chunks.append(chunk)
+                return b"".join(chunks), size
+        except requests.RequestException as exc:
+            # The next size is on the same host, so it would fail the same way.
+            logger.warning("Could not reach YouTube for the thumbnail %s: %s", url, exc)
+            raise YouTubeThumbnailUnavailable("Couldn't reach YouTube to get this video's thumbnail. Save again, or choose a poster image.") from exc
+    logger.warning("YouTube has no thumbnail for video %s", video_id)
+    raise YouTubeThumbnailUnavailable("YouTube has no thumbnail for this video. Choose a poster image.")
+
+
+def start_or_check_youtube_thumbnail_deadline(url):
+    """Start the current request's thumbnail deadline on the first call, and return the seconds left before it.
+
+    Every thumbnail fetched while serving one request shares the budget. Raises YouTubeThumbnailUnavailable
+    once it has run out, naming `url` as the one skipped.
+    """
+    request = current_request.get()
+    if request is None:
+        return YOUTUBE_THUMBNAIL_BUDGET_SECONDS
+    deadline = getattr(request, YOUTUBE_THUMBNAIL_DEADLINE_ATTR, None)
+    if deadline is None:
+        deadline = time.monotonic() + YOUTUBE_THUMBNAIL_BUDGET_SECONDS
+        setattr(request, YOUTUBE_THUMBNAIL_DEADLINE_ATTR, deadline)
+    seconds_left = deadline - time.monotonic()
+    if seconds_left <= 0:
+        logger.warning("Out of time for YouTube thumbnails in this request, skipped %s", url)
+        raise YouTubeThumbnailUnavailable("Ran out of time getting YouTube thumbnails for this page. Save again to get the rest.")
+    return seconds_left
 
 
 _ICON_LABEL_OVERRIDES = {
@@ -292,6 +443,28 @@ def icon_display_label(stem: str) -> str:
     """
     css_name = icon_css_name(stem)
     return _ICON_LABEL_OVERRIDES.get(css_name) or css_name.replace("-", " ").title()
+
+
+class QRCodeURLBlock(blocks.CharBlock):
+    def __init__(self, required=True, help_text=QR_CODE_URL_HELP_TEXT, **kwargs):
+        kwargs.setdefault("label", QR_CODE_URL_LABEL)
+        super().__init__(required=required, help_text=help_text, validators=[validate_qr_code_url], **kwargs)
+
+    def clean(self, value):
+        return super().clean(normalize_qr_code_url(value))
+
+
+class OverridableQRCodeURLBlock(blocks.URLBlock):
+    """A QR Code URL field that stays a URLBlock, so each locale overrides it instead of translating it."""
+
+    def __init__(self, required=True, help_text=QR_CODE_URL_HELP_TEXT, **kwargs):
+        kwargs.setdefault("label", QR_CODE_URL_LABEL)
+        super().__init__(required=required, help_text=help_text, **kwargs)
+        # Django's URLField would add http:// itself and reject tel: and mailto: links.
+        self.field = forms.CharField(required=required, help_text=help_text, validators=[validate_qr_code_url])
+
+    def clean(self, value):
+        return super().clean(normalize_qr_code_url(value))
 
 
 class UntranslatableCharBlock(blocks.CharBlock):
@@ -1032,7 +1205,7 @@ def SetAsDefaultButtonBlock(themes=BUTTON_THEMES, **kwargs):
 def QRCodeModalButtonBlock(themes=BUTTON_THEMES, **kwargs):
     class _QRCodeModalButtonBlock(LabelSourceMixin, blocks.StructBlock):
         settings = BaseButtonSettings(themes=themes)
-        url = blocks.URLBlock(label="QR Code URL", help_text="URL to encode as a QR code")
+        url = OverridableQRCodeURLBlock()
         heading = blocks.CharBlock(label="Modal heading")
         content = blocks.CharBlock(label="Modal caption", required=False)
 
@@ -1050,8 +1223,8 @@ def QRCodeModalButtonBlock(themes=BUTTON_THEMES, **kwargs):
 
 
 class VideoModalButtonValue(BaseButtonValue):
-    def video_id(self) -> str:
-        return youtube_video_id(self.get("video_url")) or ""
+    def get_video_id(self) -> str:
+        return get_youtube_video_id(self.get("video_url")) or ""
 
 
 def VideoModalButtonBlock(themes=BUTTON_THEMES, **kwargs):
@@ -1698,6 +1871,11 @@ class ImageCaptionBlock(blocks.StructBlock):
         )
 
 
+class VideoValue(blocks.StructValue):
+    def get_video_id(self):
+        return get_youtube_video_id(self.get("video_url")) or ""
+
+
 class VideoBlock(blocks.StructBlock):
     video_url = blocks.URLBlock(
         label="Video URL",
@@ -1705,7 +1883,12 @@ class VideoBlock(blocks.StructBlock):
         validators=[validate_video_url],
     )
     alt = blocks.CharBlock(label="Alt Text", default="", help_text="Text for screen readers describing the video.")
-    poster = ImageChooserBlock(help_text="Poster image displayed before the video is played.")
+    poster = ImageChooserBlock(
+        required=False,
+        label="Poster image",
+        help_text="Displayed before the video is played. Leave empty on a YouTube video to use its thumbnail, "
+        "which is added to the YouTube Thumbnails collection when you save. Required for assets.mozilla.net videos.",
+    )
     aspect_ratio = blocks.ChoiceBlock(
         choices=VIDEO_ASPECT_RATIO_CHOICES,
         default="",
@@ -1714,10 +1897,67 @@ class VideoBlock(blocks.StructBlock):
         help_text="Match this to the file's real dimensions so it isn't stretched or cropped. Leave as Default if already 16:9.",
     )
 
+    def clean(self, value):
+        """Validate the video and fill in its poster: the editor's own image, or else the YouTube thumbnail.
+
+        A draft saves without a poster; one is required when the page is published.
+        """
+        errors = {}
+        try:
+            value = super().clean(value)
+        except StructBlockValidationError as exc:
+            errors.update(exc.block_errors)
+
+        if "video_url" not in errors:
+            try:
+                value["poster"] = self.get_or_create_poster(value)
+            except YouTubeThumbnailUnavailable as exc:
+                value["poster"] = None
+                poster_errors = {"poster": ValidationError(str(exc))}
+            else:
+                poster_errors = self.get_missing_poster_errors(value)
+            if not self.is_deferred_validation:
+                errors.update(poster_errors)
+
+        if errors:
+            raise StructBlockValidationError(block_errors=errors)
+        return value
+
+    @staticmethod
+    def get_or_create_poster(value):
+        """Return the poster to show: the editor's own image, or else the YouTube video's thumbnail, downloading and storing it if needed.
+
+        A thumbnail of the video the block used to show is swapped for the current video's. Returns
+        None when there's neither. The thumbnail is stored during validation, so if another field on
+        the page fails, the next save reuses it instead of downloading again.
+        Raises YouTubeThumbnailUnavailable when the thumbnail can't be stored.
+        """
+        poster = value["poster"]
+        if poster and get_stored_thumbnail_video_id(poster) is None:
+            return poster
+        video_id = get_youtube_video_id(value["video_url"])
+        return get_or_create_youtube_poster(video_id, value["alt"]) if video_id else None
+
+    @staticmethod
+    def get_missing_poster_errors(value):
+        """Errors for a video that has no poster image."""
+        video_url = value["video_url"]
+        if not video_url or value["poster"]:
+            return {}
+        if is_youtube_url(video_url):
+            return {
+                "video_url": ValidationError(
+                    "Couldn't find a video in this YouTube link, so there's no thumbnail to use. "
+                    "Use a link such as https://www.youtube.com/watch?v=VIDEO_ID, or choose a poster image."
+                )
+            }
+        return {"poster": ValidationError("Choose a poster image. Videos from assets.mozilla.net need one.")}
+
     class Meta:
         label = "Video"
         label_format = "Video - {video_url}"
         template = "cms/blocks/video.html"
+        value_class = VideoValue
 
 
 def AnimationBlock(required=True, *args, **kwargs):
@@ -1766,7 +2006,7 @@ def AnimationBlock(required=True, *args, **kwargs):
 
 
 class QRCodeBlock(blocks.StructBlock):
-    data = blocks.CharBlock(label="QR Code Data", help_text="The URL or text encoded in the QR code.")
+    data = QRCodeURLBlock()
     background = ImageChooserBlock(
         required=False,
         help_text="This QR Code background should be 1200x675, expecting a 300px square directly in the center. "
@@ -2310,15 +2550,90 @@ class IconListWithImageBlock(RequireAltTextMixin, blocks.StructBlock):
         template = "cms/blocks/icon-list-with-image.html"
 
 
+CODE_PROSE_LANGUAGES = {"prompt", "output"}
+
+CODE_LANGUAGE_CHOICES = [
+    ("", "Plain text"),
+    ("prompt", "Prompt"),
+    ("output", "Model output"),
+    ("javascript", "JavaScript"),
+    ("typescript", "TypeScript"),
+    ("python", "Python"),
+    ("cpp", "C++"),
+    ("rust", "Rust"),
+    ("bash", "Shell"),
+    ("json", "JSON"),
+    ("html", "HTML"),
+    ("css", "CSS"),
+]
+
+# Programming language names shown above the block; the template labels prompts and output with Fluent strings.
+CODE_LANGUAGE_LABELS = {value: label for value, label in CODE_LANGUAGE_CHOICES if value and value not in CODE_PROSE_LANGUAGES}
+
+
+def highlight_code(language: str, code: str) -> str:
+    """Return Pygments HTML for the code, using classes rather than inline styles (CSP blocks those).
+
+    A language Pygments doesn't know, e.g. one later removed from the choices, falls back to escaped plain text.
+    """
+    try:
+        lexer = get_lexer_by_name(language)
+    except ClassNotFound:
+        return escape(code)
+    return highlight(code, lexer, HtmlFormatter(nowrap=True, classprefix="tok-"))
+
+
+class CodeBlockValue(blocks.StructValue):
+    def language_label(self) -> str:
+        return CODE_LANGUAGE_LABELS.get(self.get("language") or "", "")
+
+    def is_prose(self) -> bool:
+        return self.get("language") in CODE_PROSE_LANGUAGES
+
+    def highlighted_code(self) -> str:
+        language = self.get("language") or ""
+        code = self.get("code") or ""
+        if not language or language in CODE_PROSE_LANGUAGES:
+            return escape(code)
+        # Pygments escapes the source, and the fallback is escaped too.
+        return mark_safe(highlight_code(language, code))
+
+
 class CodeBlock(blocks.StructBlock):
+    language = blocks.ChoiceBlock(
+        choices=CODE_LANGUAGE_CHOICES,
+        default="",
+        required=False,
+        label="Language",
+        help_text="Adds colours and a label. Prompt and Model output wrap long lines; code scrolls sideways.",
+    )
     code = blocks.TextBlock(
         label="Code",
-        help_text="Paste the code snippet here.",
+        help_text="Paste the code snippet here. Code isn't sent for translation; Prompt and Model output text is.",
+    )
+    caption = blocks.CharBlock(
+        required=False,
+        default="",
+        label="Caption",
+        help_text="Optional, e.g. the file the code comes from.",
     )
 
     class Meta:
         label = "Code"
+        label_format = "Code - {code}"
         template = "cms/blocks/code.html"
+        value_class = CodeBlockValue
+        form_classname = "struct-block fl-admin-code-block"
+
+    def get_translatable_segments(self, value):
+        """Send the caption for translation, and the text too when it's a prompt or model output, never code."""
+        fields = ["caption", "code"] if value.get("language") in CODE_PROSE_LANGUAGES else ["caption"]
+        return [StringSegmentValue(field, value.get(field) or "") for field in fields]
+
+    def restore_translated_segments(self, value, segments):
+        for segment in segments:
+            value[segment.path] = segment.render_text()
+        return value
 
 
 class QuoteBlock(blocks.StructBlock):
@@ -3681,7 +3996,7 @@ def HomeKitBannerBlock(allow_uitour=False, *args, **kwargs):
     class _HomeKitBannerBlock(blocks.StructBlock):
         settings = HomeKitBannerSettings()
         heading = HeadingBlock()
-        qr_code = blocks.CharBlock(required=False, help_text="QR Code Data or URL.")
+        qr_code = QRCodeURLBlock(required=False)
         buttons = MixedButtonsBlock(
             button_types=get_button_types(allow_uitour),
             min_num=0,
@@ -3706,10 +4021,7 @@ class MobileStoreQRCodeBlock(RequireAltTextMixin, blocks.StructBlock):
     alt_text_fields = ("mobile_image",)
 
     heading = HeadingBlock()
-    qr_code_data = blocks.CharBlock(
-        label="QR Code Data",
-        help_text="The URL or text encoded in the QR code.",
-    )
+    qr_code_data = QRCodeURLBlock()
     mobile_image = ImageChooserBlock(
         label="Mobile Image",
         help_text="Image shown on mobile instead of the QR code.",

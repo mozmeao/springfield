@@ -39,7 +39,7 @@ def get_banner_snippet() -> BannerSnippet:
             "heading": '<p data-block-key="c1bc4d7eadf0">Reusable banner snippet</p>',
             "content": '<p data-block-key="0b474f02">A banner you edit once and reuse anywhere — add it to a page with the '
             "banner_snippet block, and changes here update every page that references it.</p>",
-            "qr_code": "QR Code Content",
+            "qr_code": "https://www.firefox.com/browsers/mobile/",
         },
     )
     return snippet

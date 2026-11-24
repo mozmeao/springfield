@@ -6,6 +6,8 @@
 
 {% extends "cms/base-flare.html" %}
 
+{% block type_scale %}{% if page.theme == "enterprise" %}fl-scale-compact{% endif %}{% endblock %}
+
 {% block body_class %}
 {{ super() }}
 {% if page.theme == "enterprise" %}fl-force-light-theme{% endif %}

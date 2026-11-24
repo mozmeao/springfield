@@ -1,12 +1,30 @@
-## 2026-11-16
+## 2026-11-24
 
 - The "Enable marketing attribution" checkbox on the Promote tab (Free Form, Home and Smart Window pages) is now a "Marketing attribution" setting with three options: Disabled, Enabled (always promoted), and Enabled only with ?promoted=1. Pages that had the checkbox ticked are set to Enabled (always promoted).
 - "Enabled only with ?promoted=1" shows the opt-out checkbox and consent banner only to visitors whose URL has `?promoted=1`, and keeps the page in search results. Paid links to these pages must add `?promoted=1`. It's the only option allowed on the site's homepage.
+
+## 2026-11-23
+
+- The video block's Poster image is optional for YouTube videos. Leave it empty and, when you save, the video's YouTube thumbnail is added to the "YouTube Thumbnails" image collection and filled in as the poster. If you change the video URL, the thumbnail changes with it. Choose your own image to use that instead. assets.mozilla.net videos still need a poster image.
+- Drafts save with an incomplete video block. The poster is checked when you publish.
+- The Code block has a Language field. Pick a programming language to colour the code and show its name above it; leave it on Plain text for no colours. Every Code block has a Copy button and an optional Caption.
+- Set Language to Prompt or Model output to show an AI prompt or reply. These wrap long lines, and their text is sent for translation; code isn't.
+
+## 2026-11-19
+
+- Every field that sets where a QR code points is now called "QR Code URL", with the same help text: the QR Code block, Mobile Store Button / QR Code, Home Kit Banner, QR Code Modal Button, the Banner, QR Code and Floating QR Code snippets, and the page-level "Override QR Code URL". If you leave off `https://` it is added when you save, `http://` is changed to `https://`, and `tel:`, `mailto:` and `sms:` links are kept as they are. Anything else, like plain text, shows an error.
+
+## 2026-11-17
+
+- UI Tour buttons have an "Open Preferences - About (Firefox Updates)" action, which opens `about:preferences#about`.
 
 ## 2026-11-09
 
 - Generated QR codes now use rounded dots and corners with the Firefox logo in the middle, matching the designed QR images.
 - Fixed the QR Code block, which encoded the wrong value instead of its QR Code Data.
+
+## 2026-11-05
+- When a page's English text is edited after it has been translated, the translation editor's "Previous translations" panel shows the previous translation for that text, so it can be read and reused instead of retyped.
 
 ## 2026-11-04
 - Wagtail upgraded from 7.4 to 8.1. The page editor's Checks panel now shows the page's meta title and description, with their lengths measured against search engine limits. Moving or renaming a draft page no longer creates a redirect; live pages still do.

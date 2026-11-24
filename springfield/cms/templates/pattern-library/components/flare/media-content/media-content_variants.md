@@ -1,0 +1,3 @@
+The `media-content` component places media — an image, video, animation or QR code — beside a content column: heading, tags, rich text, buttons, sharing links, Smart Window instructions or a contact form. It's the Media + Content block on free-form pages, in Sections and in Featured Image Sections — the base for alternating media-text feature sections.
+
+The media comes first by default; **media_after** moves it after the text on desktop, and **narrow** gives the media the smaller column on desktop and a portrait default for video. Alternate the position across consecutive blocks to keep the page's rhythm, and give every image alt text unless it's marked decorative.

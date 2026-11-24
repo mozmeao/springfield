@@ -1,0 +1,3 @@
+The `nav-menu` component and its `nav-folder` and `nav-link` children form the CMS-editable menu inside the site header: top-level links and folders, each folder opening a panel of link columns with optional horizontal rules; any link can be styled as a button. On desktop, folders open on click or hover; on mobile, everything moves behind the menu button. The sample shows the built-in menu, built from the same `nav-folder` and `nav-link` components.
+
+Editors build it as a Navigation snippet and pick it in a page's **Custom Navigation** setting. A page uses its own navigation, then its nearest ancestor's, then the site default, then the built-in one.

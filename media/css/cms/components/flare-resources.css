@@ -34,11 +34,13 @@
     text-decoration: underline;
 }
 
-.fl-resources-column .fl-heading-xs {
+/* The column title is the first heading; subheadings follow inside the column */
+.fl-resources-column > .fl-heading:first-child {
     border-block-end: 1px solid var(--fl-subtle-border-color);
+    font-size: var(--fl-theme-font-size-heading-xs);
 }
 
-.fl-resources-column .fl-heading-2xs {
+.fl-resources-column > .fl-heading:not(:first-child) {
     font-size: var(
         --token-font-size-lg
     ); /* system deviation to force 18px size at all sizes */

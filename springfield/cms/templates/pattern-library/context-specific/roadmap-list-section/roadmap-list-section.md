@@ -1,0 +1,3 @@
+The `roadmap-list-section` component is one section of the product roadmap: a heading, an optional subheadline and a list of `roadmap-item` entries, each with a title, an optional status and icon, a body, optional platform tags (Android, iOS, Desktop) and up to two buttons. The first section on the page carries the `roadmap-list-filter`.
+
+It's the Roadmap List Section block, on the Roadmap page only. The filter shows items matching any selected platform, hides sections left empty and keeps the choice in the URL. Below 900px, tapping a section heading collapses or expands it like an accordion; sections start open.

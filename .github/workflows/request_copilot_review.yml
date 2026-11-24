@@ -1,0 +1,70 @@
+name: Request Copilot review
+
+# Asks GitHub Copilot to review a PR as soon as it is opened, so a human
+# reviewer doesn't have to trigger it and wait. Only PRs raised by someone
+# with write access to this repo are eligible: community PRs could burn
+# review quota, and a contributor could edit the Copilot instructions on
+# their branch to steer the review. A failed request (no Copilot licence,
+# no quota, Copilot unavailable) is logged but never fails the check.
+
+permissions: {}
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - ready_for_review
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  request-review:
+    name: Request Copilot review
+    runs-on: ubuntu-latest
+    if: >-
+      github.repository == 'mozmeao/springfield'
+      && !github.event.pull_request.draft
+      && github.event.pull_request.head.repo.full_name == github.repository
+    permissions:
+      contents: read # Look up the PR author's collaborator permission
+      pull-requests: write # Request a Copilot review on the PR
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      PR_NUMBER: ${{ github.event.pull_request.number }}
+      PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+      PR_AUTHOR_TYPE: ${{ github.event.pull_request.user.type }}
+    steps:
+      - name: Check PR author has write access
+        id: access
+        run: |
+          if [ "$PR_AUTHOR_TYPE" = "Bot" ]; then
+            echo "$PR_AUTHOR is a bot; skipping Copilot review"
+            exit 0
+          fi
+          permission="$(gh api "repos/$GH_REPO/collaborators/$PR_AUTHOR/permission" --jq .permission || echo none)"
+          echo "$PR_AUTHOR has '$permission' permission"
+          case "$permission" in
+            admin|maintain|write)
+              echo "eligible=true" >> "$GITHUB_OUTPUT"
+              ;;
+            *)
+              echo "Not requesting Copilot review: author lacks write access"
+              ;;
+          esac
+
+      - name: Request Copilot review
+        if: steps.access.outputs.eligible == 'true'
+        run: |
+          # Never fail the check: Copilot review is a convenience, and the
+          # request is refused when the actor has no Copilot licence or
+          # quota, or when a review is already pending (HTTP 409).
+          if response="$(gh api --method POST "repos/$GH_REPO/pulls/$PR_NUMBER/copilot-code-review" 2>&1)"; then
+            echo "Copilot review requested: $response"
+          else
+            echo "::warning::Copilot review could not be requested; continuing anyway"
+            echo "$response"
+          fi
