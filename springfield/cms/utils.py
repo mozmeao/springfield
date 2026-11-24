@@ -90,13 +90,9 @@ def find_fallback_page_for_locale(locale_code, url_path):
     return Page.objects.live().filter(url_path=full_url_path).first()
 
 
-def compute_cms_page_locales(page):
-    """
-    Return a tuple of locales: (all_locales, content_locales) for a CMS page.
-
-    all_locales: content_locales + alias locales from FALLBACK_LOCALES.
-    content_locales: locales with real translated content (no alias expansion).
-    """
+def get_cms_page_content_locales(page: Page) -> list[str]:
+    """Locales the page has real content in: its own, then each live, public translation.
+    Aliases of the page don't count, because they repeat its content."""
     content_locales = [page.locale.language_code]
     try:
         _actual_translations = (
@@ -114,26 +110,21 @@ def compute_cms_page_locales(page):
         # when there's no draft and no potential for aliases, etc, the above lookup will fail
         pass
 
-    return with_alias_locales(content_locales)
+    return content_locales
 
 
-def with_alias_locales(content_locales):
-    """Return (all_locales, content_locales) for a list of locales with real content."""
-    # Expand with alias locales from FALLBACK_LOCALES reverse map.
-    # e.g. if es-MX is in the list, also add es-AR and es-CL.
-    alias_additions = [alias for alias, target in getattr(settings, "FALLBACK_LOCALES", {}).items() if target in content_locales]
-
-    all_locales = list(dict.fromkeys(content_locales + alias_additions))
-    deduped_content = list(dict.fromkeys(content_locales))
-
-    return all_locales, deduped_content
+def get_locales_with_aliases(content_locales: list[str]) -> list[str]:
+    """`content_locales` followed by the alias locales in FALLBACK_LOCALES that fall back to
+    one of them, e.g. es-AR and es-CL when es-MX is present. An alias locale serves its
+    fallback locale's content, so a page can be viewed in it too."""
+    alias_locales = [alias for alias, fallback in getattr(settings, "FALLBACK_LOCALES", {}).items() if fallback in content_locales]
+    return list(dict.fromkeys(content_locales + alias_locales))
 
 
 def get_locales_for_cms_page(page):
     # Patch in a list of CMS-available locales for pages that are
     # translations, not just aliases
-    all_locales, _ = compute_cms_page_locales(page)
-    return all_locales
+    return get_locales_with_aliases(get_cms_page_content_locales(page))
 
 
 def get_cms_locales_for_path(request):

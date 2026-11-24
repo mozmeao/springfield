@@ -161,9 +161,10 @@ def test_CMS_ALLOWED_PAGE_MODELS_controls_Page_can_create_at(
         assert page_class.can_create_at(home_page) == success_expected
 
 
-@mock.patch("springfield.cms.models.base.compute_cms_page_locales")
+@override_settings(FALLBACK_LOCALES={"pt-PT": "pt-BR"})
+@mock.patch("springfield.cms.models.base.get_cms_page_content_locales")
 def test__patch_request_for_springfield__locales_available_via_cms(
-    mock_compute_cms_page_locales,
+    mock_get_cms_page_content_locales,
     minimal_site,
     rf,
 ):
@@ -171,11 +172,11 @@ def test__patch_request_for_springfield__locales_available_via_cms(
 
     page = SimpleRichTextPage.objects.last()  # made by the minimal_site fixture
 
-    mock_compute_cms_page_locales.return_value = (["en-US", "fr", "pt-BR"], ["en-US", "fr", "pt-BR"])
+    mock_get_cms_page_content_locales.return_value = ["en-US", "fr", "pt-BR"]
 
     patched_request = page.specific._patch_request_for_springfield(request)
-    assert sorted(patched_request._locales_available_via_cms) == ["en-US", "fr", "pt-BR"]
-    assert sorted(patched_request._content_locales_via_cms) == ["en-US", "fr", "pt-BR"]
+    assert patched_request._locales_available_via_cms == ["en-US", "fr", "pt-BR", "pt-PT"]
+    assert patched_request._content_locales_via_cms == ["en-US", "fr", "pt-BR"]
 
 
 def test__patch_request_for_springfield_annotates_is_cms_page(tiny_localized_site, rf):

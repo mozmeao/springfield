@@ -1492,6 +1492,86 @@ def test_blog_topic_context_excludes_featured_articles(curated_topic_page, rf):
 
 
 # ---------------------------------------------------------------------------
+# Languages offered by listing routes (hreflang and the language picker)
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture
+def french_blog(blog_index, blog_topic, make_article):
+    """An English blog with one article in blog_topic, and a published French copy of the
+    index whose translated article is in the French copy of that topic."""
+    article = make_article(title="Privacy article")
+    french = Locale.objects.get(language_code="fr")
+    french_index = blog_index.copy_for_translation(french)
+    french_index.save_revision().publish()
+    french_topic = blog_topic.copy_for_translation(french)
+    french_topic.save()
+    french_article = article.copy_for_translation(french)
+    french_article.topic = french_topic
+    french_article.save_revision().publish()
+    french_article.refresh_from_db()
+    return SimpleNamespace(
+        en_index=blog_index,
+        en_topic=blog_topic,
+        # The test site's root page has no French copy, so Wagtail's URL for the French index
+        # carries the en-US prefix even though the page is served under /fr/.
+        french_index_url=f"/fr{french_index.url_path}",
+        french_topic=french_topic,
+        french_article=french_article,
+    )
+
+
+def get_hreflang_codes(client, url):
+    """The hreflang codes the page at `url` lists, x-default included."""
+    response = client.get(url)
+    assert response.status_code == 200
+    return {link["hreflang"] for link in BeautifulSoup(response.content, "html.parser").find_all("link", rel="alternate", hreflang=True)}
+
+
+def test_topic_listing_offers_only_languages_with_articles_in_the_topic(client, french_blog, make_article):
+    english_only_topic = BlogTopic.objects.create(name="Features", slug="test-unit-features", locale=french_blog.en_index.locale)
+    make_article(title="Features article", topic=english_only_topic)
+    translated_topic_path = f"topics/{french_blog.en_topic.slug}/"
+
+    assert "fr" not in get_hreflang_codes(client, f"{french_blog.en_index.url}topics/{english_only_topic.slug}/")
+    assert "fr" in get_hreflang_codes(client, french_blog.en_index.url + translated_topic_path)
+    assert "en-US" in get_hreflang_codes(client, french_blog.french_index_url + translated_topic_path)
+
+
+def test_topic_listing_leaves_out_a_language_whose_topic_is_a_draft(client, french_blog):
+    french_blog.french_topic.unpublish()
+
+    assert "fr" not in get_hreflang_codes(client, f"{french_blog.en_index.url}topics/{french_blog.en_topic.slug}/")
+
+
+def test_curated_topic_page_offers_the_topic_listing_languages(client, french_blog):
+    """The curated page has no French copy, but the plain French topic listing exists."""
+    topic_page = BlogTopicPage(title="Privacy", slug="privacy", topic=french_blog.en_topic, locale=french_blog.en_index.locale)
+    french_blog.en_index.add_child(instance=topic_page)
+    topic_page.save_revision().publish()
+
+    assert "fr" in get_hreflang_codes(client, f"{french_blog.en_index.url}topics/{french_blog.en_topic.slug}/")
+
+
+@pytest.mark.parametrize("route_path", ["all/", "topics/"])
+def test_listing_route_leaves_out_a_language_without_live_articles(client, french_blog, route_path):
+    assert "fr" in get_hreflang_codes(client, french_blog.en_index.url + route_path)
+
+    french_blog.french_article.unpublish()
+
+    assert "fr" not in get_hreflang_codes(client, french_blog.en_index.url + route_path)
+
+
+@pytest.mark.parametrize("route_path", ["all/", "topics/", "topics/test-unit-privacy/"])
+def test_empty_listing_offers_only_its_own_language(client, french_blog, route_path):
+    """The French listing is still served in French, but links to no other language,
+    because the other languages' listings leave it out."""
+    french_blog.french_article.unpublish()
+
+    assert get_hreflang_codes(client, french_blog.french_index_url + route_path) == {"x-default", "fr"}
+
+
+# ---------------------------------------------------------------------------
 # Blog article page
 # ---------------------------------------------------------------------------
 
@@ -1706,11 +1786,7 @@ def test_blog_article_related_articles_render_their_image(privacy_articles, rf):
 def test_blog_index_no_n_plus_one_queries(blog_setup, rf, django_assert_max_num_queries):
     """Blog index page should fetch all related data in bulk, not per article.
 
-    The ceiling includes one query from AbstractSpringfieldCMSPage.get_breadcrumb_ancestors
-    calling `.public()`, which does a PageViewRestriction lookup per render — required to
-    keep view-restricted ancestors out of the BreadcrumbList JSON-LD.
-
-    It also includes ~5 constant (not per-article) queries from custom-navigation
+    The ceiling includes ~5 constant (not per-article) queries from custom-navigation
     resolution and another 5 from the header's What's New / What's Next lookups,
     both of which run on every page render.
     # TODO (WT-1468): revisit whether to cache the resolved page nav / default snippet
@@ -1718,7 +1794,7 @@ def test_blog_index_no_n_plus_one_queries(blog_setup, rf, django_assert_max_num_
     """
     index_page, _ = blog_setup
     request = rf.get(index_page.get_full_url())
-    with django_assert_max_num_queries(44):
+    with django_assert_max_num_queries(45):
         index_page.serve(request)
 
 
@@ -1726,7 +1802,7 @@ def test_blog_index_query_count_does_not_grow_with_articles(blog_setup, rf, djan
     """Sections fetch in bulk, so adding articles they could show costs no extra query."""
     index_page, articles = blog_setup
     baseline_request = rf.get(index_page.get_full_url())
-    with django_assert_max_num_queries(44):
+    with django_assert_max_num_queries(45):
         index_page.serve(baseline_request)
 
     topic = BlogTopic.objects.get(slug="privacy")
@@ -1743,7 +1819,7 @@ def test_blog_index_query_count_does_not_grow_with_articles(blog_setup, rf, djan
         )
 
     fresh_index = BlogIndexPage.objects.get(pk=index_page.pk)
-    with django_assert_max_num_queries(44):
+    with django_assert_max_num_queries(45):
         fresh_index.serve(rf.get(index_page.get_full_url()))
 
 
@@ -1760,7 +1836,7 @@ def test_blog_all_no_n_plus_one_queries(blog_setup, rf, django_assert_max_num_qu
     index_page, _ = blog_setup
     url = index_page.full_url + index_page.reverse_subpage("all_route")
     request = rf.get(url)
-    with django_assert_max_num_queries(30):
+    with django_assert_max_num_queries(33):
         index_page.all_route(request)
 
 

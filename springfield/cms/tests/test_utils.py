@@ -79,6 +79,20 @@ def test_get_locales_for_cms_page__ensure_private_pages_are_excluded(tiny_locali
     assert sorted(get_locales_for_cms_page(en_us_test_page)) == ["en-US", "pt-BR"]
 
 
+@override_settings(FALLBACK_LOCALES={})
+def test_get_locales_for_cms_page__ensure_pages_under_a_private_parent_are_excluded(tiny_localized_site):
+    en_us_homepage = Page.objects.get(locale__language_code="en-US", slug="home")
+    en_us_test_page = en_us_homepage.get_children()[0]
+    fr_homepage = Page.objects.get(locale__language_code="fr", slug="home-fr")
+    fr_test_page = fr_homepage.get_children()[0]
+    assert fr_test_page.live
+    assert fr_test_page.translation_key == en_us_test_page.translation_key
+
+    PageViewRestriction.objects.create(page=fr_homepage, restriction_type=PageViewRestriction.LOGIN)
+
+    assert sorted(get_locales_for_cms_page(en_us_test_page)) == ["en-US", "pt-BR"]
+
+
 @override_settings(FALLBACK_LOCALES={"es-AR": "es-MX"})
 def test_get_locales_for_cms_page__no_alias_added_when_no_target_matches(tiny_localized_site):
     """Test when no FALLBACK_LOCALES entries match a locale in the page's translation set."""
