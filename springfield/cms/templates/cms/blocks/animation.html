@@ -4,13 +4,16 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% set poster = image(value.poster, "width-800") %}
+{# A deleted video document leaves the block without a source, so it renders nothing. #}
+{% if value.source_url %}
+  {% set poster = image(value.poster, "width-800") %}
 
-<include:animation
-  show_pause_button="{{ value.show_pause_button }}"
-  video_url="{{ value.video_url }}"
-  alt="{{ value.alt }}"
-  poster="{{ poster.url }}"
-  playback="{{ value.playback }}"
-  aspect_ratio="{{ value.aspect_ratio }}"
-/>
+  <include:animation
+    show_pause_button="{{ value.show_pause_button }}"
+    video_url="{{ value.source_url }}"
+    alt="{{ value.alt }}"
+    poster="{{ poster.url }}"
+    playback="{{ value.playback }}"
+    aspect_ratio="{{ value.aspect_ratio }}"
+  />
+{% endif %}

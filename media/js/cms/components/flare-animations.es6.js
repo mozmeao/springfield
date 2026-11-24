@@ -14,7 +14,8 @@ function isAlphaWebmUnsupported() {
 }
 
 function isAlphaWebm(src) {
-    return /-alpha\.webm(\?|$)/i.test(src);
+    // Storage renames an upload whose name is taken to `name-alpha_a1b2c3d.webm`.
+    return /-alpha(?:_[A-Za-z0-9]{7})?\.webm(\?|$)/i.test(src);
 }
 
 function swapAlphaWebmForPoster() {
