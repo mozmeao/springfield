@@ -9,7 +9,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("cms", "0167_sharefirefoxpage_nav_cta_and_pre_footer"),
+        ("cms", "0169_freeformpage2026_marketing_attribution_mode_and_more"),
     ]
 
     operations = [

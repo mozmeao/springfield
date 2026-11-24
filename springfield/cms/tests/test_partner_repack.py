@@ -127,7 +127,7 @@ def test_new_partner_defaults_to_the_message():
 
 
 def test_fallback_migration_defaults_existing_partners_to_the_message():
-    field = import_module("springfield.cms.migrations.0168_partnerrepack_fallback_mode").Migration.operations[0].field
+    field = import_module("springfield.cms.migrations.0170_partnerrepack_fallback_mode").Migration.operations[0].field
 
     assert field.default == PartnerRepackFallbackMode.MESSAGE
 
