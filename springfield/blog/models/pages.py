@@ -41,7 +41,6 @@ from springfield.cms.models.base import AbstractSpringfieldCMSPage, ImageAltText
 from springfield.cms.models.locale import SpringfieldLocale
 from springfield.cms.models.pages import UTMParamsMixin
 from springfield.cms.rich_text import RichTextBlock, RichTextField
-from springfield.cms.utils import get_locales_with_aliases
 
 ARTICLES_PER_PAGE = 10
 FEED_ITEMS = 20
@@ -305,10 +304,13 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
     def has_listed_articles(self, topic: BlogTopic | None = None) -> bool:
         """Whether this index lists any article, or any article in `topic` when given.
 
-        `topic` may come from another locale: it is matched to this locale's live copy of it."""
+        Feed exclusions apply as they do on all/ and topics/<slug>/: a topic listing keeps
+        its own topic even when it's excluded. `topic` may come from another locale: it is
+        matched to this locale's live copy of it."""
         articles = self.listed_articles()
         if topic:
             articles = articles.filter(topic__translation_key=topic.translation_key, topic__locale_id=self.locale_id, topic__live=True)
+        articles = self.exclude_from_feed(articles, exempt_topic_keys={topic.translation_key} if topic else ())
         return articles.exists()
 
     def get_listing_locales(self, topic: BlogTopic | None = None) -> list[str]:
@@ -319,9 +321,11 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
         redirected. When this page itself has nothing to list, it advertises no other locale,
         because their listings leave it out too."""
         locales = [self.locale.language_code]
-        translations = self.get_translations().live().public().specific()
+        translations = self.get_translations().live().public().select_related("locale", for_specific_subqueries=True).specific()
         if translations and self.has_listed_articles(topic):
             for blog_index in translations:
+                # Already known to be live and public, so skip lists_every_article()'s query.
+                blog_index._lists_every_article_cache = False
                 if blog_index.has_listed_articles(topic):
                     locales.append(blog_index.locale.language_code)
         return locales
@@ -502,10 +506,7 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
         Its hreflang tags and language picker offer the languages from get_listing_locales()
         instead of every translation of this page."""
         request.is_preview = False
-        request = self._patch_request_for_springfield(request)
-        listing_locales = self.get_listing_locales(topic)
-        request._content_locales_via_cms = listing_locales  # for canonical URLs
-        request._locales_available_via_cms = get_locales_with_aliases(listing_locales)  # for translations list (language picker)
+        request = self._patch_request_for_springfield(request, content_locales=self.get_listing_locales(topic))
         context = self.get_context(request) | extra_context
         return l10n_utils.render(request, template, context, ftl_files=self.ftl_files)
 

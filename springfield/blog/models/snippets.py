@@ -26,8 +26,10 @@ class BlogTopic(BaseDraftTranslatableSnippetMixin, models.Model):
         FieldPanel("slug"),
     ]
 
+    # Not overridable: hreflang links to the other languages by swapping the locale prefix
+    # on this path, so every translation must keep the same slug.
     override_translatable_fields = [
-        SynchronizedField("slug"),
+        SynchronizedField("slug", overridable=False),
     ]
 
     class Meta(TranslatableMixin.Meta):
@@ -56,8 +58,10 @@ class BlogTag(BaseDraftTranslatableSnippetMixin, TagBase):
         FieldPanel("slug"),
     ]
 
+    # Not overridable, like BlogTopic.slug: ?tag= looks the slug up in the page's locale,
+    # so every translation must keep the same slug.
     override_translatable_fields = [
-        SynchronizedField("slug"),
+        SynchronizedField("slug", overridable=False),
     ]
 
     class Meta(TranslatableMixin.Meta):

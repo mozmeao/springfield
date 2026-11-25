@@ -7,8 +7,10 @@ from datetime import UTC, date, datetime
 from types import SimpleNamespace
 
 from django.core.exceptions import ValidationError
+from django.db import connection
 from django.http import Http404
 from django.test import override_settings
+from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
 
 import pytest
@@ -1569,6 +1571,47 @@ def test_empty_listing_offers_only_its_own_language(client, french_blog, route_p
     french_blog.french_article.unpublish()
 
     assert get_hreflang_codes(client, french_blog.french_index_url + route_path) == {"x-default", "fr"}
+
+
+def test_listing_leaves_out_a_language_whose_articles_are_excluded_from_feeds(client, french_blog):
+    """all/ hides articles in an excluded topic, so it offers no French listing that would be
+    empty. topics/<slug>/ keeps its own topic even when it's excluded, so French stays."""
+    french_index = french_blog.en_index.get_translation(Locale.objects.get(language_code="fr"))
+    french_index.feed_exclusions = [{"type": "topic", "value": french_blog.french_topic.pk, "id": "fx000001-0000-0000-0000-000000000001"}]
+    french_index.save_revision().publish()
+
+    assert "fr" not in get_hreflang_codes(client, french_blog.en_index.url + "all/")
+    assert "fr" in get_hreflang_codes(client, f"{french_blog.en_index.url}topics/{french_blog.en_topic.slug}/")
+
+
+def test_listing_locales_cost_two_queries_per_translation(french_blog):
+    """Each translation costs only its .public() check and its .exists() query: its locale is
+    fetched with it, and it is known to be live and public from the translations query."""
+
+    def count_queries():
+        index = BlogIndexPage.objects.get(pk=french_blog.en_index.pk)
+        with CaptureQueriesContext(connection) as queries:
+            index.get_listing_locales()
+        return len(queries)
+
+    with_one_translation = count_queries()
+
+    german = Locale.objects.get_or_create(language_code="de")[0]
+    french_blog.en_index.copy_for_translation(german).save_revision().publish()
+    german_topic = french_blog.en_topic.copy_for_translation(german)
+    german_topic.save()
+    german_article = french_blog.french_article.get_translation(french_blog.en_index.locale).copy_for_translation(german)
+    german_article.topic = german_topic
+    german_article.save_revision().publish()
+
+    assert count_queries() == with_one_translation + 2
+
+
+def test_topic_and_tag_slugs_are_not_overridable():
+    """hreflang and ?tag= rely on every translation keeping the source slug."""
+    for model in (BlogTopic, BlogTag):
+        slug_field = next(field for field in get_translatable_fields(model) if field.field_name == "slug")
+        assert not slug_field.overridable
 
 
 # ---------------------------------------------------------------------------
