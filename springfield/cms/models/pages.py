@@ -2384,7 +2384,7 @@ class ReferralHubPage(AbstractSpringfieldCMSPage):
 
     upper_content = StreamField(
         [
-            ("showcase", ShowcaseBlock(allow_tabs=True)),
+            ("showcase", ShowcaseBlock(allow_tabs=True, allow_referral_tabs=True)),
         ],
         max_num=1,
         null=True,
@@ -2403,7 +2403,7 @@ class ReferralHubPage(AbstractSpringfieldCMSPage):
     )
     extra_content = StreamField(
         [
-            ("showcase", ShowcaseBlock(allow_tabs=True)),
+            ("showcase", ShowcaseBlock(allow_tabs=True, allow_referral_tabs=True)),
         ],
         max_num=1,
         null=True,
@@ -2550,7 +2550,7 @@ class ReferralGetFirefoxPage(AbstractSpringfieldCMSPage):
     upper_content = StreamField(
         [
             ("intro", KitIntroBlock(allow_referral_download=True)),
-            ("showcase", ShowcaseBlock(allow_tabs=True)),
+            ("showcase", ShowcaseBlock(allow_tabs=True, allow_referral_tabs=True)),
             ("cards_list", CardsListBlock(template="cms/blocks/sections/cards-list-section.html")),
             ("carousel", CarouselBlock()),
         ],
@@ -2666,7 +2666,7 @@ class ShareFirefoxPage(AbstractSpringfieldCMSPage):
             ("intro", KitIntroBlock(allow_media_above_buttons=True)),
             # Not "intro": that name already holds the Kit Intro in existing pages.
             ("side_intro", IntroBlock()),
-            ("showcase", ShowcaseBlock(allow_tabs=True)),
+            ("showcase", ShowcaseBlock(allow_tabs=True, allow_referral_tabs=True)),
             ("cards_list", CardsListBlock(template="cms/blocks/sections/cards-list-section.html")),
             ("carousel", CarouselBlock()),
         ],

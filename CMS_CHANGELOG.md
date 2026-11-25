@@ -1,6 +1,6 @@
 ## 2026-11-25
 
-- Free Form pages can use Tabs in a Showcase's Media, as the referral and share pages do. Give each tab a Browser comparison table to compare Firefox with more browsers than one table fits.
+- Free Form pages can use Tabs in a Showcase's Media, as the referral and share pages do. Give each tab a Browser comparison table to compare Firefox with more browsers than one table fits. Free Form tabs don't offer Referral controls or Impact dashboard, which only work on referral pages.
 - On phones, a tab with an icon shows only its icon, on every page with tabs. Tabs without an icon keep their name.
 
 ## 2026-11-24

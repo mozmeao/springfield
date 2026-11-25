@@ -33,7 +33,15 @@ from springfield.cms.fixtures.smart_window_page_fixtures import (
 )
 from springfield.cms.fixtures.thanks_page_fixtures import get_download_support
 from springfield.cms.middleware import CurrentRequestMiddleware
-from springfield.cms.models import ArticleDetailPage, ArticleIndexPage, FreeFormPage2026, SmartWindowExplainerPage, SmartWindowPage, ThanksPage
+from springfield.cms.models import (
+    ArticleDetailPage,
+    ArticleIndexPage,
+    FreeFormPage2026,
+    ReferralHubPage,
+    SmartWindowExplainerPage,
+    SmartWindowPage,
+    ThanksPage,
+)
 from springfield.cms.models.base import MarketingAttributionMode
 from springfield.cms.wagtail_hooks import warn_about_leading_conditional_blocks
 
@@ -210,6 +218,23 @@ def test_showcase_tab_renders_browser_comparison_table(free_form_page: FreeFormP
     tab_panel = tabs_box.select_one(".fl-tab")
     assert tab_panel
     assert tab_panel.find("div", class_="fl-browser-comparison-table-wrapper")
+
+
+@pytest.mark.parametrize(
+    "page_class, field_name, offers_referral_blocks",
+    [
+        (FreeFormPage2026, "upper_content", False),
+        (FreeFormPage2026, "content", False),
+        (ReferralHubPage, "upper_content", True),
+    ],
+)
+def test_showcase_tab_referral_blocks(page_class, field_name, offers_referral_blocks):
+    stream_block = page_class._meta.get_field(field_name).stream_block
+    tab_block = stream_block.child_blocks["showcase"].child_blocks["media"].child_blocks["tabs"].child_blocks["tabs"].child_block
+
+    assert ("referral_controls" in tab_block.child_blocks) is offers_referral_blocks
+    assert ("impact_dash" in tab_block.child_blocks) is offers_referral_blocks
+    assert "browser_comparison_table" in tab_block.child_blocks
 
 
 # Stub Attribution Campaign
