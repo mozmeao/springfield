@@ -1138,7 +1138,7 @@ def _get_freeform_page_blocks(allow_uitour=True, allow_kit_intro=False):
         ("notification", NotificationBlock(group="Notification")),
         ("intro", IntroBlock(allow_uitour=allow_uitour, group="Intro")),
         ("section", SectionBlock(allow_uitour=allow_uitour, group="Main")),
-        ("showcase", ShowcaseBlock(group="Media")),
+        ("showcase", ShowcaseBlock(allow_tabs=True, group="Media")),
         ("carousel", CarouselBlock(group="Media")),
         ("sliding_carousel", SlidingCarouselBlock(group="Media")),
         ("card_gallery", CardGalleryBlock(group="Media")),

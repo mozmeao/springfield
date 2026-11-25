@@ -135,25 +135,6 @@
         }
     }
 
-    @media (--viewport-below-md) {
-        /* tabs */
-        .fl-share-firefox-page
-            .fl-tabs-tab:has(.fl-tabs-tab-icon)
-            .fl-tabs-tab-label {
-            /* button text visually hidden on small screen sizes */
-            block-size: 1px;
-            border: 0;
-            clip-path: inset(100%);
-            inline-size: 1px;
-            margin: -1px;
-            padding: 0;
-            position: absolute;
-            white-space: nowrap;
-            clip: rect(0 0 0 0);
-            overflow: hidden;
-        }
-    }
-
     @media (--viewport-md-up) {
         .fl-share-firefox-page {
             --section-border-radius: var(--token-border-radius-xl);

@@ -9,6 +9,7 @@
     background: var(--token-color-purple);
     border: 1px solid var(--token-color-link-purple);
     border-radius: var(--token-border-radius-md);
+    color: var(--fl-theme-color-text);
     overflow-x: clip;
     padding: var(--token-layout-2xs) var(--tabs-inline-padding) 0;
 
@@ -75,6 +76,21 @@
 
     [role='tabpanel'].is-hidden {
         display: block;
+    }
+}
+
+@media (--viewport-below-md) {
+    .fl-tabs-tab:has(.fl-tabs-tab-icon) .fl-tabs-tab-label {
+        block-size: 1px;
+        border: 0;
+        clip-path: inset(100%);
+        inline-size: 1px;
+        margin: -1px;
+        padding: 0;
+        position: absolute;
+        white-space: nowrap;
+        clip: rect(0 0 0 0);
+        overflow: hidden;
     }
 }
 
