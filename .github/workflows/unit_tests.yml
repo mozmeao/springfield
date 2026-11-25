@@ -40,7 +40,11 @@ jobs:
         with:
           persist-credentials: false
       - name: "Run Python tests (on Docker)"
+        # GIT_COMMIT and APT_REFRESH_WEEK become build args; see the Dockerfile.
+        env:
+          GIT_COMMIT: ${{ github.sha }}
         run: |
+            export APT_REFRESH_WEEK="$(date -u +%G-%V)"
             make clean test-image
             CONTAINER_ID=$(docker ps -alq)
             docker cp $CONTAINER_ID:/app/python_coverage .

@@ -72,20 +72,22 @@ jobs:
       - name: Build frontend assets
         if: steps.visual_changes.outputs.run_tests == 'true'
         run: npm ci && npm run build
-      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
-        if: steps.visual_changes.outputs.run_tests == 'true'
-      - name: Build Docker image
+      # The pulled images are the build cache (see docker-compose.yml); a failed pull only means
+      # an uncached build. GIT_COMMIT is blank to pull the `latest` tags, then set for the build.
+      - name: Pull previous images to use as build cache
         if: steps.visual_changes.outputs.run_tests == 'true'
         run: |
-          docker buildx build \
-            --target devapp \
-            --tag mozmeao/springfield_test:latest \
-            --cache-from type=gha \
-            --cache-to type=gha,mode=max \
-            --load \
-            .
+          cp .env-dist .env
+          GIT_COMMIT= docker compose pull --ignore-pull-failures app builder assets app-base
+      - name: Build Docker image
+        if: steps.visual_changes.outputs.run_tests == 'true'
+        env:
+          GIT_COMMIT: ${{ github.sha }}
+        run: APT_REFRESH_WEEK="$(date -u +%G-%V)" docker compose build app
       - name: Start Django server
         if: steps.visual_changes.outputs.run_tests == 'true'
+        env:
+          GIT_COMMIT: ${{ github.sha }}
         run: |
           docker run -d \
             --name django-server \
@@ -96,7 +98,7 @@ jobs:
             -e WAGTAIL_ENABLE_ADMIN=True \
             -e REFERRAL_INVITE_CODE_KEY_V1=abcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcdefabcd \
             -v $GITHUB_WORKSPACE/assets:/app/assets:ro \
-            mozmeao/springfield_test:latest \
+            "mozmeao/springfield_test:${GIT_COMMIT}" \
             python manage.py runserver 0.0.0.0:8000
       - name: Wait for Django server
         if: steps.visual_changes.outputs.run_tests == 'true'

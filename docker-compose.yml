@@ -1,3 +1,6 @@
+# `make pull` fetches the last pushed images, and `cache_from` lets BuildKit reuse their layers.
+# Inline cache holds only a target's final layers, so each service lists every stage image it
+# builds on.
 services:
   # Run webpack-dev-server and compile static assets.
   #
@@ -7,6 +10,11 @@ services:
     build:
       context: .
       target: assets
+      cache_from:
+        - mozmeao/springfield_build:latest
+        - mozmeao/springfield_assets:latest
+      cache_to:
+        - type=inline
     image: mozmeao/springfield_assets:${GIT_COMMIT:-latest}
     platform: linux/amd64
     command: npm run watch
@@ -25,6 +33,16 @@ services:
     build:
       context: .
       target: devapp
+      args:
+        GIT_SHA: ${GIT_COMMIT:-latest}
+        APT_REFRESH_WEEK: ${APT_REFRESH_WEEK:-local}
+      cache_from:
+        - mozmeao/springfield_build:latest
+        - mozmeao/springfield_assets:latest
+        - mozmeao/springfield_code:latest
+        - mozmeao/springfield_test:latest
+      cache_to:
+        - type=inline
     image: mozmeao/springfield_test:${GIT_COMMIT:-latest}
     platform: linux/amd64
     tty: true
@@ -111,6 +129,14 @@ services:
       target: release
       args:
         GIT_SHA: ${GIT_COMMIT:-latest}
+        APT_REFRESH_WEEK: ${APT_REFRESH_WEEK:-local}
+      cache_from:
+        - mozmeao/springfield_build:latest
+        - mozmeao/springfield_assets:latest
+        - mozmeao/springfield_code:latest
+        - mozmeao/springfield:latest
+      cache_to:
+        - type=inline
     image: mozmeao/springfield:${GIT_COMMIT:-latest}
     platform: linux/amd64
 
@@ -175,6 +201,10 @@ services:
     build:
       context: .
       target: python-builder
+      cache_from:
+        - mozmeao/springfield_build:latest
+      cache_to:
+        - type=inline
     image: mozmeao/springfield_build:${GIT_COMMIT:-latest}
     platform: linux/amd64
 
@@ -182,6 +212,13 @@ services:
     build:
       context: .
       target: app-base
+      args:
+        APT_REFRESH_WEEK: ${APT_REFRESH_WEEK:-local}
+      cache_from:
+        - mozmeao/springfield_build:latest
+        - mozmeao/springfield_code:latest
+      cache_to:
+        - type=inline
     image: mozmeao/springfield_code:${GIT_COMMIT:-latest}
     platform: linux/amd64
 

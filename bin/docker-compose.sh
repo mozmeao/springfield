@@ -6,4 +6,7 @@
 
 source docker/bin/set_git_env_vars.sh
 
+# Refresh the cached apt layer weekly; see APT_REFRESH_WEEK in the Dockerfile.
+export APT_REFRESH_WEEK="${APT_REFRESH_WEEK:-$(date -u +%G-%V)}"
+
 docker compose "$@"
