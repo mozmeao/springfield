@@ -7,7 +7,8 @@
 A triggered request to a live canonical with rules gets this lightweight page instead of
 final content. It ships the rules and their signals' metadata as ``data-*`` attributes
 (CSP-clean, no inline script), plus the server-rendered country and localized strings.
-**All matching happens on the client** — the server never evaluates a rule.
+On param-triggered pages all matching happens in the browser; the server never evaluates a
+rule here. Organic pages match on the server instead (see ``server_match``).
 
 Responses are CDN-cacheable and state their own lifetime via
 ``ROUTING_RESOLVER_CACHE_SECONDS``: how long frozen target URLs, pause state and country
@@ -19,6 +20,8 @@ from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
+
+from wagtail.models import PageViewRestriction
 
 from lib import l10n_utils
 from springfield.cms.routing.models import localized_target
@@ -63,7 +66,15 @@ def fallback_url(page, request):
     to a request whose query string is the one rendered into it. If that ever stops being true,
     this has to go back to a bare canonical URL.
     """
-    url = url_in_requested_locale(page, request)
+    return with_visitor_query(url_in_requested_locale(page, request), request, extra=[(LOOP_BREAKER_PARAM, "1")])
+
+
+def with_visitor_query(url, request, extra=()):
+    """``url`` plus the visitor's query string, minus routing's own params.
+
+    A name ``url`` already carries is never added, and a repeated name keeps its first value.
+    Same as ``preserveQueryString`` on the client.
+    """
     parts = urlsplit(url)
     kept = parse_qsl(parts.query, keep_blank_values=True)
     seen = {name for name, _value in kept}
@@ -71,15 +82,25 @@ def fallback_url(page, request):
         for name, value in parse_qsl(request.META.get("QUERY_STRING", ""), keep_blank_values=True):
             if name in RESERVED_ROUTING_PARAMS or name in seen:
                 continue
+            seen.add(name)
             kept.append((name, value))
-    kept.append((LOOP_BREAKER_PARAM, "1"))
+    kept.extend(extra)
     return urlunsplit((parts.scheme, parts.netloc, parts.path, urlencode(kept), parts.fragment))
 
 
 UsableRule = namedtuple("UsableRule", ["rule", "target"])
 
 
-def usable_rules(page):
+def view_restricted_paths():
+    """Tree paths of every page with a view restriction; its descendants inherit it."""
+    return list(PageViewRestriction.objects.values_list("page__path", flat=True))
+
+
+def is_view_restricted(page, restricted_paths):
+    return any(page.path.startswith(path) for path in restricted_paths)
+
+
+def usable_rules(page, restricted_paths=None):
     """The page's rules that could actually route a visitor, in priority order.
 
     The single definition of "this page has routing", shared by the serve-path gate and
@@ -96,8 +117,11 @@ def usable_rules(page):
       would re-render the resolver with no loop-breaker to stop the cycle
     * it has neither conditions nor ``match_all``, which would match every triggered
       visitor. Authoring one is blocked; this is the backstop for the ORM/API path.
+    * the target is behind a view restriction, so visitors would land on a login or
+      password prompt, and a restricted canonical never skips its never-cache serve
 
-    Returns ``(rule, target)`` pairs in position-then-id order.
+    Returns ``(rule, target)`` pairs in position-then-id order. Pass ``restricted_paths`` from
+    ``view_restricted_paths`` when checking many pages, to read the restrictions once.
     """
     # Memoized for the life of this page *instance* — one request, where the gate asks and
     # then the serializer asks again. It makes the two share a single answer rather than two
@@ -126,6 +150,10 @@ def usable_rules(page):
         if not rule.conditions.all() and not rule.match_all:
             continue
         usable.append(UsableRule(rule, target))
+    if usable:
+        if restricted_paths is None:
+            restricted_paths = view_restricted_paths()
+        usable = [candidate for candidate in usable if not is_view_restricted(candidate.target, restricted_paths)]
 
     page._usable_rules_cache = usable
     return usable
@@ -134,7 +162,7 @@ def usable_rules(page):
 RuleProblem = namedtuple("RuleProblem", ["message", "pending"])
 
 
-def rule_problems(page):
+def rule_problems(page, restricted_paths=None):
     """Why each of ``page``'s rules cannot route a visitor: ``{rule pk: RuleProblem}``.
 
     Rules that *can* route are absent from the map. Which rules are unusable is decided by
@@ -148,16 +176,18 @@ def rule_problems(page):
     ordinary staged translation would light up exactly like a page-copy mistake, and authors
     would learn to ignore both.
     """
-    usable_ids = {usable.rule.pk for usable in usable_rules(page)}
+    if restricted_paths is None:
+        restricted_paths = view_restricted_paths()
+    usable_ids = {usable.rule.pk for usable in usable_rules(page, restricted_paths)}
     problems = {}
     for rule in page.routing_rules.all():
         if rule.pk in usable_ids:
             continue
-        problems[rule.pk] = _rule_problem(rule, page)
+        problems[rule.pk] = _rule_problem(rule, page, restricted_paths)
     return problems
 
 
-def _rule_problem(rule, page):
+def _rule_problem(rule, page, restricted_paths):
     if rule.target is None:
         return RuleProblem(_("No target page"), pending=False)
     target = localized_target(rule.target, page)
@@ -167,6 +197,8 @@ def _rule_problem(rule, page):
         return RuleProblem(_("Target not published yet"), pending=True)
     if not target.is_descendant_of(page):
         return RuleProblem(_("Target is not part of this page"), pending=False)
+    if is_view_restricted(target, restricted_paths):
+        return RuleProblem(_("Target is behind a view restriction"), pending=False)
     return RuleProblem(_("No conditions, and not set to match all"), pending=False)
 
 

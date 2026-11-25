@@ -22,6 +22,7 @@
 
 - Generated QR codes now use rounded dots and corners with the Firefox logo in the middle, matching the designed QR images.
 - Fixed the QR Code block, which encoded the wrong value instead of its QR Code Data.
+- Download pages directly under the download index have a User Routing tab. Rules send visitors from chosen countries to a download page nested under it; everyone else, search engines included, sees the page unchanged. Rules need at least one country condition, and the kill switch in Options pauses them. Routing stays off until the `user_routing` switch is on.
 
 ## 2026-11-05
 - When a page's English text is edited after it has been translated, the translation editor's "Previous translations" panel shows the previous translation for that text, so it can be read and reused instead of retyped.

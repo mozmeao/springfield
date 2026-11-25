@@ -14,6 +14,9 @@ from springfield.cms.routing.params import TRIGGER_PARAM
 class ArmingCondition:
     """Abstract arming condition. Callers depend only on ``is_satisfied(request)``."""
 
+    # Whether rules are matched on the server (a 302) rather than in the browser (the resolver).
+    matches_on_server = False
+
     def is_satisfied(self, request) -> bool:
         raise NotImplementedError
 
@@ -44,3 +47,12 @@ class QueryParamValueArmingCondition(ArmingCondition):
 
     def is_satisfied(self, request) -> bool:
         return request.GET.get(self.param_name) in self.values
+
+
+class OrganicArmingCondition(ArmingCondition):
+    """Armed for every request; the server matches the rules itself."""
+
+    matches_on_server = True
+
+    def is_satisfied(self, request) -> bool:
+        return True
