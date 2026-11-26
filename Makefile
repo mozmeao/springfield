@@ -27,6 +27,7 @@ help:
 	@echo "  test-visual-ui                 - open the playwright UI on port 8085"
 	@echo "  test-visual-update             - regenerate playwright visual regression test snapshots"
 	@echo "  build-ci                       - build docker images for use in our CI pipeline"
+	@echo "  build-release-ci               - build only the release image, as CI does for PRs"
 	@echo "  test-ci                        - run tests against files in docker image built by CI"
 	@echo "  compile-requirements           - update the Python lockfile (uv.lock) using uv"
 	@echo "  check-requirements             - get a report on stale/old Python dependencies in use"
@@ -58,7 +59,7 @@ build-prod: .docker-build-pull
 	${DC} build --pull release
 
 pull: .env
-	-GIT_COMMIT= ${DC} pull release app assets builder app-base
+	-GIT_COMMIT= ${DC} pull release app assets builder
 	touch .docker-build-pull
 
 rebuild: clean build
@@ -142,8 +143,14 @@ test-visual-update:
 build-ci: .docker-build-pull
 	${DC_CI} build --pull release
 #	tag intermediate images using cache
-	${DC_CI} build app builder assets app-base
+	${DC_CI} build app builder assets
 	touch .docker-build-ci
+
+# For PRs: proves the release image still builds, collectstatic included. build-ci also builds
+# and tags the devapp and stage images, which only main pushes.
+build-release-ci: .env
+	-GIT_COMMIT= ${DC} pull release builder assets
+	${DC_CI} build --pull release
 
 test-ci: .docker-build-ci
 	${DC_CI} run test-image
@@ -209,4 +216,4 @@ install-custom-git-hooks:
 uninstall-custom-git-hooks:
 	rm .git/hooks/post-merge
 
-.PHONY: all clean build pull lint run stop kill run-shell shell test test-image rebuild build-ci test-ci fresh-data djshell run-prod build-prod test-cdn compile-requirements check-requirements install-local-python-deps preflight clean-local-deps install-custom-git-hooks uninstall-custom-git-hooks run-local-task-queue
+.PHONY: all clean build pull lint run stop kill run-shell shell test test-image rebuild build-ci build-release-ci test-ci fresh-data djshell run-prod build-prod test-cdn compile-requirements check-requirements install-local-python-deps preflight clean-local-deps install-custom-git-hooks uninstall-custom-git-hooks run-local-task-queue

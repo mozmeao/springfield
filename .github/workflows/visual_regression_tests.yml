@@ -78,7 +78,7 @@ jobs:
         if: steps.visual_changes.outputs.run_tests == 'true'
         run: |
           cp .env-dist .env
-          GIT_COMMIT= docker compose pull --ignore-pull-failures app builder assets app-base
+          GIT_COMMIT= docker compose pull --ignore-pull-failures app builder assets
       - name: Build Docker image
         if: steps.visual_changes.outputs.run_tests == 'true'
         env:

@@ -39,7 +39,6 @@ services:
       cache_from:
         - mozmeao/springfield_build:latest
         - mozmeao/springfield_assets:latest
-        - mozmeao/springfield_code:latest
         - mozmeao/springfield_test:latest
       cache_to:
         - type=inline
@@ -133,7 +132,6 @@ services:
       cache_from:
         - mozmeao/springfield_build:latest
         - mozmeao/springfield_assets:latest
-        - mozmeao/springfield_code:latest
         - mozmeao/springfield:latest
       cache_to:
         - type=inline
@@ -206,20 +204,6 @@ services:
       cache_to:
         - type=inline
     image: mozmeao/springfield_build:${GIT_COMMIT:-latest}
-    platform: linux/amd64
-
-  app-base:
-    build:
-      context: .
-      target: app-base
-      args:
-        APT_REFRESH_WEEK: ${APT_REFRESH_WEEK:-local}
-      cache_from:
-        - mozmeao/springfield_build:latest
-        - mozmeao/springfield_code:latest
-      cache_to:
-        - type=inline
-    image: mozmeao/springfield_code:${GIT_COMMIT:-latest}
     platform: linux/amd64
 
   # Python dependency management
