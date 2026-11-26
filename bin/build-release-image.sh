@@ -19,7 +19,6 @@ fi
 if [[ "$1" == "--push" ]]; then
     docker/bin/push2dockerhub.sh mozmeao/springfield_test
     docker/bin/push2dockerhub.sh mozmeao/springfield_assets
-    docker/bin/push2dockerhub.sh mozmeao/springfield_code
     docker/bin/push2dockerhub.sh mozmeao/springfield_build
     docker/bin/push2dockerhub.sh mozmeao/springfield
 fi
