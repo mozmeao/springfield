@@ -55,13 +55,6 @@ FROM node:24-slim AS assets
 ENV PATH=/app/node_modules/.bin:$PATH
 WORKDIR /app
 
-# Required for required glean_parser dependencies (keeping for now incase we add Glean back to www.firefox.com)
-COPY docker/bin/apt-install /usr/local/bin/
-RUN apt-install python3 python3-venv
-RUN python3 -m venv /.venv
-COPY --from=python-builder /venv /.venv
-ENV PATH="/.venv/bin:$PATH"
-
 # copy dependency definitions
 COPY package.json package-lock.json ./
 
