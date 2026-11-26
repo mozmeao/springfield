@@ -198,9 +198,7 @@ class SecurityDotTxt(RequireSafeMixin, TemplateView):
 
 
 class SecurityPgpKey(RequireSafeMixin, TemplateView):
-    # https://github.com/mozilla/bedrock/issues/17535
-    # served under mozilla-email-encryption-key.asc and linked from security.txt;
-    # keep in sync with the copy bedrock serves on www.mozilla.org
+    # When rotating this key, also update the copy served by bedrock on www.mozilla.org.
     template_name = "base/mozilla-email-encryption-key.asc"
     content_type = "application/pgp-keys"
 
