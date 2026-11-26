@@ -32,7 +32,7 @@ from django_htmx.http import HttpResponseClientRedirect
 from modelcluster.fields import ParentalKey
 from sentry_sdk import capture_message, new_scope
 from wagtail.admin.forms import WagtailAdminPageForm
-from wagtail.admin.panels import FieldPanel, FieldRowPanel, InlinePanel, MultiFieldPanel, ObjectList, TabbedInterface, TitleFieldPanel
+from wagtail.admin.panels import FieldPanel, FieldRowPanel, InlinePanel, MultiFieldPanel, TitleFieldPanel
 from wagtail.models import Orderable, Page as WagtailBasePage
 from wagtail.rich_text import RichText
 from wagtail.search import index
@@ -1129,14 +1129,6 @@ class ArticleDetailPage(ImageAltTextMixin, PreFooterImageMixin, UTMParamsMixin, 
             heading="Pre-footer",
         ),
     ]
-
-    edit_handler = TabbedInterface(
-        [
-            ObjectList(content_panels, heading="Content"),
-            ObjectList(UTMParamsMixin.promote_panels, heading="Promote"),
-            ObjectList(settings_panels, heading="Settings"),
-        ]
-    )
 
     search_fields = AbstractSpringfieldCMSPage.search_fields + [
         index.SearchField("description"),
