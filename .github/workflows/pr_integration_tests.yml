@@ -61,12 +61,14 @@ jobs:
           fi
 
       # The pulled images are the build cache (see docker-compose.yml); a failed pull only means
-      # an uncached build. bin/docker-compose.sh sets GIT_COMMIT and APT_REFRESH_WEEK for the build.
+      # an uncached build. The release image already carries the app-base layers, so only the two
+      # stages it copies from need their own images. bin/docker-compose.sh sets GIT_COMMIT and
+      # APT_REFRESH_WEEK for the build.
       - name: Pull previous images to use as build cache
         if: steps.changes.outputs.run_tests == 'true'
         run: |
           cp .env-dist .env
-          GIT_COMMIT= docker compose pull --ignore-pull-failures release builder assets app-base
+          GIT_COMMIT= docker compose pull --ignore-pull-failures release builder assets
       - name: Build the release image
         if: steps.changes.outputs.run_tests == 'true'
         run: bin/docker-compose.sh build release
