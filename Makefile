@@ -182,6 +182,7 @@ preflight: .env
 
 install-local-python-deps:
 	@command -v uv >/dev/null || { echo "\`uv\` is required. Install it from https://docs.astral.sh/uv/getting-started/installation/"; exit 1; }
+	@command -v pg_config >/dev/null || { echo "\`pg_config\` is required to build \`psycopg[c]\`. Install \`libpq\` and put it on your PATH, see https://mozmeao.github.io/platform-docs/getting-started/install/#install-system-dependencies"; exit 1; }
 	# `--active` installs into your activated virtualenv, falling back to `.venv`.
 	# `--python 3.13` overrides pyenv-style `.python-version` files naming a virtualenv.
 	# `--inexact` keeps packages you installed yourself, e.g. `pre-commit`.

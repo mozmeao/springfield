@@ -77,6 +77,10 @@
     text-align: start;
 }
 
+.fl-newsletterform-cta .fl-heading {
+    font-size: var(--fl-theme-font-size-heading-sm);
+}
+
 .fl-newsletterform-cta .fl-heading-group {
     margin: 0;
 }

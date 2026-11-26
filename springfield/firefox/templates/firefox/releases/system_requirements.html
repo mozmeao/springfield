@@ -6,6 +6,8 @@
 
 {% extends "cms/base-flare.html" %}
 
+{% block type_scale %}fl-scale-compact{% endblock %}
+
 {% from "macros-protocol.html" import callout, callout_compact %}
 
 {% set channel_name = '' if release.channel == 'Release' else release.channel %}

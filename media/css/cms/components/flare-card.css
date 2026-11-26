@@ -306,6 +306,12 @@ Filled Card variant
     line-height: 1.05;
 }
 
+/* Card titles keep their own size; a page H1 inside a card follows its level */
+.fl-card.fl-card-filled .fl-heading:not(h1) {
+    font-size: var(--fl-theme-font-size-heading-sm);
+    font-variation-settings: unset;
+}
+
 .fl-card.fl-card-filled .fl-heading-group {
     color: var(--token-color-black-4);
     gap: unset;

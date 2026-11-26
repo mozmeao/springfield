@@ -22,6 +22,8 @@ from wagtail.blocks import CharBlock, StreamBlockValidationError, StructBlockVal
 from wagtail.documents.models import Document
 from wagtail.images.jinja2tags import image, srcset_image
 from wagtail.models import Locale, Page, PageViewRestriction, Site
+from wagtail_localize.segments import StringSegmentValue
+from wagtail_localize.segments.extract import StreamFieldSegmentExtractor
 
 from lib.l10n_utils import fluent_l10n, get_locale
 from springfield.base.templatetags.qrcode import qrcode_rounded_svg
@@ -41,6 +43,7 @@ from springfield.cms.blocks import (
     ROADMAP_TAG_ICONS,
     ROADMAP_TAG_LABELS,
     UI_TOUR_CLASSES,
+    UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY_VPN,
     UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC_IMPORT_BROWSER_DATA,
     UITOUR_BUTTON_NEW_TAB,
     UITOUR_BUTTON_SET_NEWTAB_WALLPAPER,
@@ -52,6 +55,7 @@ from springfield.cms.blocks import (
     ButtonRowBlock,
     CardsListBlock,
     CertificationListBlock,
+    CodeBlock,
     ComparisonImageHeaderBlock,
     ComparisonTableBlock,
     ContactFormBlock,
@@ -64,6 +68,7 @@ from springfield.cms.blocks import (
     ImageVariantsBlock,
     ImpactDashBlock,
     MobileStoreQRCodeBlock,
+    NotificationBlock,
     OverridableQRCodeURLBlock,
     QRCodeBlock,
     QRCodeModalButtonBlock,
@@ -83,9 +88,9 @@ from springfield.cms.blocks import (
     UntranslatableCharBlock,
     UUIDBlock,
     VideoModalButtonBlock,
+    get_youtube_video_id,
     icon_display_label,
     validate_youtube_url,
-    youtube_video_id,
 )
 from springfield.cms.fixtures.article_page_fixtures import (
     get_article_pages,
@@ -306,9 +311,10 @@ def _render_context(request, block_text="Heading", block_position="block-1-intro
     }
 
 
-def _render_button(btn_type, request, **label_kwargs):
+def _render_button(btn_type, request, size="", **label_kwargs):
     snippet_pk = get_set_as_default_snippet().id if btn_type == "set_as_default_button" else None
     block, raw = _button_block_and_value(btn_type, snippet_pk=snippet_pk, **label_kwargs)
+    raw["settings"]["size"] = size
     bound = block.to_python(raw)
     return block.render(bound, context=_render_context(request))
 
@@ -690,26 +696,30 @@ def assert_article_card_attributes(
     assert description_element and description_element.get_text().strip() == description_text.strip()
 
 
-def assert_video_attributes(video_element: BeautifulSoup, video_data: dict):
+# Written out rather than worked out with get_youtube_video_id, which these tests check.
+FIXTURE_YOUTUBE_VIDEO_IDS = {
+    "https://www.youtube.com/watch?v=F-nFQryDB0s&list=PLFlAJDI87Jg3WeEerUpaKQNaYoDlIwPbG": "F-nFQryDB0s",
+    "https://www.youtube.com/watch?v=firefoxdemo": "firefoxdemo",
+}
+
+
+def assert_video_attributes(video_element: BeautifulSoup, video_data: dict, expected_video_id: str | None = None):
     """
     Compares the rendered video element with the expected video data.
+
+    A YouTube video's ID is `expected_video_id`, or else looked up in FIXTURE_YOUTUBE_VIDEO_IDS.
     """
     video_url = video_data["value"]["video_url"]
     alt = video_data["value"]["alt"]
     poster = video_data["value"]["poster"]
 
-    youtube_id = None
-    if "youtube.com" in video_url or "youtu.be" in video_url:
-        youtube_id = video_url.split("watch?v=")[-1].split("youtu.be/")[-1].split("&")[0].split("?")[0]
-
     button = video_element.find("button", class_="fl-video-play")
     assert button and button["aria-label"] == alt
 
-    if youtube_id:
-        assert button["data-video-id"] == youtube_id
-    else:
-        assert "assets.mozilla.net" in video_url
+    if "assets.mozilla.net" in video_url:
         assert button["data-video-url"] == video_url
+    else:
+        assert button["data-video-id"] == (expected_video_id or FIXTURE_YOUTUBE_VIDEO_IDS[video_url])
 
     if poster:
         image = SpringfieldImage.objects.get(id=poster)
@@ -1130,6 +1140,16 @@ class TestButtonBlockLabelRendering:
         """
         html = _render_button(btn_type, rf.get("/"))
         assert "None" not in html
+
+
+class TestButtonBlockSizeRendering:
+    """Tests that every button template applies the block's size setting."""
+
+    @pytest.mark.parametrize("btn_type", _BUTTON_BLOCK_TYPES_NOT_DOWNLOAD)
+    def test_large_size_renders_large_button(self, btn_type, rf):
+        html = _render_button(btn_type, rf.get("/"), size="large", custom_label="Large button")
+        button = BeautifulSoup(html, "html.parser").find(class_="fl-button")
+        assert "fl-button-large" in button["class"]
 
 
 class TestButtonBlockCleanComposition:
@@ -4088,6 +4108,16 @@ def test_notification_block(index_page, rf):
                 assert message in heading_el.get_text()
 
 
+def test_notification_block_anchor_id_is_the_wrapper_id(rf):
+    block = NotificationBlock()
+    value = block.to_python({"settings": {"show_to": SHOW_TO_ALL, "anchor_id": "update-notice"}, "message": "<p>Message</p>"})
+
+    html = block.render(value, context={"request": rf.get("/")})
+
+    wrapper = BeautifulSoup(html, "html.parser").find("div", class_="fl-notification-wrapper")
+    assert wrapper["id"] == "update-notice"
+
+
 def test_two_column_cards_block(index_page, rf):
     variants = get_two_column_cards_variants()
     page = get_two_column_cards_test_page()
@@ -5044,6 +5074,12 @@ def test_uitour_import_browser_data_class_yields_firefox_pane():
     # ui-tour-buttons.js strips this prefix and passes the rest to openPreferences().
     css_class = UI_TOUR_CLASSES[UITOUR_BUTTON_ABOUT_PREFERENCES_SYNC_IMPORT_BROWSER_DATA]
     assert css_class.removeprefix("ui-tour-open-about-preferences-") == "sync-importBrowserData"
+
+
+def test_uitour_privacy_vpn_class_yields_firefox_pane():
+    # ui-tour-buttons.js strips this prefix and passes the rest to openPreferences().
+    css_class = UI_TOUR_CLASSES[UITOUR_BUTTON_ABOUT_PREFERENCES_PRIVACY_VPN]
+    assert css_class.removeprefix("ui-tour-open-about-preferences-") == "privacy-vpn"
 
 
 @pytest.mark.parametrize(
@@ -7241,12 +7277,13 @@ def test_sharing_links_block(index_page, rf):
         ("https://m.youtube.com/watch?v=aqz-KE-bpKQ", "aqz-KE-bpKQ"),
         ("https://www.youtube.com/@firefox", None),
         ("https://www.youtube.com/watch", None),
+        ("https://www.youtube.com/watch?v=../../evil", None),
         ("https://example.com/watch?v=aqz-KE-bpKQ", None),
         ("", None),
     ],
 )
-def test_youtube_video_id(url, expected):
-    assert youtube_video_id(url) == expected
+def test_get_youtube_video_id(url, expected):
+    assert get_youtube_video_id(url) == expected
 
 
 def test_validate_youtube_url_rejects_non_video_urls():
@@ -7311,3 +7348,126 @@ def test_quote_block_renders_title_without_name():
 
     assert caption.find(class_="fl-quote-name") is None
     assert caption.get_text() == "Firefox community"
+
+
+def render_code_block(raw):
+    block = CodeBlock()
+    context = {"fluent_l10n": fluent_l10n(["en"], settings.FLUENT_DEFAULT_FILES)}
+    return BeautifulSoup(block.render(block.to_python(raw), context=context), "html.parser")
+
+
+def test_code_block_highlights_with_classes_not_inline_styles():
+    """The CSP blocks inline styles, so the colours must come from classes."""
+    soup = render_code_block({"language": "javascript", "code": "const answer = 42; // comment"})
+
+    code = soup.find("code")
+    assert code.find("span", class_="tok-kd").get_text() == "const"
+    assert code.find("span", class_="tok-c1").get_text() == "// comment"
+    assert not soup.find(style=True)
+    assert soup.find(class_="fl-code-block-label").get_text() == "JavaScript"
+    pre = soup.find("pre")
+    assert pre["role"] == "region"
+    assert pre["aria-label"] == "JavaScript"
+    assert pre["tabindex"] == "0"
+
+
+def test_code_block_escapes_code():
+    soup = render_code_block({"language": "html", "code": '<script>alert("hi")</script>'})
+
+    assert not soup.find("script")
+    assert soup.find("code").get_text() == '<script>alert("hi")</script>\n'
+    assert soup.find("button")["data-copy-value"] == '<script>alert("hi")</script>'
+
+
+def test_code_block_without_language_is_plain_text():
+    """Blocks saved before the language field existed have no language key."""
+    soup = render_code_block({"code": "a < b && c"})
+
+    assert soup.find("code").get_text() == "a < b && c"
+    assert not soup.find("code").find("span")
+    assert not soup.find(class_="fl-code-block-label")
+    assert soup.find("pre")["aria-label"] == "Code"
+    assert soup.find("figure")["class"] == ["fl-code-block"]
+
+
+def test_code_block_with_a_language_pygments_does_not_know_renders_plain_text():
+    soup = render_code_block({"language": "not-a-language", "code": "a < b"})
+
+    assert soup.find("code").get_text() == "a < b"
+    assert not soup.find("code").find("span")
+    assert not soup.find(class_="fl-code-block-label")
+
+
+@pytest.mark.parametrize("language, label", [("prompt", "Prompt"), ("output", "Output")])
+def test_code_block_prose_languages_are_labelled_and_not_highlighted(language, label):
+    soup = render_code_block({"language": language, "code": "You are a helpful summarizer.\n   Step 1: read."})
+
+    assert f"fl-code-block-{language}" in soup.find("figure")["class"]
+    assert soup.find(class_="fl-code-block-label").get_text() == label
+    assert not soup.find("code").find("span")
+    assert soup.find("code").get_text() == "You are a helpful summarizer.\n   Step 1: read."
+
+
+def test_code_block_renders_optional_caption():
+    assert not render_code_block({"code": "x"}).find("figcaption")
+
+    soup = render_code_block({"code": "x", "caption": "From MLUtils.cpp"})
+    assert soup.find("figcaption", class_="fl-code-block-caption").get_text() == "From MLUtils.cpp"
+
+
+def test_code_block_sends_only_the_caption_of_code_for_translation():
+    block = CodeBlock()
+    value = block.to_python({"language": "python", "code": "print('hi')", "caption": "A caption"})
+
+    segments = StreamFieldSegmentExtractor(None).handle_block(block, value)
+
+    assert [(segment.path, segment.string.data) for segment in segments] == [("caption", "A caption")]
+
+
+@pytest.mark.parametrize("language", ["prompt", "output"])
+def test_code_block_sends_prompt_and_output_text_for_translation(language):
+    block = CodeBlock()
+    value = block.to_python({"language": language, "code": "You are a summarizer.\n   Step 1: read.", "caption": "A caption"})
+
+    segments = StreamFieldSegmentExtractor(None).handle_block(block, value)
+
+    assert [(segment.path, segment.render_text()) for segment in segments] == [
+        ("caption", "A caption"),
+        ("code", "You are a summarizer.\n   Step 1: read."),
+    ]
+
+
+def test_code_block_restores_translated_prompt_keeping_line_breaks():
+    block = CodeBlock()
+    value = block.to_python({"language": "prompt", "code": "You are a summarizer.\n   Step 1: read.", "caption": "A caption"})
+    translated = [
+        StringSegmentValue("caption", "Eine Bildunterschrift"),
+        StringSegmentValue("code", "Du fasst zusammen.\n   Schritt 1: lesen."),
+    ]
+
+    restored = block.restore_translated_segments(value, translated)
+
+    assert restored["caption"] == "Eine Bildunterschrift"
+    assert restored["code"] == "Du fasst zusammen.\n   Schritt 1: lesen."
+    assert restored["language"] == "prompt"
+
+
+def test_code_block_translation_round_trip_keeps_literal_tags_and_entities():
+    block = CodeBlock()
+    prompt = "Summarize <context>the page</context> & keep &amp; as written."
+    caption = "Uses <b> & &lt;"
+    value = block.to_python({"language": "prompt", "code": prompt, "caption": caption})
+
+    segments = StreamFieldSegmentExtractor(None).handle_block(block, value)
+    restored = block.restore_translated_segments(block.to_python({"language": "prompt", "code": "", "caption": ""}), segments)
+
+    assert restored["code"] == prompt
+    assert restored["caption"] == caption
+
+
+def test_code_block_saved_without_a_caption_can_be_translated():
+    """Blocks saved before the caption field existed have no caption key."""
+    block = CodeBlock()
+    value = block.to_python({"code": "print('hi')"})
+
+    assert StreamFieldSegmentExtractor(None).handle_block(block, value)[0].string.data == ""

@@ -1,0 +1,3 @@
+The `browser-comparison-table` component compares Firefox against other browsers, behind the Browser Comparison Table block on free-form and article pages, in Sections and in Tabs. Each cell holds plain text, a `comparison-image-header` — a browser logo over a label — or a `comparison-result`; usually logos go in the header row and results in the body.
+
+**highlighted_column** (1–4) enlarges the highlighted column's logo and lifts it above the table. **mobile_behavior** chooses horizontal scroll (default) or stacked rows on small screens, with each row's label on its own line above its values; stacked mode drops the highlight's background but keeps the enlarged logo. Optional fine print sits under the table.

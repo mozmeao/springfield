@@ -310,6 +310,7 @@ describe('partner-download.es6.js', function () {
             linux: 'device'
         };
         let originalSite;
+        let originalDataLayer;
         let signedCookie;
 
         function visitOn(platform, overrides = {}) {
@@ -345,6 +346,7 @@ describe('partner-download.es6.js', function () {
         beforeEach(function () {
             jasmine.clock().install();
             originalSite = window.site;
+            originalDataLayer = window.dataLayer;
             window.dataLayer = [];
             signedCookie = null;
             spyOn(PartnerDownload, 'navigate');
@@ -370,6 +372,7 @@ describe('partner-download.es6.js', function () {
         afterEach(function () {
             jasmine.clock().uninstall();
             window.site = originalSite;
+            window.dataLayer = originalDataLayer;
             window.Mozilla.DownloadAttribution.gettingAnalyticsData = false;
             window.Mozilla.DownloadAttribution.inFlightXHR = null;
             window.Mozilla.DownloadAttribution.requestComplete = false;

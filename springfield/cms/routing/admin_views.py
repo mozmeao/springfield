@@ -13,7 +13,7 @@ from wagtail.permissions import page_permission_policy
 
 from springfield.cms.routing.admin import build_signal_reference
 from springfield.cms.routing.models import RoutingRule
-from springfield.cms.routing.resolver import rule_problems
+from springfield.cms.routing.resolver import rule_problems, view_restricted_paths
 
 
 class RoutingRulesIndexView(WagtailAdminTemplateMixin, TemplateView):
@@ -58,13 +58,14 @@ def _rows_with_status(rules):
     prefetched_rules = RoutingRule.objects.select_related("target").prefetch_related("conditions")
     pages = Page.objects.filter(pk__in=page_ids).prefetch_related(Prefetch("routing_rules", queryset=prefetched_rules))
     prefetched_pages = {page.pk: page for page in pages}
+    restricted_paths = view_restricted_paths()
     rows = []
     problems = {}
     current_page_id = None
     for rule in rules:
         if rule.page_id != current_page_id:
             current_page_id = rule.page_id
-            problems = rule_problems(prefetched_pages[rule.page_id])
+            problems = rule_problems(prefetched_pages[rule.page_id], restricted_paths)
         rows.append({"rule": rule, "problem": problems.get(rule.pk)})
     return rows
 

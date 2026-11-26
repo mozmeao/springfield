@@ -1,7 +1,7 @@
 ########
 # Pinned `uv` binary, copied into the stages that install Python deps
 #
-FROM ghcr.io/astral-sh/uv:0.13.4 AS uv
+FROM ghcr.io/astral-sh/uv:0.13.7 AS uv
 
 
 ########
@@ -95,6 +95,9 @@ WORKDIR /app
 EXPOSE 8000
 
 COPY docker/bin/apt-install /usr/local/bin/
+# CI sets this to the ISO week, so the cached package layer, which ships in the release image,
+# picks up Debian security updates at least weekly.
+ARG APT_REFRESH_WEEK=local
 RUN apt-install ca-certificates curl gettext git libmagickwand-dev libpq-dev libxslt1.1 sqlite3
 
 # copy in Python environment
@@ -144,6 +147,11 @@ COPY ./tests ./tests
 # expensive run-sync-all layer cached across unrelated asset changes.
 COPY --from=assets /app/assets/img/firefox/flare/icons /app/assets/img/firefox/flare/icons
 
+# GIT_SHA changes on every CI build, so the network fetch below reruns rather than being reused
+# from the pushed image. Local builds keep the default and stay cached.
+ARG GIT_SHA=latest
+ENV GIT_SHA=${GIT_SHA}
+
 RUN bin/run-sync-all.sh
 
 RUN chown webdev:webdev -R .
@@ -159,10 +167,6 @@ CMD ["./bin/run-tests.sh"]
 # media
 RUN mkdir -p /app/custom-media
 RUN chown -R webdev:webdev /app/custom-media
-
-# build args
-ARG GIT_SHA=latest
-ENV GIT_SHA=${GIT_SHA}
 
 
 ########
@@ -181,6 +185,10 @@ ENV DEMO_SERVER_ADMIN_USERS=${DEMO_SERVER_ADMIN_USERS}
 # the expensive run-sync-all layer cached across unrelated asset changes.
 COPY --from=assets /app/assets/img/firefox/flare/icons /app/assets/img/firefox/flare/icons
 
+# As in devapp: rerun the network fetch below on every CI build.
+ARG GIT_SHA=latest
+ENV GIT_SHA=${GIT_SHA}
+
 RUN bin/run-sync-all.sh
 
 COPY --from=assets /app/assets /app/assets
@@ -191,9 +199,5 @@ RUN honcho run --env docker/envfiles/prod.env docker/bin/build_staticfiles.sh
 RUN chown webdev:webdev -R .
 USER webdev
 CMD ["./bin/run.sh"]
-
-# build args
-ARG GIT_SHA=latest
-ENV GIT_SHA=${GIT_SHA}
 
 RUN echo "${GIT_SHA}" > ./root_files/revision.txt

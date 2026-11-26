@@ -83,33 +83,51 @@ class ExcludingSelect(forms.Select):
         narrowed = []
         for choice_value, label in value:
             if isinstance(label, (list, tuple)):
-                kept = [option for option in label if option[0] != self.excluded]
+                kept = [option for option in label if self.keeps(option[0])]
                 if kept:
                     narrowed.append((choice_value, kept))
-            elif choice_value != self.excluded:
+            elif self.keeps(choice_value):
                 narrowed.append((choice_value, label))
         self._choices = narrowed
 
+    def keeps(self, value):
+        return value != self.excluded
 
-def condition_panels(arming_param=None):
-    """The per-condition panels, optionally withholding the surface's arming param.
 
-    A surface that arms on a query param only ever reaches the resolver with that param
-    at its arming value, so a condition testing it is always true (or, for any other
-    value, always false) and quietly does nothing. Withholding it from the dropdown keeps
-    authors out of that trap; ``RoutingPageForm`` enforces it on save, since a narrowed
-    widget is presentation only.
+class AllowingSelect(ExcludingSelect):
+    """A ``Select`` that offers only the values in ``allowed`` (plus the blank option)."""
+
+    def __init__(self, *args, allowed=(), **kwargs):
+        self.allowed = frozenset(allowed)
+        super().__init__(*args, **kwargs)
+
+    def keeps(self, value):
+        return value == "" or value in self.allowed
+
+
+def condition_panels(arming_param=None, server_signals=None):
+    """The per-condition panels, narrowing the signal dropdown where the surface needs it.
+
+    A surface that matches on the server offers only ``server_signals``. A surface that arms
+    on a query param withholds it instead: the resolver only ever runs with that param at its
+    arming value, so a condition testing it is always true (or, for any other value, always
+    false) and quietly does nothing. ``RoutingPageForm`` enforces both on save, since a
+    narrowed widget is presentation only.
     """
-    if not arming_param:
+    if server_signals:
+        widget = AllowingSelect(allowed=server_signals)
+    elif arming_param:
+        widget = ExcludingSelect(excluded=arming_param)
+    else:
         return None
     return [
-        FieldPanel("signal", widget=ExcludingSelect(excluded=arming_param)),
+        FieldPanel("signal", widget=widget),
         FieldPanel("operator"),
         FieldPanel("expected_value"),
     ]
 
 
-def rule_panels(target_page_types=None, arming_param=None):
+def rule_panels(target_page_types=None, arming_param=None, server_signals=None):
     """The per-rule inline panels, optionally restricting the target chooser.
 
     Framework-generic: a consumer narrows the target chooser to its own page type(s) by
@@ -128,7 +146,7 @@ def rule_panels(target_page_types=None, arming_param=None):
         target_panel,
         InlinePanel(
             "conditions",
-            panels=condition_panels(arming_param),
+            panels=condition_panels(arming_param, server_signals),
             heading=_("Conditions (all must match — AND)"),
             label=_("Condition"),
             help_text=_("Ignored while “Match all triggered visitors” is ticked above."),

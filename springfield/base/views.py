@@ -197,6 +197,12 @@ class SecurityDotTxt(RequireSafeMixin, TemplateView):
     content_type = "text/plain"
 
 
+class SecurityPgpKey(RequireSafeMixin, TemplateView):
+    # When rotating this key, also update the copy served by bedrock on www.mozilla.org.
+    template_name = "base/mozilla-email-encryption-key.asc"
+    content_type = "application/pgp-keys"
+
+
 class GpcDotJson(RequireSafeMixin, TemplateView):
     # https://github.com/mozilla/bedrock/issues/14213
     # served under .well-known/gpc.json

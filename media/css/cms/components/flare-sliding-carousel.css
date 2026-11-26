@@ -124,6 +124,10 @@
     margin-block-end: 0;
 }
 
+.fl-sliding-carousel .fl-sliding-carousel-heading-text {
+    font-size: var(--fl-theme-font-size-heading-xs);
+}
+
 /* Subheading: hidden on inactive controls, expands when active */
 
 .fl-sliding-carousel-subheading-wrapper {

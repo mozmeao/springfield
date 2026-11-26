@@ -3,6 +3,14 @@
     padding-block-end: var(--token-spacing-2xl);
 }
 
+.fl-pricing-heading .fl-heading {
+    font-size: var(--fl-theme-font-size-heading-xl);
+    font-variation-settings:
+        'wght' var(--token-font-weight-semibold),
+        'wdth' var(--token-font-condensed-width);
+    line-height: 0.9;
+}
+
 .fl-pricing-heading .fl-heading-group {
     display: flex;
     flex-direction: column;

@@ -74,6 +74,7 @@ def test_normalize_language(lang_code, expected):
         ("static", False),
         ("robots.txt", False),
         (".well-known", False),
+        ("mozilla-email-encryption-key.asc", False),
         ("healthz", False),
         ("readiness", False),
         ("healthz-cron", False),
