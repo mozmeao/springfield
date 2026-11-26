@@ -21,6 +21,7 @@ from springfield.base import views
 urlpatterns = (
     path("robots.txt", views.Robots.as_view(), name="robots.txt"),
     path(".well-known/security.txt", views.SecurityDotTxt.as_view(), name="security.txt"),
+    path("mozilla-email-encryption-key.asc", views.SecurityPgpKey.as_view(), name="mozilla-email-encryption-key.asc"),
     path(".well-known/gpc.json", views.GpcDotJson.as_view(), name="gpc.json"),
     path("locales/", views.locales, name="base.locales"),
 )
