@@ -366,6 +366,18 @@ def test_blog_index_all_topics_are_counted_and_ordered(blog_setup):
     assert counts == sorted(counts, reverse=True)
 
 
+def test_blog_index_all_topics_count_what_their_topic_listing_shows(excluded_index, blog_topic, blog_tag, tagged_articles, make_article):
+    """A topic listing keeps its own topic even when it's excluded, but drops articles with an
+    excluded tag. A topic whose only article carries that tag has an empty listing."""
+    tag_only_topic = BlogTopic.objects.create(name="VPN news", slug="test-unit-vpn-news", locale=excluded_index.locale)
+    tag_only_article = make_article(title="VPN news article", topic=tag_only_topic)
+    tag_only_article.tags.add(blog_tag)
+    tag_only_article.save()
+
+    # blog_topic's listing shows only the untagged one of tagged_articles.
+    assert {topic: topic.article_count for topic in excluded_index.get_all_topics()} == {blog_topic: 1}
+
+
 def test_blog_index_topic_links_point_to_topic_route(blog_setup, rf):
     index_page, _ = blog_setup
     request = rf.get(index_page.get_full_url())
@@ -1573,14 +1585,16 @@ def test_empty_listing_offers_only_its_own_language(client, french_blog, route_p
     assert get_hreflang_codes(client, french_blog.french_index_url + route_path) == {"x-default", "fr"}
 
 
-def test_listing_leaves_out_a_language_whose_articles_are_excluded_from_feeds(client, french_blog):
+def test_listing_languages_follow_feed_exclusions(client, french_blog):
     """all/ hides articles in an excluded topic, so it offers no French listing that would be
-    empty. topics/<slug>/ keeps its own topic even when it's excluded, so French stays."""
+    empty. A topic listing keeps its own topic even when it's excluded, so topics/ and
+    topics/<slug>/ still offer French."""
     french_index = french_blog.en_index.get_translation(Locale.objects.get(language_code="fr"))
     french_index.feed_exclusions = [{"type": "topic", "value": french_blog.french_topic.pk, "id": "fx000001-0000-0000-0000-000000000001"}]
     french_index.save_revision().publish()
 
     assert "fr" not in get_hreflang_codes(client, french_blog.en_index.url + "all/")
+    assert "fr" in get_hreflang_codes(client, french_blog.en_index.url + "topics/")
     assert "fr" in get_hreflang_codes(client, f"{french_blog.en_index.url}topics/{french_blog.en_topic.slug}/")
 
 
@@ -1591,7 +1605,7 @@ def test_listing_locales_cost_two_queries_per_translation(french_blog):
     def count_queries():
         index = BlogIndexPage.objects.get(pk=french_blog.en_index.pk)
         with CaptureQueriesContext(connection) as queries:
-            index.get_listing_locales()
+            index.get_listing_locales(BlogIndexPage.has_listed_articles)
         return len(queries)
 
     with_one_translation = count_queries()

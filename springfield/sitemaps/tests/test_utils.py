@@ -3,6 +3,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import re
+from types import SimpleNamespace
 from unittest.mock import patch
 
 from django.conf import settings
@@ -11,7 +12,7 @@ from django.test import override_settings
 import pytest
 from wagtail.models import Locale, Page, PageViewRestriction, Site
 
-from springfield.blog.models import BlogArticlePage, BlogIndexPage, BlogTopic, BlogTopicPage
+from springfield.blog.models import BlogArticlePage, BlogIndexPage, BlogTag, BlogTopic, BlogTopicPage
 from springfield.blog.models.pages import HeroStyle
 from springfield.cms.tests.factories import (
     LocaleFactory,
@@ -242,9 +243,11 @@ def test_get_wagtail_urls__blog_index_without_live_articles_has_no_route_urls(bl
     assert not [path for path in urls if path.startswith("/empty-blog/") and path != "/empty-blog/"]
 
 
-def test_get_wagtail_urls__blog_translations_listed_only_when_live_and_public(blog_pages):
-    """A German copy of one article (published, never synced) is listed next to the English
-    one; English-only articles stay English-only, and a draft or private copy is left out."""
+@pytest.fixture
+def german_blog(blog_pages):
+    """A published German copy of the blog with a German copy (published, never synced) of
+    the privacy article, in the German copy of its topic. The security article stays
+    English-only."""
     german = LocaleFactory(language_code="de")
     Site.objects.get(is_default_site=True).root_page.copy_for_translation(german).save_revision().publish()
     de_index = blog_pages.copy_for_translation(german)
@@ -256,21 +259,53 @@ def test_get_wagtail_urls__blog_translations_listed_only_when_live_and_public(bl
     de_article.topic = de_topic
     de_article.save_revision().publish()
     de_article.refresh_from_db()
+    return SimpleNamespace(index=de_index, topic=de_topic, article=de_article)
 
+
+def test_get_wagtail_urls__blog_translations_listed_only_when_live_and_public(german_blog):
+    """The German article is listed next to the English one; English-only articles stay
+    English-only, and a draft or private copy is left out."""
     urls = get_wagtail_urls()
     assert urls["/blog/privacy-article/"] == ["en-US", "de"]
     assert urls["/blog/topics/privacy/"] == ["en-US", "de"]
     assert urls["/blog/security-article/"] == ["en-US"]
     assert urls["/blog/topics/security/"] == ["en-US"]
 
-    PageViewRestriction.objects.create(page=de_index, restriction_type=PageViewRestriction.LOGIN)
+    PageViewRestriction.objects.create(page=german_blog.index, restriction_type=PageViewRestriction.LOGIN)
     assert get_wagtail_urls()["/blog/privacy-article/"] == ["en-US"]
 
     PageViewRestriction.objects.all().delete()
-    de_article.unpublish()
+    german_blog.article.unpublish()
     urls = get_wagtail_urls()
     assert urls["/blog/privacy-article/"] == ["en-US"]
     assert urls["/blog/topics/"] == ["en-US"]
+
+
+def test_get_wagtail_urls__blog_routes_follow_a_topic_excluded_from_feeds(german_blog):
+    """all/ hides articles in an excluded topic, so a German blog whose only article is in
+    one has no all/. A topic listing keeps its own topic, so topics/ and topics/<slug>/ stay."""
+    german_blog.index.feed_exclusions = [{"type": "topic", "value": german_blog.topic.pk, "id": "fx000001-0000-0000-0000-000000000001"}]
+    german_blog.index.save_revision().publish()
+
+    urls = get_wagtail_urls()
+    assert urls["/blog/all/"] == ["en-US"]
+    assert urls["/blog/topics/"] == ["en-US", "de"]
+    assert urls["/blog/topics/privacy/"] == ["en-US", "de"]
+
+
+def test_get_wagtail_urls__blog_topic_whose_articles_carry_an_excluded_tag_excluded(blog_pages):
+    """A topic listing drops articles with an excluded tag, so a topic whose only article
+    carries one has an empty listing."""
+    excluded_tag = BlogTag.objects.create(name="VPN", slug="vpn", locale=blog_pages.locale)
+    security_article = BlogArticlePage.objects.get(slug="security-article")
+    security_article.tags.add(excluded_tag)
+    security_article.save()
+    blog_pages.feed_exclusions = [{"type": "tag", "value": excluded_tag.pk, "id": "fx000002-0000-0000-0000-000000000002"}]
+    blog_pages.save_revision().publish()
+
+    urls = get_wagtail_urls()
+    assert urls["/blog/topics/privacy/"] == ["en-US"]
+    assert "/blog/topics/security/" not in urls
 
 
 @pytest.mark.parametrize(

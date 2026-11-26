@@ -3,6 +3,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import json
+from collections.abc import Callable
 from types import SimpleNamespace
 from typing import NamedTuple
 
@@ -293,40 +294,39 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
         return articles if lists_every_article(self) else articles.live().public()
 
     def get_all_topics(self):
-        """Topics that have at least one listed article here, most-populated first."""
+        """Topics whose topics/<slug>/ listing has at least one article, most-populated first.
+        A topic listing keeps its own topic even when it's excluded, so only tag exclusions apply."""
+        articles = self.exclude_from_feed(self.listed_articles(), exempt_topic_keys=self.get_feed_exclusions().topic_keys)
         return (
-            BlogTopic.objects.filter(locale=self.locale, blog_articles__in=self.listed_articles().values("pk"))
+            BlogTopic.objects.filter(locale=self.locale, blog_articles__in=articles.values("pk"))
             .annotate(article_count=Count("blog_articles"))
             .live()
             .order_by("-article_count")
         )
 
-    def has_listed_articles(self, topic: BlogTopic | None = None) -> bool:
-        """Whether this index lists any article, or any article in `topic` when given.
+    def has_listed_articles(self) -> bool:
+        """Whether all/ lists any article: feed exclusions apply."""
+        return self.exclude_from_feed(self.listed_articles()).exists()
 
-        Feed exclusions apply as they do on all/ and topics/<slug>/: a topic listing keeps
-        its own topic even when it's excluded. `topic` may come from another locale: it is
-        matched to this locale's live copy of it."""
-        articles = self.listed_articles()
-        if topic:
-            articles = articles.filter(topic__translation_key=topic.translation_key, topic__locale_id=self.locale_id, topic__live=True)
-        articles = self.exclude_from_feed(articles, exempt_topic_keys={topic.translation_key} if topic else ())
-        return articles.exists()
+    def lists_topic(self, topic: BlogTopic) -> bool:
+        """Whether topics/<slug>/ lists any article for `topic`, which may come from another
+        locale: it is matched to this locale's copy of it."""
+        return self.get_all_topics().filter(translation_key=topic.translation_key).exists()
 
-    def get_listing_locales(self, topic: BlogTopic | None = None) -> list[str]:
-        """The locales an article listing has content in: this index's locale and those of its
-        live, public translations that list articles, or articles in `topic` when given.
+    def get_listing_locales(self, has_content: Callable[["BlogIndexPage"], bool]) -> list[str]:
+        """The locales a listing route has content in: this index's locale and those of its
+        live, public translations for which `has_content(blog_index)` holds.
 
         This page's own locale always comes first, so the request is served here instead of
         redirected. When this page itself has nothing to list, it advertises no other locale,
         because their listings leave it out too."""
         locales = [self.locale.language_code]
         translations = self.get_translations().live().public().select_related("locale", for_specific_subqueries=True).specific()
-        if translations and self.has_listed_articles(topic):
+        if translations and has_content(self):
             for blog_index in translations:
                 # Already known to be live and public, so skip lists_every_article()'s query.
                 blog_index._lists_every_article_cache = False
-                if blog_index.has_listed_articles(topic):
+                if has_content(blog_index):
                     locales.append(blog_index.locale.language_code)
         return locales
 
@@ -500,13 +500,15 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
             context.update(extra_context)
         return l10n_utils.render(request, template, context, ftl_files=self.ftl_files)
 
-    def _render_listing_route(self, request: HttpRequest, template: str, extra_context: dict, topic: BlogTopic | None = None) -> HttpResponse:
-        """Render an article listing route: topics/, all/, or topics/<slug>/ when `topic` is given.
+    def _render_listing_route(
+        self, request: HttpRequest, template: str, extra_context: dict, has_content: Callable[["BlogIndexPage"], bool]
+    ) -> HttpResponse:
+        """Render a listing route: topics/, all/ or topics/<slug>/.
 
-        Its hreflang tags and language picker offer the languages from get_listing_locales()
-        instead of every translation of this page."""
+        Its hreflang tags and language picker offer the languages from
+        get_listing_locales(has_content) instead of every translation of this page."""
         request.is_preview = False
-        request = self._patch_request_for_springfield(request, content_locales=self.get_listing_locales(topic))
+        request = self._patch_request_for_springfield(request, content_locales=self.get_listing_locales(has_content))
         context = self.get_context(request) | extra_context
         return l10n_utils.render(request, template, context, ftl_files=self.ftl_files)
 
@@ -537,7 +539,9 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
     @path("topics/")
     def topics_route(self, request):
         extra_context = {"all_topics": self.get_all_topics()}
-        return self._render_listing_route(request, "blog/blog_topics_page.html", extra_context=extra_context)
+        return self._render_listing_route(
+            request, "blog/blog_topics_page.html", extra_context=extra_context, has_content=lambda blog_index: blog_index.get_all_topics().exists()
+        )
 
     @path("topics/<slug:topic_slug>/")
     def topic_route(self, request, topic_slug):
@@ -553,11 +557,18 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
         if topic_page:
             return topic_page.serve(request)
 
-        return self._render_listing_route(request, "blog/blog_topic_page.html", extra_context=self.get_topic_context(request, topic), topic=topic)
+        return self._render_listing_route(
+            request,
+            "blog/blog_topic_page.html",
+            extra_context=self.get_topic_context(request, topic),
+            has_content=lambda blog_index: blog_index.lists_topic(topic),
+        )
 
     @path("all/")
     def all_route(self, request):
-        return self._render_listing_route(request, "blog/blog_all_page.html", extra_context=self.get_all_context(request))
+        return self._render_listing_route(
+            request, "blog/blog_all_page.html", extra_context=self.get_all_context(request), has_content=BlogIndexPage.has_listed_articles
+        )
 
     @path("feed/")
     def feed_route(self, request):
@@ -572,14 +583,19 @@ class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPag
 
     def get_sitemap_urls(self, request=None):
         """Add the URLs this page serves through its routes, which have no Page of their own
-        for the sitemap to find. An index with no articles adds none of them.
+        for the sitemap to find. Each is added only when it has content, as its hreflang
+        tags decide: all/ when has_listed_articles(), topics/ and topics/<slug>/ from
+        get_all_topics().
         """
         urls = super().get_sitemap_urls(request=request)
         page_entry = urls[0]
-        if not page_entry["location"] or not self.has_listed_articles():
+        if not page_entry["location"]:
             return urls
 
-        route_paths = ["topics/", "all/", *(f"topics/{topic.slug}/" for topic in self.get_all_topics())]
+        topics = list(self.get_all_topics())
+        route_paths = ["all/"] if self.has_listed_articles() else []
+        if topics:
+            route_paths += ["topics/", *(f"topics/{topic.slug}/" for topic in topics)]
         urls.extend(page_entry | {"location": f"{page_entry['location']}{route_path}"} for route_path in route_paths)
         return urls
 
@@ -680,7 +696,7 @@ class BlogTopicPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         parent = self.get_parent()
         if parent is None or self.topic_id is None:
             return super().get_content_locales()
-        return parent.specific.get_listing_locales(self.topic)
+        return parent.specific.get_listing_locales(lambda blog_index: blog_index.lists_topic(self.topic))
 
     def route(self, request, path_components):
         """Refuse to serve at this page's own tree path, so topics/<slug>/ is the only URL
