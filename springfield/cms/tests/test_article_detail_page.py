@@ -11,6 +11,7 @@ from django.core.exceptions import ValidationError
 
 import pytest
 from bs4 import BeautifulSoup
+from wagtail.test.utils.form_data import inline_formset, nested_form_data, rich_text, streamfield
 from wagtail_localize.fields import SynchronizedField
 from wagtail_localize.segments.extract import extract_segments
 
@@ -148,6 +149,34 @@ def test_landing_content_needs_a_hero(minimal_article):
         minimal_article.full_clean()
 
     assert error.value.message_dict["hero"] == ["Add a hero to use landing sections."]
+
+
+@pytest.mark.parametrize(
+    ("content", "errors"),
+    [([], ["Add article text, or a hero."]), ([("text", rich_text("Article text."))], [])],
+    ids=["no_text", "text"],
+)
+def test_article_without_a_hero_needs_text(minimal_article, django_user_model, content, errors):
+    editor = django_user_model.objects.create_superuser("editor", "editor@example.com", "editorpass")
+    form_class = ArticleDetailPage.get_edit_handler().get_form_class()
+    data = nested_form_data(
+        {
+            "title": "Firefox VPN",
+            "slug": "vpn",
+            "link_text": "Read more",
+            "hero": streamfield([]),
+            "landing_content": streamfield([]),
+            "content": streamfield(content),
+            "related_articles": streamfield([]),
+            "closing_cta": streamfield([]),
+            "pencil_banner_placements": inline_formset([]),
+        }
+    )
+    form = form_class(data=data, instance=minimal_article, parent_page=minimal_article.get_parent(), for_user=editor)
+
+    form.is_valid()
+
+    assert form.errors.get("content", []) == errors
 
 
 @pytest.mark.parametrize(

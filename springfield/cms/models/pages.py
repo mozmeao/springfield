@@ -836,6 +836,17 @@ class ArticleIndexPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         return context
 
 
+class ArticleDetailPageForm(WagtailAdminPageForm):
+    """Admin form for ArticleDetailPage that requires article text on pages without a hero."""
+
+    def clean(self):
+        cleaned_data = super().clean()
+        # A field that failed its own validation is missing from cleaned_data; skip so it isn't flagged twice.
+        if {"hero", "content"} <= cleaned_data.keys() and not cleaned_data["hero"] and not cleaned_data["content"]:
+            self.add_error("content", "Add article text, or a hero.")
+        return cleaned_data
+
+
 ARTICLE_LANDING_BLOCKS = [
     ("section", SectionBlock(allow_uitour=True)),
     ("showcase", ShowcaseBlock(allow_tabs=True)),
@@ -851,6 +862,7 @@ ARTICLE_LANDING_BLOCKS = [
 class ArticleDetailPage(ImageAltTextMixin, PreFooterImageMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
     parent_page_types = ["cms.ArticleThemePage", "cms.ArticleIndexPage"]
     image_alt_fields = ("featured_image", "image")
+    base_form_class = ArticleDetailPageForm
 
     featured = models.BooleanField(
         default=False,
