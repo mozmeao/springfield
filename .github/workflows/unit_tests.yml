@@ -40,9 +40,11 @@ jobs:
         with:
           persist-credentials: false
       - name: "Run Python tests (on Docker)"
-        # GIT_COMMIT and APT_REFRESH_WEEK become build args; see the Dockerfile.
+        # GIT_COMMIT and APT_REFRESH_WEEK become build args; see the Dockerfile. PR pushes skip tests
+        # marked `slow`; the merge queue and main still run them, so they gate every merge.
         env:
           GIT_COMMIT: ${{ github.sha }}
+          PYTEST_ADDOPTS: ${{ github.event_name == 'pull_request' && '-m "not slow"' || '' }}
         run: |
             export APT_REFRESH_WEEK="$(date -u +%G-%V)"
             make clean test-image
