@@ -39,13 +39,26 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      # A migrated test database, so the suite skips migrating from scratch (see conftest.py). The
+      # key covers everything that decides the schema, so a cached copy is only reused unchanged.
+      - name: "Restore the test database template"
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: test_db_cache
+          key: test-db-${{ hashFiles('springfield/**/migrations/*.py', 'lib/**/migrations/*.py', 'uv.lock', 'springfield/settings/*.py', 'bin/build-test-db-template.py') }}
       - name: "Run Python tests (on Docker)"
         # GIT_COMMIT and APT_REFRESH_WEEK become build args; see the Dockerfile.
         env:
           GIT_COMMIT: ${{ github.sha }}
         run: |
             export APT_REFRESH_WEEK="$(date -u +%G-%V)"
-            make clean test-image
+            make clean build
+            # The container runs as webdev, so it needs write access to build the template on a miss.
+            mkdir -p test_db_cache && chmod 777 test_db_cache
+            docker compose run \
+                -v "$PWD/test_db_cache:/app/test_db_cache" \
+                -e TEST_DB_TEMPLATE=/app/test_db_cache/springfield-test.sqlite3 \
+                test-image
             CONTAINER_ID=$(docker ps -alq)
             docker cp $CONTAINER_ID:/app/python_coverage .
         timeout-minutes: 60

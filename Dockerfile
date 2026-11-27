@@ -71,9 +71,9 @@ RUN npm run build --verbose
 
 
 ########
-# django app container
+# django app runtime: the OS packages and the Python environment, without the code
 #
-FROM python:3.13-slim-bookworm AS app-base
+FROM python:3.13-slim-bookworm AS app-runtime
 
 # Extra python env
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -96,8 +96,15 @@ RUN apt-install ca-certificates curl gettext git libmagickwand-dev libpq-dev lib
 # copy in Python environment
 COPY --from=python-builder /venv /venv
 
-# changes infrequently
 COPY docker/gitconfig /etc/
+
+
+########
+# django app container: the runtime plus the code
+#
+FROM app-runtime AS app-base
+
+# changes infrequently
 COPY ./bin ./bin
 COPY ./etc ./etc
 COPY ./lib ./lib
@@ -114,9 +121,9 @@ COPY ./media ./media
 
 
 ########
-# expanded webapp image for testing and dev
+# dev and test dependencies, built on the runtime so a code change doesn't reinstall them
 #
-FROM app-base AS devapp
+FROM app-runtime AS devapp-deps
 
 RUN apt-install make
 COPY docker/bin/ssllabs-scan /usr/local/bin/ssllabs-scan
@@ -128,8 +135,20 @@ ENV UV_COMPILE_BYTECODE=1
 COPY --from=uv /uv /usr/local/bin/
 COPY pyproject.toml uv.lock ./
 RUN uv sync --locked
-COPY ./setup.cfg ./
-COPY ./.coveragerc ./
+
+# for bpython
+RUN mkdir /home/webdev/
+RUN touch /home/webdev/.pythonhist
+RUN chown -R webdev /home/webdev/
+
+
+########
+# expanded webapp image for testing and dev
+#
+FROM devapp-deps AS devapp
+
+COPY --from=app-base /app /app
+COPY ./setup.cfg ./.coveragerc ./conftest.py ./
 COPY ./tests ./tests
 
 # ThumbnailChoiceBlock (wagtail-thumbnail-choice-block >=0.3.0) scans its
@@ -148,11 +167,6 @@ ENV GIT_SHA=${GIT_SHA}
 RUN bin/run-sync-all.sh
 
 RUN chown webdev:webdev -R .
-
-# for bpython
-RUN mkdir /home/webdev/
-RUN touch /home/webdev/.pythonhist
-RUN chown -R webdev /home/webdev/
 
 USER webdev
 CMD ["./bin/run-tests.sh"]

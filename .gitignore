@@ -63,3 +63,5 @@ AGENTS.md
 CLAUDE.md
 .claude/*
 !.claude/skills/
+# CI's cached, migrated test database (see conftest.py)
+/test_db_cache/
