@@ -276,12 +276,12 @@ def privacy_articles(minimal_site):
     return idx, articles
 
 
+# The query-count tests build their own copy instead of sharing the one in
+# test_blog_full_blog_pages.py: building it inside the test warms the caches each render is then
+# measured against.
 @pytest.fixture
 def blog_setup(minimal_site):
-    """Full blog setup (8 featured + 20 regular across 5 topics), for the query-count tests.
-
-    The other tests that need it share one copy in test_blog_full_blog_pages.py. These build their
-    own, so the caches building it warms are the ones each render then measures against."""
+    """Full blog setup (8 featured + 20 regular across 5 topics), for the query-count tests."""
     articles = get_blog_pages()
     return get_blog_index_page(), articles
 
