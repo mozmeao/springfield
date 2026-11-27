@@ -6,7 +6,7 @@
 
 {% for item in variants %}
   <div data-testid="intro-{{ item.testid }}" style="margin-bottom: 2em;">
-    <h2>{{ item.title }}</h2>
+    <h2 class="pl-demo-heading">{{ item.title }}</h2>
     {% set media_position = item.media_position %}
     <include:intro
       vertical="{{ item.vertical }}"

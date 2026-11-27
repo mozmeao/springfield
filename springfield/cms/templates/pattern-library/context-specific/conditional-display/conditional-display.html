@@ -5,7 +5,7 @@
 #}
 
 {% for variant in variants %}
-  <h2>{{ variant.name }}</h2>
+  <h2 class="pl-demo-heading">{{ variant.name }}</h2>
   <div class="{{ variant.html_class }}">
     <div class="{{ variant.body_class }}">
       <include:conditional-display

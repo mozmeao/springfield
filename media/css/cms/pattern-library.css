@@ -9,6 +9,8 @@
  * These styles only apply to the Pattern Library and should not affect production components
  */
 
+@import 'variables/flare-media-query-tokens.css';
+
 .pl-frame-white {
     background: #fff;
     color: #15141a;
@@ -86,6 +88,20 @@
 
 .pl-type-scale {
     margin-block-end: 40px;
+}
+
+/* Demo labels keep a fixed style, so visual regression snapshots change only when a component does. */
+.pl-demo-heading {
+    font-size: var(--token-heading-font-size-minus-3);
+    font-stretch: normal;
+    letter-spacing: normal;
+    line-height: 1.2;
+}
+
+@media (--viewport-md-up) {
+    .pl-demo-heading {
+        font-size: var(--token-heading-font-size);
+    }
 }
 
 /*
