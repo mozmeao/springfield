@@ -65,7 +65,7 @@
         color: var(--release-notes-text-color-secondary);
     }
 
-    .fl-c-release-summary-details {
+    .fl-c-release-notes-intro {
         .fl-heading {
             font-family: var(--token-font-family-mozilla-headline);
         }
@@ -90,6 +90,11 @@
             border-block-start: var(--fl-theme-divider);
             padding-block-start: var(--token-layout-xs);
             scroll-margin-block-start: var(--token-layout-md);
+        }
+
+        /* the intro already has a divider above it */
+        .fl-c-release-notes-intro + .fl-l-release-notes-with-sidebar {
+            border-block-start: 0;
         }
     }
 
@@ -130,12 +135,6 @@
         display: grid;
         gap: var(--token-layout-xs);
         padding: var(--token-layout-md-half);
-    }
-
-    @media (--viewport-below-md) {
-        .fl-c-release-summary-details {
-            margin-block-start: var(--token-layout-2xs);
-        }
     }
 
     @media (--viewport-md-up) {
@@ -183,10 +182,6 @@
         .fl-c-release-version,
         .fl-c-release-product {
             align-self: start;
-        }
-
-        .fl-c-release-summary-details {
-            grid-row: product-start / date-end;
         }
 
         .fl-c-release-notes-pre-footer-content {

@@ -7,6 +7,7 @@
 {% extends "firefox/releases/notes.html" %}
 
 {% set product_name = 'Firefox Developer Edition' %}
+{% set intro_channel_name = 'Firefox Developer Edition' %}
 {% set header_class = 'mzp-t-dark t-developer' %}
 {% set brand_product = 'developer' %}
 {% set download_button_primary %}
@@ -28,10 +29,6 @@
       {% if release.is_public %}
         <p class="c-release-date">{{ release.release_date|l10n_format_date }}</p>
       {% endif %}
-    </div>
-    <div class="mzp-l-main mzp-l-article">
-        <h2 class="c-release-first-title">Version {{ release.version }}, first offered to Firefox Developer Edition channel users on {{ release.release_date|l10n_format_date }}</h2>
-        <div class="c-release-first-text">{{ release.text|safe }}</div>
     </div>
   </div>
 {% endblock %}
