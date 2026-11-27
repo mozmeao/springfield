@@ -7,9 +7,7 @@
 {% set block_position = block_position or "intro" %}
 {% set block_text = value.heading.heading_text|richtext|remove_tags %}
 {% set block_level = block_level or 2 %}
-{% if value.settings.layout != "vertical" %}
-{% set heading_size = 'fl-heading-lg fl-heading-condensed' %}
-{% endif %}
+{# Where media sits beside the heading on wide screens, flare-intro.css steps Display down to the h1 size. #}
 <include:conditional-display
   condition_settings="{{ value.settings.show_to }}">
 

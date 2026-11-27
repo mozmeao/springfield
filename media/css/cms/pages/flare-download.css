@@ -16,11 +16,11 @@
         margin-block: var(--token-layout-xs);
     }
 
-    .fl-download-intro .fl-heading-size-1 {
+    .fl-download-intro .fl-heading-display {
         margin-block-end: 0;
     }
 
-    .fl-download-intro .fl-heading-size-1 .fl-fx-logo {
+    .fl-download-intro .fl-heading-display .fl-fx-logo {
         block-size: 0.8em;
         display: inline-block;
         inline-size: 0.8em;

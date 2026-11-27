@@ -386,8 +386,12 @@
 }
 
 @media (--viewport-md-up) {
+    /* A hero heading with media beside it uses the h1 size, not Display. */
     .fl-intro.fl-intro-media-right,
     .fl-intro.fl-intro-media-left {
+        --fl-theme-heading-font-size-display: var(
+            --fl-theme-heading-font-size-xl
+        );
         grid-template-columns: 1fr 1fr;
         text-align: start;
     }
