@@ -3,7 +3,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 from springfield.cms.fixtures.base_fixtures import SHOW_TO_ALL, get_flare_blocks_docs_page, get_or_create_page, get_placeholder_images
-from springfield.cms.fixtures.block_factories import heading_value, image_block
+from springfield.cms.fixtures.block_factories import heading_value, image_block, intro
 from springfield.cms.models import FreeFormPage2026
 
 
@@ -109,8 +109,29 @@ def get_sliding_carousel_test_page() -> FreeFormPage2026:
     )
 
     variants = get_sliding_carousel_variants()
-    page.upper_content = variants
-    page.content = variants
+    # The carousel has no heading of its own, so an intro gives each region one.
+    page.upper_content = [
+        intro(
+            "2026sc01-0000-0000-0000-000000000020",
+            heading_text="Sliding Carousel",
+            subheading_text="Slide titles sit one heading level below the block.",
+            content_blocks=[],
+            media=[],
+            layout="vertical",
+        ),
+        *variants,
+    ]
+    page.content = [
+        intro(
+            "2026sc01-0000-0000-0000-000000000021",
+            heading_text="Sliding Carousel in the lower content",
+            subheading_text="",
+            content_blocks=[],
+            media=[],
+            layout="vertical",
+        ),
+        *variants,
+    ]
     page.docs = (
         "<p>The Sliding Carousel block is a continuous-sliding variant of the Carousel. It&rsquo;s well suited for screenshot "
         "galleries, and any visual collection where continuous motion communicates &lsquo;more here&rsquo;.</p>"

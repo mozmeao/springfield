@@ -4,7 +4,8 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% set heading_level = "h" ~ block_level if block_level else "h2" %}
+{# The block has no heading of its own, so slide titles sit a level below the block. #}
+{% set heading_level = "h" ~ (block_level + 1) if block_level else "h3" %}
 
 <include:conditional-display
   condition_settings="{{ value.settings.show_to }}">

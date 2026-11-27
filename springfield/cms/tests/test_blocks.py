@@ -3654,9 +3654,12 @@ def test_sliding_carousel_block(index_page, placeholder_images, rf):
     upper = soup.find("div", class_="fl-split-page-upper")
     lower = soup.find("div", class_="fl-split-page-lower")
     assert upper and lower
+    assert len(soup.find_all("h1")) == 1
 
     for region in [upper, lower]:
         carousel_el = region.find("div", class_="fl-sliding-carousel")
+        # The page gives blocks without a heading block_level 1, so slide titles are h2.
+        assert {el.name for el in carousel_el.find_all(class_="fl-sliding-carousel-heading-text")} == {"h2"}
 
         controls = carousel_el.find_all("li", class_="fl-sliding-carousel-control")
         assert len(controls) == len(slides)
