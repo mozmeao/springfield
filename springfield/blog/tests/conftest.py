@@ -8,14 +8,13 @@ from django.contrib.auth import get_user_model
 from django.test import override_settings
 
 import pytest
-import wagtail_factories
 from wagtail.models import Locale, Site
 
 from springfield.blog.models import BlogArticlePage
 from springfield.blog.models.pages import BlogIndexPage, HeroStyle
 from springfield.blog.models.snippets import BlogTopic
+from springfield.blog.tests.site_setup import build_minimal_site
 from springfield.cms.fixtures.base_fixtures import get_placeholder_images
-from springfield.cms.tests.factories import LocaleFactory, SimpleRichTextPageFactory
 
 User = get_user_model()
 
@@ -42,33 +41,7 @@ def admin_client(client, db):
 
 @pytest.fixture
 def minimal_site(client):
-    # Bootstraps a minimal site with a root page at / and one child page at /test-page/
-    top_level_page = SimpleRichTextPageFactory(
-        slug="root_page",  # this doesn't get shown
-        live=True,
-    )
-
-    try:
-        site = Site.objects.get(is_default_site=True)
-        site.root_page = top_level_page
-        site.hostname = client._base_environ()["SERVER_NAME"]
-        site.save()
-    except Site.DoesNotExist:
-        site = wagtail_factories.SiteFactory(
-            root_page=top_level_page,
-            is_default_site=True,
-            hostname=client._base_environ()["SERVER_NAME"],
-        )
-
-    LocaleFactory(language_code="fr")
-
-    SimpleRichTextPageFactory(
-        slug="test-page",
-        parent=top_level_page,
-        title="Test Page",
-    )
-
-    return site
+    return build_minimal_site(hostname=client._base_environ()["SERVER_NAME"])
 
 
 @pytest.fixture
