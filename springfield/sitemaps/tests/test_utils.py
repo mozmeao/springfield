@@ -3,6 +3,7 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import re
+from types import SimpleNamespace
 from unittest.mock import patch
 
 from django.conf import settings
@@ -11,7 +12,7 @@ from django.test import override_settings
 import pytest
 from wagtail.models import Locale, Page, PageViewRestriction, Site
 
-from springfield.blog.models import BlogArticlePage, BlogIndexPage, BlogTopic, BlogTopicPage
+from springfield.blog.models import BlogArticlePage, BlogIndexPage, BlogTag, BlogTopic, BlogTopicPage
 from springfield.blog.models.pages import HeroStyle
 from springfield.cms.tests.factories import (
     LocaleFactory,
@@ -22,6 +23,7 @@ from springfield.cms.tests.factories import (
 )
 from springfield.sitemaps.utils import (
     _path_for_cms_url,
+    get_static_urls,
     get_wagtail_urls,
     update_sitemaps,
 )
@@ -230,6 +232,82 @@ def test_get_wagtail_urls__blog_topic_without_live_articles_excluded(blog_pages)
     assert "/blog/topics/performance/" not in urls
 
 
+def test_get_wagtail_urls__blog_index_without_live_articles_has_no_route_urls(blog_pages):
+    empty_index = BlogIndexPage(title="Empty blog", slug="empty-blog", locale=Locale.get_default())
+    Site.objects.get(is_default_site=True).root_page.add_child(instance=empty_index)
+    empty_index.save_revision().publish()
+
+    urls = get_wagtail_urls()
+
+    assert urls["/empty-blog/"] == ["en-US"]
+    assert not [path for path in urls if path.startswith("/empty-blog/") and path != "/empty-blog/"]
+
+
+@pytest.fixture
+def german_blog(blog_pages):
+    """A published German copy of the blog with a German copy (published, never synced) of
+    the privacy article, in the German copy of its topic. The security article stays
+    English-only."""
+    german = LocaleFactory(language_code="de")
+    Site.objects.get(is_default_site=True).root_page.copy_for_translation(german).save_revision().publish()
+    de_index = blog_pages.copy_for_translation(german)
+    de_index.save_revision().publish()
+    english_article = BlogArticlePage.objects.get(slug="privacy-article")
+    de_topic = english_article.topic.copy_for_translation(german)
+    de_topic.save()
+    de_article = english_article.copy_for_translation(german)
+    de_article.topic = de_topic
+    de_article.save_revision().publish()
+    de_article.refresh_from_db()
+    return SimpleNamespace(index=de_index, topic=de_topic, article=de_article)
+
+
+def test_get_wagtail_urls__blog_translations_listed_only_when_live_and_public(german_blog):
+    """The German article is listed next to the English one; English-only articles stay
+    English-only, and a draft or private copy is left out."""
+    urls = get_wagtail_urls()
+    assert urls["/blog/privacy-article/"] == ["en-US", "de"]
+    assert urls["/blog/topics/privacy/"] == ["en-US", "de"]
+    assert urls["/blog/security-article/"] == ["en-US"]
+    assert urls["/blog/topics/security/"] == ["en-US"]
+
+    PageViewRestriction.objects.create(page=german_blog.index, restriction_type=PageViewRestriction.LOGIN)
+    assert get_wagtail_urls()["/blog/privacy-article/"] == ["en-US"]
+
+    PageViewRestriction.objects.all().delete()
+    german_blog.article.unpublish()
+    urls = get_wagtail_urls()
+    assert urls["/blog/privacy-article/"] == ["en-US"]
+    assert urls["/blog/topics/"] == ["en-US"]
+
+
+def test_get_wagtail_urls__blog_routes_follow_a_topic_excluded_from_feeds(german_blog):
+    """all/ hides articles in an excluded topic, so a German blog whose only article is in
+    one has no all/. A topic listing keeps its own topic, so topics/ and topics/<slug>/ stay."""
+    german_blog.index.feed_exclusions = [{"type": "topic", "value": german_blog.topic.pk, "id": "fx000001-0000-0000-0000-000000000001"}]
+    german_blog.index.save_revision().publish()
+
+    urls = get_wagtail_urls()
+    assert urls["/blog/all/"] == ["en-US"]
+    assert urls["/blog/topics/"] == ["en-US", "de"]
+    assert urls["/blog/topics/privacy/"] == ["en-US", "de"]
+
+
+def test_get_wagtail_urls__blog_topic_whose_articles_carry_an_excluded_tag_excluded(blog_pages):
+    """A topic listing drops articles with an excluded tag, so a topic whose only article
+    carries one has an empty listing."""
+    excluded_tag = BlogTag.objects.create(name="VPN", slug="vpn", locale=blog_pages.locale)
+    security_article = BlogArticlePage.objects.get(slug="security-article")
+    security_article.tags.add(excluded_tag)
+    security_article.save()
+    blog_pages.feed_exclusions = [{"type": "tag", "value": excluded_tag.pk, "id": "fx000002-0000-0000-0000-000000000002"}]
+    blog_pages.save_revision().publish()
+
+    urls = get_wagtail_urls()
+    assert urls["/blog/topics/privacy/"] == ["en-US"]
+    assert "/blog/topics/security/" not in urls
+
+
 @pytest.mark.parametrize(
     "page_url, lang_code, expected",
     (
@@ -361,3 +439,11 @@ def test_update_sitemaps(
 def test_partner_download_page_is_excluded_from_static_urls():
     # `get_static_urls` matches these patterns against the path without its locale.
     assert any(re.search(pattern, "get/") for pattern in settings.NOINDEX_URLS)
+
+
+@override_settings(ROOT_URLCONF="springfield.sitemaps.tests.urls", EXTRA_INDEX_URLS={})
+def test_get_static_urls__locale_selection_page_excluded():
+    """The language-selection page, which DEV adds at /404-locale/, is not a page of its own."""
+    urls = get_static_urls()
+
+    assert urls == {"/page/": ["en-US"]}

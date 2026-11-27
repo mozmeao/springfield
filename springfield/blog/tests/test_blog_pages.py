@@ -7,8 +7,10 @@ from datetime import UTC, date, datetime
 from types import SimpleNamespace
 
 from django.core.exceptions import ValidationError
+from django.db import connection
 from django.http import Http404
 from django.test import override_settings
+from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
 
 import pytest
@@ -362,6 +364,18 @@ def test_blog_index_all_topics_are_counted_and_ordered(blog_setup):
     assert all(hasattr(topic, "article_count") for topic in all_topics)
     counts = [topic.article_count for topic in all_topics]
     assert counts == sorted(counts, reverse=True)
+
+
+def test_blog_index_all_topics_count_what_their_topic_listing_shows(excluded_index, blog_topic, blog_tag, tagged_articles, make_article):
+    """A topic listing keeps its own topic even when it's excluded, but drops articles with an
+    excluded tag. A topic whose only article carries that tag has an empty listing."""
+    tag_only_topic = BlogTopic.objects.create(name="VPN news", slug="test-unit-vpn-news", locale=excluded_index.locale)
+    tag_only_article = make_article(title="VPN news article", topic=tag_only_topic)
+    tag_only_article.tags.add(blog_tag)
+    tag_only_article.save()
+
+    # blog_topic's listing shows only the untagged one of tagged_articles.
+    assert {topic: topic.article_count for topic in excluded_index.get_all_topics()} == {blog_topic: 1}
 
 
 def test_blog_index_topic_links_point_to_topic_route(blog_setup, rf):
@@ -1492,6 +1506,129 @@ def test_blog_topic_context_excludes_featured_articles(curated_topic_page, rf):
 
 
 # ---------------------------------------------------------------------------
+# Languages offered by listing routes (hreflang and the language picker)
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture
+def french_blog(blog_index, blog_topic, make_article):
+    """An English blog with one article in blog_topic, and a published French copy of the
+    index whose translated article is in the French copy of that topic."""
+    article = make_article(title="Privacy article")
+    french = Locale.objects.get(language_code="fr")
+    french_index = blog_index.copy_for_translation(french)
+    french_index.save_revision().publish()
+    french_topic = blog_topic.copy_for_translation(french)
+    french_topic.save()
+    french_article = article.copy_for_translation(french)
+    french_article.topic = french_topic
+    french_article.save_revision().publish()
+    french_article.refresh_from_db()
+    return SimpleNamespace(
+        en_index=blog_index,
+        en_topic=blog_topic,
+        # The test site's root page has no French copy, so Wagtail's URL for the French index
+        # carries the en-US prefix even though the page is served under /fr/.
+        french_index_url=f"/fr{french_index.url_path}",
+        french_topic=french_topic,
+        french_article=french_article,
+    )
+
+
+def get_hreflang_codes(client, url):
+    """The hreflang codes the page at `url` lists, x-default included."""
+    response = client.get(url)
+    assert response.status_code == 200
+    return {link["hreflang"] for link in BeautifulSoup(response.content, "html.parser").find_all("link", rel="alternate", hreflang=True)}
+
+
+def test_topic_listing_offers_only_languages_with_articles_in_the_topic(client, french_blog, make_article):
+    english_only_topic = BlogTopic.objects.create(name="Features", slug="test-unit-features", locale=french_blog.en_index.locale)
+    make_article(title="Features article", topic=english_only_topic)
+    translated_topic_path = f"topics/{french_blog.en_topic.slug}/"
+
+    assert "fr" not in get_hreflang_codes(client, f"{french_blog.en_index.url}topics/{english_only_topic.slug}/")
+    assert "fr" in get_hreflang_codes(client, french_blog.en_index.url + translated_topic_path)
+    assert "en-US" in get_hreflang_codes(client, french_blog.french_index_url + translated_topic_path)
+
+
+def test_topic_listing_leaves_out_a_language_whose_topic_is_a_draft(client, french_blog):
+    french_blog.french_topic.unpublish()
+
+    assert "fr" not in get_hreflang_codes(client, f"{french_blog.en_index.url}topics/{french_blog.en_topic.slug}/")
+
+
+def test_curated_topic_page_offers_the_topic_listing_languages(client, french_blog):
+    """The curated page has no French copy, but the plain French topic listing exists."""
+    topic_page = BlogTopicPage(title="Privacy", slug="privacy", topic=french_blog.en_topic, locale=french_blog.en_index.locale)
+    french_blog.en_index.add_child(instance=topic_page)
+    topic_page.save_revision().publish()
+
+    assert "fr" in get_hreflang_codes(client, f"{french_blog.en_index.url}topics/{french_blog.en_topic.slug}/")
+
+
+@pytest.mark.parametrize("route_path", ["all/", "topics/"])
+def test_listing_route_leaves_out_a_language_without_live_articles(client, french_blog, route_path):
+    assert "fr" in get_hreflang_codes(client, french_blog.en_index.url + route_path)
+
+    french_blog.french_article.unpublish()
+
+    assert "fr" not in get_hreflang_codes(client, french_blog.en_index.url + route_path)
+
+
+@pytest.mark.parametrize("route_path", ["all/", "topics/", "topics/test-unit-privacy/"])
+def test_empty_listing_offers_only_its_own_language(client, french_blog, route_path):
+    """The French listing is still served in French, but links to no other language,
+    because the other languages' listings leave it out."""
+    french_blog.french_article.unpublish()
+
+    assert get_hreflang_codes(client, french_blog.french_index_url + route_path) == {"x-default", "fr"}
+
+
+def test_listing_languages_follow_feed_exclusions(client, french_blog):
+    """all/ hides articles in an excluded topic, so it offers no French listing that would be
+    empty. A topic listing keeps its own topic even when it's excluded, so topics/ and
+    topics/<slug>/ still offer French."""
+    french_index = french_blog.en_index.get_translation(Locale.objects.get(language_code="fr"))
+    french_index.feed_exclusions = [{"type": "topic", "value": french_blog.french_topic.pk, "id": "fx000001-0000-0000-0000-000000000001"}]
+    french_index.save_revision().publish()
+
+    assert "fr" not in get_hreflang_codes(client, french_blog.en_index.url + "all/")
+    assert "fr" in get_hreflang_codes(client, french_blog.en_index.url + "topics/")
+    assert "fr" in get_hreflang_codes(client, f"{french_blog.en_index.url}topics/{french_blog.en_topic.slug}/")
+
+
+def test_listing_locales_cost_two_queries_per_translation(french_blog):
+    """Each translation costs only its .public() check and its .exists() query: its locale is
+    fetched with it, and it is known to be live and public from the translations query."""
+
+    def count_queries():
+        index = BlogIndexPage.objects.get(pk=french_blog.en_index.pk)
+        with CaptureQueriesContext(connection) as queries:
+            index.get_listing_locales(BlogIndexPage.has_listed_articles)
+        return len(queries)
+
+    with_one_translation = count_queries()
+
+    german = Locale.objects.get_or_create(language_code="de")[0]
+    french_blog.en_index.copy_for_translation(german).save_revision().publish()
+    german_topic = french_blog.en_topic.copy_for_translation(german)
+    german_topic.save()
+    german_article = french_blog.french_article.get_translation(french_blog.en_index.locale).copy_for_translation(german)
+    german_article.topic = german_topic
+    german_article.save_revision().publish()
+
+    assert count_queries() == with_one_translation + 2
+
+
+def test_topic_and_tag_slugs_are_not_overridable():
+    """hreflang and ?tag= rely on every translation keeping the source slug."""
+    for model in (BlogTopic, BlogTag):
+        slug_field = next(field for field in get_translatable_fields(model) if field.field_name == "slug")
+        assert not slug_field.overridable
+
+
+# ---------------------------------------------------------------------------
 # Blog article page
 # ---------------------------------------------------------------------------
 
@@ -1706,11 +1843,7 @@ def test_blog_article_related_articles_render_their_image(privacy_articles, rf):
 def test_blog_index_no_n_plus_one_queries(blog_setup, rf, django_assert_max_num_queries):
     """Blog index page should fetch all related data in bulk, not per article.
 
-    The ceiling includes one query from AbstractSpringfieldCMSPage.get_breadcrumb_ancestors
-    calling `.public()`, which does a PageViewRestriction lookup per render — required to
-    keep view-restricted ancestors out of the BreadcrumbList JSON-LD.
-
-    It also includes ~5 constant (not per-article) queries from custom-navigation
+    The ceiling includes ~5 constant (not per-article) queries from custom-navigation
     resolution and another 5 from the header's What's New / What's Next lookups,
     both of which run on every page render.
     # TODO (WT-1468): revisit whether to cache the resolved page nav / default snippet
@@ -1718,7 +1851,7 @@ def test_blog_index_no_n_plus_one_queries(blog_setup, rf, django_assert_max_num_
     """
     index_page, _ = blog_setup
     request = rf.get(index_page.get_full_url())
-    with django_assert_max_num_queries(44):
+    with django_assert_max_num_queries(45):
         index_page.serve(request)
 
 
@@ -1726,7 +1859,7 @@ def test_blog_index_query_count_does_not_grow_with_articles(blog_setup, rf, djan
     """Sections fetch in bulk, so adding articles they could show costs no extra query."""
     index_page, articles = blog_setup
     baseline_request = rf.get(index_page.get_full_url())
-    with django_assert_max_num_queries(44):
+    with django_assert_max_num_queries(45):
         index_page.serve(baseline_request)
 
     topic = BlogTopic.objects.get(slug="privacy")
@@ -1743,7 +1876,7 @@ def test_blog_index_query_count_does_not_grow_with_articles(blog_setup, rf, djan
         )
 
     fresh_index = BlogIndexPage.objects.get(pk=index_page.pk)
-    with django_assert_max_num_queries(44):
+    with django_assert_max_num_queries(45):
         fresh_index.serve(rf.get(index_page.get_full_url()))
 
 
@@ -1760,7 +1893,7 @@ def test_blog_all_no_n_plus_one_queries(blog_setup, rf, django_assert_max_num_qu
     index_page, _ = blog_setup
     url = index_page.full_url + index_page.reverse_subpage("all_route")
     request = rf.get(url)
-    with django_assert_max_num_queries(30):
+    with django_assert_max_num_queries(33):
         index_page.all_route(request)
 
 

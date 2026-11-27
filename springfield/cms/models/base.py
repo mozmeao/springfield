@@ -23,7 +23,7 @@ from lib import l10n_utils
 from springfield.base.i18n import normalize_language
 from springfield.cms.fields import StreamField
 from springfield.cms.forms import SpringfieldCopyForm
-from springfield.cms.utils import compute_cms_page_locales, current_request
+from springfield.cms.utils import current_request, get_cms_page_content_locales, get_locales_with_aliases
 
 
 class QROpenBehavior(models.TextChoices):
@@ -288,16 +288,24 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
 
     url = property(get_url)
 
-    def _patch_request_for_springfield(self, request):
-        "Add hints that help us integrate CMS pages with core Springfield logic"
+    def get_content_locales(self) -> list[str]:
+        """Locales this page has real content in. hreflang lists these; the language picker
+        also offers their alias locales."""
+        return get_cms_page_content_locales(self)
+
+    def _patch_request_for_springfield(self, request, content_locales: list[str] | None = None):
+        """Add hints that help us integrate CMS pages with core Springfield logic.
+
+        `content_locales` replaces get_content_locales() for a response that offers other
+        languages than the page's, such as a blog listing route."""
 
         # Quick annotation to help us track the origin of the page
         request.is_cms_page = True
 
-        # Patch in a list of available locales for pages that are translations, not just aliases
-        all_locales, content_locales = compute_cms_page_locales(self)
-        request._locales_available_via_cms = all_locales
+        if content_locales is None:
+            content_locales = self.get_content_locales()
         request._content_locales_via_cms = content_locales
+        request._locales_available_via_cms = get_locales_with_aliases(content_locales)
         return request
 
     def _render_with_fluent_string_support(self, request, *args, **kwargs):
