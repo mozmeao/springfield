@@ -17,25 +17,6 @@
     padding: var(--token-spacing-2xs) var(--token-spacing-xs);
 }
 
-/* TODO: standardize these with Figma naming. This doesn't currently
-   account for the fact that Wagtail components are hierarchy-aware,
-   so a card might have h3 on one page and h2 on another, and they
-   need to look consistent everywhere. */
-.fl-heading-size-1,
-.fl-heading-size-1-small,
-.fl-rich-text h1,
-.fl-heading-size-2,
-.fl-heading-lg,
-.fl-pre-footer-cta-button,
-.fl-heading-condensed,
-.fl-heading-xl,
-.fl-heading-md {
-    font-variation-settings:
-        'wght' var(--token-font-weight-semibold),
-        'wdth' var(--token-font-condensed-width);
-    line-height: 0.9;
-}
-
 .fl-rich-text pre {
     background: var(--token-color-soft-purple);
     border-radius: var(--token-border-radius-md);
@@ -85,56 +66,13 @@
     max-inline-size: 100%;
 }
 
-/* Heading size classes */
+/* Legacy oversized heading classes */
 .fl-heading-3xl {
     font-size: var(--fl-theme-font-size-heading-3xl);
 }
 
 .fl-heading-2xl {
     font-size: var(--fl-theme-font-size-heading-2xl);
-}
-
-.fl-heading-xl {
-    font-size: var(--fl-theme-font-size-heading-xl);
-}
-
-.fl-heading-size-1-small {
-    font-size: var(--fl-h1-small);
-}
-
-.fl-heading-size-2 {
-    font-size: var(--fl-h2);
-}
-
-.fl-heading-lg {
-    font-size: var(--fl-theme-font-size-heading-lg);
-}
-
-.fl-heading-md {
-    font-size: var(--fl-theme-font-size-heading-md);
-}
-
-.fl-heading-sm {
-    font-size: var(--fl-theme-font-size-heading-sm);
-    font-variation-settings: unset;
-}
-
-.fl-heading-xs {
-    font-size: var(--fl-theme-font-size-heading-xs);
-}
-
-.fl-heading-2xs {
-    font-size: var(--fl-theme-font-size-heading-2xs);
-}
-
-/* On phones an H1 given a section or banner size keeps the H1 size, so it
-   stays above the page's H2s. */
-@media (--viewport-xs) {
-    h1.fl-heading-size-2,
-    h1.fl-heading-lg,
-    h1.fl-heading-md {
-        font-size: var(--fl-theme-font-size-heading-xl);
-    }
 }
 
 /* Body size classes */
@@ -228,13 +166,4 @@ span.fl-fx-logo {
     display: block;
     inline-size: var(--token-layout-sm);
     margin: 0 auto var(--token-spacing-lg);
-}
-
-@media (--viewport-sm-up) {
-    .fl-heading-condensed-on-sm-up {
-        font-variation-settings:
-            'wght' var(--token-font-weight-semibold),
-            'wdth' var(--token-font-condensed-width);
-        line-height: 0.9;
-    }
 }

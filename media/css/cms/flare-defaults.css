@@ -41,36 +41,71 @@ body {
     padding: 0;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-    font-family: var(--fl-theme-font-family-headline);
-    font-weight: var(--fl-theme-font-weight-headline);
-    margin-block-end: var(--token-spacing-lg);
+/* Each heading element shares a size with a class, and both follow the type
+   scale. :where() keeps the element at zero specificity so a class on a
+   heading always wins over its element's size. */
+:where(h1),
+.fl-heading-xl {
+    font-family: var(--fl-theme-heading-font-family);
+    font-size: var(--fl-theme-heading-font-size-xl);
+    font-stretch: var(--fl-theme-heading-font-stretch-xl);
+    font-weight: var(--fl-theme-heading-font-weight-xl);
+    letter-spacing: var(--fl-theme-heading-tracking-xl);
+    line-height: var(--fl-theme-heading-line-height-xl);
+    margin-block-end: var(--fl-theme-heading-margin);
 }
 
-h1,
-.fl-heading-size-1 {
-    font-size: var(--fl-h1);
+:where(h2),
+.fl-heading-lg {
+    font-family: var(--fl-theme-heading-font-family);
+    font-size: var(--fl-theme-heading-font-size-lg);
+    font-stretch: var(--fl-theme-heading-font-stretch-lg);
+    font-weight: var(--fl-theme-heading-font-weight-lg);
+    letter-spacing: var(--fl-theme-heading-tracking-lg);
+    line-height: var(--fl-theme-heading-line-height-lg);
+    margin-block-end: var(--fl-theme-heading-margin);
 }
 
-h2 {
-    font-size: var(--fl-theme-font-size-heading-md);
+:where(h3),
+.fl-heading-md {
+    font-family: var(--fl-theme-heading-font-family);
+    font-size: var(--fl-theme-heading-font-size-md);
+    font-stretch: var(--fl-theme-heading-font-stretch-md);
+    font-weight: var(--fl-theme-heading-font-weight-md);
+    letter-spacing: var(--fl-theme-heading-tracking-md);
+    line-height: var(--fl-theme-heading-line-height-md);
+    margin-block-end: var(--fl-theme-heading-margin);
 }
 
-h3,
-.fl-heading-size-3 {
-    font-size: var(--fl-h3);
+:where(h4, h5, h6),
+.fl-heading-sm {
+    font-family: var(--fl-theme-heading-font-family);
+    font-size: var(--fl-theme-heading-font-size-sm);
+    font-stretch: var(--fl-theme-heading-font-stretch-sm);
+    font-weight: var(--fl-theme-heading-font-weight-sm);
+    letter-spacing: var(--fl-theme-heading-tracking-sm);
+    line-height: var(--fl-theme-heading-line-height-sm);
+    margin-block-end: var(--fl-theme-heading-margin);
 }
 
-h4,
-h5,
-h6,
-.fl-heading-size-4 {
-    font-size: var(--fl-h4);
+.fl-heading-xs {
+    font-family: var(--fl-theme-heading-font-family);
+    font-size: var(--fl-theme-heading-font-size-xs);
+    font-stretch: var(--fl-theme-heading-font-stretch-xs);
+    font-weight: var(--fl-theme-heading-font-weight-xs);
+    letter-spacing: var(--fl-theme-heading-tracking-xs);
+    line-height: var(--fl-theme-heading-line-height-xs);
+    margin-block-end: var(--fl-theme-heading-margin);
+}
+
+.fl-heading-display {
+    font-family: var(--fl-theme-heading-font-family);
+    font-size: var(--fl-theme-heading-font-size-display);
+    font-stretch: var(--fl-theme-heading-font-stretch-display);
+    font-weight: var(--fl-theme-heading-font-weight-display);
+    letter-spacing: var(--fl-theme-heading-tracking-display);
+    line-height: var(--fl-theme-heading-line-height-display);
+    margin-block-end: var(--fl-theme-heading-margin);
 }
 
 p {
