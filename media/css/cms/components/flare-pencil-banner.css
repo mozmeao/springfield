@@ -35,9 +35,9 @@
     background: var(--token-gradient-dark-purple);
     border-radius: var(--token-border-radius-sm);
     display: inline-flex;
-    font-family: var(--fl-theme-font-family-headline);
+    font-family: var(--fl-theme-heading-font-family);
     font-size: var(--token-font-size-lg);
-    font-weight: var(--fl-theme-font-weight-headline);
+    font-weight: var(--fl-theme-heading-font-weight);
     gap: var(--token-spacing-sm);
     line-height: 1;
     padding: 4px 12px;
@@ -58,7 +58,7 @@
     font-family: var(--fl-theme-font-family-body);
     font-size: var(--token-font-size-xs);
     font-style: normal;
-    font-weight: var(--fl-theme-font-weight-headline);
+    font-weight: var(--fl-theme-heading-font-weight);
     padding: var(--token-spacing-xs) var(--token-spacing-xs);
 
     @container style(--lang-supports-uppercase: true) {

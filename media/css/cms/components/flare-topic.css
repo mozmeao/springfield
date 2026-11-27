@@ -25,7 +25,7 @@
 
 .fl-topic-list-sidebar ul,
 .fl-topic-list-mobile-menu ul {
-    font-family: var(--token-font-family-mozilla-headline);
+    font-family: var(--fl-theme-heading-font-family);
     font-weight: var(--token-font-weight-semibold);
     list-style: none;
     margin: 0;

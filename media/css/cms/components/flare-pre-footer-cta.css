@@ -20,7 +20,7 @@
     border-radius: 2000px;
     color: var(--token-color-white);
     display: inline-flex;
-    font-family: var(--fl-theme-font-family-headline);
+    font-family: var(--fl-theme-heading-font-family);
 
     /* fluid type: slope = (max - min) / (max-vw - min-vw) = (128 - 32) / (1100 - 600) = 19.2vw
        intercept = min - slope * min-vw = 32 - (0.192 * 600) = -83.2px */

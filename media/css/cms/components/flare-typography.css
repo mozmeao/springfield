@@ -66,15 +66,6 @@
     max-inline-size: 100%;
 }
 
-/* Legacy oversized heading classes */
-.fl-heading-3xl {
-    font-size: var(--fl-theme-font-size-heading-3xl);
-}
-
-.fl-heading-2xl {
-    font-size: var(--fl-theme-font-size-heading-2xl);
-}
-
 /* Body size classes */
 .fl-body-lg {
     font-size: var(--fl-theme-font-size-body-lg);

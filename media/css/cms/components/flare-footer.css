@@ -447,7 +447,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 }
 
 .fl-wnp-footer-title {
-    font-family: var(--token-font-family-mozilla-headline);
+    font-family: var(--fl-theme-heading-font-family);
     font-size: var(--token-heading-font-size-minus-3); /* 32px */
     font-stretch: var(--token-heading-font-width-condensed);
     font-weight: var(--token-font-weight-semibold);

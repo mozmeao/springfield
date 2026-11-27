@@ -15,7 +15,7 @@
 .fl-rich-text blockquote,
 .fl-quote {
     border-inline-start: 3px solid var(--fl-theme-quote-rule-color);
-    font-family: var(--fl-theme-font-family-headline);
+    font-family: var(--fl-theme-heading-font-family);
     font-size: var(--fl-quote-font-size);
     font-weight: var(--token-font-weight-regular);
     line-height: 1.4;

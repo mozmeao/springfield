@@ -39,7 +39,7 @@
    :first-child rules below. */
 .fl-browser-comparison-table thead th,
 .fl-browser-comparison-table thead td {
-    font-weight: var(--fl-theme-font-weight-headline);
+    font-weight: var(--fl-theme-heading-font-weight);
     min-inline-size: 200px;
     text-transform: uppercase;
 }
@@ -60,8 +60,8 @@
 .fl-browser-comparison-table th:first-child,
 .fl-browser-comparison-table td:first-child {
     color: var(--fl-theme-color-text);
-    font-family: var(--fl-theme-font-family-headline);
-    font-weight: var(--fl-theme-font-weight-headline);
+    font-family: var(--fl-theme-heading-font-family);
+    font-weight: var(--fl-theme-heading-font-weight);
 }
 
 .fl-browser-comparison-table td:not(:first-child) {

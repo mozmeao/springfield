@@ -14,5 +14,3 @@ Sizes are px for phone (below 600) / tablet (600–899) / desktop (900 and up).
 See CSS conventions in Docs for which headings take a size class and how pages choose a scale.
 
 Enterprise pages always use Compact. Display, xl and lg are normal width, weight 400 and -0.02em letter-spacing; md and smaller keep weight 600 and no letter-spacing.
-
-`.fl-heading-3xl` and `.fl-heading-2xl` are legacy oversized classes outside this system. Don't use them for new work.

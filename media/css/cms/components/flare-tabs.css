@@ -17,7 +17,7 @@
         border: 1px solid var(--token-color-light-purple);
         border-radius: var(--token-border-radius-lg);
         display: flex;
-        font-family: var(--token-font-family-mozilla-headline);
+        font-family: var(--fl-theme-heading-font-family);
         gap: var(--token-spacing-xs);
         inline-size: fit-content;
         justify-content: center;
