@@ -83,3 +83,25 @@
     font-size: 12px;
     margin: 0;
 }
+
+.pl-type-scale {
+    margin-block-end: 40px;
+}
+
+/*
+ * Previews the Enterprise heading face inside a Firefox-themed page. Enterprise
+ * pages get this from themes/enterprise.css overriding the shared heading
+ * variables on :root; the per-size weight, tracking and width variables are repeated here because they
+ * resolve against :root and wouldn't pick up a nested override.
+ */
+.pl-theme-enterprise {
+    --fl-theme-heading-font-weight-display: var(--token-font-weight-regular);
+    --fl-theme-heading-font-weight-xl: var(--token-font-weight-regular);
+    --fl-theme-heading-font-weight-lg: var(--token-font-weight-regular);
+    --fl-theme-heading-tracking-display: -0.02em;
+    --fl-theme-heading-tracking-xl: -0.02em;
+    --fl-theme-heading-tracking-lg: -0.02em;
+    --fl-theme-heading-font-stretch-display: normal;
+    --fl-theme-heading-font-stretch-xl: normal;
+    --fl-theme-heading-font-stretch-lg: normal;
+}

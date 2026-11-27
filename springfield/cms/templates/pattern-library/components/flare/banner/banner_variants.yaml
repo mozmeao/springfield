@@ -8,7 +8,6 @@ context:
       heading:
         level: "h2"
         heading_text: "Take Firefox with you"
-        heading_size: "heading-size-2"
         superheading_text: "Scan to Download"
         subheading_text: "Available on iOS and Android"
       body: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc viverra, leo sed congue aliquet, ligula arcu venenatis libero.
@@ -30,7 +29,6 @@ context:
       heading:
         level: "h2"
         heading_text: "Take Firefox with you"
-        heading_size: "heading-size-2"
         superheading_text: "Scan to Download"
       body: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc viverra, leo sed congue aliquet, ligula arcu venenatis libero.
       tags:
@@ -65,7 +63,6 @@ context:
       heading:
         level: "h2"
         heading_text: "Banner with Media"
-        heading_size: "heading-size-2"
         superheading_text: "New Feature"
         subheading_text: "Discover the latest improvements"
       body: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc viverra, leo sed congue aliquet, ligula arcu venenatis libero.
@@ -93,7 +90,6 @@ context:
       heading:
         level: "h2"
         heading_text: "Banner with Media After"
-        heading_size: "heading-size-2"
         superheading_text: "New Feature"
       body: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc viverra, leo sed congue aliquet, ligula arcu venenatis libero.
       tags:
@@ -120,7 +116,6 @@ context:
       heading:
         level: "h2"
         heading_text: "Banner with Video"
-        heading_size: "heading-size-2"
         superheading_text: "New Feature"
       body: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc viverra, leo sed congue aliquet, ligula arcu venenatis libero.
       tags:
@@ -148,7 +143,6 @@ context:
       heading:
         level: "h2"
         heading_text: "Default Theme Banner"
-        heading_size: "heading-size-2"
         superheading_text: "New Feature"
         subheading_text: "Browse freely with enhanced protection"
       body: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc viverra, leo sed congue aliquet, ligula arcu venenatis libero.
@@ -181,7 +175,6 @@ context:
       heading:
         level: "h2"
         heading_text: "Dark Purple Gradient Banner"
-        heading_size: "heading-size-2"
         superheading_text: "New Feature"
         subheading_text: "Your data, your control"
       body: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc viverra, leo sed congue aliquet, ligula arcu venenatis libero.
@@ -214,7 +207,6 @@ context:
       heading:
         level: "h2"
         heading_text: "Dark Purple Gradient Inverted Banner"
-        heading_size: "heading-size-2"
         superheading_text: "New Feature"
       body: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc viverra, leo sed congue aliquet, ligula arcu venenatis libero.
       tags:
@@ -241,7 +233,6 @@ context:
       heading:
         level: "h2"
         heading_text: "Take Firefox with you"
-        heading_size: "heading-size-2"
         superheading_text: "Scan to Download"
         subheading_text: "Available on iOS and Android"
       body: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc viverra, leo sed congue aliquet, ligula arcu venenatis libero.
@@ -263,7 +254,6 @@ context:
       heading:
         level: "h2"
         heading_text: "Take Firefox with you"
-        heading_size: "heading-size-2"
         superheading_text: "Scan to Download"
       body: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc viverra, leo sed congue aliquet, ligula arcu venenatis libero.
       tags:
@@ -298,7 +288,6 @@ context:
       heading:
         level: "h2"
         heading_text: "Banner with Media"
-        heading_size: "heading-size-2"
         superheading_text: "New Feature"
         subheading_text: "Explore new browsing features"
       body: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc viverra, leo sed congue aliquet, ligula arcu venenatis libero.
@@ -326,7 +315,6 @@ context:
       heading:
         level: "h2"
         heading_text: "Banner with Media After"
-        heading_size: "heading-size-2"
         superheading_text: "New Feature"
       body: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc viverra, leo sed congue aliquet, ligula arcu venenatis libero.
       tags:
@@ -354,7 +342,6 @@ context:
       heading:
         level: "h2"
         heading_text: "Default Theme Banner"
-        heading_size: "heading-size-2"
         superheading_text: "New Feature"
         subheading_text: "Browse freely with enhanced protection"
       body: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc viverra, leo sed congue aliquet, ligula arcu venenatis libero.
@@ -387,7 +374,6 @@ context:
       heading:
         level: "h2"
         heading_text: "Banner with Video"
-        heading_size: "heading-size-2"
         superheading_text: "New Feature"
       body: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc viverra, leo sed congue aliquet, ligula arcu venenatis libero.
       tags:

@@ -1,5 +1,8 @@
 ## 2026-11-24
 
+- Pages have a Regular or Compact type scale. Page headings (the page title, section headings and rich-text headings) are smaller on Compact; card, form and other component headings look the same on both. Free Form pages have a "Type scale" setting on the Settings tab, Regular by default. Enterprise-themed pages, blog pages, article index and article detail pages, contact pages, roadmap pages, the Smart Window explainer and the Flare docs index always use Compact.
+- The first heading on a page uses the large Display size, as before, except banners, which use the page heading size. In an intro with media beside the heading, Display steps down to the page heading size on wide screens, where the media sits beside it.
+- Rich-text headings use the same size as other page headings at that level, so a rich-text H2 is now larger and condensed.
 - The "Enable marketing attribution" checkbox on the Promote tab (Free Form, Home and Smart Window pages) is now a "Marketing attribution" setting with three options: Disabled, Enabled (always promoted), and Enabled only with ?promoted=1. Pages that had the checkbox ticked are set to Enabled (always promoted).
 - "Enabled only with ?promoted=1" shows the opt-out checkbox and consent banner only to visitors whose URL has `?promoted=1`, and keeps the page in search results. Paid links to these pages must add `?promoted=1`. It's the only option allowed on the site's homepage.
 

@@ -27,6 +27,7 @@ CSS custom properties (variables) only, no element styles. Includes things like:
 - Color tokens from Figma design system
 - Scale variables (spacing, sizing)
 - Typography tokens (font families, weights)
+- Heading variables: sizes by breakpoint and type scale (`.fl-scale-regular`, `.fl-scale-compact`)
 - Grid and width constraints
 - Transition variables
 

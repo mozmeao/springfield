@@ -2,7 +2,7 @@ name: Home Intro
 context:
   heading:
     level: h1
-    heading_size: fl-heading-size-1
+    heading_size: fl-heading-display
     heading_text: "This is the internet, on your terms"
     superheading_text: '<i>New</i> <a href="/en-US/whatsnew/">See the latest</a>'
     subheading_text: "Fast, customizable and secure, Firefox lets you browse how you like, when you like. We're built by a people-first organization that answers to you — not billionaires."
