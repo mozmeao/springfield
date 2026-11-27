@@ -43,7 +43,7 @@
           {% for key, platform in platforms.items() %}
             {% if key != page.platform %}
               <li class="fl-dropdown-item" data-platform="{{ key }}" {% if key == page.platform %}aria-selected="true"{% endif %}>
-                <a class="fl-heading-md fl-heading-condensed-on-sm-up" href="{{ platform_links[key] }}">
+                <a class="fl-heading-lg fl-scale-regular" href="{{ platform_links[key] }}">
                   {{ platform }}
                 </a>
               </li>
@@ -203,7 +203,7 @@
     <include:newsletter-form theme="dark">
       <include:heading
         level="h2"
-        heading_size="fl-heading-size-3"
+        heading_size="fl-heading-md fl-scale-regular"
         heading_text="{{ pre_footer_cta_form.heading|richtext|remove_p_tag }}"
         subheading_text="{{ pre_footer_cta_form.subheading|richtext|remove_p_tag }}"
       />

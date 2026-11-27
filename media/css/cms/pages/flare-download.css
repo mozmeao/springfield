@@ -138,9 +138,6 @@
         border-block-end: 2px solid var(--token-color-light-purple);
         color: var(--token-color-white);
         display: flex;
-        font-family: var(--fl-theme-font-family-headline);
-        font-size: var(--fl-theme-font-size-heading-md);
-        font-weight: var(--token-font-weight-semibold);
         min-inline-size: var(--platform-dropdown-min-width, 8ch);
         padding: var(--token-spacing-sm) var(--token-spacing-md);
         text-decoration: none;

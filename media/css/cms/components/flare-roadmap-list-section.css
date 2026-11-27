@@ -257,7 +257,6 @@
     align-items: flex-start;
     display: flex;
     flex: 1 0 auto;
-    font-size: var(--fl-theme-font-size-heading-sm);
     inline-size: 100%;
     justify-content: space-between;
     min-inline-size: 0;

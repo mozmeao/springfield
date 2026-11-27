@@ -205,12 +205,6 @@ Basic Card
     margin: 0;
 }
 
-.fl-card:not(.fl-card-filled) .fl-heading {
-    font-size: var(--fl-theme-font-size-heading-xs);
-    font-variation-settings: unset;
-    line-height: 1.1;
-}
-
 .fl-card:not(.fl-card-filled) .fl-superheading {
     color: var(--fl-theme-color-brand-text);
     display: block;
@@ -304,12 +298,6 @@ Filled Card variant
     font-weight: var(--token-font-weight-semibold);
     letter-spacing: -0.01em;
     line-height: 1.05;
-}
-
-/* Card titles keep their own size; a page H1 inside a card follows its level */
-.fl-card.fl-card-filled .fl-heading:not(h1) {
-    font-size: var(--fl-theme-font-size-heading-sm);
-    font-variation-settings: unset;
 }
 
 .fl-card.fl-card-filled .fl-heading-group {
@@ -683,9 +671,6 @@ Step Cards List - With Kit variant
 }
 
 .fl-step-card .fl-heading {
-    font-size: var(--token-font-size-md);
-    font-variation-settings: unset;
-    font-weight: var(--token-font-weight-semibold);
     letter-spacing: 0;
     line-height: 1.1;
     margin: 0;

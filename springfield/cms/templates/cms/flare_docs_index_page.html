@@ -72,7 +72,7 @@
     {% if use_accordions %}
       <details class="fl-docs-content-accordion" id="{{ node.page.slug }}">
         <summary class="fl-docs-content-accordion-summary">
-          <h{{ hlevel }}>
+          <h{{ hlevel }} class="fl-heading-sm fl-scale-regular">
             <a href="{{ node.page.get_url(req) }}">
               {{ node.page.title }}
               <include:icon icon_name="external-link"/>
@@ -103,7 +103,7 @@
     {% if use_accordions %}
       <details class="fl-docs-content-accordion">
         <summary class="fl-docs-content-accordion-summary">
-          <h{{ hlevel }}>Other</h{{ hlevel }}>
+          <h{{ hlevel }} class="fl-heading-sm fl-scale-regular">Other</h{{ hlevel }}>
         </summary>
         <div class="fl-docs-content-accordion-body">
           {% for node in leaves %}{{ render_leaf(node, req, hlevel + 1) }}{% endfor %}
@@ -221,7 +221,7 @@
     <content:heading>
       <include:heading
         level="h1"
-        heading_size="fl-heading-md"
+        heading_size="fl-heading-lg fl-scale-regular"
         heading_text="CMS Changelog"
       />
     </content:heading>

@@ -120,14 +120,6 @@ body:has(#cms-changelog-dialog[open]) {
         margin-block: 0;
     }
 
-    .fl-docs-index-content h3 {
-        font-size: var(--fl-theme-font-size-heading-xs);
-    }
-
-    .fl-docs-index-content h4 {
-        font-size: var(--fl-theme-font-size-heading-2xs);
-    }
-
     .fl-docs-index-content h3 a,
     .fl-docs-index-content h4 a {
         color: var(--fl-theme-color-text);
@@ -182,7 +174,6 @@ body:has(#cms-changelog-dialog[open]) {
     .fl-docs-index-content h2,
     .fl-docs-index-content h2 a {
         color: var(--fl-theme-color-text);
-        font-size: var(--fl-theme-font-size-heading-sm);
         margin-block-end: var(--token-spacing-xl);
         text-decoration: none;
     }
@@ -347,7 +338,6 @@ body:has(#cms-changelog-dialog[open]) {
     .fl-docs-content-accordion-summary h3,
     .fl-docs-content-accordion-summary h4 {
         flex: 1;
-        font-size: var(--fl-theme-font-size-heading-xs);
         margin-block: 0;
         min-inline-size: 0;
     }

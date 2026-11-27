@@ -71,6 +71,7 @@
               {% set topic = article.get_topic() %}
               <include:heading
                 level="h3"
+                heading_size="fl-heading-sm fl-scale-regular"
                 heading_text="{{ article.title }}"
                 superheading_text="{{ topic.name if topic else '' }}"
                 link="{{ article.url }}"
