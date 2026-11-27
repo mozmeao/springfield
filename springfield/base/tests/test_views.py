@@ -113,14 +113,4 @@ class TestSecurityDotTxt(TestCase):
         self.assertContains(response, "Contact: mailto:security@mozilla.org")
         self.assertContains(response, "Expires: ")
         self.assertContains(response, "Canonical: https://www.firefox.com/.well-known/security.txt")
-        self.assertContains(response, "Encryption: https://www.firefox.com/mozilla-email-encryption-key.asc")
-
-
-class TestSecurityPgpKey(TestCase):
-    def test_no_redirect(self):
-        response = self.client.get("/mozilla-email-encryption-key.asc", headers={"host": "www.firefox.com"})
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.get("Content-Type"), "application/pgp-keys")
-        body = response.content.decode()
-        self.assertTrue(body.startswith("-----BEGIN PGP PUBLIC KEY BLOCK-----\n"))
-        self.assertTrue(body.rstrip().endswith("-----END PGP PUBLIC KEY BLOCK-----"))
+        self.assertContains(response, "Encryption: https://www.mozilla.org/mozilla-email-encryption-key.asc")
