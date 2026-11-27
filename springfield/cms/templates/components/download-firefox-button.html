@@ -6,6 +6,7 @@
 
 {% from "macros.html" import google_play_button, apple_app_store_button with context %}
 
+{% set html_id = analytics_id ~ html_id_suffix %}
 {% set is_forced = specific_version and specific_version != "default" %}
 {% set resolved_os = specific_version if is_forced else "win" %}
 {% set channel = channel|default("release", true) %}
@@ -37,11 +38,11 @@
     {% if not exclude_unsupported_content %}
       {{ privacy_notice() }}
     {% endif %}
-    <include:marketing-opt-out-checkbox analytics_id="{{ analytics_id }}" />
+    <include:marketing-opt-out-checkbox analytics_id="{{ html_id }}" />
   {% elif show_default_browser_checkbox  %}
     {% set checkbox %}
-      <label for="{{ analytics_id }}-default-browser" class="default-browser-label hidden">
-        <input type="checkbox" checked id="{{ analytics_id }}-default-browser" class="default-browser-checkbox">
+      <label for="{{ html_id }}-default-browser" class="default-browser-label hidden">
+        <input type="checkbox" checked id="{{ html_id }}-default-browser" class="default-browser-checkbox">
         {{ ftl('block-set-as-default')}}
       </label>
     {% endset %}
@@ -75,7 +76,7 @@
     {{ unsupported_content }}
   </div>
 {% else %}
-<div class="fl-download-firefox-button c-button-download-thanks {% if enable_marketing_attribution %}has-marketing-opt-out{% endif %}" id="{{ analytics_id }}">
+<div class="fl-download-firefox-button c-button-download-thanks {% if enable_marketing_attribution %}has-marketing-opt-out{% endif %}" id="{{ html_id }}">
   <a href="{{ link_href }}"
      class="download-link fl-button {{ theme_class }} {{ size_class }} {% if is_forced %}ga-product-download{% endif %} {% if not exclude_unsupported_content %}c-button-download-thanks-link{% endif %}"
      data-direct-link="{{ download_firefox_thanks_link['download_link_direct'] }}"

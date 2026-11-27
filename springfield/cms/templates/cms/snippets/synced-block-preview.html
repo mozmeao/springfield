@@ -1,0 +1,17 @@
+{#
+  This Source Code Form is subject to the terms of the Mozilla Public
+  License, v. 2.0. If a copy of the MPL was not distributed with this
+  file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ #}
+
+{% extends "cms/base-flare.html" %}
+
+{% block content %}
+  <div class="fl-main">
+    {% set block = object.content[0] %}
+    {# The values the block gets as the first block on a FreeFormPage2026. #}
+    {% set block_position = "block-1-" ~ block.block_type %}
+    {% set block_level = 1 %}
+    {% include_block block %}
+  </div>
+{% endblock content %}

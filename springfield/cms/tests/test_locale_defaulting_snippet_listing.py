@@ -23,6 +23,7 @@ EXPECTED_TRANSLATABLE_SNIPPETS = {
     "QRCodeSnippet",
     "ScrollToSeeMoreSnippet",
     "SetAsDefaultSnippet",
+    "SyncedBlockSnippet",
     "Tag",
     "NavigationSnippet",
 }

@@ -494,6 +494,23 @@ class LocalizedLiveSnippetChooserBlock(SnippetChooserBlock):
         return super().clean(value)
 
 
+class SyncedBlockChooserBlock(SnippetChooserBlock):
+    """Places a synced block snippet on a page.
+
+    It is not sent for translation, so translated pages keep pointing at the same snippet and the
+    page picks the snippet's translation for the active locale when it renders.
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__("cms.SyncedBlockSnippet", **kwargs)
+
+    def get_translatable_segments(self, value):
+        return []
+
+    def restore_translated_segments(self, value, segments):
+        return value
+
+
 class LabelSourceMixin(blocks.StructBlock):
     """
     Mixin for blocks with pretranslated text: label is either a PretranslatedPhrase snippet or free text.
@@ -4815,3 +4832,62 @@ class TopLevelLinkBlock(LabelSourceMixin, blocks.StructBlock):
             children=["pretranslated_label", "custom_label", "link"],
             settings=["analytics_id"],
         )
+
+
+def get_freeform_page_blocks(allow_uitour=True, allow_kit_intro=False):
+    """Factory function to create block list for FreeFormPage2026 with appropriate button types.
+
+    Args:
+        allow_uitour: If True, allows both regular buttons and UI Tour buttons in blocks.
+                      If False, only allows regular buttons.
+
+    Returns:
+        List of tuples containing block names and instances configured
+        with the appropriate button types.
+    """
+    base_blocks = [
+        ("notification", NotificationBlock(group="Notification")),
+        ("intro", IntroBlock(allow_uitour=allow_uitour, group="Intro")),
+        ("section", SectionBlock(allow_uitour=allow_uitour, group="Main")),
+        ("showcase", ShowcaseBlock(group="Media")),
+        ("carousel", CarouselBlock(group="Media")),
+        ("sliding_carousel", SlidingCarouselBlock(group="Media")),
+        ("card_gallery", CardGalleryBlock(group="Media")),
+        ("media_content", MediaContentBlock(group="Media", template="cms/blocks/sections/media-content-section.html")),
+        (
+            "form_content",
+            FormContentBlock(group="Main", template="cms/blocks/sections/form-content-section.html"),
+        ),
+        ("cards_list", CardsListBlock(template="cms/blocks/sections/cards-list-section.html", allow_uitour=allow_uitour, group="Main")),
+        ("featured_image_section", FeaturedImageSectionBlock(allow_uitour=allow_uitour, group="Media")),
+        ("mobile_store_qr_code", MobileStoreQRCodeBlock(group="Media")),
+        ("banner", BannerBlock(allow_uitour=allow_uitour, group="Banners")),
+        ("topic_list", TopicListBlock(allow_uitour=allow_uitour, group="Main")),
+        ("line_cards", LineCardsBlock(allow_uitour=allow_uitour, template="cms/blocks/sections/line-cards-section.html", group="Main")),
+        ("resources", ResourcesBlock(template="cms/blocks/sections/resources-section.html", group="Main")),
+        ("button_row", ButtonRowBlock(allow_uitour=allow_uitour, group="Main")),
+        ("comparison_table", ComparisonTableBlock(group="Main")),
+        ("browser_comparison_table", BrowserComparisonTableBlock(group="Main")),
+        ("enterprise_download", EnterpriseDownloadBlock(group="Main")),
+        ("contact_form", ContactFormBlock(template="cms/blocks/sections/contact-form-section.html", group="Main")),
+        ("kit_banner", KitBannerBlock(allow_uitour=allow_uitour, group="Banners")),
+        (
+            "banner_snippet",
+            LocalizedLiveSnippetChooserBlock(
+                target_model="cms.BannerSnippet",
+                template="cms/snippets/banner-snippet.html",
+                label="Banner Snippet",
+                group="Banners",
+            ),
+        ),
+        ("image_caption", ImageCaptionBlock(group="Media")),
+        (
+            "rich_text",
+            RichTextBlock(features=settings.WAGTAIL_RICHTEXT_FEATURES_FULL, group="Main", template="cms/blocks/sections/rich-text-section.html"),
+        ),
+    ]
+    if allow_kit_intro:
+        return base_blocks + [
+            ("kit_intro", KitIntroBlock(allow_uitour=allow_uitour, group="Intro")),
+        ]
+    return base_blocks
