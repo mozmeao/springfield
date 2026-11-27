@@ -90,6 +90,8 @@ Pass `--reuse-db` on every local `pytest` run — creating the test DB replays s
 
 **Extend before adding.** Prefer adding a case to an existing fixture and updating its tests over creating new fixtures and test functions for the same component.
 
+**Mark query-count tests that render placeholder images.** In tests, the shared placeholder images from `get_placeholder_images()` skip the rendition pre-generation `SpringfieldImage.save()` does, so rendering one inserts its renditions during the render. A `django_assert_num_queries` or `django_assert_max_num_queries` block that renders a placeholder would count those inserts, which production never makes. Mark such tests `@pytest.mark.pregenerated_renditions` to keep pre-generation on.
+
 ### Page fixtures
 
 CMS page fixtures in `springfield/cms/fixtures/` must stay translatable:
