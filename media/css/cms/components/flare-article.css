@@ -36,12 +36,7 @@
 .fl-article-main h4,
 .fl-article-main h5,
 .fl-article-main h6 {
-    margin-block-start: var(--token-layout-md);
-}
-
-/* override default font sizes for headings on article pages */
-.fl-rich-text h2 {
-    font-size: var(--fl-theme-font-size-heading-sm);
+    margin-block-start: var(--fl-section-v-padding);
 }
 
 .fl-article-main .fl-heading {

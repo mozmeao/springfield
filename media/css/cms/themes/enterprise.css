@@ -50,10 +50,8 @@
         background: none;
     }
 
-    .fl-section-container > .fl-heading,
-    .fl-section-container > .fl-heading-group {
+    .fl-section-container > :is(.fl-heading, .fl-heading-group) {
         margin-inline: auto;
-        max-width: var(--token-width-desktop-content-lg);
     }
 
     .fl-section-container > .fl-heading-group .fl-subheading {

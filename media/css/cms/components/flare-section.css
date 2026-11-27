@@ -32,6 +32,15 @@
     margin-block-end: 0;
 }
 
+/* Section headings stop at the content width, so they keep a readable line length. */
+.fl-section-container > :is(.fl-heading-group, .fl-heading) {
+    max-inline-size: var(--token-width-desktop-content-lg);
+}
+
+.fl-section-container > :is(.fl-heading-group, .fl-heading).text-center {
+    margin-inline: auto;
+}
+
 .fl-section-pictogram img {
     block-size: 100px;
     inline-size: auto;
