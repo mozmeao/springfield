@@ -188,7 +188,9 @@ CONTENT_SECURITY_POLICY = {
         "object-src": {csp.constants.NONE},
         "script-src": _csp_script_src,
         "style-src": _csp_style_src,
-        "upgrade-insecure-requests": False if DEBUG else True,  # noqa: F405
+        # WebKit applies this to http://localhost (Chromium and Firefox exempt it), so its scripts
+        # never load there. The PR integration tests serve a plain-http container and turn it off.
+        "upgrade-insecure-requests": config("CSP_UPGRADE_INSECURE_REQUESTS", default=str(not DEBUG), parser=bool),  # noqa: F405
         "report-uri": csp_report_uri,
     },
 }
