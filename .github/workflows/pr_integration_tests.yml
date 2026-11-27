@@ -36,17 +36,30 @@ jobs:
         with:
           persist-credentials: false
 
-      # Skips the rest of the job when every changed file is in a path that can't change what the
-      # site serves or how these tests run. Anything else, including a path added to the repo
-      # later, runs the tests.
+      # Skips the rest of the job in two cases:
+      # - The PR comes from a fork or a bot, such as Dependabot. Only people with write access can
+      #   push branches to this repo, so a same-repo PR from a person is the team's. Each run loads
+      #   the production GTM container, and Dependabot opens and rebases PRs often, so those PRs
+      #   are tested in the merge queue instead, once per merge. Anyone on the team can also start
+      #   a run on any branch with workflow_dispatch.
+      # - Every changed file is in a path that can't change what the site serves or how these
+      #   tests run. Anything else, including a path added to the repo later, runs the tests.
       - name: Check for relevant changes
         id: changes
         env:
           EVENT_NAME: ${{ github.event_name }}
           BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha }}
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+          BASE_REPO: ${{ github.repository }}
+          AUTHOR_TYPE: ${{ github.event.pull_request.user.type }}
         run: |
           skip_paths='^(docs/|\.github/|tests/(unit|redirects)/|[^/]+\.md$|LICENSE$|license_header/)'
           this_workflow='^\.github/workflows/pr_integration_tests\.yml$'
+          if [ "$EVENT_NAME" = "pull_request" ] && { [ "$HEAD_REPO" != "$BASE_REPO" ] || [ "$AUTHOR_TYPE" = "Bot" ]; }; then
+            echo "This PR comes from a fork or a bot, so the tests run in the merge queue instead."
+            echo "run_tests=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           if [ "$EVENT_NAME" = "workflow_dispatch" ] || [ -z "$BASE_SHA" ]; then
             echo "run_tests=true" >> "$GITHUB_OUTPUT"
             exit 0
