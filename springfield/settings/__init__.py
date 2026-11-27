@@ -3,7 +3,9 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 import logging.config
+import os
 import sys
+import tempfile
 from copy import deepcopy
 from urllib.parse import urlparse
 
@@ -161,6 +163,11 @@ if (len(sys.argv) > 1 and sys.argv[1] == "test") or "pytest" in sys.modules:
     RQ_IMAGE_RENDITIONS_QUEUE = f"test_{RQ_IMAGE_RENDITIONS_QUEUE}"
     RQ_EMAIL_DEFAULT_QUEUE = f"test_{RQ_EMAIL_DEFAULT_QUEUE}"
     RQ_QUEUES = {f"test_{queue_name}": queue_config for queue_name, queue_config in RQ_QUEUES.items()}
+
+    # Uploads and renditions would otherwise land in the local dev site's media folder, and tests
+    # never remove what they save. Set here, before springfield.urls reads it for the media route.
+    # Named per process so parallel workers stay apart and tests that reload settings reuse it.
+    MEDIA_ROOT = os.path.join(tempfile.gettempdir(), f"springfield-test-media-{os.getpid()}")
 
 
 # 3. DJANGO-CSP SETTINGS

@@ -2,6 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 
 import pytest
 
@@ -43,3 +45,13 @@ def test_healthz_cron(client):
         expected_content="Time Since Last Cron Task Runs",
         expected_status=500,  # because an unsynced DB returns a 500, but with the correct HTML
     )
+
+
+def test_saved_media_is_served_from_media_root(client):
+    name = default_storage.save("test-media/served.txt", ContentFile(b"served bytes"))
+    try:
+        response = client.get(default_storage.url(name))
+        assert response.status_code == 200
+        assert b"".join(response.streaming_content) == b"served bytes"
+    finally:
+        default_storage.delete(name)
