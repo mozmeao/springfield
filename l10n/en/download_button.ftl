@@ -10,6 +10,10 @@ download-button-firefox-nightly = { -brand-name-firefox-nightly }
 download-button-systems-languages = Systems &amp; Languages
 
 download-button-google-play = Get it on { -brand-name-google-play }
+download-button-download-on-google-play = Download on <span>{ -brand-name-google-play }</span>
+download-button-download-on-mi-store = Download on the <span>{ -brand-name-mi-store }</span>
+download-button-download-on-v-appstore = Download on the <span>{ -brand-name-v-appstore }</span>
+download-button-apk-via-github = APK via { -brand-name-github }
 download-button-download-app-store = Download on the { -brand-name-app-store }
 download-button-download-firefox = Download { -brand-name-firefox }
 download-button-your-system-may = Your system may not meet the requirements for { -brand-name-firefox }, but you can try one of these versions:

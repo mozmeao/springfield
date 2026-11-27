@@ -21,6 +21,7 @@ from django.views.decorators.vary import vary_on_headers
 import commonware.log
 
 from springfield.base.decorators import cache_control_expires
+from springfield.base.geo import get_country_from_request
 
 log = commonware.log.getLogger("redirects.util")
 LOCALE_RE = r"^(?P<locale>\w{2,3}(?:-\w{2})?/)?"
@@ -115,6 +116,8 @@ def mobile_app_redirector(request, product, utm_params):
     provided_utm_params = {name: param_value for name, param_value in utm_params.items() if param_value}
 
     if android_re.search(value):
+        if product == "firefox" and get_country_from_request(request) == "CN":
+            return "/download/android/"
         base_url = getattr(settings, f"GOOGLE_PLAY_{product.upper()}_LINK")
         if not provided_utm_params:
             return base_url

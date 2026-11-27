@@ -7,7 +7,7 @@
 {% extends "cms/base-flare.html" %}
 
 {% from "firefox/includes/macros.html" import firefox_download_desktop_button_mac, firefox_download_desktop_button_linux, firefox_download_desktop_button_windows with context %}
-{% from "macros.html" import google_play_button, apple_app_store_button with context %}
+{% from "macros.html" import google_play_button, android_download_button, apple_app_store_button with context %}
 
 {% block page_css %}{{ css_bundle('flare-download') }}{% endblock %}
 
@@ -66,7 +66,7 @@
         {{ firefox_download_desktop_button_linux(flare_styles=True) }}
       {% elif page.platform == "android" %}
         {% set android_url = play_store_url('firefox', campaign) %}
-        {{ google_play_button(href=android_url, id='playStoreLink-primary', class_name="fl-store-button") }}
+        {{ android_download_button(href=android_url, id='playStoreLink-primary', class_name="fl-store-button", cta_position="download-intro") }}
       {% elif page.platform == "ios" %}
         {% set ios_url = app_store_url('firefox', campaign) %}
         {# iOS installs directly from here. Android/other visitors can't (the QR is desktop-only),
