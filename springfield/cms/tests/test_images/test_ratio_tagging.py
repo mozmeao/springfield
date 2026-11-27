@@ -90,3 +90,22 @@ def test_inline_edit_restores_a_removed_ratio_tag(admin_client, make_image):
     assert list(image.tags.names()) == ["4:3"]
     tags_input = BeautifulSoup(response.content, "html.parser").select_one(f"input[name='image-{image.pk}-tags']")
     assert tags_input["value"] == "4:3"
+
+
+def test_edit_page_warns_when_close_to_a_ratio(admin_client, make_image):
+    image = make_image()
+    SpringfieldImage.objects.filter(pk=image.pk).update(width=1920, height=1050)
+
+    response = admin_client.get(reverse("wagtailimages:edit", args=[image.pk]))
+
+    content = response.content.decode()
+    assert "This image is close to 16:9 (1920×1050) but not exact. Check the cropping." in content
+    assert "Supported formats" in content
+
+
+def test_edit_page_has_no_warning_for_an_exact_ratio(admin_client, make_image):
+    image = make_image()
+
+    response = admin_client.get(reverse("wagtailimages:edit", args=[image.pk]))
+
+    assert "but not exact" not in response.content.decode()

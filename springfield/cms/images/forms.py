@@ -12,7 +12,7 @@ from django.urls import reverse
 from wagtail.admin.forms.tags import validate_tag_length
 from wagtail.images.forms import BaseImageForm
 
-from springfield.cms.images.ratios import apply_ratio_tags
+from springfield.cms.images.ratios import apply_ratio_tags, get_near_ratio_tag
 from springfield.cms.images.widgets import AdminTagNoHelpWidget
 from springfield.cms.models.images import SpringfieldImage
 
@@ -27,10 +27,14 @@ class SpringfieldImageForm(BaseImageForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if self.fields.get("file"):
-            self.fields["file"].widget.attrs.pop("data-controller", None)
+        if file_field := self.fields.get("file"):
+            file_field.widget.attrs.pop("data-controller", None)
+            if self.instance.pk and (near_tag := get_near_ratio_tag(self.instance.width, self.instance.height)):
+                warning = f"This image is close to {near_tag} ({self.instance.width}×{self.instance.height}) but not exact. Check the cropping."
+                file_field.help_text = f"{warning} {file_field.help_text}"
 
     def save(self, commit=True):
+        # Callers that save with commit=False must apply the ratio tags themselves.
         image = super().save(commit=commit)
         if commit:
             apply_ratio_tags(image)
