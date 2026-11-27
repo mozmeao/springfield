@@ -6,13 +6,18 @@
 """Migrate a SQLite file the way pytest-django builds the test database, for TEST_DB_TEMPLATE.
 
 The root conftest.py copies this file into each test process's in-memory database, so the suite
-skips migrating from scratch. It runs under the test settings, as a test run does: importing pytest
-first switches on the test-only block in springfield/settings/__init__.py.
+skips migrating from scratch. It runs under the test settings, as a test run does: pytest is
+imported before django.setup() loads the settings, which switches on the test-only block in
+springfield/settings/__init__.py.
 """
 
 import os
 import sys
 from pathlib import Path
+
+import django
+from django.core.management import call_command
+from django.db import connections
 
 import pytest  # noqa: F401  (switches on the test settings; see the docstring)
 
@@ -26,12 +31,7 @@ def main(path):
     if os.path.exists(tmp_path):
         os.remove(tmp_path)
 
-    import django
-
     django.setup()
-
-    from django.core.management import call_command
-    from django.db import connections
 
     # The same steps Django's create_test_db() runs, against a file instead of memory.
     connection = connections["default"]

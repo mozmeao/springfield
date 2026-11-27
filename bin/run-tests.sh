@@ -41,7 +41,7 @@ pytest lib springfield \
     --cov-report=html \
     --cov-report=term-missing \
     --cov-report=xml:python_coverage/coverage.xml \
-    --cov=.
+    --cov
 tests_status=$?
 
 pytest -r a tests/redirects

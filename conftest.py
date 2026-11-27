@@ -11,6 +11,8 @@
 import os
 import sqlite3
 
+from django.conf import settings
+
 import freezegun
 import pytest
 
@@ -33,8 +35,6 @@ def django_db_modify_db_settings(django_db_modify_db_settings_parallel_suffix):
     template = os.environ.get("TEST_DB_TEMPLATE")
     if not template or not os.path.exists(template):
         return
-
-    from django.conf import settings
 
     database = settings.DATABASES["default"]
     if database["ENGINE"] != "django.db.backends.sqlite3" or database.get("TEST", {}).get("NAME"):
