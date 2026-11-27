@@ -18,19 +18,19 @@ from springfield.blog.fixtures.blog_fixtures import (
     get_blog_tags,
     get_blog_topics,
 )
-from springfield.blog.tests.site_setup import build_minimal_site
+from springfield.blog.tests.site_setup import create_minimal_site
 
 
 class FullBlogTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         # "testserver" is the host Django's test client and RequestFactory use.
-        build_minimal_site(hostname="testserver")
+        create_minimal_site(hostname="testserver")
         cls.articles = get_blog_pages()
         cls.index_page = get_blog_index_page()
 
     def setUp(self):
-        self.rf = RequestFactory()
+        self.request_factory = RequestFactory()
 
     def test_blog_index_all_topics_are_counted_and_ordered(self):
         """Every topic with an article, most-populated first."""
@@ -46,7 +46,7 @@ class FullBlogTests(TestCase):
 
     def test_blog_index_topic_links_point_to_topic_route(self):
         index_page = self.index_page
-        request = self.rf.get(index_page.get_full_url())
+        request = self.request_factory.get(index_page.get_full_url())
         response = index_page.serve(request)
         soup = BeautifulSoup(response.content, "html.parser")
         header_topics = index_page.get_header_topics()
@@ -62,7 +62,7 @@ class FullBlogTests(TestCase):
     def test_blog_index_renders_first_featured_as_hero(self):
         index_page, articles = self.index_page, self.articles
         first_article = articles[0]  # first article placed in the StreamField
-        request = self.rf.get(index_page.get_full_url())
+        request = self.request_factory.get(index_page.get_full_url())
         response = index_page.serve(request)
         soup = BeautifulSoup(response.content, "html.parser")
 
@@ -84,7 +84,7 @@ class FullBlogTests(TestCase):
     def test_blog_index_renders_three_featured_articles_as_articles_list(self):
         index_page, articles = self.index_page, self.articles
         articles = articles[1:4]
-        request = self.rf.get(index_page.get_full_url())
+        request = self.request_factory.get(index_page.get_full_url())
         response = index_page.serve(request)
         soup = BeautifulSoup(response.content, "html.parser")
 
@@ -109,7 +109,7 @@ class FullBlogTests(TestCase):
 
     def test_blog_index_renders_cards_lists(self):
         index_page = self.index_page
-        request = self.rf.get(index_page.get_full_url())
+        request = self.request_factory.get(index_page.get_full_url())
         response = index_page.serve(request)
         soup = BeautifulSoup(response.content, "html.parser")
 
@@ -141,7 +141,7 @@ class FullBlogTests(TestCase):
 
     def test_blog_index_renders_latest_section(self):
         index_page = self.index_page
-        request = self.rf.get(index_page.get_full_url())
+        request = self.request_factory.get(index_page.get_full_url())
         response = index_page.serve(request)
         soup = BeautifulSoup(response.content, "html.parser")
 
@@ -160,7 +160,7 @@ class FullBlogTests(TestCase):
 
     def test_blog_index_section_links_are_derived_from_the_source(self):
         index_page = self.index_page
-        request = self.rf.get(index_page.get_full_url())
+        request = self.request_factory.get(index_page.get_full_url())
         response = index_page.serve(request)
         soup = BeautifulSoup(response.content, "html.parser")
 
@@ -186,7 +186,7 @@ class FullBlogTests(TestCase):
     def test_blog_all_renders_200(self):
         index_page = self.index_page
         url = index_page.full_url + index_page.reverse_subpage("all_route")
-        request = self.rf.get(url)
+        request = self.request_factory.get(url)
         response = index_page.all_route(request)
         assert response.status_code == 200
 
@@ -194,7 +194,7 @@ class FullBlogTests(TestCase):
         index_page = self.index_page
         topics = get_blog_topics()
         url = index_page.full_url + index_page.reverse_subpage("all_route")
-        request = self.rf.get(url)
+        request = self.request_factory.get(url)
         response = index_page.all_route(request)
         soup = BeautifulSoup(response.content, "html.parser")
 
@@ -204,7 +204,7 @@ class FullBlogTests(TestCase):
     def test_blog_all_renders_list_articles(self):
         index_page = self.index_page
         url = index_page.full_url + index_page.reverse_subpage("all_route")
-        request = self.rf.get(url)
+        request = self.request_factory.get(url)
         response = index_page.all_route(request)
         soup = BeautifulSoup(response.content, "html.parser")
 
@@ -223,7 +223,7 @@ class FullBlogTests(TestCase):
     def test_blog_all_renders_pagination(self):
         index_page = self.index_page
         url = index_page.full_url + index_page.reverse_subpage("all_route")
-        request = self.rf.get(url)
+        request = self.request_factory.get(url)
         response = index_page.all_route(request)
         soup = BeautifulSoup(response.content, "html.parser")
 
@@ -243,7 +243,7 @@ class FullBlogTests(TestCase):
         index_page = self.index_page
         num_pages = (NUM_LIST_ARTICLES + 9) // 10
         url = index_page.full_url + index_page.reverse_subpage("all_route")
-        request = self.rf.get(url, {"page": str(num_pages)})
+        request = self.request_factory.get(url, {"page": str(num_pages)})
         response = index_page.all_route(request)
         soup = BeautifulSoup(response.content, "html.parser")
 
@@ -266,7 +266,7 @@ class FullBlogTests(TestCase):
     def test_blog_all_topic_filter_shows_selected_topic(self):
         index_page = self.index_page
         url = index_page.full_url + index_page.reverse_subpage("all_route")
-        request = self.rf.get(url, {"topic": "privacy"})
+        request = self.request_factory.get(url, {"topic": "privacy"})
         response = index_page.all_route(request)
         soup = BeautifulSoup(response.content, "html.parser")
 
@@ -276,7 +276,7 @@ class FullBlogTests(TestCase):
     def test_blog_all_topic_filter_selected_topic_has_close_link(self):
         index_page = self.index_page
         url = index_page.full_url + index_page.reverse_subpage("all_route")
-        request = self.rf.get(url, {"topic": "privacy"})
+        request = self.request_factory.get(url, {"topic": "privacy"})
         response = index_page.all_route(request)
         soup = BeautifulSoup(response.content, "html.parser")
 
@@ -289,7 +289,7 @@ class FullBlogTests(TestCase):
     def test_blog_all_unknown_topic_shows_all_articles(self):
         index_page = self.index_page
         url = index_page.full_url + index_page.reverse_subpage("all_route")
-        request = self.rf.get(url, {"topic": "nonexistent"})
+        request = self.request_factory.get(url, {"topic": "nonexistent"})
         response = index_page.all_route(request)
         assert response.status_code == 200
         soup = BeautifulSoup(response.content, "html.parser")
@@ -299,7 +299,7 @@ class FullBlogTests(TestCase):
         index_page = self.index_page
         url = index_page.full_url + index_page.reverse_subpage("all_route")
         # Privacy has 11 regular articles in the full setup, triggering pagination
-        request = self.rf.get(url, {"topic": "privacy"})
+        request = self.request_factory.get(url, {"topic": "privacy"})
         response = index_page.all_route(request)
         soup = BeautifulSoup(response.content, "html.parser")
 
@@ -313,7 +313,7 @@ class FullBlogTests(TestCase):
         index_page = self.index_page
         tag = get_blog_tags()["privacy"]
         url = index_page.full_url + index_page.reverse_subpage("all_route")
-        request = self.rf.get(url, {"tag": tag.slug})
+        request = self.request_factory.get(url, {"tag": tag.slug})
         response = index_page.all_route(request)
         soup = BeautifulSoup(response.content, "html.parser")
 
@@ -325,7 +325,7 @@ class FullBlogTests(TestCase):
     def test_blog_all_renders_view_all_topics_link(self):
         index_page = self.index_page
         url = index_page.full_url + index_page.reverse_subpage("all_route")
-        request = self.rf.get(url)
+        request = self.request_factory.get(url)
         response = index_page.all_route(request)
         soup = BeautifulSoup(response.content, "html.parser")
 
@@ -339,7 +339,7 @@ class FullBlogTests(TestCase):
         index_page = self.index_page
         topics = get_blog_topics()
         url = index_page.full_url + index_page.reverse_subpage("all_route")
-        request = self.rf.get(url)
+        request = self.request_factory.get(url)
         response = index_page.all_route(request)
         soup = BeautifulSoup(response.content, "html.parser")
 
@@ -351,14 +351,14 @@ class FullBlogTests(TestCase):
     def test_blog_topics_renders_200(self):
         index_page = self.index_page
         url = index_page.full_url + index_page.reverse_subpage("topics_route")
-        request = self.rf.get(url)
+        request = self.request_factory.get(url)
         response = index_page.topics_route(request)
         assert response.status_code == 200
 
     def test_blog_topics_renders_back_link(self):
         index_page = self.index_page
         url = index_page.full_url + index_page.reverse_subpage("topics_route")
-        request = self.rf.get(url)
+        request = self.request_factory.get(url)
         response = index_page.topics_route(request)
         soup = BeautifulSoup(response.content, "html.parser")
 
@@ -369,7 +369,7 @@ class FullBlogTests(TestCase):
     def test_blog_topics_renders_heading(self):
         index_page = self.index_page
         url = index_page.full_url + index_page.reverse_subpage("topics_route")
-        request = self.rf.get(url)
+        request = self.request_factory.get(url)
         response = index_page.topics_route(request)
         soup = BeautifulSoup(response.content, "html.parser")
 
@@ -380,7 +380,7 @@ class FullBlogTests(TestCase):
         index_page = self.index_page
         topics = get_blog_topics()
         url = index_page.full_url + index_page.reverse_subpage("topics_route")
-        request = self.rf.get(url)
+        request = self.request_factory.get(url)
         response = index_page.topics_route(request)
         soup = BeautifulSoup(response.content, "html.parser")
 
@@ -394,7 +394,7 @@ class FullBlogTests(TestCase):
         index_page = self.index_page
         topics = get_blog_topics()
         url = index_page.full_url + index_page.reverse_subpage("topics_route")
-        request = self.rf.get(url)
+        request = self.request_factory.get(url)
         response = index_page.topics_route(request)
         soup = BeautifulSoup(response.content, "html.parser")
 

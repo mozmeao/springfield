@@ -13,7 +13,7 @@ from wagtail.models import Locale, Site
 from springfield.blog.models import BlogArticlePage
 from springfield.blog.models.pages import BlogIndexPage, HeroStyle
 from springfield.blog.models.snippets import BlogTopic
-from springfield.blog.tests.site_setup import build_minimal_site
+from springfield.blog.tests.site_setup import create_minimal_site
 from springfield.cms.fixtures.base_fixtures import get_placeholder_images
 
 User = get_user_model()
@@ -41,7 +41,7 @@ def admin_client(client, db):
 
 @pytest.fixture
 def minimal_site(client):
-    return build_minimal_site(hostname=client._base_environ()["SERVER_NAME"])
+    return create_minimal_site(hostname=client._base_environ()["SERVER_NAME"])
 
 
 @pytest.fixture

@@ -8,7 +8,7 @@ from wagtail.models import Site
 from springfield.cms.tests.factories import LocaleFactory, SimpleRichTextPageFactory
 
 
-def build_minimal_site(hostname):
+def create_minimal_site(hostname):
     """A default site with a root page at / and one child page at /test-page/, plus a French locale."""
     top_level_page = SimpleRichTextPageFactory(
         slug="root_page",  # this doesn't get shown
