@@ -189,18 +189,18 @@
               {% block notes_heading_secondary %}
                 <div class="mzp-l-content mzp-has-sidebar mzp-l-sidebar-left fl-c-release-notes-summary fl-l-release-notes-wrapper fl-l-release-notes-with-sidebar">
                 <h2 class="c-release-summary fl-c-release-summary-sidebar fl-l-release-notes-sidebar">
-                  <span class="c-release-version fl-c-release-version fl-heading fl-heading-lg">{{ release.version }}</span>
-                  <span class="c-release-product fl-c-release-product fl-heading fl-heading-xs fl-u-font-semibold">{{ release.product }} {{ release.channel }}</span>
+                  <span class="c-release-version fl-c-release-version fl-heading fl-heading-xl fl-scale-regular">{{ release.version }}</span>
+                  <span class="c-release-product fl-c-release-product fl-heading fl-heading-sm fl-scale-regular fl-u-font-semibold">{{ release.product }} {{ release.channel }}</span>
                 </h2>
                 {% if release.is_public %}
                   <p class="c-release-date fl-c-release-date fl-l-release-notes-sidebar">{{ release.release_date|l10n_format_date }}</p>
                 {% endif %}
                 <div class="mzp-l-main mzp-l-article fl-c-release-summary-details fl-c-release-notes-main">
                   {% if release.is_public %}
-                    <div class="c-release-first-title fl-heading fl-heading-xs fl-u-font-semibold">Version {{ release.version }}, first offered to {{ release.channel }} channel users on {{ release.release_date|l10n_format_date }}</div>
+                    <div class="c-release-first-title fl-heading fl-heading-sm fl-scale-regular fl-u-font-semibold">Version {{ release.version }}, first offered to {{ release.channel }} channel users on {{ release.release_date|l10n_format_date }}</div>
                     <div class="c-release-first-text">{{ release.text|safe }}</div>
                   {% else %}
-                    <h2 class="c-release-draft-title fl-heading fl-heading-xs">We're still preparing the notes for this release, and will post them here when they are ready. Please check back later.</h2>
+                    <h2 class="c-release-draft-title fl-heading fl-heading-sm fl-scale-regular">We're still preparing the notes for this release, and will post them here when they are ready. Please check back later.</h2>
                     {% block flare_extra_draft_description %}{% endblock %}
                   {% endif %}
                 </div>
@@ -232,7 +232,7 @@
                         {% endset %}
                         <include:heading
                           level="h3"
-                          heading_size="fl-heading-xs"
+                          heading_size="fl-heading-sm fl-scale-regular"
                           heading_text="{{ tag_heading | safe }}"
                         />
                       </div>
@@ -262,7 +262,7 @@
                         {% endset %}
                         <include:heading
                           level="h3"
-                          heading_size="fl-heading-xs"
+                          heading_size="fl-heading-sm fl-scale-regular"
                           heading_text="{{ tag_heading | safe }}"
                         />
                       </div>
@@ -292,7 +292,7 @@
                         {% endset %}
                         <include:heading
                           level="h3"
-                          heading_size="fl-heading-xs"
+                          heading_size="fl-heading-sm fl-scale-regular"
                           heading_text="{{ tag_heading | safe }}"
                         />
                       </div>
@@ -322,7 +322,7 @@
                         {% endset %}
                         <include:heading
                           level="h3"
-                          heading_size="fl-heading-xs"
+                          heading_size="fl-heading-sm fl-scale-regular"
                           heading_text="{{ tag_heading | safe }}"
                         />
                       </div>
@@ -352,7 +352,7 @@
                         {% endset %}
                         <include:heading
                           level="h3"
-                          heading_size="fl-heading-xs"
+                          heading_size="fl-heading-sm fl-scale-regular"
                           heading_text="{{ tag_heading | safe }}"
                         />
                       </div>
@@ -382,7 +382,7 @@
                         {% endset %}
                         <include:heading
                           level="h3"
-                          heading_size="fl-heading-xs"
+                          heading_size="fl-heading-sm fl-scale-regular"
                           heading_text="{{ tag_heading | safe }}"
                         />
                       </div>
@@ -419,7 +419,7 @@
                         {% endset %}
                         <include:heading
                           level="h3"
-                          heading_size="fl-heading-xs"
+                          heading_size="fl-heading-sm fl-scale-regular"
                           heading_text="{{ tag_heading | safe }}"
                         />
                       </div>
@@ -449,7 +449,7 @@
                         {% endset %}
                         <include:heading
                           level="h3"
-                          heading_size="fl-heading-xs"
+                          heading_size="fl-heading-sm fl-scale-regular"
                           heading_text="{{ tag_heading | safe }}"
                         />
                       </div>
@@ -479,7 +479,7 @@
                         {% endset %}
                         <include:heading
                           level="h3"
-                          heading_size="fl-heading-xs"
+                          heading_size="fl-heading-sm fl-scale-regular"
                           heading_text="{{ tag_heading | safe }}"
                         />
                       </div>
@@ -523,7 +523,7 @@
                         {% endset %}
                         <include:heading
                           level="h3"
-                          heading_size="fl-heading-xs"
+                          heading_size="fl-heading-sm fl-scale-regular"
                           heading_text="{{ tag_heading | safe }}"
                         />
                       </div>
@@ -576,36 +576,36 @@
         <div class="fl-l-release-notes-wrapper fl-l-release-notes-pre-footer-columns">
           {% if release.product == 'Firefox Enterprise' %}
             <div class="c-release-footer-col">
-              <h2 class="fl-heading fl-heading-xs">Need help or want to leave feedback?</h2>
+              <h2 class="fl-heading fl-heading-sm fl-scale-regular">Need help or want to leave feedback?</h2>
               <a href="/{{ LANG }}/enterprise/firefox-professional-support/">Firefox Professional Support</a>
               <a rel="external" href="{{ feedback_url }}">Leave feedback</a>
               <a rel="external" href="{{ bugzilla_url }}">File a bug</a>
             </div>
             <div class="c-release-footer-col">
-              <h2 class="fl-heading fl-heading-xs">Documentation</h2>
+              <h2 class="fl-heading fl-heading-sm fl-scale-regular">Documentation</h2>
               <a rel="external" href="https://firefox-admin-docs.mozilla.org/reference/policies/">Enterprise policy reference</a>
               <a rel="external" href="https://support.mozilla.org/products/firefox-enterprise">Firefox Enterprise support articles</a>
               <a rel="external" href="https://developer.mozilla.org/docs/Mozilla/Firefox/Releases/{{ release.major_version }}">Firefox release notes for developers</a>
             </div>
             <div class="c-release-footer-col">
-              <h2 class="fl-heading fl-heading-xs">Explore Firefox Enterprise</h2>
+              <h2 class="fl-heading fl-heading-sm fl-scale-regular">Explore Firefox Enterprise</h2>
               <a href="/{{ LANG }}/enterprise/contact/">Request a demo</a>
               <a href="/{{ LANG }}/enterprise/trust-center/">Firefox Enterprise Trust Center</a>
               <a href="/{{ LANG }}/enterprise/download-firefox/">Download</a>
             </div>
           {% else %}
             <div class="c-release-footer-col">
-              <h2 class="fl-heading fl-heading-xs">Need help or want to leave feedback?</h2>
+              <h2 class="fl-heading fl-heading-sm fl-scale-regular">Need help or want to leave feedback?</h2>
               <a rel="external" href="{{ bugzilla_url }}">File a bug</a>
               <a rel="external" href="{{ feedback_url }}">Leave feedback</a>
             </div>
             <div class="c-release-footer-col">
-              <h2 class="fl-heading fl-heading-xs">Get Involved</h2>
+              <h2 class="fl-heading fl-heading-sm fl-scale-regular">Get Involved</h2>
               <p>Did you know that most of the content in Firefox Support was written by volunteers?</p>
               <a rel="external" href="https://support.mozilla.org/get-involved">Find out more</a>
             </div>
             <div class="c-release-footer-col">
-              <h2 class="fl-heading fl-heading-xs">Other Resources</h2>
+              <h2 class="fl-heading fl-heading-sm fl-scale-regular">Other Resources</h2>
               {% block flare_extra_resources %}{% endblock %}
               <a rel="external" href="https://developer.mozilla.org/docs/Mozilla/Firefox/Releases/{{ release.major_version }}">Developer Information</a>
               <a rel="external"  href="{{ release.get_bug_search_url() }}">Complete list of changes for this release</a>
