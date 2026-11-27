@@ -37,7 +37,7 @@ from springfield.cms.blocks import (
     VideoBlock,
 )
 from springfield.cms.fields import StreamField
-from springfield.cms.models.base import AbstractSpringfieldCMSPage, ImageAltTextMixin
+from springfield.cms.models.base import AbstractSpringfieldCMSPage, ImageAltTextMixin, TypeScale
 from springfield.cms.models.locale import SpringfieldLocale
 from springfield.cms.models.pages import UTMParamsMixin
 from springfield.cms.rich_text import RichTextBlock, RichTextField
@@ -141,6 +141,8 @@ def lists_every_article(page):
 
 class BlogIndexPage(RoutablePageMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A page that lists blog posts."""
+
+    default_type_scale = TypeScale.COMPACT
 
     subpage_types = ["blog.BlogArticlePage", "blog.BlogTopicPage"]
     ftl_files = ["blog/blog"]
@@ -551,6 +553,8 @@ class BlogTopicPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     Served by BlogIndexPage.topic_route at topics/<slug>/ in place of the plain topic
     heading. The automatic article list still renders below it."""
 
+    default_type_scale = TypeScale.COMPACT
+
     parent_page_types = ["blog.BlogIndexPage"]
     subpage_types = []
     ftl_files = ["blog/blog"]
@@ -663,6 +667,8 @@ MAX_RELATED_ARTICLES = 4
 
 class BlogArticlePage(ImageAltTextMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A page that displays a single blog article."""
+
+    default_type_scale = TypeScale.COMPACT
 
     parent_page_types = ["blog.BlogIndexPage"]
     ftl_files = ["blog/blog"]

@@ -26,6 +26,11 @@ from springfield.cms.forms import SpringfieldCopyForm
 from springfield.cms.utils import compute_cms_page_locales, current_request
 
 
+class TypeScale(models.TextChoices):
+    REGULAR = "regular", "Regular"
+    COMPACT = "compact", "Compact"
+
+
 class QROpenBehavior(models.TextChoices):
     """Starting state for the floating QR code snippet.
 
@@ -181,6 +186,9 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
     # these; see regenerate_analytics_ids_on_copy.
     analytics_id_fields: tuple[str, ...] = ()
 
+    # Page types for dense or utility content set this to TypeScale.COMPACT.
+    default_type_scale = TypeScale.REGULAR
+
     internal_title = models.CharField(
         max_length=255,
         blank=True,
@@ -237,6 +245,14 @@ class AbstractSpringfieldCMSPage(WagtailBasePage):
 
     class Meta:
         abstract = True
+
+    def get_type_scale(self):
+        return self.default_type_scale
+
+    @property
+    def type_scale_class(self):
+        """Body class for the page's heading type scale; Regular needs none."""
+        return "fl-scale-compact" if self.get_type_scale() == TypeScale.COMPACT else ""
 
     @classmethod
     def can_create_at(cls, parent):
