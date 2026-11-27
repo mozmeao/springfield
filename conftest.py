@@ -11,7 +11,12 @@
 import os
 import sqlite3
 
+import freezegun
 import pytest
+
+# freezegun swaps the clock functions in every loaded module, pytest's included, so a test that
+# freezes the clock was timed on the frozen clock and `--durations` reported nonsense for it.
+freezegun.configure(extend_ignore_list=["_pytest"])
 
 # The in-memory test database Django creates for the "default" alias. With shared cache, every
 # connection in the process that opens this name sees the same database.
