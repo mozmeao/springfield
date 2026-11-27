@@ -18,10 +18,14 @@ FIREFOX_VERSION_KEYS = (
     "FIREFOX_DEVEDITION",
     "FIREFOX_ESR",
     "FIREFOX_ESR_NEXT",
+    "FIREFOX_ESR115",
     "LATEST_FIREFOX_DEVEL_VERSION",
     "LATEST_FIREFOX_RELEASED_DEVEL_VERSION",
     "LATEST_FIREFOX_VERSION",
 )
+# Only present while that ESR is offered: there is no next ESR between cycles,
+# and ESR 115 is retired eventually.
+OPTIONAL_FIREFOX_VERSION_KEYS = ("FIREFOX_ESR_NEXT", "FIREFOX_ESR115")
 
 
 @alert_sentry_on_exception
@@ -86,9 +90,9 @@ class Command(BaseCommand):
         return self.repo.has_changes()
 
     def count_builds(self, version_key, min_builds=20):
-        version = self.file_storage.data("firefox_versions.json")[version_key]
+        version = self.file_storage.data("firefox_versions.json").get(version_key)
         if not version:
-            if version_key == "FIREFOX_ESR_NEXT":
+            if version_key in OPTIONAL_FIREFOX_VERSION_KEYS:
                 return
         builds = len([locale for locale, build in self.file_storage.data("firefox_primary_builds.json").items() if version in build])
         if builds < min_builds:

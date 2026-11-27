@@ -61,6 +61,12 @@ describe('TrackProductDownload.isValidDownloadURL', function () {
         );
         expect(testMsStoreURL).toBe(true);
     });
+    it('should recognize a Firefox for Android APK as a valid URL', function () {
+        const testApkURL = TrackProductDownload.isValidDownloadURL(
+            'https://ftp.mozilla.org/pub/fenix/releases/146.0/android/fenix-146.0-android/fenix-146.0.multi.android-universal.apk'
+        );
+        expect(testApkURL).toBe(true);
+    });
     it('should not accept a random link to firefox.com as a valid URL', function () {
         const testRandomURL = TrackProductDownload.isValidDownloadURL(
             'https://www.firefox.com/en-US/download/all/'
@@ -258,6 +264,13 @@ describe('TrackProductDownload.getEventFromUrl', function () {
         );
         expect(testEvent['release_channel']).toBe('release');
     });
+    it('should identify release_channel for Firefox macOS PKG', function () {
+        const testEvent = TrackProductDownload.getEventFromUrl(
+            'https://download.mozilla.org/?product=firefox-pkg-latest-ssl&os=osx&lang=en-US'
+        );
+        expect(testEvent['release_channel']).toBe('release');
+        expect(testEvent['platform']).toBe('macos');
+    });
     it('should identify release_channel for Firefox ESR on Windows 64-bit', function () {
         const testEvent = TrackProductDownload.getEventFromUrl(
             'https://download.mozilla.org/?product=firefox-esr-latest-ssl&os=win64&lang=en-US'
@@ -396,6 +409,21 @@ describe('TrackProductDownload.getEventFromUrl', function () {
         expect(testEvent['platform']).toBe('win');
         expect(testEvent['method']).toBe('store');
         expect(testEvent['release_channel']).toBe('unrecognized');
+    });
+    it('should identify a Firefox for Android release APK', function () {
+        const testEvent = TrackProductDownload.getEventFromUrl(
+            'https://ftp.mozilla.org/pub/fenix/releases/146.0/android/fenix-146.0-android/fenix-146.0.multi.android-universal.apk'
+        );
+        expect(testEvent['product']).toBe('firefox_mobile');
+        expect(testEvent['platform']).toBe('android');
+        expect(testEvent['method']).toBe('site');
+        expect(testEvent['release_channel']).toBe('release');
+    });
+    it('should identify a Firefox for Android beta APK', function () {
+        const testEvent = TrackProductDownload.getEventFromUrl(
+            'https://ftp.mozilla.org/pub/fenix/releases/146.0b3/android/fenix-146.0b3-android/fenix-146.0b3.multi.android-universal.apk'
+        );
+        expect(testEvent['release_channel']).toBe('beta');
     });
     it('should identify Mozilla VPN for Android', function () {
         const testEvent = TrackProductDownload.getEventFromUrl(

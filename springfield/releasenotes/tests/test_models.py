@@ -138,8 +138,9 @@ class TestReleaseModel(TestCase):
         assert note.id == 787203
 
     def test_product_method_gets_specifically_latest_esr_based_on_product_details(self):
-        _patched_dict = product_details.firefox_versions
-        _patched_dict.update({"FIREFOX_ESR": "999.76"})
+        # A copy: the product-details cache hands out its own dict, so updating it
+        # in place would leave this ESR version behind for later tests.
+        _patched_dict = {**product_details.firefox_versions, "FIREFOX_ESR": "999.76"}
 
         with patch.dict("springfield.releasenotes.models.product_details.firefox_versions", _patched_dict):
             # See https://github.com/mozilla/bedrock/issues/16289

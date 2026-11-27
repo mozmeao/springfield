@@ -38,7 +38,10 @@ module.exports = {
                             // css/blog/pages).
                             '**/css/blog/pages/**',
                             '**/css/cms/pages/**',
-                            '**/css/cms/themes/**'
+                            '**/css/cms/themes/**',
+                            // Compiled to assets/css/firefox_all_form.css; the same
+                            // @import and relative url() problem applies.
+                            '**/css/firefox/all-form/**'
                         ]
                     }
                 },

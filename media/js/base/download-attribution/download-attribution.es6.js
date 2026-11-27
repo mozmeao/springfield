@@ -361,6 +361,20 @@ const DownloadAttribution = window.Mozilla.DownloadAttribution || {
             return url;
         }
 
+        // Replace any pair already on the link, so applying attribution again
+        // (as pages do after re-rendering links) never stacks a second one.
+        const [origin, query] = url.split('?');
+        if (query !== undefined) {
+            const kept = query
+                .split('&')
+                .filter(
+                    (param) =>
+                        param.indexOf('attribution_code=') !== 0 &&
+                        param.indexOf('attribution_sig=') !== 0
+                );
+            url = kept.length ? `${origin}?${kept.join('&')}` : origin;
+        }
+
         // append download attribution query params.
         for (const key of Object.keys(data)) {
             if (key === 'attribution_code' || key === 'attribution_sig') {

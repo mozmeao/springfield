@@ -62,6 +62,34 @@ class TestQRCodeRoundedSvg(TestCase):
         assert eyes["d"].count("M") == 9
         assert svg.find("image")["href"] == FIREFOX_LOGO_SVG_URL
 
+    def test_without_logo_draws_every_dark_module_at_a_lower_level(self, cache_mock):
+        cache_mock.get.return_value = None
+        data = "https://www.firefox.com/browsers/mobile/app/?product=firefox&campaign=firefox-all"
+        svg = BeautifulSoup(str(qrcode_rounded_svg(data, logo=False)), "html.parser").find("svg")
+        assert svg.find("image") is None
+
+        qr_code = qr.QRCode(error_correction=qr.constants.ERROR_CORRECT_M, border=4)
+        qr_code.add_data(data)
+        qr_code.make(fit=True)
+        matrix = qr_code.get_matrix()
+        size = len(matrix)
+        assert svg["viewbox"] == f"0 0 {size} {size}"
+        eye_origins = [(4, 4), (size - 11, 4), (4, size - 11)]
+        dark_outside_eyes = sum(
+            1
+            for row, cells in enumerate(matrix)
+            for col, is_dark in enumerate(cells)
+            if is_dark and not any(eye_col <= col < eye_col + 7 and eye_row <= row < eye_row + 7 for eye_col, eye_row in eye_origins)
+        )
+        assert svg.find("path")["d"].count("h0") == dark_outside_eyes
+
+    def test_logo_choice_is_part_of_the_cache_key(self, cache_mock):
+        cache_mock.get.return_value = None
+        qrcode_rounded_svg("https://dude.abide", logo=True)
+        qrcode_rounded_svg("https://dude.abide", logo=False)
+        keys = [call.args[0] for call in cache_mock.set.call_args_list]
+        assert keys[0] != keys[1]
+
     def test_dots_match_the_qr_matrix(self, cache_mock):
         cache_mock.get.return_value = None
         for data in (

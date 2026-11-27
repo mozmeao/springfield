@@ -92,6 +92,29 @@ class TestUpdateProductDetailsFiles(TestCase):
             self.command.load_changes.assert_called_with(options, self.command.file_storage.all_json_files())
             assert not self.command.repo.set_db_latest.called
 
+    def _storage_with(self, versions, builds):
+        data = {"firefox_versions.json": versions, "firefox_primary_builds.json": builds}
+        return patch.object(self.command, "file_storage", **{"data.side_effect": data.__getitem__})
+
+    def test_rejects_esr_115_without_builds_for_its_version(self):
+        # The version feed can move to a new ESR 115 before the build index does.
+        builds = {f"locale-{n}": {"115.45.0esr": {}} for n in range(30)}
+        with self._storage_with({"FIREFOX_ESR115": "115.46.0esr"}, builds):
+            with self.assertRaises(ValueError):
+                self.command.count_builds("FIREFOX_ESR115")
+
+    def test_accepts_esr_115_with_builds_for_its_version(self):
+        builds = {f"locale-{n}": {"115.46.0esr": {}} for n in range(30)}
+        with self._storage_with({"FIREFOX_ESR115": "115.46.0esr"}, builds):
+            self.command.count_builds("FIREFOX_ESR115")
+
+    def test_skips_a_retired_esr_115(self):
+        with self._storage_with({}, {}):
+            self.command.count_builds("FIREFOX_ESR115")
+
+    def test_validates_esr_115(self):
+        assert "FIREFOX_ESR115" in update_product_details_files.FIREFOX_VERSION_KEYS
+
     def test_handle_no_diff_does_nothing(self):
         with patch.multiple(self.command, update_file_data=DEFAULT, validate_data=DEFAULT, file_storage=DEFAULT, load_changes=DEFAULT, repo=DEFAULT):
             options = dict(quiet=False, database="default", force=False)

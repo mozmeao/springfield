@@ -706,6 +706,37 @@ describe('download-attribution.js', function () {
                 )
             ).toEqual(expectedUrl);
         });
+
+        it('should not stack a second pair when applied again', function () {
+            const once = Mozilla.DownloadAttribution.appendToDownloadURL(
+                originalUrl,
+                params
+            );
+            expect(
+                Mozilla.DownloadAttribution.appendToDownloadURL(once, params)
+            ).toEqual(expectedUrl);
+        });
+
+        it('should replace an older pair with the current one', function () {
+            const stale = Mozilla.DownloadAttribution.appendToDownloadURL(
+                originalUrl,
+                { attribution_code: 'old', attribution_sig: 'old-sig' }
+            );
+            expect(
+                Mozilla.DownloadAttribution.appendToDownloadURL(stale, params)
+            ).toEqual(expectedUrl);
+        });
+
+        it('should keep parameters that come after an existing pair', function () {
+            expect(
+                Mozilla.DownloadAttribution.appendToDownloadURL(
+                    'https://download.mozilla.org/?attribution_code=old&attribution_sig=old-sig&product=firefox-stub',
+                    params
+                )
+            ).toEqual(
+                `https://download.mozilla.org/?product=firefox-stub&attribution_code=${params.attribution_code}&attribution_sig=${params.attribution_sig}`
+            );
+        });
     });
 
     describe('getSignedCookie', function () {
