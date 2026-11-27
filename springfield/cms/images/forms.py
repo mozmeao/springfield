@@ -11,8 +11,8 @@ from django.urls import reverse
 
 from wagtail.admin.forms.tags import validate_tag_length
 from wagtail.images.forms import BaseImageForm
-from wagtail.search import index as search_index
 
+from springfield.cms.images.ratios import apply_ratio_tags
 from springfield.cms.images.widgets import AdminTagNoHelpWidget
 from springfield.cms.models.images import SpringfieldImage
 
@@ -29,6 +29,12 @@ class SpringfieldImageForm(BaseImageForm):
         super().__init__(*args, **kwargs)
         if self.fields.get("file"):
             self.fields["file"].widget.attrs.pop("data-controller", None)
+
+    def save(self, commit=True):
+        image = super().save(commit=commit)
+        if commit:
+            apply_ratio_tags(image)
+        return image
 
 
 class InlineImageForm(forms.ModelForm):
@@ -66,6 +72,5 @@ class InlineImageForm(forms.ModelForm):
         image = super().save(commit=commit)
         if commit:
             image.tags.set(self.cleaned_data["tags"])
-            # Tags are written after the image row, so reindex to make the new tags searchable.
-            search_index.insert_or_update_object(image)
+            apply_ratio_tags(image)
         return image

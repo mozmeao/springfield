@@ -42,6 +42,8 @@ def inline_edit_image(request, image_id):
         with transaction.atomic():
             form.save()
             log(instance=image, action="wagtail.edit", content_changed=form.has_changed())
+        # Show the tags as stored, which can differ from the submitted ones by the ratio tag.
+        form = InlineImageForm(instance=image)
 
     return TemplateResponse(
         request,

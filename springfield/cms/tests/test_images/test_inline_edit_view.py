@@ -40,7 +40,7 @@ def test_valid_post_saves_and_returns_the_row_cells(admin_client, make_image):
     assert image.title == "Firefox logo on purple"
     assert image.description == "The Firefox logo on a purple background"
     assert image.is_decorative is False
-    assert set(image.tags.names()) == {"brand", "logo"}
+    assert set(image.tags.names()) == {"brand", "logo", "4:3"}
     assert ModelLogEntry.objects.filter(object_id=str(image.pk), action="wagtail.edit").count() == 1
     soup = BeautifulSoup(response.content, "html.parser")
     assert [cell["data-inline-cell"] for cell in soup.select("td[data-inline-cell]")] == [

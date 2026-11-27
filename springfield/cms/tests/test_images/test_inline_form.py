@@ -41,7 +41,7 @@ def test_inline_form_saves_the_four_fields(make_image):
     assert image.title == "Firefox logo on purple"
     assert image.description == "The Firefox logo on a purple background"
     assert image.is_decorative is True
-    assert set(image.tags.names()) == {"brand", "logo"}
+    assert set(image.tags.names()) == {"brand", "logo", "4:3"}
 
 
 def test_inline_form_applies_the_image_model_validation(make_image):
