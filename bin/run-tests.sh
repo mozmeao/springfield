@@ -31,9 +31,7 @@ fi
 
 set +e
 # Set PYTEST_XDIST_WORKERS=0 to run the suite in a single process when debugging.
-# Keep xdist's default distribution: pytest-django runs transactional tests last because they
-# flush the database, and the default keeps that order on each worker. `--dist worksteal` doesn't,
-# so ordinary tests can land after a flush and lose the rows the data migrations created.
+# Don't add `--dist worksteal`: it can run ordinary tests after a transactional test's flush.
 pytest lib springfield \
     -n "${PYTEST_XDIST_WORKERS:-auto}" \
     --durations=30 \
