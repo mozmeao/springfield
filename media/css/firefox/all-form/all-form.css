@@ -7,9 +7,13 @@
 @import 'variables/flare-media-query-tokens.css';
 
 @layer page {
-    .c-page {
-        /* One measure for the heading and the form, so they line up. */
+    /* One measure for the heading and the form, so they line up; the result page has its own wrapper. */
+    .c-page,
+    .c-section {
         --c-measure: var(--token-width-desktop-content-lg);
+    }
+
+    .c-page {
         --c-subtle-surface: color-mix(in sRGB, var(--fl-theme-color-text) 3%, var(--fl-theme-background));
         --c-panel-padding: var(--token-spacing-3xl);
     }
@@ -156,11 +160,11 @@
      * the message out of the accessibility tree.
      *
      * With JS the script adds .c-message-hidden. Without it, the server-rendered
-     * errors describe the selection the page loaded with, so they go once the
-     * release or language select has been changed.
+     * errors describe the selection the page loaded with, so they go once any
+     * select has been changed.
      */
     .c-message-hidden,
-    .no-js:has(:is([name='release'], [name='language']):where(:user-invalid, :user-valid)) :is(
+    .no-js:has(:is([name='os'], [name='release'], [name='language']):where(:user-invalid, :user-valid)) :is(
         .fl-notification-wrapper,
         #server-release-error,
         #server-language-error

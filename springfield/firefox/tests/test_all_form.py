@@ -8,6 +8,7 @@ from contextlib import contextmanager
 from unittest.mock import PropertyMock, patch
 
 from django.conf import settings
+from django.core.cache import caches
 
 import pytest
 from waffle.testutils import override_switch
@@ -38,6 +39,14 @@ JS_OS_VALUES = (
     "linux64",
     "linux64-aarch64",
 )
+
+
+@pytest.fixture(autouse=True)
+def fresh_product_details():
+    # Every product-details instance shares one cache entry, whatever directory it
+    # reads, so a test elsewhere that loads its own JSON can leave this module
+    # reading that data instead.
+    caches[settings.PROD_DETAILS_CACHE_NAME].clear()
 
 
 @contextmanager
@@ -281,6 +290,40 @@ class TestLanguages:
     def test_store_apps_ignore_the_language(self):
         assert not all_form.parse_selection({"os": "android", "release": "stable", "language": "x-testing"}).has_language_conflict
 
+    def test_esr_115_languages_come_from_its_own_version(self):
+        # The real lookup, not a mocked get_release_languages(): the version key and
+        # the build index have to agree for any ESR 115 download to be offered.
+        versions = {**all_form.firefox_desktop.firefox_versions, "FIREFOX_ESR115": "115.46.0esr"}
+        build = {"Windows": {"filesize": 61.6}, "OS X": {"filesize": 131.0}}
+        builds = {"de": {"115.46.0esr": build}, "fr": {"153.7.0esr": build}}
+        with (
+            patch.object(all_form.firefox_desktop, "firefox_versions", versions),
+            patch.object(all_form.firefox_desktop, "firefox_primary_builds", builds),
+        ):
+            assert all_form.get_release_languages("esr-115") == {"de"}
+            assert all_form.get_esr_115_download_url("win64", "esr", "de") is not None
+            assert all_form.get_esr_115_download_url("win64", "esr", "fr") is None
+
+    def test_no_esr_115_languages_without_its_version(self):
+        versions = {key: value for key, value in all_form.firefox_desktop.firefox_versions.items() if key != "FIREFOX_ESR115"}
+        with patch.object(all_form.firefox_desktop, "firefox_versions", versions):
+            assert all_form.get_release_languages("esr-115") == frozenset()
+
+    def test_lists_the_releases_a_language_is_missing_from(self):
+        with nightly_only_language() as language:
+            assert all_form.get_language_unavailable_for() == {language: "stable esr beta dev"}
+
+    def test_default_language_must_be_built_for_the_release(self):
+        with nightly_only_language() as language:
+            assert all_form.parse_selection({"os": "win64"}, language).language == "en-US"
+            assert all_form.parse_selection({"os": "win64", "release": "nightly"}, language).language == language
+
+    def test_submitted_language_is_kept_for_its_error(self):
+        with nightly_only_language() as language:
+            selection = all_form.parse_selection({"os": "win64", "release": "stable", "language": language}, "de")
+            assert selection.language == language
+            assert selection.has_language_conflict
+
 
 class TestCampaignParams:
     def test_keeps_valid_utm_params_only(self):
@@ -343,7 +386,7 @@ class TestChoices:
 
 
 # ---------------------------------------------------------------------------
-# get_download_url — a port of FirefoxDownloadURL in the JS
+# get_download_url — mirrors downloadURL() in the JS
 # ---------------------------------------------------------------------------
 
 BOUNCER = settings.BOUNCER_URL
@@ -1071,6 +1114,14 @@ class TestFormView:
         response = client.get(FORM_URL, {"os": "ios", "release": "esr", "language": "de"})
         assert response.status_code == 200
         assert response.context["release_error"] == "Firefox ESR is not available for iOS."
+
+    @override_switch("ALL_FORM", active=True)
+    def test_language_options_say_which_releases_lack_them(self, client):
+        # Read by the inline detection script, which runs before the form's data.
+        with nightly_only_language() as language:
+            content = client.get(FORM_URL).content.decode()
+        assert f'value="{language}" data-unavailable-for="stable esr beta dev"' in content
+        assert 'value="de" data-unavailable-for' not in content
 
     @override_switch("ALL_FORM", active=True)
     def test_every_dialog_is_named_by_its_heading(self, client):

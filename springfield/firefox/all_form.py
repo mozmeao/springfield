@@ -337,6 +337,15 @@ def is_offered_language(language):
     return language in get_offered_languages()
 
 
+def get_language_unavailable_for():
+    """{locale: "release release"} for the offered languages some release lacks."""
+    release_languages = {release: get_release_languages(release) for release in RELEASE_LABELS}
+    missing = {
+        locale: " ".join(release for release, languages in release_languages.items() if locale not in languages) for locale in get_offered_languages()
+    }
+    return {locale: releases for locale, releases in missing.items() if releases}
+
+
 def get_language_choices():
     """(locale, label) pairs for the language field, sorted by label."""
     return sorted(((locale, get_language_label(locale)) for locale in get_offered_languages()), key=lambda item: item[1])
@@ -412,8 +421,8 @@ def get_download_url(os_value, release, language):
     """
     Build a download.mozilla.org URL, or None for mobile (store installs).
 
-    This is a port of the FirefoxDownloadURL class in
-    media/js/firefox/all-form/all-form.js and deliberately not
+    Mirrors downloadURL() and the bouncer* helpers in
+    media/js/firefox/all-form/all-form.js, and is deliberately not
     FirefoxDesktop.get_download_url, which emits stub installers, routes through
     the /thanks/ transition page, and knows nothing about osx-pkg or esr115.
     """
@@ -859,8 +868,9 @@ class Selection:
     Unrecognized values become None (or, for `language`, the default) rather than
     errors: the form page treats a query string as a prefill, so a stale or
     hand-edited link should quietly fall back instead of scolding the visitor.
-    The one thing worth an error message is an OS and release that cannot go
-    together, which is the only combination the form itself can produce.
+    The things worth an error message are the combinations the form itself can
+    produce: an OS and release that cannot go together, and a desktop release
+    with no build in the chosen language.
     """
 
     os: str | None = None
@@ -908,15 +918,25 @@ def default_language(locale):
 
 
 def parse_selection(data, language=None):
-    """Normalize a QueryDict (or plain dict) of form values into a Selection."""
-    language = language or "en-US"
+    """
+    Normalize a QueryDict (or plain dict) of form values into a Selection.
+
+    `language` is the default for when none was submitted. It only applies if
+    the release has a build in it, so a default never starts the form in a
+    conflict; a submitted language is kept either way and validated.
+    """
     os_value = data.get("os") or ""
     release = data.get("release") or ""
+    release = release if release in RELEASE_LABELS else None
     submitted_language = data.get("language") or ""
+    if is_offered_language(submitted_language):
+        language = submitted_language
+    elif language not in get_release_languages(release or DEFAULT_RELEASE):
+        language = "en-US"
     return Selection(
         os=os_value if os_value in get_os_values() else None,
-        release=release if release in RELEASE_LABELS else None,
-        language=submitted_language if is_offered_language(submitted_language) else language,
+        release=release,
+        language=language,
     )
 
 
@@ -961,6 +981,7 @@ def get_form_context(selection):
         "os_groups": get_os_groups(),
         "release_choices": get_release_choices(),
         "language_choices": get_language_choices(),
+        "language_unavailable_for": get_language_unavailable_for(),
         "selected_os": selection.os or "",
         "selected_release": selection.effective_release,
         "selected_language": selection.language,
