@@ -9,23 +9,23 @@
 {% endset %}
 
 {% if superheading_text or subheading_text %}
-  <hgroup class="fl-heading-group {{ alignment_class }}">
+  <hgroup class="{{ ["fl-heading-group", alignment_class]|select|join(" ") }}">
     {% if superheading_text %}
       <p class="fl-superheading">
         {{ superheading_text }}
       </p>
     {% endif %}
     {% if heading_text %}
-      <{{ level|default('h2') }} class="fl-heading  {{ heading_size }}" {% if id %}id="{{ id }}"{% endif %}>
+      <{{ level|default('h2') }} class="{{ ["fl-heading", heading_size]|select|join(" ") }}"{% if id %} id="{{ id }}"{% endif %}>
         {{ heading_body }}
       </{{ level|default('h2') }}>
     {% endif %}
     {% if subheading_text %}
-      <p class="fl-subheading {{ alignment_class }}">{{ subheading_text }}</p>
+      <p class="{{ ["fl-subheading", alignment_class]|select|join(" ") }}">{{ subheading_text }}</p>
     {% endif %}
   </hgroup>
 {% elif heading_text %}
-  <{{ level|default('h2') }} class="fl-heading {{ alignment_class }} {{ heading_size }}">
+  <{{ level|default('h2') }} class="{{ ["fl-heading", alignment_class, heading_size]|select|join(" ") }}">
     {{ heading_body }}
   </{{ level|default('h2') }}>
 {% endif %}
