@@ -15,6 +15,7 @@ import {
     releaseHasLanguage,
     releaseSupportsPlatform
 } from '../../../../../media/js/firefox/all-form/all-form.js';
+import DownloadAttribution from '../../../../../media/js/base/download-attribution/download-attribution.es6';
 
 const RELEASE_LABELS = {
     stable: 'Firefox',
@@ -410,6 +411,39 @@ describe('all-form.js', function () {
             expect(
                 form.querySelector('[data-download-option="apk"] a').href
             ).toBe('https://ftp.mozilla.org/fenix.apk');
+        });
+
+        it('keeps one attribution pair on links that survive edits', async function () {
+            spyOn(
+                DownloadAttribution,
+                'meetsFunctionalRequirements'
+            ).and.returnValue(true);
+            spyOn(DownloadAttribution, 'hasSignedCookie').and.returnValue(true);
+            spyOn(DownloadAttribution, 'getSignedCookie').and.returnValue({
+                attribution_code: 'code',
+                attribution_sig: 'sig'
+            });
+            const nextFrame = () =>
+                new Promise((resolve) => requestAnimationFrame(resolve));
+
+            const form = await renderForm({
+                os: 'win64',
+                release: 'esr',
+                language: 'de'
+            });
+            // ESR 115's URL does not depend on the release, so the same link
+            // comes back each time ESR is chosen again.
+            for (const release of ['beta', 'esr', 'beta', 'esr']) {
+                choose(form, 'release', release);
+                await nextFrame();
+            }
+
+            const href = form.querySelector(
+                '[data-download-option="esr-115"] a'
+            ).href;
+            const params = new URL(href).searchParams;
+            expect(params.getAll('attribution_code')).toEqual(['code']);
+            expect(params.getAll('attribution_sig')).toEqual(['sig']);
         });
 
         it('updates the URL on edit and keeps campaign params', async function () {
