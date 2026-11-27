@@ -14,8 +14,12 @@
   {% if value.description %}
     <p class="fl-tab-description">{{ value.description|richtext|remove_p_tag }}</p>
   {% endif %}
-  {% include_block value.referral_controls %}
-  {% include_block value.impact_dash %}
+  {% if value.referral_controls is defined %}
+    {% include_block value.referral_controls %}
+  {% endif %}
+  {% if value.impact_dash is defined %}
+    {% include_block value.impact_dash %}
+  {% endif %}
   {% include_block value.comparison_table %}
   {% include_block value.browser_comparison_table %}
   {% if value.note %}

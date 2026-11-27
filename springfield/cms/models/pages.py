@@ -1163,7 +1163,7 @@ def _get_freeform_page_blocks(allow_uitour=True, allow_kit_intro=False):
         ("notification", NotificationBlock(group="Notification")),
         ("intro", IntroBlock(allow_uitour=allow_uitour, group="Intro")),
         ("section", SectionBlock(allow_uitour=allow_uitour, group="Main")),
-        ("showcase", ShowcaseBlock(group="Media")),
+        ("showcase", ShowcaseBlock(allow_tabs=True, group="Media")),
         ("carousel", CarouselBlock(group="Media")),
         ("sliding_carousel", SlidingCarouselBlock(group="Media")),
         ("card_gallery", CardGalleryBlock(group="Media")),
@@ -2409,7 +2409,7 @@ class ReferralHubPage(AbstractSpringfieldCMSPage):
 
     upper_content = StreamField(
         [
-            ("showcase", ShowcaseBlock(allow_tabs=True)),
+            ("showcase", ShowcaseBlock(allow_tabs=True, allow_referral_tabs=True)),
         ],
         max_num=1,
         null=True,
@@ -2428,7 +2428,7 @@ class ReferralHubPage(AbstractSpringfieldCMSPage):
     )
     extra_content = StreamField(
         [
-            ("showcase", ShowcaseBlock(allow_tabs=True)),
+            ("showcase", ShowcaseBlock(allow_tabs=True, allow_referral_tabs=True)),
         ],
         max_num=1,
         null=True,
@@ -2575,7 +2575,7 @@ class ReferralGetFirefoxPage(AbstractSpringfieldCMSPage):
     upper_content = StreamField(
         [
             ("intro", KitIntroBlock(allow_referral_download=True)),
-            ("showcase", ShowcaseBlock(allow_tabs=True)),
+            ("showcase", ShowcaseBlock(allow_tabs=True, allow_referral_tabs=True)),
             ("cards_list", CardsListBlock(template="cms/blocks/sections/cards-list-section.html")),
             ("carousel", CarouselBlock()),
         ],
@@ -2691,7 +2691,7 @@ class ShareFirefoxPage(AbstractSpringfieldCMSPage):
             ("intro", KitIntroBlock(allow_media_above_buttons=True)),
             # Not "intro": that name already holds the Kit Intro in existing pages.
             ("side_intro", IntroBlock()),
-            ("showcase", ShowcaseBlock(allow_tabs=True)),
+            ("showcase", ShowcaseBlock(allow_tabs=True, allow_referral_tabs=True)),
             ("cards_list", CardsListBlock(template="cms/blocks/sections/cards-list-section.html")),
             ("carousel", CarouselBlock()),
         ],

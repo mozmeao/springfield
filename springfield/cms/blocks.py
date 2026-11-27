@@ -2382,10 +2382,26 @@ class TabsBlock(blocks.StructBlock):
         template = "cms/blocks/tabs.html"
 
 
-def MediaBlock(allow_tabs=False, *args, **kwargs):
+class NonReferralTabBlock(TabBlock):
+    """A tab without Referral controls or Impact dashboard, which only work on referral pages."""
+
+    referral_controls = None
+    impact_dash = None
+
+
+class NonReferralTabsBlock(TabsBlock):
+    tabs = blocks.ListBlock(NonReferralTabBlock(), required=False)
+
+
+def MediaBlock(allow_tabs=False, allow_referral_tabs=False, *args, **kwargs):
+    """
+    Args:
+        allow_referral_tabs: If True, tabs offer Referral controls and Impact dashboard.
+    """
     local_blocks = []
     if allow_tabs:
-        local_blocks.append(("tabs", TabsBlock(required=False)))
+        tabs_block = TabsBlock if allow_referral_tabs else NonReferralTabsBlock
+        local_blocks.append(("tabs", tabs_block(required=False)))
 
     class _MediaBlock(blocks.StreamBlock):
         image = ImageVariantsBlock(required=False)
@@ -3907,12 +3923,12 @@ class ShowcaseSettings(blocks.StructBlock):
         form_classname = "compact-form struct-block"
 
 
-def ShowcaseBlock(allow_tabs=False, *args, **kwargs):
+def ShowcaseBlock(allow_tabs=False, allow_referral_tabs=False, *args, **kwargs):
     class _ShowcaseBlock(blocks.StructBlock):
         settings = ShowcaseSettings()
         headline = RichTextBlock(features=HEADING_TEXT_FEATURES)
         description = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
-        media = MediaBlock(allow_tabs=allow_tabs, max_num=1)
+        media = MediaBlock(allow_tabs=allow_tabs, allow_referral_tabs=allow_referral_tabs, max_num=1)
         caption_title = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
         caption_description = RichTextBlock(features=HEADING_TEXT_FEATURES, required=False)
         cta = MixedButtonsBlock(

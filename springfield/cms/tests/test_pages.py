@@ -21,6 +21,7 @@ from wagtail.models import Site
 from springfield.cms.blocks import UI_TOUR_CLASSES, UITOUR_BUTTON_SMART_WINDOW
 from springfield.cms.fixtures.base_fixtures import get_article_index_test_page
 from springfield.cms.fixtures.block_factories import notification_block, show_to_value
+from springfield.cms.fixtures.browser_comparison_table_fixtures import get_browser_comparison_table_variants
 from springfield.cms.fixtures.button_fixtures import get_buttons_test_page
 from springfield.cms.fixtures.homepage_fixtures import get_home_test_page
 from springfield.cms.fixtures.smart_window_page_fixtures import (
@@ -32,7 +33,15 @@ from springfield.cms.fixtures.smart_window_page_fixtures import (
 )
 from springfield.cms.fixtures.thanks_page_fixtures import get_download_support
 from springfield.cms.middleware import CurrentRequestMiddleware
-from springfield.cms.models import ArticleDetailPage, ArticleIndexPage, FreeFormPage2026, SmartWindowExplainerPage, SmartWindowPage, ThanksPage
+from springfield.cms.models import (
+    ArticleDetailPage,
+    ArticleIndexPage,
+    FreeFormPage2026,
+    ReferralHubPage,
+    SmartWindowExplainerPage,
+    SmartWindowPage,
+    ThanksPage,
+)
 from springfield.cms.models.base import MarketingAttributionMode
 from springfield.cms.wagtail_hooks import warn_about_leading_conditional_blocks
 
@@ -181,6 +190,51 @@ def test_page_theme_does_not_add_theme_css_bundle(free_form_page: FreeFormPage20
     assert head_el
     links = head_el.find_all("link", rel="stylesheet")
     assert not any("/media/css/flare-theme-" in link.get("href", "") for link in links)
+
+
+# Showcase tabs
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("field_name", ["upper_content", "content"])
+def test_showcase_tab_renders_browser_comparison_table(free_form_page: FreeFormPage2026, rf, placeholder_images, field_name):
+    page = free_form_page
+    table = get_browser_comparison_table_variants()[0]
+    tabs = {"section_id": "compare", "tabs": [{"tab_name": "Firefox vs Brave", "browser_comparison_table": [table]}]}
+    showcase = {
+        "settings": {"layout": "default"},
+        "headline": '<p data-block-key="sctab1">Firefox vs your current browser</p>',
+        "media": [{"type": "tabs", "value": tabs, "id": "sctab000-0000-0000-0000-000000000001"}],
+    }
+    setattr(page, field_name, [{"type": "showcase", "value": showcase, "id": "sctab000-0000-0000-0000-000000000002"}])
+    page.save()
+
+    response = page.serve(rf.get(page.get_full_url()))
+    soup = BeautifulSoup(response.content, "html.parser")
+
+    tabs_box = soup.select_one(".fl-showcase .fl-media-tabs .fl-tabs")
+    assert "fl-force-dark-theme" in tabs_box["class"]
+
+    tab_panel = tabs_box.select_one(".fl-tab")
+    assert tab_panel
+    assert tab_panel.find("div", class_="fl-browser-comparison-table-wrapper")
+
+
+@pytest.mark.parametrize(
+    "page_class, field_name, offers_referral_blocks",
+    [
+        (FreeFormPage2026, "upper_content", False),
+        (FreeFormPage2026, "content", False),
+        (ReferralHubPage, "upper_content", True),
+    ],
+)
+def test_showcase_tab_referral_blocks(page_class, field_name, offers_referral_blocks):
+    stream_block = page_class._meta.get_field(field_name).stream_block
+    tab_block = stream_block.child_blocks["showcase"].child_blocks["media"].child_blocks["tabs"].child_blocks["tabs"].child_block
+
+    assert ("referral_controls" in tab_block.child_blocks) is offers_referral_blocks
+    assert ("impact_dash" in tab_block.child_blocks) is offers_referral_blocks
+    assert "browser_comparison_table" in tab_block.child_blocks
 
 
 # Stub Attribution Campaign
