@@ -205,6 +205,10 @@ Basic Card
     margin: 0;
 }
 
+.fl-card:not(.fl-card-filled) .fl-heading {
+    line-height: 1.1;
+}
+
 .fl-card:not(.fl-card-filled) .fl-superheading {
     color: var(--fl-theme-color-brand-text);
     display: block;
