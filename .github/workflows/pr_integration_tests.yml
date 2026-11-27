@@ -73,7 +73,6 @@ jobs:
         if: steps.changes.outputs.run_tests == 'true'
         run: bin/docker-compose.sh build release
 
-      # Settings that differ from a deployed environment:
       # - The startup marker files are normally written by the supervisor's update jobs. The image
       #   already holds the database and translations from its build, so they only need to exist.
       # - GTM and stub attribution are on in deployed environments and the analytics and download
