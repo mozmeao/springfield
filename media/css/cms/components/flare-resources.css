@@ -34,14 +34,10 @@
     text-decoration: underline;
 }
 
-/* The column title is the first heading; subheadings follow inside the column */
-.fl-resources-column > .fl-heading:first-child {
+.fl-resources-column .fl-heading-sm {
     border-block-end: 1px solid var(--fl-subtle-border-color);
-    font-size: var(--fl-theme-font-size-heading-xs);
 }
 
-.fl-resources-column > .fl-heading:not(:first-child) {
-    font-size: var(
-        --token-font-size-lg
-    ); /* system deviation to force 18px size at all sizes */
+.fl-resources-column .fl-heading-xs {
+    font-size: var(--token-heading-font-size-minus-7);
 }

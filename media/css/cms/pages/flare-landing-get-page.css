@@ -112,7 +112,6 @@
     }
 
     .fl-landing-get .fl-do-it-all h3 {
-        font-size: 1rem;
         margin-block-end: 0;
     }
 
@@ -147,7 +146,7 @@
     }
 
     .fl-landing-get .fl-make-firefox-your-own h3 {
-        font-size: 1.5rem;
+        font-size: var(--token-heading-font-size-minus-5);
         margin-block-end: 0;
     }
 
@@ -213,14 +212,6 @@
 
         .fl-landing-get .fl-do-it-all .fl-icon-text-list {
             --fl-card-grid-columns: repeat(3, minmax(0, 1fr));
-        }
-
-        .fl-landing-get .fl-heading-size-2 {
-            font-size: var(--fl-theme-font-size-heading-lg);
-        }
-
-        .fl-landing-get .fl-firefox-has-got-you h3.fl-heading {
-            font-size: 2rem;
         }
 
         .fl-landing-get .fl-non-profit .fl-card-gallery-grid {

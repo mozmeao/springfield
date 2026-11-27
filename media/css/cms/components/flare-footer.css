@@ -147,7 +147,6 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 /* Footer Headings */
 
 .fl-footer-heading {
-    font-size: var(--token-spacing-lg);
     font-weight: bold;
     line-height: 1.5;
     margin-block-end: var(--token-spacing-sm);
@@ -399,7 +398,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 }
 
 .fl-wnp-footer-social h2 {
-    font-size: var(--token-font-size-2xl);
+    font-size: var(--token-heading-font-size-minus-5);
     margin-block-end: 0;
 }
 
@@ -448,11 +447,18 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 }
 
 .fl-wnp-footer-title {
+    font-family: var(--token-font-family-mozilla-headline);
+    font-size: var(--token-heading-font-size-minus-3); /* 32px */
+    font-stretch: var(--token-heading-font-width-condensed);
+    font-weight: var(--token-font-weight-semibold);
+    letter-spacing: 0;
+    line-height: var(--token-heading-line-height-condensed);
     margin-block-end: 0;
 }
 
-.fl-wnp-footer .fl-wnp-footer-title {
-    font-size: var(--fl-theme-font-size-heading-md);
+/* Footer links are normal weight; this link is the title, so it takes the title's weight. */
+.fl-footer .fl-wnp-footer-title a:is(:link, :visited) {
+    font-weight: inherit;
 }
 
 .fl-wnp-footer-subtitle {
@@ -461,6 +467,10 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 }
 
 @media (--viewport-md-up) {
+    .fl-wnp-footer-title {
+        font-size: var(--token-heading-font-size); /* 48px */
+    }
+
     .fl-wnp-footer-mozilla {
         grid-area: mozilla;
         text-align: start;
