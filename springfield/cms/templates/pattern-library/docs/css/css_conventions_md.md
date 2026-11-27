@@ -124,7 +124,7 @@ Headings use six sizes, named in t-shirt order: `display`, `xl`, `lg`, `md`, `sm
 
 **Section headings keep a readable line length.** A heading or heading group directly inside `.fl-section-container` stops at `--token-width-desktop-content-lg` (934px), and centred ones stay centred. The rest of the section keeps the full container width.
 
-**Component headings** (cards, forms, dialogs, tabs and so on) pass a size class at the size the component always renders at, plus `.fl-scale-regular`, so they keep their Regular size on Compact pages. There are no classes named after heading levels.
+**Component headings** (cards, forms, dialogs, tabs and so on) pass a size class at the size the component always renders at, plus `.fl-scale-regular`, so they keep their Regular size on Compact pages. The header and footer put `.fl-scale-regular` on their root element instead, which covers every heading inside them. There are no classes named after heading levels.
 
 **Type scales.** Regular is the default. `.fl-scale-compact` on `<body>` switches a page to Compact, and either scale class on any element switches that element and everything inside it. Because custom properties inherit, an inner scale class wins. Page models choose their scale with `default_type_scale` (Free Form pages have a "Type scale" field), and Django-routed templates fill `{% block type_scale %}`.
 
