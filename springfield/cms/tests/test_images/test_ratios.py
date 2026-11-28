@@ -35,8 +35,10 @@ def test_get_exact_ratio_tag(width, height, expected):
     [
         (1920, 1050, "16:9"),
         (1050, 1920, "9:16"),
-        (1920, 1030, "16:9"),  # just inside 5%
-        (1920, 1020, None),  # just outside 5%
+        (1920, 985, "16:9"),  # just inside 10%
+        (1920, 975, None),  # just outside 10%
+        (1450, 1000, "3:2"),  # near both 4:3 and 3:2, closer to 3:2
+        (1000, 1450, "2:3"),  # near both 3:4 and 2:3, closer to 2:3
         (1920, 1080, None),  # exact, not near
         (1000, 300, None),
         (0, 0, None),

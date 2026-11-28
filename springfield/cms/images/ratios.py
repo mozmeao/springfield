@@ -9,7 +9,7 @@ from wagtail.search import index as search_index
 RATIOS = ((16, 9), (9, 16), (4, 3), (3, 4), (3, 2), (2, 3), (1, 1))
 RATIO_TAG_NAMES = frozenset(f"{ratio_width}:{ratio_height}" for ratio_width, ratio_height in RATIOS)
 
-NEAR_TOLERANCE = 0.05
+NEAR_TOLERANCE = 0.1
 
 
 def get_exact_ratio_tag(width: int, height: int) -> str | None:
@@ -23,14 +23,16 @@ def get_exact_ratio_tag(width: int, height: int) -> str | None:
 
 
 def get_near_ratio_tag(width: int, height: int) -> str | None:
-    """Return the ratio tag within 5% of the pixel size, or None when it is exact or not near."""
+    """Return the closest ratio tag within NEAR_TOLERANCE of the pixel size, or None when it is
+    exact or not near. Neighbouring ratios such as 4:3 and 3:2 are closer together than twice the
+    tolerance, so an image can be near both."""
     if width <= 0 or height <= 0 or get_exact_ratio_tag(width, height):
         return None
-    for ratio_width, ratio_height in RATIOS:
-        target = ratio_width / ratio_height
-        if abs(width / height - target) / target <= NEAR_TOLERANCE:
-            return f"{ratio_width}:{ratio_height}"
-    return None
+    deviation, tag = min(
+        (abs(width / height - ratio_width / ratio_height) / (ratio_width / ratio_height), f"{ratio_width}:{ratio_height}")
+        for ratio_width, ratio_height in RATIOS
+    )
+    return tag if deviation <= NEAR_TOLERANCE else None
 
 
 def apply_ratio_tags(image) -> None:
