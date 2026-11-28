@@ -33,14 +33,8 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-pill-bg-color-hover: var(--token-color-light-purple);
 
     /* Typography variables */
-    --fl-theme-font-family-headline: var(--token-font-family-mozilla-headline);
-    --fl-theme-font-weight-headline: var(--token-font-weight-semibold);
     --fl-theme-font-family-body: var(--token-font-family-mozilla-text);
     --fl-theme-font-weight-body: var(--token-font-weight-regular);
-
-    /* Legacy oversized sizes for .fl-heading-3xl and .fl-heading-2xl */
-    --fl-theme-font-size-heading-3xl: 5rem; /* 80px */
-    --fl-theme-font-size-heading-2xl: 4rem; /* 64px */
 
     /* Shared heading settings; themes override these */
     --fl-theme-heading-font-family: var(--token-font-family-mozilla-headline);
@@ -214,8 +208,6 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
         --fl-theme-layout-direction: row;
         --fl-theme-default-justify-content: flex-start;
         --fl-theme-default-text-align: left;
-        --fl-theme-font-size-heading-3xl: 8rem; /* 128px */
-        --fl-theme-font-size-heading-2xl: 5rem; /* 80px */
         --fl-theme-font-size-body-lg: 1.5rem; /* 24px */
         --fl-theme-font-size-body-md: 1.25rem; /* 20px */
         --fl-section-v-padding: calc(var(--token-layout-lg) / 2);
@@ -244,8 +236,6 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
 
 @media (--viewport-md-up) {
     :root {
-        --fl-theme-font-size-heading-3xl: 10rem; /* 160px */
-        --fl-theme-font-size-heading-2xl: 8rem; /* 128px */
         --fl-theme-font-size-body-lg: 2rem; /* 32px */
         --fl-theme-font-size-body-md: 1.5rem; /* 24px */
         --fl-section-v-padding: var(--token-layout-lg-half);

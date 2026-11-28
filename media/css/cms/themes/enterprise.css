@@ -249,7 +249,7 @@
         );
         border-radius: 100px;
         color: var(--fl-theme-color-link);
-        font-family: var(--fl-theme-font-family-headline);
+        font-family: var(--fl-theme-heading-font-family);
         font-size: 1.25rem;
         font-weight: var(--token-font-weight-semibold);
         padding: 1rem;

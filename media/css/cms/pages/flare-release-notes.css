@@ -67,7 +67,7 @@
 
     .fl-c-release-summary-details {
         .fl-heading {
-            font-family: var(--token-font-family-mozilla-headline);
+            font-family: var(--fl-theme-heading-font-family);
         }
     }
 

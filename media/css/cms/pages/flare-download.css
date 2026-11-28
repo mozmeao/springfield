@@ -72,7 +72,7 @@
         border-block-start: 2px solid transparent;
         border-radius: 0;
         display: inline-flex;
-        font-family: var(--fl-theme-font-family-headline);
+        font-family: var(--fl-theme-heading-font-family);
         gap: var(--token-spacing-md);
         inline-size: 100%;
         justify-content: center;

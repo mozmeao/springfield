@@ -152,7 +152,7 @@
 }
 
 .fl-notification-content .fl-notification-heading {
-    font-family: var(--fl-theme-font-family-headline);
+    font-family: var(--fl-theme-heading-font-family);
     font-size: var(--fl-theme-font-size-body-sm);
     font-weight: var(--token-font-weight-semibold);
     line-height: 1.1;

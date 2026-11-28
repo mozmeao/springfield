@@ -198,7 +198,7 @@
 }
 
 .fl-badge-name {
-    font-family: var(--token-font-family-mozilla-headline);
+    font-family: var(--fl-theme-heading-font-family);
     font-size: var(--token-font-size-sm);
     font-weight: var(--token-font-weight-semibold);
     margin: var(--token-spacing-xs) 0 0;
