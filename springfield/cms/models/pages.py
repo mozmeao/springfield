@@ -836,9 +836,33 @@ class ArticleIndexPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
         return context
 
 
-class ArticleDetailPage(ImageAltTextMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
+class ArticleDetailPageForm(WagtailAdminPageForm):
+    """Admin form for ArticleDetailPage that requires article text on pages without a hero."""
+
+    def clean(self):
+        cleaned_data = super().clean()
+        # A field that failed its own validation is missing from cleaned_data; skip so it isn't flagged twice.
+        if {"hero", "content"} <= cleaned_data.keys() and not cleaned_data["hero"] and not cleaned_data["content"]:
+            self.add_error("content", "Add article text, or a hero.")
+        return cleaned_data
+
+
+ARTICLE_LANDING_BLOCKS = [
+    ("section", SectionBlock(allow_uitour=True)),
+    ("showcase", ShowcaseBlock(allow_tabs=True)),
+    ("carousel", CarouselBlock()),
+    ("cards_list", CardsListBlock(template="cms/blocks/sections/cards-list-section.html", allow_uitour=True)),
+    ("media_content", MediaContentBlock(template="cms/blocks/sections/media-content-section.html")),
+    ("banner", BannerBlock(allow_uitour=True)),
+    ("kit_banner", KitBannerBlock(allow_uitour=True)),
+    ("button_row", ButtonRowBlock(allow_uitour=True)),
+]
+
+
+class ArticleDetailPage(ImageAltTextMixin, PreFooterImageMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
     parent_page_types = ["cms.ArticleThemePage", "cms.ArticleIndexPage"]
     image_alt_fields = ("featured_image", "image")
+    base_form_class = ArticleDetailPageForm
 
     featured = models.BooleanField(
         default=False,
@@ -940,12 +964,31 @@ class ArticleDetailPage(ImageAltTextMixin, UTMParamsMixin, AbstractSpringfieldCM
         help_text="A short description used on the index page.",
     )
 
+    hero = StreamField(
+        [
+            ("intro", IntroBlock(allow_uitour=True)),
+        ],
+        use_json_field=True,
+        blank=True,
+        null=True,
+        help_text="Optional. Replaces the page title and article image. "
+        "Add more than one Intro only for different audiences, using display conditions.",
+    )
+    landing_content = StreamField(
+        ARTICLE_LANDING_BLOCKS,
+        use_json_field=True,
+        blank=True,
+        null=True,
+        verbose_name="Landing sections",
+        help_text="Optional sections between the hero and the article text. Needs a hero.",
+    )
     image = models.ForeignKey(
         "cms.SpringfieldImage",
         on_delete=models.PROTECT,
         related_name="+",
         null=True,
         blank=True,
+        help_text="Not shown when the page has a hero.",
     )
     image_alt = models.CharField(
         max_length=255,
@@ -985,6 +1028,9 @@ class ArticleDetailPage(ImageAltTextMixin, UTMParamsMixin, AbstractSpringfieldCM
             ("browser_comparison_table", BrowserComparisonTableBlock()),
         ],
         use_json_field=True,
+        blank=True,
+        verbose_name="Article text",
+        help_text="Optional long-form text, shown in the reading column.",
     )
     related_articles = StreamField(
         [
@@ -995,8 +1041,51 @@ class ArticleDetailPage(ImageAltTextMixin, UTMParamsMixin, AbstractSpringfieldCM
         blank=True,
         max_num=1,
     )
+    closing_cta = StreamField(
+        [
+            ("banner", BannerBlock(allow_uitour=True)),
+            ("kit_banner", KitBannerBlock(allow_uitour=True)),
+        ],
+        use_json_field=True,
+        blank=True,
+        null=True,
+        max_num=1,
+        help_text="Optional call to action at the end of the page.",
+    )
+    show_pre_footer = models.BooleanField(
+        default=True,
+        verbose_name="Show Pre-Footer",
+        help_text="If true, the page will display the default pre-footer section.",
+    )
 
-    content_panels = AbstractSpringfieldCMSPage.content_panels + [
+    content_panels = [
+        *WagtailBasePage.content_panels,
+        MultiFieldPanel(
+            [
+                FieldPanel("image"),
+                FieldPanel("image_alt"),
+                FieldRowPanel(
+                    [
+                        FieldPanel("image_dark_mode"),
+                        FieldPanel("image_mobile"),
+                        FieldPanel("image_dark_mode_mobile"),
+                    ]
+                ),
+            ],
+            heading="Article Image",
+            classname="collapsed",
+        ),
+        FieldPanel("hero"),
+        FieldPanel("landing_content"),
+        FieldPanel("content"),
+        FieldPanel("related_articles"),
+        FieldPanel("closing_cta"),
+        InlinePanel("pencil_banner_placements", label="Pencil Banners"),
+    ]
+
+    settings_panels = [
+        FieldPanel("internal_title"),
+        *AbstractSpringfieldCMSPage.settings_panels,
         MultiFieldPanel(
             [
                 FieldPanel("featured"),
@@ -1044,35 +1133,26 @@ class ArticleDetailPage(ImageAltTextMixin, UTMParamsMixin, AbstractSpringfieldCM
             ],
             heading="Index Page Settings",
         ),
-        FieldPanel("image"),
-        FieldPanel("image_alt"),
         MultiFieldPanel(
             [
-                FieldRowPanel(
-                    [
-                        FieldPanel("image_dark_mode"),
-                        FieldPanel("image_mobile"),
-                        FieldPanel("image_dark_mode_mobile"),
-                    ]
-                )
+                FieldPanel("show_pre_footer"),
+                *PreFooterImageMixin.pre_footer_image_panels,
             ],
-            heading="Article Image Variants",
-            classname="collapsed",
+            heading="Pre-footer",
         ),
-        FieldPanel("content"),
-        FieldPanel("related_articles"),
-        InlinePanel("pencil_banner_placements", label="Pencil Banners"),
     ]
-
-    settings_panels = AbstractSpringfieldCMSPage.settings_panels
 
     search_fields = AbstractSpringfieldCMSPage.search_fields + [
         index.SearchField("description"),
+        index.SearchField("hero"),
+        index.SearchField("landing_content"),
         index.SearchField("content"),
+        index.SearchField("closing_cta"),
     ]
 
     override_translatable_fields = [
         *AbstractSpringfieldCMSPage.override_translatable_fields,
+        SynchronizedField("pre_footer_image"),
     ]
 
     if TYPE_CHECKING:
@@ -1083,7 +1163,10 @@ class ArticleDetailPage(ImageAltTextMixin, UTMParamsMixin, AbstractSpringfieldCM
 
     def clean(self):
         super().clean()
-        if errors := self.clean_image_alt_text():
+        errors = self.clean_image_alt_text()
+        if self.landing_content and not self.hero:
+            errors["hero"] = "Add a hero to use landing sections."
+        if errors:
             raise ValidationError(errors)
 
     def get_tag(self) -> Tag | None:

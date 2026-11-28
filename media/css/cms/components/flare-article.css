@@ -16,6 +16,25 @@
     padding-block-start: var(--token-layout-md);
 }
 
+.fl-article-page .fl-main:has(> .fl-split-page-upper) {
+    padding-block-start: 0;
+}
+
+/* without article text, the dark area's own rounded edge ends the page content */
+.fl-article-page .fl-main:has(> .fl-split-page-upper:last-child) {
+    background: none;
+    padding-block-end: 0;
+}
+
+.fl-article-page .fl-split-page-upper:has(+ .fl-article-landing) {
+    z-index: 1;
+}
+
+.fl-article-landing {
+    margin-block-start: calc(var(--fl-theme-main-border-radius) * -1);
+    padding-block-start: var(--fl-theme-main-border-radius);
+}
+
 .fl-article-header {
     margin-block-end: var(--token-layout-md);
 }
@@ -23,6 +42,15 @@
 .fl-article-header img {
     border-radius: var(--token-spacing-lg);
     margin-block-end: var(--token-layout-xs);
+}
+
+.fl-article-closing-cta {
+    color: var(--fl-theme-color-text);
+    display: flow-root;
+}
+
+.fl-article-closing-cta .fl-banner-container {
+    margin-block: var(--fl-section-v-padding);
 }
 
 .fl-article-main {
@@ -252,4 +280,10 @@ Related articles
 
 .fl-article-main .fl-buttons {
     margin-block: var(--token-layout-xs);
+}
+
+@media (prefers-color-scheme: dark) {
+    .fl-article-page {
+        --fl-theme-background: var(--token-color-dark-purple-3);
+    }
 }
