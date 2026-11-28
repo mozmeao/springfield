@@ -497,7 +497,6 @@ SUPPORTED_NONLOCALES = [
     "static",
     "robots.txt",
     ".well-known",
-    "mozilla-email-encryption-key.asc",
     "healthz",  # Needed for k8s
     "readiness",  # Needed for k8s
     "healthz-cron",  # status dash
