@@ -31,7 +31,7 @@ dependencies = [
     "fluent.runtime==0.4.0",
     "fluent.syntax==0.19.0",
     "google-cloud-storage==3.17.1",  # explicit top-level dep since bin/run-db-upload.py imports it directly
-    "granian==2.8.3",
+    "granian==2.8.8",
     "honcho==2.0.0",
     "html5lib==1.1",
     "jinja2==3.1.6",  # explicit top-level dep since our template tags import it directly
@@ -41,7 +41,7 @@ dependencies = [
     "markus[datadog]==5.2.0",
     "mozilla-django-oidc==5.0.2",
     "Pillow==13.0.0",
-    "psycopg[c]==3.3.6",  # use version with psycopg_c support - also needs libpq-dev in the Docker image;     may need it for local dev, too
+    "psycopg[c]==3.3.9",  # use version with psycopg_c support - also needs libpq-dev in the Docker image;     may need it for local dev, too
     "py-svg-hush==0.3.0",
     "PyGithub==2.10.0",
     "Pygments==2.21.0",  # Server-side syntax highlighting for the CMS Code block
@@ -49,7 +49,7 @@ dependencies = [
     "qrcode==8.2",
     "requests==2.34.2",
     "sentry-processor==0.0.1",
-    "sentry-sdk==2.73.0",
+    "sentry-sdk==2.75.0",
     "supervisor==4.3.0",
     "timeago==1.0.16",
     "wagtail-link-block==1.2",
