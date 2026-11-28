@@ -32,7 +32,7 @@ Card Gallery - Flare Design System Card Gallery Component
 }
 
 .fl-card-gallery .fl-heading-group {
-    margin-block-end: var(--token-layout-sm);
+    margin-block-end: var(--fl-section-heading-margin-bottom);
 }
 
 .fl-card-gallery-superheading {
