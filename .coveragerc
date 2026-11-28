@@ -1,5 +1,5 @@
 [run]
-source = springfield,lib,bin
+source = springfield,lib
 omit =
     .github/*
     .venv/*
