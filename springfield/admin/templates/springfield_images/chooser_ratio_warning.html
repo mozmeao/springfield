@@ -1,0 +1,21 @@
+{% comment %} SKIP LICENSE INSERTION {% endcomment %}
+{% comment %}
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
+{% endcomment %}
+{% load wagtailadmin_tags wagtailimages_tags %}
+
+<section id="tab-upload" class="duplicate-upload w-tabs__panel" role="tabpanel" aria-labelledby="tab-label-upload">
+    {% help_block status="warning" %}{{ ratio_warning }}{% endhelp_block %}
+
+    <figure class="duplicate-upload__figure col12">
+        {% image image max-800x600 class="show-transparency" %}
+        <figcaption>{{ image.title }}</figcaption>
+    </figure>
+
+    <div class="duplicate-upload__actions col12">
+        <a href="{{ use_image_url }}" class="use-new-image button">Use this image</a>
+        <a href="{% url 'wagtailimages:edit' image.pk %}" class="edit-image button button-secondary" target="_blank" rel="noopener">Edit image</a>
+    </div>
+</section>

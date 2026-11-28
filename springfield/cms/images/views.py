@@ -8,15 +8,19 @@ from django.db import transaction
 from django.db.models import prefetch_related_objects
 from django.db.models.functions import Lower
 from django.shortcuts import get_object_or_404
+from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
+from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.translation import gettext as _, gettext_lazy
 from django.views.decorators.http import require_POST
 
 from taggit.models import Tag
+from wagtail.admin.modal_workflow import render_modal_workflow
 from wagtail.admin.ui.tables import BaseColumn
 from wagtail.admin.widgets import AdminTagWidget
 from wagtail.images import get_image_model
+from wagtail.images.views.chooser import ImageUploadView
 from wagtail.images.views.images import ImagesFilterSet, IndexView
 from wagtail.log_actions import log
 from wagtail.permissions import policy_registry
@@ -144,3 +148,34 @@ class SpringfieldImageIndexView(IndexView):
             wagtail_columns["collection"],
             wagtail_columns["created_at"],
         ]
+
+
+class SpringfieldImageUploadView(ImageUploadView):
+    """The image chooser's upload, pausing on the crop warning when the new image is close to a
+    common ratio, since an image uploaded from the chooser goes straight into the page and its
+    edit page is never seen.
+
+    The pause reuses Wagtail's duplicate_found modal step: its script swaps the upload tab for the
+    fragment and follows the fragment's `use-new-image` link to carry on choosing the image.
+    """
+
+    def get_chosen_response(self, image):
+        return self.get_ratio_warning_response(image) or super().get_chosen_response(image)
+
+    def render_select_format_response(self, image, form):
+        return self.get_ratio_warning_response(image) or super().render_select_format_response(image, form)
+
+    def get_ratio_warning_response(self, image):
+        if not self.form.ratio_warning:
+            return None
+        next_step = "wagtailimages_chooser:select_format" if self.request.GET.get("select_format") else "wagtailimages_chooser:chosen"
+        fragment = render_to_string(
+            "springfield_images/chooser_ratio_warning.html",
+            {
+                "image": image,
+                "ratio_warning": self.form.ratio_warning,
+                "use_image_url": self.append_preserved_url_parameters(reverse(next_step, args=(image.pk,))),
+            },
+            self.request,
+        )
+        return render_modal_workflow(self.request, None, None, None, json_data={"step": "duplicate_found", "htmlFragment": fragment})

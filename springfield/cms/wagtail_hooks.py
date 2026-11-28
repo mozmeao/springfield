@@ -30,6 +30,7 @@ from wagtail.admin.ui.tables import LiveStatusTagColumn, UpdatedAtColumn
 from wagtail.documents.rich_text import DocumentLinkHandler
 from wagtail.documents.rich_text.contentstate import DocumentLinkElementHandler
 from wagtail.fields import StreamField
+from wagtail.images.views.chooser import viewset as image_chooser_viewset
 from wagtail.models import Locale as WagtailLocale, TranslatableMixin
 from wagtail.rich_text import LinkHandler
 from wagtail.rich_text.pages import PageLinkHandler
@@ -49,7 +50,7 @@ from springfield.cms.admin_views import (
 )
 from springfield.cms.blocks import regenerate_analytics_ids
 from springfield.cms.images.tags import ImageTagViewSet
-from springfield.cms.images.views import SpringfieldImageIndexView, inline_edit_image
+from springfield.cms.images.views import SpringfieldImageIndexView, SpringfieldImageUploadView, inline_edit_image
 from springfield.cms.models import (
     AbstractSpringfieldCMSPage,
     BannerSnippet,
@@ -106,6 +107,7 @@ def register_image_listing_urls():
         path("images/", SpringfieldImageIndexView.as_view(), name="cms_image_index"),
         path("images/results/", SpringfieldImageIndexView.as_view(results_only=True), name="cms_image_index_results"),
         path("images/<int:image_id>/inline-edit/", inline_edit_image, name="cms_image_inline_edit"),
+        path("images/chooser/create/", image_chooser_viewset.construct_view(SpringfieldImageUploadView), name="cms_image_chooser_upload"),
     ]
 
 

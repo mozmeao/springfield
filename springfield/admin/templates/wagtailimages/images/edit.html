@@ -1,0 +1,15 @@
+{% extends "wagtailimages/images/edit.html" %}
+{% comment %} SKIP LICENSE INSERTION {% endcomment %}
+{% comment %}
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
+{% endcomment %}
+{% load wagtailadmin_tags %}
+
+{% block form_content %}
+    {% if form.ratio_warning %}
+        {% help_block status="warning" %}{{ form.ratio_warning }}{% endhelp_block %}
+    {% endif %}
+    {{ block.super }}
+{% endblock %}

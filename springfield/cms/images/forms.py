@@ -27,11 +27,18 @@ class SpringfieldImageForm(BaseImageForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if file_field := self.fields.get("file"):
-            file_field.widget.attrs.pop("data-controller", None)
-            if self.instance.pk and (near_tag := get_near_ratio_tag(self.instance.width, self.instance.height)):
-                warning = f"This image is close to {near_tag} ({self.instance.width}×{self.instance.height}) but not exact. Check the cropping."
-                file_field.help_text = f"{warning} {file_field.help_text}"
+        if self.fields.get("file"):
+            self.fields["file"].widget.attrs.pop("data-controller", None)
+
+    @property
+    def ratio_warning(self):
+        """The crop warning the edit page shows when the image is close to a common ratio."""
+        if not self.instance.pk:
+            return ""
+        near_tag = get_near_ratio_tag(self.instance.width, self.instance.height)
+        if not near_tag:
+            return ""
+        return f"This image is close to {near_tag} ({self.instance.width}×{self.instance.height}) but not exact. Check the cropping."
 
     def save(self, commit=True):
         # Callers that save with commit=False must apply the ratio tags themselves.

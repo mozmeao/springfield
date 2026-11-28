@@ -98,9 +98,8 @@ def test_edit_page_warns_when_close_to_a_ratio(admin_client, make_image):
 
     response = admin_client.get(reverse("wagtailimages:edit", args=[image.pk]))
 
-    content = response.content.decode()
-    assert "This image is close to 16:9 (1920×1050) but not exact. Check the cropping." in content
-    assert "Supported formats" in content
+    warning = BeautifulSoup(response.content, "html.parser").select_one(".help-block.help-warning")
+    assert warning.get_text(strip=True) == "This image is close to 16:9 (1920×1050) but not exact. Check the cropping."
 
 
 def test_edit_page_has_no_warning_for_an_exact_ratio(admin_client, make_image):
@@ -109,3 +108,41 @@ def test_edit_page_has_no_warning_for_an_exact_ratio(admin_client, make_image):
     response = admin_client.get(reverse("wagtailimages:edit", args=[image.pk]))
 
     assert "but not exact" not in response.content.decode()
+
+
+def upload_from_chooser(admin_client, width, height, query=""):
+    response = admin_client.post(
+        reverse("wagtailimages_chooser:create") + query,
+        {
+            "image-chooser-upload-title": "Hero",
+            "image-chooser-upload-description": "A hero",
+            "image-chooser-upload-file": png_upload(width, height),
+        },
+    )
+    return response.json()
+
+
+def test_chooser_upload_pauses_on_the_crop_warning(admin_client):
+    response_data = upload_from_chooser(admin_client, 1920, 1050)
+
+    image = SpringfieldImage.objects.get(title="Hero")
+    assert response_data["step"] == "duplicate_found"
+    fragment = BeautifulSoup(response_data["htmlFragment"], "html.parser")
+    assert fragment.select_one(".help-warning").get_text(strip=True) == "This image is close to 16:9 (1920×1050) but not exact. Check the cropping."
+    assert fragment.select_one("a.use-new-image")["href"] == reverse("wagtailimages_chooser:chosen", args=[image.pk])
+    assert fragment.select_one("a.edit-image")["href"] == reverse("wagtailimages:edit", args=[image.pk])
+
+
+def test_chooser_upload_with_select_format_continues_to_the_format_step(admin_client):
+    response_data = upload_from_chooser(admin_client, 1920, 1050, query="?select_format=true")
+
+    image = SpringfieldImage.objects.get(title="Hero")
+    continue_url = BeautifulSoup(response_data["htmlFragment"], "html.parser").select_one("a.use-new-image")["href"]
+    assert continue_url.startswith(reverse("wagtailimages_chooser:select_format", args=[image.pk]))
+    assert "select_format=true" in continue_url
+
+
+def test_chooser_upload_of_an_exact_ratio_is_chosen_straight_away(admin_client):
+    response_data = upload_from_chooser(admin_client, 1920, 1080)
+
+    assert response_data["step"] == "chosen"
