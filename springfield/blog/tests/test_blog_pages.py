@@ -1305,6 +1305,7 @@ def test_blog_article_related_articles_render_their_image(privacy_articles, rf):
 # ---------------------------------------------------------------------------
 
 
+@pytest.mark.pregenerated_renditions
 def test_blog_index_no_n_plus_one_queries(blog_setup, rf, django_assert_max_num_queries):
     """Blog index page should fetch all related data in bulk, not per article.
 
@@ -1324,6 +1325,7 @@ def test_blog_index_no_n_plus_one_queries(blog_setup, rf, django_assert_max_num_
         index_page.serve(request)
 
 
+@pytest.mark.pregenerated_renditions
 def test_blog_index_query_count_does_not_grow_with_articles(blog_setup, rf, django_assert_max_num_queries):
     """Sections fetch in bulk, so adding articles they could show costs no extra query."""
     index_page, articles = blog_setup
@@ -1349,6 +1351,7 @@ def test_blog_index_query_count_does_not_grow_with_articles(blog_setup, rf, djan
         fresh_index.serve(rf.get(index_page.get_full_url()))
 
 
+@pytest.mark.pregenerated_renditions
 def test_blog_all_no_n_plus_one_queries(blog_setup, rf, django_assert_max_num_queries):
     """Blog all-articles page should fetch all related data in bulk, not per article.
 

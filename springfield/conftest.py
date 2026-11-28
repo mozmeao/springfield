@@ -6,11 +6,23 @@
 # parallel, because each worker runs the tests in a different order from the serial run and so
 # inherits different leftover state from its predecessor.
 
+import shutil
+from unittest.mock import patch
+
+from django.conf import settings
 from django.core.cache import cache
 from django.urls import clear_url_caches
 from django.utils import translation
 
 import pytest
+
+from springfield.cms.fixtures.base_fixtures import (
+    PLACEHOLDER_DARK_IMAGE_TITLE,
+    PLACEHOLDER_DARK_MOBILE_IMAGE_TITLE,
+    PLACEHOLDER_IMAGE_TITLE,
+    PLACEHOLDER_MOBILE_IMAGE_TITLE,
+)
+from springfield.cms.models.images import SpringfieldImage
 
 
 @pytest.fixture(autouse=True)
@@ -46,3 +58,38 @@ def reset_active_language():
     the URL resolver, and page.localized resolves against the active language."""
     yield
     translation.deactivate()
+
+
+@pytest.fixture(scope="session", autouse=True)
+def remove_test_media_root():
+    """Delete the temporary MEDIA_ROOT the test settings create, once the run finishes."""
+    yield
+    shutil.rmtree(settings.MEDIA_ROOT, ignore_errors=True)
+
+
+@pytest.fixture(autouse=True)
+def skip_placeholder_rendition_pregeneration(request):
+    """Save the shared placeholder images without pre-generating their renditions.
+
+    SpringfieldImage.save() builds 14 renditions per image, which is most of the cost of every
+    test that uses the placeholders. Rendering an image still creates the renditions it needs,
+    but it inserts them during the render. Mark a query-count test that renders a placeholder
+    image with `pregenerated_renditions` so it counts only the queries production makes."""
+    if request.node.get_closest_marker("pregenerated_renditions"):
+        yield
+        return
+
+    placeholder_titles = {
+        PLACEHOLDER_IMAGE_TITLE,
+        PLACEHOLDER_DARK_IMAGE_TITLE,
+        PLACEHOLDER_MOBILE_IMAGE_TITLE,
+        PLACEHOLDER_DARK_MOBILE_IMAGE_TITLE,
+    }
+    pre_generate = SpringfieldImage._pre_generate_expected_renditions
+
+    def pre_generate_unless_placeholder(image):
+        if image.title not in placeholder_titles:
+            pre_generate(image)
+
+    with patch.object(SpringfieldImage, "_pre_generate_expected_renditions", pre_generate_unless_placeholder):
+        yield
