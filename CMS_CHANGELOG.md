@@ -10,6 +10,8 @@
 
 ## 2026-11-23
 
+- Free Form 2026 pages have a "Type scale" setting under Settings → Appearance: Regular (the default, for landing pages) or Compact (tighter headings, for pages that are mostly text sections, or any page that should feel compact). Enterprise-themed pages always use Compact, whatever the setting.
+- Heading sizes now follow each heading's level on every page, so the same block can look larger or smaller depending on whether it is the page's first heading.
 - The video block's Poster image is optional for YouTube videos. Leave it empty and, when you save, the video's YouTube thumbnail is added to the "YouTube Thumbnails" image collection and filled in as the poster. If you change the video URL, the thumbnail changes with it. Choose your own image to use that instead. assets.mozilla.net videos still need a poster image.
 - Drafts save with an incomplete video block. The poster is checked when you publish.
 - The Code block has a Language field. Pick a programming language to colour the code and show its name above it; leave it on Plain text for no colours. Every Code block has a Copy button and an optional Caption.

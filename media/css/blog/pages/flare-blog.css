@@ -501,7 +501,6 @@
 }
 
 .fl-blog-cards-list-header .fl-heading {
-    font-size: var(--fl-theme-font-size-heading-md);
     font-variation-settings:
         'wght' var(--token-font-weight-semibold),
         'wdth' var(--token-font-condensed-width);

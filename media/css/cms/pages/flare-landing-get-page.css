@@ -215,10 +215,6 @@
             --fl-card-grid-columns: repeat(3, minmax(0, 1fr));
         }
 
-        .fl-landing-get .fl-heading-size-2 {
-            font-size: var(--fl-theme-font-size-heading-lg);
-        }
-
         .fl-landing-get .fl-firefox-has-got-you h3.fl-heading {
             font-size: 2rem;
         }

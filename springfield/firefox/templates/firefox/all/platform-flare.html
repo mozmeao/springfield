@@ -26,7 +26,7 @@
   </div>
 
   {% if platform %}
-    <h3 id="all-platform-selection" class="fl-c-flow-selection fl-heading fl-heading-xs">{{ platform_name }}
+    <h3 id="all-platform-selection" class="fl-c-flow-selection fl-heading">{{ platform_name }}
       {% if product.slug.startswith('desktop') %}
       <include:button
         theme_class="button-ghost fl-button-small load-content-partial"
@@ -55,7 +55,6 @@
      <content:heading>
       <include:heading
         level="h3"
-        heading_size="fl-heading-sm"
         heading_text="{{ ftl('firefox-all-learn-about-installers')}}"
       />
     </content:heading>
@@ -64,32 +63,32 @@
 
      <ul class="fl-c-unstyled-list">
         <li>
-          <h4 class="fl-heading-xs">{{ ftl('firefox-all-64-bit-installers') }}</h4>
+          <h4>{{ ftl('firefox-all-64-bit-installers') }}</h4>
           <p class="c-help-desc">
             {{ ftl('firefox-all-choose-a-64-bit-installer') }}
           </p>
         </li>
         <li>
-          <h4 class="fl-heading-xs">{{ ftl('firefox-all-32-bit-installers') }}</h4>
+          <h4>{{ ftl('firefox-all-32-bit-installers') }}</h4>
           <p class="c-help-desc">
             {{ ftl('firefox-all-choose-a-32-bit-installer', url='https://support.mozilla.org/kb/choosing-firefox-cpu-architecture-windows-os') }}
           </p>
         </li>
         <li>
-          <h4 class="fl-heading-xs">{{ ftl('firefox-all-msi-installers') }}</h4>
+          <h4>{{ ftl('firefox-all-msi-installers') }}</h4>
           <p class="c-help-desc">
             {{ ftl('firefox-all-windows-installers-for') }}
           </p>
         </li>
         <li>
-          <h4 class="fl-heading-xs">{{ ftl('firefox-all-arm64-installers') }}</h4>
+          <h4>{{ ftl('firefox-all-arm64-installers') }}</h4>
           <p class="c-help-desc">
             {{ ftl('firefox-all-arm64-installers-optimized-v2') }}
           </p>
         </li>
         {% if ftl_has_messages('firefox-all-choose-a-microsoft-store-installer') %}
         <li>
-          <h4 class="fl-heading-xs">{{ ftl('firefox-all-microsoft-store-installers') }}</h4>
+          <h4>{{ ftl('firefox-all-microsoft-store-installers') }}</h4>
           <p class="c-help-desc">
             {{ ftl('firefox-all-choose-a-microsoft-store-installer') }}
           </p>

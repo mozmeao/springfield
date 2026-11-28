@@ -48,12 +48,12 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-font-size-heading-xs: 1.125rem; /* 18px */
     --fl-theme-font-size-heading-2xs: 1rem; /* 16px */
 
-    /* Heading level sizes; each follows its named size at every width */
-    --fl-h1: var(--fl-theme-font-size-heading-xl);
-    --fl-h1-small: var(--fl-theme-font-size-heading-xl);
-    --fl-h2: var(--fl-theme-font-size-heading-lg);
-    --fl-h3: var(--fl-theme-font-size-heading-sm);
-    --fl-h4: var(--fl-theme-font-size-heading-xs);
+    /* Heading level sizes, Regular scale */
+    --fl-h1: 2.5rem; /* 40px */
+    --fl-h1-small: 2.5rem; /* 40px */
+    --fl-h2: 2rem; /* 32px */
+    --fl-h3: 1.5rem; /* 24px */
+    --fl-h4: 1.125rem; /* 18px */
 
     /* TODO: refactor these away. Subheading font size variables */
     --fl-theme-font-size-subheading-md: 1rem; /* 16px */
@@ -152,6 +152,9 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
         --fl-theme-font-size-heading-md: 2rem; /* 32px */
         --fl-theme-font-size-heading-sm: 1.5rem; /* 24px */
         --fl-theme-font-size-heading-xs: 1.125rem; /* 18px */
+        --fl-h1: 3.5rem; /* 56px */
+        --fl-h1-small: 3.5rem; /* 56px */
+        --fl-h2: 2.5rem; /* 40px */
         --fl-theme-font-size-body-lg: 1.5rem; /* 24px */
         --fl-theme-font-size-body-md: 1.25rem; /* 20px */
         --fl-section-v-padding: calc(var(--token-layout-lg) / 2);
@@ -168,6 +171,11 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
         --fl-theme-font-size-heading-md: 3rem; /* 48px */
         --fl-theme-font-size-heading-sm: 2rem; /* 32px */
         --fl-theme-font-size-heading-xs: 1.5rem; /* 24px */
+        --fl-h1: 5rem; /* 80px */
+        --fl-h1-small: 4rem; /* 64px */
+        --fl-h2: 3.5rem; /* 56px */
+        --fl-h3: 2rem; /* 32px */
+        --fl-h4: 1.5rem; /* 24px */
         --fl-theme-font-size-body-lg: 2rem; /* 32px */
         --fl-theme-font-size-body-md: 1.5rem; /* 24px */
         --fl-section-v-padding: var(--token-layout-lg-half);
@@ -178,6 +186,35 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
         --gallery-callout-card-padding: var(--token-layout-xs)
             var(--token-layout-2xs);
         --fl-section-hgroup-gap: var(--token-layout-xs);
+    }
+}
+
+/* Compact scale: tighter headings for dense pages, or any page meant to feel compact */
+.fl-scale-compact {
+    --fl-h1: 2rem; /* 32px */
+    --fl-h1-small: 2rem; /* 32px */
+    --fl-h2: 1.5rem; /* 24px */
+    --fl-h3: 1.25rem; /* 20px */
+    --fl-h4: 1rem; /* 16px */
+}
+
+@media (--viewport-sm-up) {
+    .fl-scale-compact {
+        --fl-h1: 3rem; /* 48px */
+        --fl-h1-small: 2.25rem; /* 36px */
+        --fl-h2: 2rem; /* 32px */
+        --fl-h3: 1.5rem; /* 24px */
+        --fl-h4: 1.125rem; /* 18px */
+    }
+}
+
+@media (--viewport-md-up) {
+    .fl-scale-compact {
+        --fl-h1: 4rem; /* 64px */
+        --fl-h1-small: 3rem; /* 48px */
+        --fl-h2: 2.5rem; /* 40px */
+        --fl-h3: 1.75rem; /* 28px */
+        --fl-h4: 1.25rem; /* 20px */
     }
 }
 

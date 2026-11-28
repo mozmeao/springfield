@@ -20,7 +20,6 @@
       <include:heading
         level="h3"
         heading_text="{{ value.heading_text|richtext|remove_p_tag }}"
-        heading_size="fl-heading-xs"
       />
       <a class="fl-blog-cards-list-link" href="{{ value.get_link_url() }}">
         {{ value.link_label }}
@@ -36,7 +35,7 @@
             <hgroup class="fl-heading-group">
               {% set topic = article.get_topic() %}
               <p class="fl-superheading">{{ topic.name if topic else "" }}</p>
-              <h4 class="fl-heading fl-heading-size-3">
+              <h4 class="fl-heading">
                 <a href="{{ article.url }}" class="fl-card-heading-link fl-link-expand">
                   {{ article.title }}
                 </a>

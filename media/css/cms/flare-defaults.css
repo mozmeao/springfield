@@ -58,7 +58,7 @@ h1,
 }
 
 h2 {
-    font-size: var(--fl-theme-font-size-heading-md);
+    font-size: var(--fl-h2);
 }
 
 h3,
