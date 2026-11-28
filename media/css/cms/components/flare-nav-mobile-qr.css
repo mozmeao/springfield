@@ -94,6 +94,8 @@
 
 .nav-get-mobile .fl-dropdown-trigger::after {
     --nav-qr-icon: url('/media/img/firefox/flare/icons/desktop-16/arrows-and-chevrons/chevron-down-16.svg');
+    -webkit-mask-size: 75% auto;
+    mask-size: 75% auto;
     transition: transform var(--token-transition-fast);
 }
 
