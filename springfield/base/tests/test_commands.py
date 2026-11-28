@@ -101,6 +101,10 @@ class TestUpdateProductDetailsFiles(TestCase):
             assert not self.command.repo.set_db_latest.called
 
 
+# Loading every page fixture takes about a minute on CI. Each fixture also has its own test in
+# springfield/cms/tests/test_fixture_page_translation.py, which still runs on every PR, so this one
+# only adds the command's own setup and the fixtures running together.
+@pytest.mark.slow
 @pytest.mark.django_db
 def test_load_page_fixtures_loads_registry_pages():
     """The load_page_fixtures command seeds every page fixture in the registry."""

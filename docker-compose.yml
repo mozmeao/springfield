@@ -120,6 +120,9 @@ services:
   test-image:
     image: mozmeao/springfield_test:${GIT_COMMIT:-latest}
     env_file: docker/envfiles/test.env
+    environment:
+      # Passed through from CI, which uses it to skip `slow` tests on PR pushes.
+      - PYTEST_ADDOPTS
 
   # the django app
   release:
