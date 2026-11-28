@@ -25,7 +25,8 @@
     /* fluid type: slope = (max - min) / (max-vw - min-vw) = (128 - 32) / (1100 - 600) = 19.2vw
        intercept = min - slope * min-vw = 32 - (0.192 * 600) = -83.2px */
     font-size: clamp(36px, calc(-83.2px + 19.2vw), 128px);
-    font-weight: var(--token-font-weight-bold);
+    font-stretch: var(--fl-theme-heading-font-stretch-condensed);
+    font-weight: var(--token-font-weight-semibold);
     justify-content: center;
     letter-spacing: -0.005em;
     line-height: 0.9;

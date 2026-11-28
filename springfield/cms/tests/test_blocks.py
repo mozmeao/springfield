@@ -49,10 +49,12 @@ from springfield.cms.blocks import (
     UITOUR_BUTTON_SET_NEWTAB_WALLPAPER,
     UITOUR_BUTTON_SET_TREATMENT_TAG,
     ArticleBlock,
+    BannerBlock,
     BaseArticleValue,
     BrowserComparisonTableBlock,
     ButtonBlock,
     ButtonRowBlock,
+    CardBlock,
     CardsListBlock,
     CertificationListBlock,
     CodeBlock,
@@ -67,6 +69,8 @@ from springfield.cms.blocks import (
     IconListWithImageBlock,
     ImageVariantsBlock,
     ImpactDashBlock,
+    IntroBlock,
+    KitIntroBlock,
     MobileStoreQRCodeBlock,
     NotificationBlock,
     OverridableQRCodeURLBlock,
@@ -79,9 +83,11 @@ from springfield.cms.blocks import (
     SetAsDefaultButtonBlock,
     ShowcaseBlock,
     SpringfieldLinkBlock,
+    StepCardBlock,
     TabBlock,
     TabsBlock,
     TextFieldBlock,
+    TimelineBlock,
     TopicBlock,
     TwoColumnCardBlock,
     UITourButtonBlock,
@@ -105,7 +111,7 @@ from springfield.cms.fixtures.article_page_fixtures import (
     get_theme_page_pictogram_row_section,
 )
 from springfield.cms.fixtures.banner_fixtures import get_banner_test_page, get_banner_variants
-from springfield.cms.fixtures.base_fixtures import SHOW_TO_ALL, get_or_create_page, get_placeholder_images
+from springfield.cms.fixtures.base_fixtures import SHOW_TO_ALL, get_or_create_page, get_or_create_placeholder_image, get_placeholder_images
 from springfield.cms.fixtures.block_factories import (
     browser_table_cell,
     browser_table_image_header_cell,
@@ -7348,6 +7354,121 @@ def test_quote_block_renders_title_without_name():
 
     assert caption.find(class_="fl-quote-name") is None
     assert caption.get_text() == "Firefox community"
+
+
+TSHIRT_CLASSES = {"fl-heading-xl", "fl-heading-lg", "fl-heading-md", "fl-heading-sm", "fl-heading-xs"}
+
+
+def render_block_heading(block, raw, block_level=2, context=None):
+    html = block.render(block.to_python(raw), context={**(context or {}), "block_level": block_level, "block_position": "test"})
+    return BeautifulSoup(html, "html.parser").find(class_="fl-heading")
+
+
+@pytest.fixture
+def heading_test_image():
+    # One image is enough here; the shared placeholder_images fixture draws and saves four.
+    return get_or_create_placeholder_image(
+        title="Heading test image", description="", filename="placeholder_image.png", size=(80, 45), color=(117, 79, 224), grid=(1, 1)
+    )
+
+
+def page_heading_block(block_name, image):
+    if block_name == "section":
+        return SectionBlock(), {"heading": {"heading_text": "<p>Ways to browse</p>"}}
+    if block_name == "showcase":
+        return ShowcaseBlock(), {"headline": "<p>Built for you</p>"}
+    return MobileStoreQRCodeBlock(), {
+        "heading": {"heading_text": "<p>Get the app</p>"},
+        "qr_code_data": "https://example.com/",
+        "mobile_image": image.id,
+        "mobile_image_alt": "Firefox in the app store",
+    }
+
+
+@pytest.mark.parametrize("block_level, is_display", [(1, True), (2, False)])
+@pytest.mark.parametrize("block_name", ["section", "showcase", "mobile-store-qr-code"])
+def test_heading_is_display_only_as_the_page_heading(heading_test_image, rf, block_name, block_level, is_display):
+    block, raw = page_heading_block(block_name, heading_test_image)
+
+    heading = render_block_heading(block=block, raw=raw, block_level=block_level, context=_render_context(rf.get("/")))
+
+    assert heading.name == f"h{block_level}"
+    assert ("fl-heading-display" in heading["class"]) is is_display
+    assert not TSHIRT_CLASSES.intersection(heading["class"])
+    assert "fl-scale-regular" not in heading["class"]
+
+
+def test_banner_heading_uses_the_page_heading_size_as_the_page_heading():
+    heading = render_block_heading(block=BannerBlock(), raw={"heading": {"heading_text": "<p>Get Firefox now</p>"}}, block_level=1)
+
+    assert heading.name == "h1"
+    assert "fl-heading-display" not in heading["class"]
+    assert not TSHIRT_CLASSES.intersection(heading["class"])
+
+
+def sized_heading_block(block_name, card_variant, image):
+    if block_name == "card":
+        heading = {"type": "heading", "value": {"heading_text": "<p>Private by default</p>"}}
+        return CardBlock(), {"settings": {"variant": card_variant}, "content": [heading]}
+    if block_name == "step-card":
+        return StepCardBlock(), {"image": {"image": image.id, "settings": {}}, "headline": "<p>Download Firefox</p>"}
+    return TimelineBlock(), {
+        "list_items": [{"superheading_text": "<p>2004</p>", "heading_text": "<p>Firefox 1.0</p>", "subheading_text": "<p>Released</p>"}]
+    }
+
+
+@pytest.mark.parametrize("block_level", [2, 3])
+@pytest.mark.parametrize(
+    "block_name, card_variant, expected_class",
+    [
+        pytest.param("card", "filled", "fl-heading-md", id="card-filled"),
+        pytest.param("card", "outline", "fl-heading-sm", id="card-outline"),
+        pytest.param("card", "", "fl-heading-sm", id="card-default"),
+        pytest.param("step-card", None, "fl-heading-xs", id="step-card"),
+        pytest.param("timeline", None, "fl-heading-sm", id="timeline"),
+    ],
+)
+def test_component_heading_keeps_its_size_at_every_level(heading_test_image, block_name, card_variant, expected_class, block_level):
+    block, raw = sized_heading_block(block_name, card_variant, heading_test_image)
+
+    heading = render_block_heading(block=block, raw=raw, block_level=block_level)
+
+    assert heading.name == f"h{block_level}"
+    assert TSHIRT_CLASSES.intersection(heading["class"]) == {expected_class}
+    assert "fl-scale-regular" in heading["class"]
+
+
+@pytest.mark.parametrize(
+    "block, settings, block_level, is_display",
+    [
+        pytest.param(IntroBlock(), {"layout": "vertical"}, 1, True, id="intro-vertical"),
+        pytest.param(IntroBlock(), {"layout": "right"}, 1, True, id="intro-right-layout-without-media"),
+        # Display is for the hero, so intros below the page's h1 use the page heading size.
+        pytest.param(IntroBlock(), {"layout": "vertical"}, 2, False, id="intro-below-h1"),
+        pytest.param(KitIntroBlock(), {}, 1, True, id="kit-intro"),
+        pytest.param(KitIntroBlock(), {}, 2, False, id="kit-intro-below-h1"),
+    ],
+)
+def test_intro_heading_is_display_only_as_the_page_heading(block, settings, block_level, is_display):
+    heading = render_block_heading(block=block, raw={"settings": settings, "heading": {"heading_text": "<p>Firefox</p>"}}, block_level=block_level)
+
+    assert heading.name == f"h{block_level}"
+    assert ("fl-heading-display" in heading["class"]) is is_display
+    assert not TSHIRT_CLASSES.intersection(heading["class"])
+
+
+def test_intro_with_media_beside_its_heading_is_display(heading_test_image):
+    # Display steps down to the h1 size in CSS while the media is beside the heading.
+    media = [{"type": "image", "value": {"image": heading_test_image.id, "image_alt": "Firefox on a laptop", "settings": {}}}]
+
+    heading = render_block_heading(
+        block=IntroBlock(),
+        raw={"settings": {"layout": "right"}, "media": media, "heading": {"heading_text": "<p>Firefox</p>"}},
+        block_level=1,
+    )
+
+    assert heading.name == "h1"
+    assert "fl-heading-display" in heading["class"]
 
 
 def render_code_block(raw):

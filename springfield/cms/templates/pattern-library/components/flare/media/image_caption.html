@@ -6,7 +6,7 @@
 
 {% for variant in variants %}
   <div data-testid="image-caption-{{ variant.testid }}" style="margin-bottom: 2em;">
-    <h2>{{ variant.title }}</h2>
+    <h2 class="pl-demo-heading">{{ variant.title }}</h2>
     <include:image-caption layout="{{ variant.layout }}">
       <content:image>
         <div class="image-variants-display">

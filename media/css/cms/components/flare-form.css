@@ -108,9 +108,12 @@ fieldset.fl-field-wrap {
 
 .fl-fieldset > .fl-legend,
 .fl-fieldset-orphan > .fl-legend {
-    font-family: var(--fl-theme-font-family-headline);
-    font-size: var(--fl-theme-font-size-heading-xs);
-    font-weight: var(--token-font-weight-semibold);
+    font-family: var(--fl-theme-heading-font-family);
+    font-size: var(--fl-theme-heading-font-size-sm);
+    font-stretch: var(--fl-theme-heading-font-stretch-sm);
+    font-weight: var(--fl-theme-heading-font-weight-sm);
+    letter-spacing: var(--fl-theme-heading-tracking-sm);
+    line-height: var(--fl-theme-heading-line-height-sm);
 }
 
 .fl-fieldset > .fl-legend {

@@ -20,5 +20,7 @@ module.exports = {
         '/pattern-library/render-pattern/pattern-library/components/flare',
     contextSpecificURL:
         '/pattern-library/render-pattern/pattern-library/context-specific',
+    baseStylesURL:
+        '/pattern-library/render-pattern/pattern-library/base-styles',
     expectComponentScreenshot
 };

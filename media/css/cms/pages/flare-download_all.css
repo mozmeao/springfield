@@ -24,6 +24,11 @@
         padding-inline: var(--token-spacing-lg);
     }
 
+    .fl-c-flow-step-title {
+        font-stretch: normal;
+        line-height: var(--token-heading-line-height);
+    }
+
     /* override defaults */
     .fl-c-flow-step-title,
     .fl-c-flow-selection,
@@ -44,19 +49,6 @@
         li {
             margin-block-end: var(--token-spacing-xs);
         }
-    }
-
-    /* Option labels and the help dialogs keep their own sizes on every scale */
-    .fl-c-flow-options .fl-heading:has(> .fl-c-flow-options-heading) {
-        font-size: var(--fl-theme-font-size-heading-2xs);
-    }
-
-    .fl-dialog .fl-heading {
-        font-size: var(--fl-theme-font-size-heading-sm);
-    }
-
-    .fl-dialog h4 {
-        font-size: var(--fl-theme-font-size-heading-xs);
     }
 
     .fl-c-flow-options-heading {
@@ -143,7 +135,6 @@
         align-items: center;
         display: flex;
         flex-wrap: wrap;
-        font-size: var(--fl-theme-font-size-heading-xs);
         gap: var(--token-spacing-md);
         justify-content: space-between;
         line-height: 1;

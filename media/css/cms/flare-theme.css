@@ -38,22 +38,69 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     --fl-theme-font-family-body: var(--token-font-family-mozilla-text);
     --fl-theme-font-weight-body: var(--token-font-weight-regular);
 
-    /* Font size variables */
+    /* Legacy oversized sizes for .fl-heading-3xl and .fl-heading-2xl */
     --fl-theme-font-size-heading-3xl: 5rem; /* 80px */
     --fl-theme-font-size-heading-2xl: 4rem; /* 64px */
-    --fl-theme-font-size-heading-xl: 2.5rem; /* 40px */
-    --fl-theme-font-size-heading-lg: 2rem; /* 32px */
-    --fl-theme-font-size-heading-md: 2rem; /* 32px */
-    --fl-theme-font-size-heading-sm: 1.5rem; /* 24px */
-    --fl-theme-font-size-heading-xs: 1.125rem; /* 18px */
-    --fl-theme-font-size-heading-2xs: 1rem; /* 16px */
 
-    /* Heading level sizes; each follows its named size at every width */
-    --fl-h1: var(--fl-theme-font-size-heading-xl);
-    --fl-h1-small: var(--fl-theme-font-size-heading-xl);
-    --fl-h2: var(--fl-theme-font-size-heading-lg);
-    --fl-h3: var(--fl-theme-font-size-heading-sm);
-    --fl-h4: var(--fl-theme-font-size-heading-xs);
+    /* Shared heading settings; themes override these */
+    --fl-theme-heading-font-family: var(--token-font-family-mozilla-headline);
+    --fl-theme-heading-font-weight: var(--token-font-weight-semibold);
+    --fl-theme-heading-font-weight-condensed: var(
+        --fl-theme-heading-font-weight
+    );
+    --fl-theme-heading-tracking: 0;
+    --fl-theme-heading-tracking-condensed: var(--fl-theme-heading-tracking);
+    --fl-theme-heading-margin: var(--token-spacing-lg);
+    --fl-theme-heading-font-stretch-condensed: var(
+        --token-heading-font-width-condensed
+    );
+
+    /* Per-size heading settings; font sizes are in the type scales below */
+    --fl-theme-heading-font-stretch-display: var(
+        --fl-theme-heading-font-stretch-condensed
+    );
+    --fl-theme-heading-font-stretch-xl: var(
+        --fl-theme-heading-font-stretch-condensed
+    );
+    --fl-theme-heading-font-stretch-lg: var(
+        --fl-theme-heading-font-stretch-condensed
+    );
+    --fl-theme-heading-font-weight-display: var(
+        --fl-theme-heading-font-weight-condensed
+    );
+    --fl-theme-heading-font-weight-xl: var(
+        --fl-theme-heading-font-weight-condensed
+    );
+    --fl-theme-heading-font-weight-lg: var(
+        --fl-theme-heading-font-weight-condensed
+    );
+    --fl-theme-heading-font-weight-md: var(--fl-theme-heading-font-weight);
+    --fl-theme-heading-font-weight-sm: var(--fl-theme-heading-font-weight);
+    --fl-theme-heading-font-weight-xs: var(--fl-theme-heading-font-weight);
+    --fl-theme-heading-tracking-display: var(
+        --fl-theme-heading-tracking-condensed
+    );
+    --fl-theme-heading-tracking-xl: var(--fl-theme-heading-tracking-condensed);
+    --fl-theme-heading-tracking-lg: var(--fl-theme-heading-tracking-condensed);
+    --fl-theme-heading-tracking-md: var(--fl-theme-heading-tracking);
+    --fl-theme-heading-tracking-sm: var(--fl-theme-heading-tracking);
+    --fl-theme-heading-tracking-xs: var(--fl-theme-heading-tracking);
+    --fl-theme-heading-font-stretch-md: normal;
+    --fl-theme-heading-font-stretch-sm: normal;
+    --fl-theme-heading-font-stretch-xs: normal;
+    --fl-theme-heading-line-height-display: var(
+        --token-heading-line-height-condensed
+    );
+    --fl-theme-heading-line-height-xl: var(
+        --token-heading-line-height-condensed
+    );
+    --fl-theme-heading-line-height-lg: var(
+        --token-heading-line-height-condensed
+    );
+    --fl-theme-heading-line-height-md: var(--token-heading-line-height);
+    --fl-theme-heading-line-height-sm: var(--token-heading-line-height);
+    --fl-theme-heading-line-height-xs: var(--token-heading-line-height);
+    --fl-theme-heading-font-size-xs: var(--token-heading-font-size-minus-8);
 
     /* TODO: refactor these away. Subheading font size variables */
     --fl-theme-font-size-subheading-md: 1rem; /* 16px */
@@ -124,6 +171,28 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
         radial-gradient(165.25% 100% at 50% 0%, #d7c4f6 0%, #fdf4f3 86.06%);
 }
 
+/* Type scales. Regular is the default; a scale class can be nested to switch a region. */
+:root,
+.fl-scale-regular {
+    --fl-theme-heading-font-size-display: var(
+        --token-heading-font-size-minus-1
+    );
+    --fl-theme-heading-font-size-xl: var(--token-heading-font-size-minus-1);
+    --fl-theme-heading-font-size-lg: var(--token-heading-font-size-minus-3);
+    --fl-theme-heading-font-size-md: var(--token-heading-font-size-minus-5);
+    --fl-theme-heading-font-size-sm: var(--token-heading-font-size-minus-7);
+}
+
+.fl-scale-compact {
+    --fl-theme-heading-font-size-display: var(
+        --token-heading-font-size-minus-3
+    );
+    --fl-theme-heading-font-size-xl: var(--token-heading-font-size-minus-3);
+    --fl-theme-heading-font-size-lg: var(--token-heading-font-size-minus-5);
+    --fl-theme-heading-font-size-md: var(--token-heading-font-size-minus-6);
+    --fl-theme-heading-font-size-sm: var(--token-heading-font-size-minus-8);
+}
+
 .fl-split-page-upper .fl-force-light-theme,
 .fl-force-light-theme {
     @import 'variables/flare-light-theme.css';
@@ -147,15 +216,29 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
         --fl-theme-default-text-align: left;
         --fl-theme-font-size-heading-3xl: 8rem; /* 128px */
         --fl-theme-font-size-heading-2xl: 5rem; /* 80px */
-        --fl-theme-font-size-heading-xl: 4rem; /* 64px */
-        --fl-theme-font-size-heading-lg: 2.5rem; /* 40px */
-        --fl-theme-font-size-heading-md: 2rem; /* 32px */
-        --fl-theme-font-size-heading-sm: 1.5rem; /* 24px */
-        --fl-theme-font-size-heading-xs: 1.125rem; /* 18px */
         --fl-theme-font-size-body-lg: 1.5rem; /* 24px */
         --fl-theme-font-size-body-md: 1.25rem; /* 20px */
         --fl-section-v-padding: calc(var(--token-layout-lg) / 2);
         --fl-section-hgroup-padding-bottom: var(--token-layout-sm);
+    }
+
+    :root,
+    .fl-scale-regular {
+        --fl-theme-heading-font-size-display: var(
+            --token-heading-font-size-plus-1
+        );
+        --fl-theme-heading-font-size-xl: var(--token-heading-font-size-plus-1);
+        --fl-theme-heading-font-size-lg: var(--token-heading-font-size-minus-1);
+        --fl-theme-heading-font-size-md: var(--token-heading-font-size-minus-5);
+        --fl-theme-heading-font-size-sm: var(--token-heading-font-size-minus-7);
+    }
+
+    .fl-scale-compact {
+        --fl-theme-heading-font-size-display: var(--token-heading-font-size);
+        --fl-theme-heading-font-size-xl: var(--token-heading-font-size-minus-2);
+        --fl-theme-heading-font-size-lg: var(--token-heading-font-size-minus-3);
+        --fl-theme-heading-font-size-md: var(--token-heading-font-size-minus-5);
+        --fl-theme-heading-font-size-sm: var(--token-heading-font-size-minus-7);
     }
 }
 
@@ -163,11 +246,6 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
     :root {
         --fl-theme-font-size-heading-3xl: 10rem; /* 160px */
         --fl-theme-font-size-heading-2xl: 8rem; /* 128px */
-        --fl-theme-font-size-heading-xl: 5rem; /* 80px */
-        --fl-theme-font-size-heading-lg: 4rem; /* 64px */
-        --fl-theme-font-size-heading-md: 3rem; /* 48px */
-        --fl-theme-font-size-heading-sm: 2rem; /* 32px */
-        --fl-theme-font-size-heading-xs: 1.5rem; /* 24px */
         --fl-theme-font-size-body-lg: 2rem; /* 32px */
         --fl-theme-font-size-body-md: 1.5rem; /* 24px */
         --fl-section-v-padding: var(--token-layout-lg-half);
@@ -178,6 +256,27 @@ Contextual CSS custom properties that change based on context (e.g. layout direc
         --gallery-callout-card-padding: var(--token-layout-xs)
             var(--token-layout-2xs);
         --fl-section-hgroup-gap: var(--token-layout-xs);
+    }
+
+    :root,
+    .fl-scale-regular {
+        --fl-theme-heading-font-size-display: var(
+            --token-heading-font-size-plus-3
+        );
+        --fl-theme-heading-font-size-xl: var(--token-heading-font-size-plus-2);
+        --fl-theme-heading-font-size-lg: var(--token-heading-font-size-plus-1);
+        --fl-theme-heading-font-size-md: var(--token-heading-font-size-minus-3);
+        --fl-theme-heading-font-size-sm: var(--token-heading-font-size-minus-5);
+    }
+
+    .fl-scale-compact {
+        --fl-theme-heading-font-size-display: var(
+            --token-heading-font-size-plus-2
+        );
+        --fl-theme-heading-font-size-xl: var(--token-heading-font-size);
+        --fl-theme-heading-font-size-lg: var(--token-heading-font-size-minus-1);
+        --fl-theme-heading-font-size-md: var(--token-heading-font-size-minus-4);
+        --fl-theme-heading-font-size-sm: var(--token-heading-font-size-minus-6);
     }
 }
 

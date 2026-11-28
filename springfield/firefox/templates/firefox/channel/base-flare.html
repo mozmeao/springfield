@@ -42,24 +42,20 @@
 
 <div class="fl-main has-gradient-bottom fl-channel-page">
   <div class="fl-split-page-upper has-gradient-bottom">
-    <div class="fl-section zero-v-pad">
-      <div class="fl-section-container">
-        <include:intro media_position="before" vertical full_width>
-          <content:heading>
-            <include:heading
-              level="h1"
-              heading_size="fl-heading-xl"
-              heading_text="{{ ftl('firefox-channel-take-a-browse-on-the-wild-side') }}"
-              subheading_text="{{ ftl('firefox-channel-be-among-the-first-to-explore') }}"
-            />
-          </content:heading>
+    <include:intro media_position="before" vertical full_width slim>
+      <content:heading>
+        <include:heading
+          level="h1"
+          heading_size="fl-heading-display"
+          heading_text="{{ ftl('firefox-channel-take-a-browse-on-the-wild-side') }}"
+          subheading_text="{{ ftl('firefox-channel-be-among-the-first-to-explore') }}"
+        />
+      </content:heading>
 
-          <content:media>
-            <img class="fl-brand-icon" src="/media/img/logos/firefox/firefox-logo.svg" alt="" />
-          </content:media>
-        </include:intro>
-      </div>
-    </div>
+      <content:media>
+        <img class="fl-brand-icon" src="/media/img/logos/firefox/firefox-logo.svg" alt="" />
+      </content:media>
+    </include:intro>
   </div>
 
   <section class="fl-split-page-lower">
@@ -71,7 +67,6 @@
         <i class="fl-icon fl-icon-warning-fill fl-channel-warning-icon"></i>
       <include:heading
         level="h2"
-        heading_size="fl-heading-md"
         heading_text="{{ ftl('firefox-channel-see-something-that-isnt-working') }}"
         subheading_text="{{ ftl('firefox-channel-be-among-the-first-to-explore') }}"
       />
@@ -104,7 +99,7 @@
       <include:newsletter-form theme="dark">
         <include:heading
           level="h2"
-          heading_size="fl-heading-sm"
+          heading_size="fl-heading-md fl-scale-regular"
           heading_text="{{ ftl('newsletter-form-firefox-and-you') }}"
           subheading_text="{{ ftl('newsletter-form-get-firefox-tips') }}"
           id="fl-newsletter"

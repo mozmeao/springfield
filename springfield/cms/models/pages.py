@@ -103,7 +103,7 @@ from springfield.firefox.referral import crypto
 from springfield.firefox.referral.models import FirefoxReferralData
 from springfield.firefox.referral.utils import REFERRAL_ID_LENGTH, validate_referral_id
 
-from .base import AbstractSpringfieldCMSPage, ImageAltTextMixin, PromotedPageMixin, QROpenBehavior
+from .base import AbstractSpringfieldCMSPage, ImageAltTextMixin, PromotedPageMixin, QROpenBehavior, TypeScale
 
 if TYPE_CHECKING:
     from springfield.cms.models import Tag
@@ -282,6 +282,11 @@ class PageThemeMixin(models.Model):
 
     class Meta:
         abstract = True
+
+    def get_type_scale(self):
+        if self.theme == ENTERPRISE_THEME:
+            return TypeScale.COMPACT
+        return super().get_type_scale()
 
 
 PRE_FOOTER_IMAGE_KIT = "kit"
@@ -752,6 +757,8 @@ class ThanksPage(UTMParamsMixin, QRCodeFloatingSnippetMixin, AbstractSpringfield
 
 
 class ArticleIndexPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
+    default_type_scale = TypeScale.COMPACT
+
     subpage_types = ["cms.ArticleDetailPage", "cms.ArticleThemePage"]
 
     sub_title = models.CharField(
@@ -837,6 +844,8 @@ class ArticleIndexPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
 
 class ArticleDetailPage(ImageAltTextMixin, UTMParamsMixin, AbstractSpringfieldCMSPage):
+    default_type_scale = TypeScale.COMPACT
+
     parent_page_types = ["cms.ArticleThemePage", "cms.ArticleIndexPage"]
     image_alt_fields = ("featured_image", "image")
 
@@ -1310,6 +1319,16 @@ class FreeFormPage2026(
         verbose_name="Show Navigation",
         help_text="If true, the navigation menu will be displayed on this page's header bar.",
     )
+    type_scale = models.CharField(
+        max_length=20,
+        choices=TypeScale.choices,
+        default=TypeScale.REGULAR,
+        verbose_name="Type scale",
+        help_text=(
+            "Compact uses smaller page headings, for pages that are mostly text sections (privacy, policy, explainers) "
+            "or any page that should feel compact. Regular is for landing pages. Enterprise-themed pages always use Compact."
+        ),
+    )
     docs = RichTextField(
         blank=True,
         features=settings.WAGTAIL_RICHTEXT_FEATURES_FULL,
@@ -1332,6 +1351,7 @@ class FreeFormPage2026(
         MultiFieldPanel(
             [
                 *PageThemeMixin.theme_panels,
+                FieldPanel("type_scale"),
             ],
             heading="Appearance",
         ),
@@ -1376,6 +1396,11 @@ class FreeFormPage2026(
         snippets = [placement.snippet.get_localized() for placement in placements]
         # get_localized() can return None if the snippet isn't translated and published
         return [snippet for snippet in snippets if snippet]
+
+    def get_type_scale(self):
+        if self.type_scale == TypeScale.COMPACT:
+            return TypeScale.COMPACT
+        return super().get_type_scale()
 
     def clean(self):
         super().clean()
@@ -1783,6 +1808,8 @@ class SmartWindowPage(ImageAltTextMixin, PromotedPageMixin, UTMParamsMixin, Abst
 class SmartWindowExplainerPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A Smart Window themed page"""
 
+    default_type_scale = TypeScale.COMPACT
+
     upper_content = StreamField(
         LOWER_FREEFORM_PAGE_BLOCKS,
         use_json_field=True,
@@ -1812,6 +1839,8 @@ class SmartWindowExplainerPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
 
 class RoadmapPage(UTMParamsMixin, AbstractSpringfieldCMSPage):
     """A page that displays the Firefox roadmap."""
+
+    default_type_scale = TypeScale.COMPACT
 
     ftl_files = ["cms/roadmap"]
 
@@ -1934,6 +1963,8 @@ class ContactPageForm(WagtailAdminPageForm):
 
 class ContactPage(PageThemeMixin, AbstractSpringfieldCMSPage):
     """A CMS-editable contact form page with a configurable StreamField form builder."""
+
+    default_type_scale = TypeScale.COMPACT
 
     base_form_class = ContactPageForm
 
@@ -2345,6 +2376,8 @@ class FlareDocsIndexPage(AbstractSpringfieldCMSPage):
     A page containing an index of all docs pages for Flare26.
     It shows links to other docs pages.
     """
+
+    default_type_scale = TypeScale.COMPACT
 
     # Only created programmatically
     parent_page_types = []

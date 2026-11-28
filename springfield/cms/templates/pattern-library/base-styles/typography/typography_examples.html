@@ -5,17 +5,49 @@
 #}
 
 <div class="pl-narrow-content">
-  <div class="pl-frame pl-frame--white">
-    {% for heading in headings %}
-      <div class="pl-row">
-        <include:heading
-          level="{{ heading.level }}"
-          heading_text="{{ heading.heading_text }}"
-          heading_size="{{ heading.heading_size }}"
-        />
-      </div>
+  <div class="pl-frame pl-frame--white" data-testid="typography">
+    {% for scale in scales %}
+      <section class="pl-type-scale {{ scale.classes }}">
+        <p class="fl-label fl-label-sm fl-label-allcaps">{{ scale.label }}</p>
+        {% set display_text = scale.label ~ " Display" %}
+        <include:heading level="h1" heading_text="{{ display_text }}" heading_size="fl-heading-display" />
+        {% for level in page_heading_levels %}
+          {% set heading_text = scale.label ~ " " ~ level %}
+          <include:heading level="{{ level }}" heading_text="{{ heading_text }}" />
+        {% endfor %}
+      </section>
+      <hr>
     {% endfor %}
+
+    <section class="pl-type-scale fl-scale-regular">
+      <p class="fl-label fl-label-sm fl-label-allcaps">Compact region inside a Regular page</p>
+      <include:heading level="h2" heading_text="Regular h2" />
+      <div class="fl-scale-compact pl-dash-border">
+        <include:heading level="h2" heading_text="Compact h2" />
+        <include:heading level="h3" heading_size="fl-heading-md fl-scale-regular" heading_text="Component heading (md, fl-scale-regular) keeps its Regular size" />
+      </div>
+    </section>
     <hr>
+
+    <section class="pl-type-scale fl-scale-compact">
+      <p class="fl-label fl-label-sm fl-label-allcaps">Regular region inside a Compact page</p>
+      <include:heading level="h2" heading_text="Compact h2" />
+      <div class="fl-scale-regular pl-dash-border">
+        <include:heading level="h2" heading_text="Regular h2" />
+      </div>
+    </section>
+    <hr>
+
+    {% for scale in scales %}
+      <section class="pl-type-scale {{ scale.classes }}">
+        <p class="fl-label fl-label-sm fl-label-allcaps">Size classes on {{ scale.label }}</p>
+        {% for heading in headings %}
+          <include:heading level="{{ heading.level }}" heading_text="{{ heading.heading_text }}" heading_size="{{ heading.heading_size }}" />
+        {% endfor %}
+      </section>
+      <hr>
+    {% endfor %}
+
     {% for body_text in body_texts %}
       <div class="pl-row">
         <include:body_text text="{{ body_text.text }}" size="{{ body_text.size }}" />

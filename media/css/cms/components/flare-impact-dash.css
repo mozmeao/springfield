@@ -5,9 +5,6 @@
  */
 
 .fl-impact-dash-summary-heading {
-    font-family: var(--token-font-family-mozilla-headline);
-    font-size: var(--fl-theme-font-size-heading-sm);
-    font-weight: var(--token-font-weight-semibold);
     margin: 0 auto;
     text-align: center;
 }

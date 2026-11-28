@@ -23,7 +23,7 @@
 <div class="fl-page">
   <div class="fl-main">
     <section class="fl-split-page-upper has-gradient-bottom fl-download-intro">
-      <h1 class="fl-heading fl-heading-size-1">
+      <h1 class="fl-heading fl-heading-display">
         {% if LANG.startswith('en-') %}
         Download <span class="prevent-line-break"><span class="fl-fx-logo">‍</span> Firefox</span> for
         {% else %}
@@ -32,7 +32,7 @@
       </h1>
       <div class="fl-platform-dropdown-wrapper">
         <div class="fl-platform-dropdown">
-        <button class="fl-heading fl-heading-size-1 fl-platform-dropdown-button" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="platform-select-value">
+        <button class="fl-heading fl-heading-display fl-platform-dropdown-button" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="platform-select-value">
             {{ platforms[page.platform] }}
           </span>
           <span class="fl-icon-wrapper">
@@ -43,7 +43,7 @@
           {% for key, platform in platforms.items() %}
             {% if key != page.platform %}
               <li class="fl-dropdown-item" data-platform="{{ key }}" {% if key == page.platform %}aria-selected="true"{% endif %}>
-                <a class="fl-heading-md fl-heading-condensed-on-sm-up" href="{{ platform_links[key] }}">
+                <a class="fl-heading-lg fl-scale-regular" href="{{ platform_links[key] }}">
                   {{ platform }}
                 </a>
               </li>
@@ -203,7 +203,7 @@
     <include:newsletter-form theme="dark">
       <include:heading
         level="h2"
-        heading_size="fl-heading-size-3"
+        heading_size="fl-heading-md fl-scale-regular"
         heading_text="{{ pre_footer_cta_form.heading|richtext|remove_p_tag }}"
         subheading_text="{{ pre_footer_cta_form.subheading|richtext|remove_p_tag }}"
       />

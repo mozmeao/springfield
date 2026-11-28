@@ -62,7 +62,7 @@
         {% set help_text_id = form.id_prefix ~ fieldset.id ~ "-help" if help_text else "" %}
         {% if fieldset and fields %}
           <fieldset class="fl-fieldset"{% if help_text %} aria-describedby="{{ help_text_id }}"{% endif %}>
-            <legend class="fl-legend">{{ fieldset.value.legend }}</legend>
+            <legend class="fl-legend fl-scale-regular">{{ fieldset.value.legend }}</legend>
             {% if help_text %}
               <div class="fl-fieldset-help fl-rich-text" id="{{ help_text_id }}">{{ help_text|richtext }}</div>
             {% endif %}
@@ -73,7 +73,7 @@
         {% elif fieldset %}
           {# If the fieldset has no fields, we show the text in divs. #}
           <div class="fl-fieldset-orphan">
-            <p class="fl-legend">{{ fieldset.value.legend }}</p>
+            <p class="fl-legend fl-scale-regular">{{ fieldset.value.legend }}</p>
             {% if help_text %}
               <div class="fl-rich-text">{{ help_text|richtext }}</div>
             {% endif %}

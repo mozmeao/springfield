@@ -223,7 +223,23 @@ Static values extracted from Figma that do not change based on context.
     --token-font-weight-medium: 500;
     --token-font-weight-semibold: 600;
     --token-font-weight-bold: 700;
-    --token-font-condensed-width: 75; /* used in variable font to build condensed heads at larger sizes */
+
+    /* Heading sizes, named in steps from a 48px base */
+    --token-heading-font-size-plus-3: 5rem; /* 80px */
+    --token-heading-font-size-plus-2: 4rem; /* 64px */
+    --token-heading-font-size-plus-1: 3.5rem; /* 56px */
+    --token-heading-font-size: 3rem; /* 48px */
+    --token-heading-font-size-minus-1: 2.5rem; /* 40px */
+    --token-heading-font-size-minus-2: 2.25rem; /* 36px */
+    --token-heading-font-size-minus-3: 2rem; /* 32px */
+    --token-heading-font-size-minus-4: 1.75rem; /* 28px */
+    --token-heading-font-size-minus-5: 1.5rem; /* 24px */
+    --token-heading-font-size-minus-6: 1.25rem; /* 20px */
+    --token-heading-font-size-minus-7: 1.125rem; /* 18px */
+    --token-heading-font-size-minus-8: 1rem; /* 16px */
+    --token-heading-font-width-condensed: 75%;
+    --token-heading-line-height-condensed: 0.9;
+    --token-heading-line-height: 1.2;
 
     /* Transition variables NOT from Figma */
     --token-transition-fast: 0.15s ease;

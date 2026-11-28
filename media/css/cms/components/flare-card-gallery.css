@@ -211,7 +211,6 @@ Card Gallery - Flare Design System Card Gallery Component
 
     .fl-card-gallery-heading {
         flex-direction: row;
-        font-size: var(--fl-theme-font-size-heading-sm);
     }
 }
 

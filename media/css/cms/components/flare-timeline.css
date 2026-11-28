@@ -72,7 +72,5 @@
 }
 
 .fl-two-column-card .fl-timeline-item .fl-heading {
-    font-size: var(--fl-theme-font-size-heading-xs);
-    font-weight: var(--token-font-weight-semibold);
     margin-block-end: var(--token-spacing-lg);
 }

@@ -22,7 +22,7 @@
       {% for content_block in value.content %}
         {% set block_position = block_position ~ ".item-" ~ loop.index ~ "-" ~ content_block.block_type %}
         {% if content_block.block_type == "heading" %}
-          {% with heading_size = "fl-heading-size-3" %}
+          {% with heading_size = "fl-heading-md fl-scale-regular" if value.settings.variant == "filled" else "fl-heading-sm fl-scale-regular" %}
             {% include_block content_block %}
           {% endwith %}
         {% else %}

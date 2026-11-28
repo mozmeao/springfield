@@ -3,6 +3,7 @@
 - [Token vs Variable](#token-vs-variable)
 - [Class Prefixes](#prefixes)
 - [Sizes](#sizes)
+- [Headings](#headings)
 
 ## Tokens vs variables
 
@@ -105,3 +106,37 @@ We use a “T-shirt” convention when we need to describe sizes, e.g. “lg” 
 ```
 
 Note that when we need multiple Xes we opt for a numeral. This avoids confusion or ambuguity in the event we need to reference some extreme size. “5xl” is more readable than “xxxxxl”.
+
+## Headings
+
+Headings use six sizes, named in t-shirt order: `display`, `xl`, `lg`, `md`, `sm` and `xs`. Each heading element shares a size with a class, and both follow the page's type scale. The Typography page in Base Styles lists every value.
+
+| Size | Element | Class |
+|---|---|---|
+| display | — | `.fl-heading-display` |
+| xl | `h1` | `.fl-heading-xl` |
+| lg | `h2` | `.fl-heading-lg` |
+| md | `h3` | `.fl-heading-md` |
+| sm | `h4`, `h5`, `h6` | `.fl-heading-sm` |
+| xs | — | `.fl-heading-xs` |
+
+**Page headings** (the page title, section headings and rich-text headings) take no size class, so each is sized by its element. The page's first heading adds `.fl-heading-display`. The Heading block does this automatically, except in banners, and hand-built page titles add it themselves. In an intro with media beside the heading, Display steps down to the `h1` size from 900px, where the media moves beside it. The element rules use `:where()`, so they have zero specificity and any class beats them.
+
+**Section headings keep a readable line length.** A heading or heading group directly inside `.fl-section-container` stops at `--token-width-desktop-content-lg` (934px), and centred ones stay centred. The rest of the section keeps the full container width.
+
+**Component headings** (cards, forms, dialogs, tabs and so on) pass a size class at the size the component always renders at, plus `.fl-scale-regular`, so they keep their Regular size on Compact pages. There are no classes named after heading levels.
+
+**Type scales.** Regular is the default. `.fl-scale-compact` on `<body>` switches a page to Compact, and either scale class on any element switches that element and everything inside it. Because custom properties inherit, an inner scale class wins. Page models choose their scale with `default_type_scale` (Free Form pages have a "Type scale" field), and Django-routed templates fill `{% block type_scale %}`.
+
+**Variables** come in two layers:
+
+| Layer | Example | Changes with |
+|---|---|---|
+| Tokens | `--token-heading-font-size-plus-1` | nothing |
+| Heading sizes | `--fl-theme-heading-font-size-lg` | breakpoint and scale |
+
+Heading size variables are named `--fl-theme-heading-<property>-<size>`: `font-size`, `font-stretch`, `font-weight`, `letter-spacing` (`--fl-theme-heading-tracking-<size>`) and `line-height`. Every size shares `--fl-theme-heading-font-family` and `--fl-theme-heading-margin`. The condensed sizes (display, xl and lg) take their width, weight and tracking from `--fl-theme-heading-font-stretch-condensed`, `--fl-theme-heading-font-weight-condensed` and `--fl-theme-heading-tracking-condensed`; the others use `normal`, `--fl-theme-heading-font-weight` and `--fl-theme-heading-tracking`. Themes change the face by overriding those shared variables. Enterprise, for example, makes the condensed sizes normal width, weight 400 and -0.02em tracking, and keeps md and smaller at the default weight and tracking. Width is set with `font-stretch`. Don't use `font-variation-settings` on headings, because it overrides `font-weight` and `font-stretch`.
+
+**Component CSS doesn't set heading font properties.** Size a component's heading with a size class in its template. Component CSS can still set margin, alignment and colour. If a component needs a size that isn't one of the six, raise it with design rather than adding a local size.
+
+**Non-heading elements** that look like headings (a legend, a pagination label) may use the heading variables, but only as a complete set for one size: `font-family`, `font-weight`, `font-stretch`, `font-size`, `line-height` and `letter-spacing`. Never use a heading size variable on its own. Add `.fl-scale-regular` to the element in its template if it shouldn't follow the page's scale.

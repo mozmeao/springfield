@@ -4,7 +4,9 @@
  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 #}
 
-{% set heading_size = heading_size or ('fl-heading-size-' ~ block_level if block_level else 'fl-heading-size-2') %}
+{# Page headings take no size class, so they follow the page's type scale, and the page's first
+   heading is Display. Components pass heading_size; blocks set display_heading=false to opt out. #}
+{% set heading_size = heading_size or ('fl-heading-display' if block_level == 1 and display_heading is not false else '') %}
 
 <include:heading
   level="{{ 'h' ~ block_level if block_level else 'h2' }}"

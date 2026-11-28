@@ -76,9 +76,12 @@
     }
 
     .fl-c-release-notes-pagination-heading {
-        font-family: var(--token-font-family-mozilla-headline);
-        font-size: var(--fl-theme-font-size-heading-2xs);
-        font-weight: var(--fl-theme-font-weight-headline);
+        font-family: var(--fl-theme-heading-font-family);
+        font-size: var(--fl-theme-heading-font-size-xs);
+        font-stretch: var(--fl-theme-heading-font-stretch-xs);
+        font-weight: var(--fl-theme-heading-font-weight-xs);
+        letter-spacing: var(--fl-theme-heading-tracking-xs);
+        line-height: var(--fl-theme-heading-line-height-xs);
     }
 
     .fl-c-release-notes-pagination-version {
@@ -96,7 +99,9 @@
     .fl-c-release-notes-heading {
         align-items: center;
         display: flex;
-        font-size: 1.5rem; /* 24px - static */
+        font-size: var(
+            --token-heading-font-size-minus-5
+        ); /* 24px at every width */
         gap: var(--token-spacing-sm);
 
         .fl-icon {

@@ -36,32 +36,22 @@
         --theme-form-field-background: var(--token-color-white);
         --theme-form-field-border-color: var(--token-color-grey-4);
 
-        /* font sizes – no overrides on mobile yet.  */
-    }
-
-    /* typography overrides */
-    .fl-heading-size-1,
-    .fl-rich-text h1,
-    .fl-heading-size-2,
-    .fl-heading-lg,
-    .fl-pre-footer-cta-button,
-    .fl-heading-condensed,
-    .fl-heading-xl,
-    .fl-heading-md {
-        font-variation-settings:
-            'wght' 400,
-            'wdth' 100;
-        letter-spacing: -0.02em;
+        /* Heading sizes come from the Compact type scale; only the face changes.
+           Display, xl and lg become normal width, weight 400 and -0.02em tracking;
+           md and smaller keep the defaults. */
+        --fl-theme-heading-font-weight-condensed: var(
+            --token-font-weight-regular
+        );
+        --fl-theme-heading-font-stretch-condensed: normal;
+        --fl-theme-heading-tracking-condensed: -0.02em;
     }
 
     .fl-main.has-gradient-bottom::before {
         background: none;
     }
 
-    .fl-section-container > .fl-heading,
-    .fl-section-container > .fl-heading-group {
+    .fl-section-container > :is(.fl-heading, .fl-heading-group) {
         margin-inline: auto;
-        max-width: var(--token-width-desktop-content-lg);
     }
 
     .fl-section-container > .fl-heading-group .fl-subheading {
@@ -372,24 +362,8 @@
         }
     }
 
-    @media (--viewport-sm-up) {
-        :root {
-            /* note: 80% smaller for now. */
-            --fl-theme-font-size-heading-3xl: 7.2rem; /* 115.2px */
-            --fl-theme-font-size-heading-2xl: 5.75rem; /* 92px */
-            --fl-theme-font-size-heading-xl: 3.6rem; /* 57.6px */
-            --fl-theme-font-size-heading-lg: 2.9rem; /* 46.4px */
-            --fl-theme-font-size-heading-md: 2.1rem; /* 33.6px */
-        }
-    }
-
     @media (--viewport-md-up) {
         :root {
-            --fl-theme-font-size-heading-3xl: 9rem; /* 144px */
-            --fl-theme-font-size-heading-2xl: 7.1875rem; /* 115px */
-            --fl-theme-font-size-heading-xl: 4.5rem; /* 72px */
-            --fl-theme-font-size-heading-lg: 3.625rem; /* 58px */
-            --fl-theme-font-size-heading-md: 2.625rem; /* 42px */
             --enterprise-square-radius: 72px;
             --enterprise-video-radius: 50px;
         }

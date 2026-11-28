@@ -16,11 +16,11 @@
         margin-block: var(--token-layout-xs);
     }
 
-    .fl-download-intro .fl-heading-size-1 {
+    .fl-download-intro .fl-heading-display {
         margin-block-end: 0;
     }
 
-    .fl-download-intro .fl-heading-size-1 .fl-fx-logo {
+    .fl-download-intro .fl-heading-display .fl-fx-logo {
         block-size: 0.8em;
         display: inline-block;
         inline-size: 0.8em;
@@ -138,9 +138,6 @@
         border-block-end: 2px solid var(--token-color-light-purple);
         color: var(--token-color-white);
         display: flex;
-        font-family: var(--fl-theme-font-family-headline);
-        font-size: var(--fl-theme-font-size-heading-md);
-        font-weight: var(--token-font-weight-semibold);
         min-inline-size: var(--platform-dropdown-min-width, 8ch);
         padding: var(--token-spacing-sm) var(--token-spacing-md);
         text-decoration: none;

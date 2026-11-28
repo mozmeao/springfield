@@ -36,12 +36,7 @@
 .fl-article-main h4,
 .fl-article-main h5,
 .fl-article-main h6 {
-    margin-block-start: var(--token-layout-md);
-}
-
-/* override default font sizes for headings on article pages */
-.fl-rich-text h2 {
-    font-size: var(--fl-theme-font-size-heading-sm);
+    margin-block-start: var(--fl-section-v-padding);
 }
 
 .fl-article-main .fl-heading {
@@ -128,10 +123,6 @@ Stacked article list
     margin: 0;
 }
 
-.fl-article-item .fl-heading {
-    font-size: var(--fl-theme-font-size-heading-sm);
-}
-
 .fl-article-item-header img {
     inline-size: var(--token-layout-md);
     margin: 0;
@@ -190,10 +181,6 @@ Related articles
 
 .fl-related-articles-header > * {
     margin: 0;
-}
-
-.fl-related-articles-header .fl-heading {
-    font-size: var(--fl-theme-font-size-heading-xs);
 }
 
 .fl-related-articles .fl-card-grid {

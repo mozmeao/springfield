@@ -25,7 +25,7 @@
           level="h2"
           heading_text="{{ first_block.value.get_title() }}"
           superheading_text="{{ first_block.value.get_topic() }}"
-          heading_size="fl-heading-lg fl-heading-condensed"
+          heading_size="fl-heading-lg fl-scale-regular"
         />
         <p class="fl-body">{{ first_block.value.get_description() }}</p>
         <div>
@@ -49,6 +49,7 @@
               <content:heading>
                 <include:heading
                   level="h2"
+                  heading_size="fl-heading-sm fl-scale-regular"
                   heading_text="{{ block.value.get_title() }}"
                   superheading_text="{{ block.value.get_topic() }}"
                   link="{{ block.value.get_url() }}"

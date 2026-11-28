@@ -48,7 +48,7 @@
             <content:heading>
               <include:heading
                 level="h1"
-                heading_size="fl-heading-xl"
+                heading_size="fl-heading-display"
                 superheading_text="{{ ftl('firefox-desktop-download-firefox') }}"
                 heading_text="{{ ftl('firefox-desktop-download-get-the-browser') }}"
                 subheading_text="{{ ftl('firefox-desktop-download-fast-reliable-private') }}"
@@ -83,7 +83,6 @@
         <div class="fl-section-container fl-firefox-has-got-you">
           <include:heading
             level="h2"
-            heading_size="fl-heading-md"
             alignment_class="text-center"
             heading_text="{{ ftl('firefox-desktop-download-do-what-you-do-v2') }}"
           />
@@ -92,7 +91,7 @@
             <content:heading>
               <include:heading
                 level="h3"
-                heading_size="fl-heading-sm"
+                heading_size="fl-heading-md fl-scale-regular"
                 heading_text="{{ ftl('firefox-desktop-download-we-block-the-ad') }}"
                 subheading_text="{{ ftl('firefox-desktop-download-ads-are-distracting') }}"
               />
@@ -108,7 +107,7 @@
             <content:heading>
               <include:heading
                 level="h3"
-                heading_size="fl-heading-sm"
+                heading_size="fl-heading-md fl-scale-regular"
                 heading_text="{{ ftl('firefox-desktop-download-for-everyone') }}"
                 subheading_text="{{ ftl('firefox-desktop-download-available-in-over') }}"
               />
@@ -124,7 +123,7 @@
             <content:heading>
               <include:heading
                 level="h3"
-                heading_size="fl-heading-sm"
+                heading_size="fl-heading-md fl-scale-regular"
                 heading_text="{{ ftl('firefox-desktop-download-all-your-devices') }}"
                 subheading_text="{{ ftl('firefox-desktop-download-take-your-privacy') }}"
               />
@@ -143,7 +142,6 @@
         <div class="fl-section-container fl-do-it-all">
           <include:heading
             level="h2"
-            heading_size="fl-heading-md"
             alignment_class="text-center"
             heading_text="{{ ftl('firefox-desktop-download-do-it-all') }}"
           />
@@ -153,7 +151,7 @@
               <span class="fl-icon-wrap">
                 <include:icon icon_name="search" aria-hidden="true" />
               </span>
-              <h3>{{ ftl('firefox-desktop-download-search-smarter')}}</h3>
+              <h3 class="fl-heading-xs fl-scale-regular">{{ ftl('firefox-desktop-download-search-smarter')}}</h3>
               <ul>
                 <li>{{ ftl('firefox-desktop-download-search-from-address')}}</li>
                 <li>{{ ftl('firefox-desktop-download-search-engine-options')}}</li>
@@ -166,7 +164,7 @@
               <span class="fl-icon-wrap">
                 <include:icon icon_name="arrow-trending" aria-hidden="true" />
               </span>
-              <h3>{{ ftl('firefox-desktop-download-boost-your')}}</h3>
+              <h3 class="fl-heading-xs fl-scale-regular">{{ ftl('firefox-desktop-download-boost-your')}}</h3>
               <ul>
                 <li>{{ ftl('firefox-desktop-download-works-with-google')}}</li>
                 <li>{{ ftl('firefox-desktop-download-built-in-screenshot')}}</li>
@@ -183,7 +181,7 @@
               <span class="fl-icon-wrap">
                 <include:icon icon_name="canvas-true" aria-hidden="true" />
               </span>
-              <h3>{{ ftl('firefox-desktop-download-stream-share-play')}}</h3>
+              <h3 class="fl-heading-xs fl-scale-regular">{{ ftl('firefox-desktop-download-stream-share-play')}}</h3>
               <ul>
                 <li>{{ ftl('firefox-desktop-download-block-autoplay-of')}}</li>
                 <li>{{ ftl('firefox-desktop-download-picture-in-picture')}}</li>
@@ -196,7 +194,7 @@
               <span class="fl-icon-wrap">
                 <include:icon icon_name="private-mode-fill" aria-hidden="true" />
               </span>
-              <h3>{{ ftl('firefox-desktop-download-protect-your-privacy')}}</h3>
+              <h3 class="fl-heading-xs fl-scale-regular">{{ ftl('firefox-desktop-download-protect-your-privacy')}}</h3>
               <ul>
                 <li>{{ ftl('firefox-desktop-download-third-party-cookie')}}</li>
                 <li><a href="{{ url('firefox.features.fingerprinting') }}">{{ ftl('firefox-desktop-download-fingerprinter-blocking')}}</a></li>
@@ -209,7 +207,7 @@
               <span class="fl-icon-wrap">
                 <include:icon icon_name="lock" aria-hidden="true" />
               </span>
-              <h3>{{ ftl('firefox-desktop-download-secure-your-personal')}}</h3>
+              <h3 class="fl-heading-xs fl-scale-regular">{{ ftl('firefox-desktop-download-secure-your-personal')}}</h3>
               <ul>
                 <li>{{ ftl('firefox-desktop-download-breached-website-alerts')}}</li>
                 <li>{{ ftl('firefox-desktop-download-built-in-password')}}</li>
@@ -223,7 +221,7 @@
               <span class="fl-icon-wrap">
                 <include:icon icon_name="edit" extra_class="fl-icon fl-edit" aria-hidden="true" />
               </span>
-              <h3>{{ ftl('firefox-desktop-download-customize-your-browser')}}</h3>
+              <h3 class="fl-heading-xs fl-scale-regular">{{ ftl('firefox-desktop-download-customize-your-browser')}}</h3>
               <ul>
                 <li>{{ ftl('firefox-desktop-download-themes')}}</li>
                 <li>{{ ftl('firefox-desktop-download-dark-mode')}}</li>
@@ -253,7 +251,6 @@
 
           <include:heading
             level="h2"
-            heading_size="fl-heading-md"
             alignment_class="text-center"
             heading_text="{{ ftl('firefox-desktop-download-make-firefox-your') }}"
           />
@@ -299,7 +296,6 @@
             <content:heading>
               <include:heading
                 level="h2"
-                heading_size="fl-heading-md"
                 alignment_class="text-center"
                 heading_text="{{ ftl('firefox-desktop-download-backed-by-the') }}"
               />
@@ -341,7 +337,6 @@
         <div class="fl-section-container fl-favorite-browser">
           <include:heading
             level="h2"
-            heading_size="fl-heading-md"
             alignment_class="text-center"
             heading_text="{{ ftl('firefox-desktop-download-keep-all-your') }}"
           />
@@ -356,7 +351,7 @@
                 </div>
                 <include:heading
                   level="h3"
-                  heading_size="fl-heading-sm"
+                  heading_size="fl-heading-sm fl-scale-regular"
                   heading_text="{{ ftl('firefox-desktop-download-works-with-google') }}"
                 />
                 <p>{{ ftl('firefox-desktop-download-all-your-favourite') }}</p>
@@ -370,7 +365,7 @@
                 </div>
                 <include:heading
                   level="h3"
-                  heading_size="fl-heading-sm"
+                  heading_size="fl-heading-sm fl-scale-regular"
                   heading_text="{{ ftl('firefox-desktop-download-enhanced-tracking-protection') }}"
                 />
                 {% set block_attrs = 'href="https://addons.mozilla.org/firefox/extensions%s" target="_blank" rel="noopener" data-cta-text="blocks many third party trackers"'|safe|format(params) %}
@@ -385,7 +380,7 @@
                 </div>
                 <include:heading
                   level="h3"
-                  heading_size="fl-heading-sm"
+                  heading_size="fl-heading-sm fl-scale-regular"
                   heading_text="{{ ftl('firefox-desktop-download-sync-your-devices') }}"
                 />
                 {% set device_attrs = 'href="https://accounts.firefox.com/signin%s" target="_blank" rel="noopener" data-cta-text="Mozilla account"'|safe|format(params) %}
@@ -400,7 +395,7 @@
                 </div>
                 <include:heading
                   level="h3"
-                  heading_size="fl-heading-sm"
+                  heading_size="fl-heading-sm fl-scale-regular"
                   heading_text="{{ ftl('firefox-desktop-download-screenshots') }}"
                 />
                 {% set screenshots_attrs = 'href="https://support.mozilla.org/kb/firefox-screenshots%s" target="_blank" rel="noopener" data-cta-text="screenshot"'|safe|format(params) %}
@@ -415,7 +410,7 @@
                 </div>
                 <include:heading
                   level="h3"
-                  heading_size="fl-heading-sm"
+                  heading_size="fl-heading-sm fl-scale-regular"
                   heading_text="{{ ftl('firefox-desktop-download-facebook-container') }}"
                 />
                 {% set container_attrs = 'href="https://addons.mozilla.org/firefox/addon/facebook-container%s" target="_blank" rel="noopener" data-cta-text="Download this browser extension"'|safe|format(params) %}
@@ -430,7 +425,7 @@
                 </div>
                 <include:heading
                   level="h3"
-                  heading_size="fl-heading-sm"
+                  heading_size="fl-heading-sm fl-scale-regular"
                   heading_text="{{ ftl('firefox-desktop-download-picture-in-picture') }}"
                 />
                 <p>{{ ftl('firefox-desktop-download-from-watching-a') }}</p>
@@ -459,7 +454,6 @@
         <content:heading>
           <include:heading
             level="h2"
-            heading_size="fl-heading-md"
             heading_text="{{ ftl('firefox-desktop-download-get-help', attrs=support_attrs) }}"
           />
         </content:heading>

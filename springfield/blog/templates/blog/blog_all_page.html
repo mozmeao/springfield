@@ -6,8 +6,6 @@
 
 {% extends "cms/base-flare.html" %}
 
-{% block type_scale %}fl-scale-compact{% endblock %}
-
 {% block page_css %}{{ css_bundle('flare-blog') }}{% endblock %}
 
 {% block extra_meta %}
@@ -31,8 +29,8 @@
 
           <include:heading
             level="h1"
+            heading_size="fl-heading-display"
             heading_text="{{ ftl('blog-all-articles-heading') }}"
-            heading_size="fl-heading-xl"
             alignment_class="text-center"
           />
         </div>

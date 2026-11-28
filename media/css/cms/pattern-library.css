@@ -9,6 +9,8 @@
  * These styles only apply to the Pattern Library and should not affect production components
  */
 
+@import 'variables/flare-media-query-tokens.css';
+
 .pl-frame-white {
     background: #fff;
     color: #15141a;
@@ -82,4 +84,40 @@
     color: #666;
     font-size: 12px;
     margin: 0;
+}
+
+.pl-type-scale {
+    margin-block-end: 40px;
+}
+
+/* Demo labels keep a fixed style, so visual regression snapshots change only when a component does. */
+.pl-demo-heading {
+    font-size: var(--token-heading-font-size-minus-3);
+    font-stretch: normal;
+    letter-spacing: normal;
+    line-height: 1.2;
+}
+
+@media (--viewport-md-up) {
+    .pl-demo-heading {
+        font-size: var(--token-heading-font-size);
+    }
+}
+
+/*
+ * Previews the Enterprise heading face inside a Firefox-themed page. Enterprise
+ * pages get this from themes/enterprise.css overriding the shared heading
+ * variables on :root; the per-size weight, tracking and width variables are repeated here because they
+ * resolve against :root and wouldn't pick up a nested override.
+ */
+.pl-theme-enterprise {
+    --fl-theme-heading-font-weight-display: var(--token-font-weight-regular);
+    --fl-theme-heading-font-weight-xl: var(--token-font-weight-regular);
+    --fl-theme-heading-font-weight-lg: var(--token-font-weight-regular);
+    --fl-theme-heading-tracking-display: -0.02em;
+    --fl-theme-heading-tracking-xl: -0.02em;
+    --fl-theme-heading-tracking-lg: -0.02em;
+    --fl-theme-heading-font-stretch-display: normal;
+    --fl-theme-heading-font-stretch-xl: normal;
+    --fl-theme-heading-font-stretch-lg: normal;
 }

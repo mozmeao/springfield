@@ -219,9 +219,12 @@ main {
     margin: auto;
 }
 
+// The Flare h2 default is condensed, so the kit h2s set their width and tracking back.
 .kit-banner-subheading {
     font-size: 1.25rem;
+    font-stretch: normal;
     font-weight: var(--font-weight-semibold);
+    letter-spacing: normal;
     line-height: 1.1;
     margin-bottom: 45px;
     margin-top: 26px;
@@ -610,7 +613,10 @@ main {
 
 .c-gallery-card-heading {
     font-size: 1.8125rem; // 29px
+    font-stretch: normal;
     font-weight: var(--font-weight-semibold);
+    letter-spacing: normal;
+    line-height: 1.2;
 }
 
 .c-gallery-card-dark {
