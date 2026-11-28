@@ -29,12 +29,12 @@
 
     .fl-page-user-privacy .main-content {
         border-block-start: 2px solid var(--fl-menu-separator-color);
-        padding-block: calc(var(--token-layout-md) / 2);
+        padding-block: var(--fl-section-v-padding);
         padding-inline: 0;
     }
 
     .fl-page-user-privacy .main-content section {
-        margin-block-end: var(--token-layout-md);
+        margin-block-end: var(--fl-section-v-padding);
     }
 
     .fl-page-user-privacy .main-content section:last-of-type {
